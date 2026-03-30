@@ -90,6 +90,7 @@ pipeline {
 
   post {
     always {
+    node{
       // Estos plugins deben estar instalados en tu servidor Jenkins
       junit testResults: 'test-results/*.xml', allowEmptyResults: true
       publishHTML(target: [
