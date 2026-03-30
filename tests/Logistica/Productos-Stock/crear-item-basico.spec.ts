@@ -62,4 +62,5 @@ test("crear item basico estricto", async ({ page }) => {
     await page.getByText("Ver", { exact: true }).click();
     await page.locator(".v-modal > div").first().click();
     await page.getByRole("button", { name: "Atrás" }).click();
+    
 });
