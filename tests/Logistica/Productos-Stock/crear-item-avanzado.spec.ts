@@ -291,7 +291,6 @@ test.describe("Crear items avanzados", () => {
     await inputCantidad.fill("100");
     console.log("Agregando stock a los almacenes")
 
-
     await page.getByText("Equivalencias(Opcional)").click();
     await waitForOverlay(page);
     console.log("Modulo de creacion de equovalencias pasado")
@@ -390,10 +389,11 @@ test.describe("Crear items avanzados", () => {
   });
 
   test("Crear item estricto gravado con selector", async ({ page }) => {
+
     const fecha = new Date();
     const fechaHora = fecha.toLocaleString('es-PE').replace(/[\/:]/g, '-').replace(', ', '_');
 
-    const Itemselector = `Item automatizado gravado estricto variante ${fechaHora}`;
+    const Itemselector = `Item gravado estricto selector ${fechaHora}`;
 
     await page.goto('/');
     await waitForOverlay(page);
@@ -442,10 +442,36 @@ test.describe("Crear items avanzados", () => {
     await expect(inputCantidad).toHaveCount(1);
 
     await inputCantidad.fill("100");
-    console.log("Agregando stock a los almacenes")
 
 
+    await page.getByText("Selectores(Opcional)").click();
+    await waitForOverlay(page);
 
+    await page.getByText('Añadir selector').click();
+
+    await page.getByRole('button', { name: 'Nuevo selector' }).click();
+    await page.getByRole('textbox', { name: 'Digita el título del selector' }).click();
+    await page.getByRole('textbox', { name: 'Digita el título del selector' }).fill('items inventario');
+    await page.getByText('Crear selectores con ítems de').click();
+    await page.getByRole('textbox', { name: 'Buscar nombre del producto o' }).click();
+    await page.getByRole('textbox', { name: 'Buscar nombre del producto o' }).fill('variante');
+    await page.getByText('Item automatizado gravado').first().click();
+    await page.getByRole('textbox', { name: 'Buscar nombre del producto o' }).click();
+    await page.getByRole('textbox', { name: 'Buscar nombre del producto o' }).fill('equivalente');
+    await page.getByText('equivalente').first().click();
+    await page.locator('[id="lgt_reg-item_cmp-card-selectores:opcion_div:libre"]').click();
+    await page.locator('[id="lgt_reg-item_v-drape:gestion-selector_selector-opcion:item_v-input:nombre"]').nth(2).click();
+    await page.locator('[id="lgt_reg-item_v-drape:gestion-selector_selector-opcion:item_v-input:nombre"]').nth(2).fill('selector manual');
+    await page.locator('[id="lgt_reg-item_v-drape:gestion-selector_selector-opcion:item_v-input:precio"]').nth(2).click();
+    await page.locator('[id="lgt_reg-item_v-drape:gestion-selector_selector-opcion:item_v-input:precio"]').nth(2).fill('0100');
+    await page.getByRole('button', { name: 'Añadir opción' }).click();
+    await page.locator('[id="lgt_reg-item_v-drape:gestion-selector_selector-opcion:item_v-input:nombre"]').nth(3).click();
+    await page.locator('[id="lgt_reg-item_v-drape:gestion-selector_selector-opcion:item_v-input:nombre"]').nth(3).fill('nuevo selector manual');
+    await page.locator('[id="lgt_reg-item_v-drape:gestion-selector_selector-opcion:item_v-input:precio"]').nth(3).click();
+    await page.locator('[id="lgt_reg-item_v-drape:gestion-selector_selector-opcion:item_v-input:precio"]').nth(3).fill('050');
+    await page.getByRole('button', { name: 'Crear selector' }).click();
+    await page.locator('.obligatorio > div > .v-switch > .switch-content > .switch > .slider').click();
+    await page.getByRole('button', { name: 'Crear producto' }).click();
 
 
 
