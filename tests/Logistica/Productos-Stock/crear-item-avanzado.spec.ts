@@ -11,8 +11,10 @@ test.describe("Crear items avanzados", () => {
   }
   test("Crear item estricto gravado con variante", async ({ page }) => {
     test.setTimeout(120000) // Tiempo exacto para que se cree todo este item;
-    const timestamp = Date.now(); // Ej: 1711704500123
-    const nombreProducto = `Item automatizado gravado estricto ${timestamp}`;
+    const fecha = new Date();
+    const fechaHora = fecha.toLocaleString('es-PE').replace(/[\/:]/g, '-').replace(', ', '_');
+
+    const nombreProducto = `Item automatizado gravado estricto variante ${fechaHora}`;
 
     await page.goto('/');
     await waitForOverlay(page);
@@ -388,7 +390,66 @@ test.describe("Crear items avanzados", () => {
   });
 
   test("Crear item estricto gravado con selector", async ({ page }) => {
-    // ...
+    const fecha = new Date();
+    const fechaHora = fecha.toLocaleString('es-PE').replace(/[\/:]/g, '-').replace(', ', '_');
+
+    const Itemselector = `Item automatizado gravado estricto variante ${fechaHora}`;
+
+    await page.goto('/');
+    await waitForOverlay(page);
+    await expect(page.getByText("Productos y servicios")).toBeVisible();
+    await page.getByText("Productos y servicios").click();
+
+    await page.locator("div").filter({ hasText: /^Búsqueda de ítems$/ }).nth(2).click();
+    await page
+        .locator('[id="lgt_cmp-items_cmp-datos-items.cmp-option-button:crear"]')
+        .click();
+    await page.getByText("PNuevo producto").click();
+    await page
+        .locator("div")
+        .filter({ hasText: /^Opciones avanzadas \(opcional\)$/ })
+        .click();
+
+    await page
+        .getByRole("textbox", { name: "Ej. Gaseosa Kola R (500ml)" })
+        .click();
+    await page
+        .getByRole("textbox", { name: "Ej. Gaseosa Kola R (500ml)" })
+        .fill(Itemselector);
+    await page.getByRole("textbox", { name: "Monto final" }).click();
+    await page.getByRole("textbox", { name: "Monto final" }).fill("10");
+    await page
+        .locator(
+            '[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:tabs-1"]',
+        )
+        .nth(1)
+        .click();
+    await page
+        .locator(
+            '[id="lgt_reg-item_v-tab:stock-almacen_cmp-card-stock:control-estricto"]',
+        )
+        .click();
+    // cards de los almacenes:
+    const cardJhunior = page.locator(".cmp-card-almacen").filter({
+      has: page.getByText("JHUNIOR", { exact: true }),
+    });
+
+    const inputCantidad = cardJhunior.locator(
+        'input[id="lgt_cmp-card-almacen_v-step:cantidad"]',
+    );
+
+    await expect(cardJhunior).toHaveCount(1);
+    await expect(inputCantidad).toHaveCount(1);
+
+    await inputCantidad.fill("100");
+    console.log("Agregando stock a los almacenes")
+
+
+
+
+
+
+
   });
 
   test("Crear item flexible gravado con variante", async ({ page }) => {

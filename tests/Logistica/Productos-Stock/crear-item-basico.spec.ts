@@ -1,7 +1,13 @@
-import { test, expect } from "@playwright/test";
+import {test, expect, Page} from "@playwright/test";
 
 test("crear item basico estricto", async ({ page }) => {
 
+    async function waitForOverlay(page: Page, timeout = 30000) {
+        await page.locator('#cmn_cmp-overload\\:loading').waitFor({
+            state: 'hidden',
+            timeout
+        });
+    }
     const timestamp = Date.now(); // Ej: 1711704500123
     const nombreProducto = `Item automatizado gravado estricto ${timestamp}`;
 
@@ -40,7 +46,7 @@ test("crear item basico estricto", async ({ page }) => {
 
     await page.getByText("(Opcional)").nth(1).click();
     await page.locator("div").filter({ hasText: /^Ninguna$/ }).nth(2).click();
-    await page.getByText("VARIOS").click();
+    await waitForOverlay(page);
 
     await page.getByRole("button", { name: "Crear producto" }).click();
 
