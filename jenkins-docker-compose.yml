@@ -13,8 +13,6 @@ services:
       - jenkins_home:/var/jenkins_home
       # Este mapeo permite que Jenkins "hable" con el Docker de Windows (DooD - Docker out of Docker)
       - /var/run/docker.sock:/var/run/docker.sock
-      # (Opcional) permite acceder al ejecutable de docker en algunas distros
-      - /usr/bin/docker:/usr/bin/docker
     restart: always
 
 volumes:
