@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("crear item estricto", async ({ page }) => {
+test("crear item basico estricto", async ({ page }) => {
 
     const timestamp = Date.now(); // Ej: 1711704500123
     const nombreProducto = `Item automatizado gravado estricto ${timestamp}`;
