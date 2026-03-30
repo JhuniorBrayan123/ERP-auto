@@ -8,8 +8,10 @@ test("crear item basico estricto", async ({ page }) => {
             timeout
         });
     }
-    const timestamp = Date.now(); // Ej: 1711704500123
-    const nombreProducto = `Item automatizado gravado estricto ${timestamp}`;
+    const fecha = new Date();
+    const fechaHora = fecha.toLocaleString('es-PE').replace(/[\/:]/g, '-').replace(', ', '_');
+
+    const nombreProducto = `Item automatizado gravado estricto variante ${fechaHora}`;
 
     await page.goto('/');
 
