@@ -88,6 +88,16 @@ test.describe("Módulo de Productos e Inventario (POM Refactor)", () => {
   // Los últimos 2 tests estaban vacíos en el archivo original, pero la estructura ya permite agregarlos fácilmente.
   test.skip("Crear item flexible gravado con variante", async () => {
     // Pendiente de implementar usando los métodos de la POM
+    test.setTimeout(120000); // Tiempo maximo para que la prueba se complete con todos sus escenarios
+    const fechaHora = new Date().toLocaleString('es-PE').replace(/[\/:]/g, '-').replace(', ', '_');
+    const itemflexible = `Item automatizado gravado estricto selector ${fechaHora}`;
+
+    await inventarioPage.iniciarCreacionNuevoProducto(true);
+    console.log("Modal de creacion abierto")
+
+    await inventarioPage.iniciarCreacionNuevoProducto(true);
+    await inventarioPage.llenarDatosBasicos(itemflexible, "10");
+    await inventarioPage.configurarStockEstricto("100", "JHUNIOR");
   });
 
   test.skip("Crear item flexible gravado con equivalente", async () => {
