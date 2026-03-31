@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/ERP2-auto.iml" filepath="$PROJECT_DIR$/.idea/ERP2-auto.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/erpperu2-automation.iml" filepath="$PROJECT_DIR$/.idea/erpperu2-automation.iml" />
     </modules>
   </component>
 </project>

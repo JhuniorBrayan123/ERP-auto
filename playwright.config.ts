@@ -48,7 +48,7 @@ export default defineConfig({
       dependencies: ['setup'],
     },
 
-    // Actívalos después si realmente los vas a correr:
+    // Se activara cuando se use realmente por ahora solo Chrome
     // {
     //   name: 'firefox',
     //   use: {
