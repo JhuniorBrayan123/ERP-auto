@@ -2,7 +2,8 @@ import { Page, Locator, expect } from '@playwright/test';
 
 export class InventarioPage {
   readonly page: Page;
-  
+  //Suite case y use case igual que en la arquitectura de microfrontends;
+
   // Locators Generales
   readonly overlayCarga: Locator;
   readonly menuProductosServicios: Locator;

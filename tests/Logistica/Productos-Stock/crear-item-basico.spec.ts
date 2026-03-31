@@ -60,7 +60,7 @@ test("crear item basico estricto", async ({ page }) => {
     await page.locator(".flex-row-align-items-center-justify-content-center > .cmp-dropdown > .cmp-dropdown-toggle").first().click();
     await page.locator('[id="lgt_movimientos_cmp-grid-options:opciones_movimiento_cmp-dropdown:options-li:ver-item"]').click();
     await page.getByText("Ver", { exact: true }).click();
-    await page.locator(".v-modal > div").first().click();
+    //await page.locator(".v-modal > div").first().click();
     await page.getByRole("button", { name: "Atrás" }).click();
     
 });
