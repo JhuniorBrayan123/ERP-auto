@@ -1,0 +1,29 @@
+111111 = Item para  gravado estricto
+121212 = item flexible  gravado
+151515 = item sin control gravado
+
+
+313131= codigo item con variante flexible
+131313 = item variante estricto
+333333 = item variante sin control
+
+101010 = item equivalente estricto
+202020 = item equivalente flexible
+303030 = item ewquivalente sin control
+
+454545 = item selector estricto
+545454 = item selector flexible
+
+
+222222 = combo exonerado hijo
+
+444444 = insumo sin control
+464646 = insumo control estricto
+444666 = insumo con equivalencias control estricto
+666444 = insumo flexible
+
+
+
+
+
+

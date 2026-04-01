@@ -478,8 +478,71 @@ test.describe("Crear items avanzados", () => {
 
   });
 
-  test("Crear item flexible gravado con variante", async ({ page }) => {
-    // ...
+  test("Crear item basico gravado flexible", async ({ page }) => {
+    test.setTimeout(120000) // Tiempo exacto para que se cree todo este item;
+    const fecha = new Date();
+    const fechaHora = fecha.toLocaleString('es-PE').replace(/[\/:]/g, '-').replace(', ', '_');
+
+    const itemflexible = `Item basico gravado flexible ${fechaHora}`;
+
+    await page.goto("/");
+    console.log("Ingresando a home")
+    await waitForOverlay(page);
+    await expect(page.getByText("Productos y servicios")).toBeVisible();
+    await page.getByText("Productos y servicios").click();
+    console.log("Ingresando a productos y servicios")
+    await page
+        .locator("div")
+        .filter({ hasText: /^Búsqueda de ítems$/ })
+        .nth(2)
+        .click();
+    await page
+        .locator('[id="lgt_cmp-items_cmp-datos-items.cmp-option-button:crear"]')
+        .click();
+    await waitForOverlay(page);
+    console.log("Ingresando a crear producto")
+    await page.getByText("PNuevo producto").click();
+    await page.getByRole('textbox', { name: 'Ej. Gaseosa Kola R (500ml)' }).click();
+    await page.getByRole('textbox', { name: 'Ej. Gaseosa Kola R (500ml)' }).fill(itemflexible);
+    await page.locator('div').filter({ hasText: /^Opciones avanzadas \(opcional\)$/ }).click();
+    await page.getByRole('textbox', { name: 'Monto final' }).first().click();
+    await page.getByRole('textbox', { name: 'Monto final' }).first().fill('100');
+    await page.getByRole('textbox', { name: 'Monto final' }).nth(1).click();
+    await page.getByRole('textbox', { name: 'Monto final' }).nth(1).fill('100');
+    console.log("Se ingreso los precios")
+    await page.locator('[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:tabs-1"]').nth(1).click();
+    await page.locator('[id="lgt_reg-item_v-tab:stock-almacen_cmp-card-stock:control-flexible"]').click();
+    await page.locator('[id="lgt_cmp-card-almacen_v-step:cantidad"]').first().click();
+    await page.locator('[id="lgt_cmp-card-almacen_v-step:cantidad"]').first().fill('100');
+    await page.locator('[id="lgt_cmp-card-almacen_v-step:cantidad"]').nth(1).click();
+    await page.locator('[id="lgt_cmp-card-almacen_v-step:cantidad"]').nth(1).fill('100');
+    await page.getByText('Información adicional(').click();
+    await page.locator('div').filter({ hasText: /^REGRESION$/ }).nth(2).click();
+    await page.locator('div').filter({ hasText: /^REGRESION$/ }).nth(4).click();
+    await page.locator('div:nth-child(2) > .form-control > .v-select > .v-select-form > .v-select-base > .v-select-base-header > .v-select-header-base-form > .v-select-header-form > .v-select-header-form-arrow').click();
+    await page.getByText('AUTO-TEST').click();
+    await page.locator('div:nth-child(3) > .form-control > .v-select > .v-select-form > .v-select-base > .v-select-base-header > .v-select-header-base-form > .v-select-header-form > .v-select-header-form-arrow').click();
+    await page.getByText('AUTOMATIZADO').click();
+    await page.getByText('Campos adicionales(Opcional)').click();
+    await page.locator('[id="lgt_reg-item_v-tab:campos-adicionales_grilla-campos-adicionales:campo-adicional_v-input:texto"]').click();
+    await page.locator('[id="lgt_reg-item_v-tab:campos-adicionales_grilla-campos-adicionales:campo-adicional_v-input:texto"]').fill('item automatizado en regresion');
+    await page.locator('[id="lgt_reg-item_v-tab:campos-adicionales_grilla-campos-adicionales:campo-adicional_v-input:fecha"]').click();
+    await page.getByRole('button', { name: 'miércoles, 1 de abr de' }).click();
+    await page.locator('div').filter({ hasText: /^crt$/ }).nth(2).click();
+    await page.locator('div').filter({ hasText: /^crt$/ }).nth(4).click();
+    await page.locator('[id="lgt_reg-item_v-tab:campos-adicionales_grilla-campos-adicionales:campo-adicional_v-input:numerico"]').click();
+    await page.locator('[id="lgt_reg-item_v-tab:campos-adicionales_grilla-campos-adicionales:campo-adicional_v-input:numerico"]').fill('12344312');
+    await page.getByRole('button', { name: 'Crear producto' }).click();
+    await page.getByRole('button', { name: 'Ir a lista de ítems' }).click();
+    await page.locator('.flex-row-align-items-center-justify-content-center > .cmp-dropdown > .cmp-dropdown-toggle').first().click();
+    await page.locator('[id="lgt_items_cmp-grid-item-option:opciones_items_cmp-dropdown:options-li:visualizar-item"]').click();
+    await page.locator('.v-modal > div').first().click();
+    await page.locator('.flex-row-align-items-center-justify-content-center > .cmp-dropdown > .cmp-dropdown-toggle').first().click();
+    await page.locator('[id="lgt_movimientos_cmp-grid-options:opciones_movimiento_cmp-dropdown:options-li:ver-item"]').click();
+    await page.getByText('StockVentasComprasBitácora').click();
+    await page.getByText('Compras', { exact: true }).click();
+    await page.getByText('Bitácora').click();
+    await page.getByRole('button', { name: 'Atrás' }).click();
   });
 
   test("Crear item flexible gravado con equivalente", async ({ page }) => {

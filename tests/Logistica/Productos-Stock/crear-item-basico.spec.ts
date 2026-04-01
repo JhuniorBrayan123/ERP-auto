@@ -1,4 +1,4 @@
-import {test, expect, Page} from "@playwright/test";
+import { test, expect, Page } from "@playwright/test";
 
 test("crear item basico estricto", async ({ page }) => {
 
@@ -34,11 +34,11 @@ test("crear item basico estricto", async ({ page }) => {
 
     // cards de los almacenes:
     const cardJhunior = page.locator(".cmp-card-almacen").filter({
-      has: page.getByText("JHUNIOR", { exact: true }),
+        has: page.getByText("JHUNIOR", { exact: true }),
     });
 
     const inputCantidad = cardJhunior.locator(
-      'input[id="lgt_cmp-card-almacen_v-step:cantidad"]',
+        'input[id="lgt_cmp-card-almacen_v-step:cantidad"]',
     );
 
     await expect(cardJhunior).toHaveCount(1);
@@ -62,5 +62,5 @@ test("crear item basico estricto", async ({ page }) => {
     await page.getByText("Ver", { exact: true }).click();
     //await page.locator(".v-modal > div").first().click();
     await page.getByRole("button", { name: "Atrás" }).click();
-    
+
 });

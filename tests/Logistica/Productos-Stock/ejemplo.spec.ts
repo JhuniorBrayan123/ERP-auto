@@ -1,8 +1,9 @@
 import { test, expect } from "@playwright/test";
 import { InventarioPage } from "../pages/InventarioPage";
 
-test.describe("Módulo de Productos e Inventario (POM Refactor)", () => {
+test.describe("Módulo de Productos e Inventario (POM Refactor)", async () => {
   test.describe.configure({ mode: "parallel" });
+  test.setTimeout(120000); // 120s para todos los tests del Módulo por los múltiples flujos
   
   let inventarioPage: InventarioPage;
 
@@ -16,13 +17,9 @@ test.describe("Módulo de Productos e Inventario (POM Refactor)", () => {
     const nombreProducto = `Item automatizado gravado estricto basico ${fechaHora}`;
     
     await inventarioPage.iniciarCreacionNuevoProducto(true);
-    await inventarioPage.llenarDatosBasicos(nombreProducto, "100");
+    await inventarioPage.llenarDatosBasicos(nombreProducto, "100","30");
     await inventarioPage.configurarStockEstricto("50", "JHUNIOR");
     
-    // Paso especial del basico: click en Opcional y en Ninguna
-    // Como es específico, podemos hacerlo directamente o crear un método. 
-    // Para no ensuciar la Page Object con un caso borde, lo usamos directamente 
-    // pero idealmente se mapearía en la clase si es recurrente.
     await inventarioPage.page.getByText("(Opcional)").nth(1).click();
     await inventarioPage.page.locator("div").filter({ hasText: /^Ninguna$/ }).nth(2).click();
     await inventarioPage.esperarCarga();
@@ -32,8 +29,11 @@ test.describe("Módulo de Productos e Inventario (POM Refactor)", () => {
     
     // Validacion rápida
     await inventarioPage.botonIrAListaItems.click();
+    await inventarioPage.esperarCarga();
+    await inventarioPage.botonAccionesGridTop.waitFor({ state: 'visible' });
     await inventarioPage.botonAccionesGridTop.click();
     await inventarioPage.opcionVerItemLista.click();
+    await inventarioPage.esperarCarga(); // Esperar overlay del modal ver
     await inventarioPage.page.getByText("Ver", { exact: true }).click();
     await inventarioPage.page.locator(".v-modal > div").first().click();
     await inventarioPage.botonAtras.click();
@@ -47,7 +47,7 @@ test.describe("Módulo de Productos e Inventario (POM Refactor)", () => {
     const nombreProducto = `Item automatizado gravado estricto variante ${fechaHora}`;
 
     await inventarioPage.iniciarCreacionNuevoProducto(true);
-    await inventarioPage.llenarDatosBasicos(nombreProducto, "10");
+    await inventarioPage.llenarDatosBasicos(nombreProducto, "10","13");
     await inventarioPage.configurarStockEstricto("100", "JHUNIOR");
     
     await inventarioPage.agregarMultiplesVariantes();
@@ -62,7 +62,7 @@ test.describe("Módulo de Productos e Inventario (POM Refactor)", () => {
     const nombreItem = `Item automatizado gravado estricto variante ${fechaHora}`;
 
     await inventarioPage.iniciarCreacionNuevoProducto(true);
-    await inventarioPage.llenarDatosBasicos(nombreItem, "10");
+    await inventarioPage.llenarDatosBasicos(nombreItem, "10","30");
     await inventarioPage.configurarStockEstricto("100", "JHUNIOR");
 
     await inventarioPage.configurarEquivalenciasEstandar();
@@ -76,7 +76,7 @@ test.describe("Módulo de Productos e Inventario (POM Refactor)", () => {
     const nombreSelector = `Item automatizado gravado estricto selector ${fechaHora}`;
 
     await inventarioPage.iniciarCreacionNuevoProducto(true);
-    await inventarioPage.llenarDatosBasicos(nombreSelector, "10");
+    await inventarioPage.llenarDatosBasicos(nombreSelector, "10", "5.50");
     await inventarioPage.configurarStockEstricto("100", "JHUNIOR");
 
     await inventarioPage.configurarSelectorAvanzado("items inventario");
@@ -96,7 +96,7 @@ test.describe("Módulo de Productos e Inventario (POM Refactor)", () => {
     console.log("Modal de creacion abierto")
 
     await inventarioPage.iniciarCreacionNuevoProducto(true);
-    await inventarioPage.llenarDatosBasicos(itemflexible, "10");
+    await inventarioPage.llenarDatosBasicos(itemflexible, "10","23.23");
     await inventarioPage.configurarStockEstricto("100", "JHUNIOR");
   });
 
