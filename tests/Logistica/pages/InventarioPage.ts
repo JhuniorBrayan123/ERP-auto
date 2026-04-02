@@ -56,7 +56,7 @@ export class InventarioPage {
 
     // Locators Generales
     this.overlayCarga = page.locator('#cmn_cmp-overload\\:loading');
-    this.menuProductosServicios = page.getByText("Productos y servicios");
+    this.menuProductosServicios = page.getByText("Productos y servicios").first();
     this.opcionBusquedaItems = page.locator("div").filter({ hasText: /^Búsqueda de ítems$/ }).nth(2);
 
     // Botones de inicio de flujo
@@ -101,11 +101,11 @@ export class InventarioPage {
     this.botonAtras = page.getByRole("button", { name: "Atrás" });
 
     // Opciones de tipo de ítem
-    this.opcionNuevoServicio = page.getByText('SNuevo servicio');
-    this.opcionNuevoInsumo = page.getByText('INuevo insumo');
-    this.opcionNuevoCombo = page.getByText('CNuevo combo');
-    this.opcionNuevaReceta = page.getByText('RNueva receta');
-    this.opcionNuevaLista = page.getByText('LNueva lista');
+    this.opcionNuevoServicio = page.getByText('SNuevo servicio', { exact: true });
+    this.opcionNuevoInsumo = page.getByText('INuevo insumo', { exact: true });
+    this.opcionNuevoCombo = page.getByText('CNuevo combo', { exact: true });
+    this.opcionNuevaReceta = page.getByText('RNueva receta', { exact: true });
+    this.opcionNuevaLista = page.getByText('LNueva lista', { exact: true });
     this.inputDescripcionItem = page.getByRole('textbox', { name: 'Descripción del ítem' });
   }
 
@@ -130,7 +130,7 @@ export class InventarioPage {
     await this.page.goto('/');
     await this.esperarCarga();
 
-    await expect(this.menuProductosServicios).toBeVisible();
+    await expect(this.menuProductosServicios).toBeVisible({ timeout: 20000 });
     await this.menuProductosServicios.click();
     await this.opcionBusquedaItems.click();
     
@@ -407,6 +407,7 @@ export class InventarioPage {
     await this.botonCrear.click();
     await opciones[tipo].click();
     await this.esperarCarga();
+    console.log("Inicio de creacion pasado")
   }
 
   /**
@@ -414,6 +415,7 @@ export class InventarioPage {
    */
   async abrirOpcionesAvanzadas() {
     await this.opcionOpcionesAvanzadas.click();
+    console.log("AbrirOpcionesAvanzadas");
   }
 
   /**
@@ -423,6 +425,7 @@ export class InventarioPage {
     await this.esperarCarga();
     await this.botonIrAListaItems.click({ timeout: 60000 });
     await this.esperarCarga();
+    console.log("Navegando a lista de items pasada")
   }
 
   /**
@@ -437,5 +440,6 @@ export class InventarioPage {
     await this.esperarCarga();
     await this.botonAtras.click();
     await this.esperarCarga();
+    console.log("Completado")
   }
 }

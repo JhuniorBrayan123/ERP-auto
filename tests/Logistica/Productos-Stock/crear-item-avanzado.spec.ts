@@ -36,8 +36,11 @@ test.describe("Crear items avanzados", () => {
     await page
       .getByRole("textbox", { name: "Ej. Gaseosa Kola R (500ml)" })
       .fill(nombreProducto);
-    await page.getByRole("textbox", { name: "Monto final" }).click();
+    await page.getByRole("textbox", { name: "Monto final" }).nth(0).click();
     await page.getByRole("textbox", { name: "Monto final" }).fill("10");
+    await page.getByRole("textbox", { name: "Monto final" }).nth(1).click();
+    await page.getByRole("textbox", { name: "Monto final" }).fill("12");
+    console.log("Ingresando ambos montos")
     await page
       .locator(
         '[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:tabs-1"]',
@@ -263,8 +266,11 @@ test.describe("Crear items avanzados", () => {
     await page
         .getByRole("textbox", { name: "Ej. Gaseosa Kola R (500ml)" })
         .fill(nombreItem);
-    await page.getByRole("textbox", { name: "Monto final" }).click();
+    await page.getByRole("textbox", { name: "Monto final" }).nth(0).click();
     await page.getByRole("textbox", { name: "Monto final" }).fill("10");
+    await page.getByRole("textbox", { name: "Monto final" }).nth(1).click();
+    await page.getByRole("textbox", { name: "Monto final" }).fill("11")
+    console.log("Ingresando ambos montos")
     await page
         .locator(
             '[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:tabs-1"]',

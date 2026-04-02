@@ -14,7 +14,6 @@
 454545 = item selector estricto
 545454 = item selector flexible
 
-
 222222 = combo exonerado hijo
 
 444444 = insumo sin control
