@@ -1,5 +1,6 @@
 
 # Playwright
+# Playwright
 node_modules/
 /test-results/
 /playwright-report/
@@ -8,3 +9,4 @@ node_modules/
 /playwright/.auth/
 .env
 .env.qa
+.env.prd
