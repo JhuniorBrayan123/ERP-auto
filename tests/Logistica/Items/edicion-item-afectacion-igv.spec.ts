@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/edicion-clonado-fixture';
+import { getRandomAffectationType } from '../helpers/afectacion-igv.helper';
 
 test.describe('Edición de tipo de afectación de item', () => {
 
@@ -8,7 +9,7 @@ test.describe('Edición de tipo de afectación de item', () => {
    * Flujo:
    * 1. Buscar item por código → abrir edición
    * 2. Abrir dropdown de afectación → scroll dentro del dropdown si necesario
-   * 3. Seleccionar nueva afectación
+   * 3. Seleccionar nueva afectación (aleatoria de los 17 tipos del sistema)
    * 4. Confirmar actualización
    * 5. Verificar en Ver Ítem (Ventas, Compras, Bitácora) que el cambio persistió
    */
@@ -19,7 +20,7 @@ test.describe('Edición de tipo de afectación de item', () => {
     itemDetail,
   }) => {
     const codigoItem = '888999';
-    const nuevaAfectacion = 'Gravado - Retiro por premio (Paga IGV 18%)';
+    const nuevaAfectacion = getRandomAffectationType();
 
     await test.step('Buscar item por código y abrir edición', async () => {
       await listaItems.searchAndEdit(codigoItem);
