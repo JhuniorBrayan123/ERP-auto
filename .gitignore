@@ -10,5 +10,4 @@ node_modules/
 .idea/
 .github/
 .env
-.env.qa
-.env.prd
+
