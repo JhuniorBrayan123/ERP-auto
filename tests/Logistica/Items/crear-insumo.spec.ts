@@ -2,9 +2,7 @@ import { test, expect } from '../fixtures/items-fixture';
 import { buildUniqueItemName } from '../helpers/unique-name.helper';
 
 test.describe('Creación de Insumos', () => {
-  // ────────────────────────────────────────────────────────
-  // 1. Insumo sin control de stock
-  // ────────────────────────────────────────────────────────
+
   test('crear insumo sin control de stock', async ({ insumoForm, itemDetail }) => {
     const nombre = buildUniqueItemName('insumo', 'sin control');
 
@@ -32,9 +30,7 @@ test.describe('Creación de Insumos', () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────
-  // 2. Insumo con stock estricto
-  // ────────────────────────────────────────────────────────
+
   test('crear insumo con stock estricto', async ({ insumoForm, itemDetail }) => {
     const nombre = buildUniqueItemName('insumo', 'estricto kilos');
 

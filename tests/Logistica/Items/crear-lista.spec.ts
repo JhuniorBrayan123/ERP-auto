@@ -3,9 +3,7 @@ import { buildUniqueItemName } from '../helpers/unique-name.helper';
 import type { ProductoListaItem } from '../helpers/item-data.types';
 
 test.describe('Creación de Listas', () => {
-  // ────────────────────────────────────────────────────────
-  // 1. Lista con items estrictos
-  // ────────────────────────────────────────────────────────
+
   test('crear lista con items estrictos', async ({ listaForm, itemDetail }) => {
     const nombre = buildUniqueItemName('lista', 'items estrictos');
 
@@ -47,9 +45,6 @@ test.describe('Creación de Listas', () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────
-  // 2. Lista con items sin control de stock
-  // ────────────────────────────────────────────────────────
   test('crear lista con items sin control', async ({ listaForm, itemDetail }) => {
     const nombre = buildUniqueItemName('lista', 'items sin control');
 
@@ -87,9 +82,7 @@ test.describe('Creación de Listas', () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────
-  // 3. Lista con items flexibles
-  // ────────────────────────────────────────────────────────
+
   test('crear lista con items flexibles', async ({ listaForm, itemDetail }) => {
     const nombre = buildUniqueItemName('lista', 'items flexibles');
 

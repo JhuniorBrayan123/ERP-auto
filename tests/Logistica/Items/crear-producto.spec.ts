@@ -2,9 +2,7 @@ import { test, expect } from '../fixtures/items-fixture';
 import { buildUniqueItemName } from '../helpers/unique-name.helper';
 
 test.describe('Creación de Productos', () => {
-  // ────────────────────────────────────────────────────────
-  // 1. Producto gravado con control estricto
-  // ────────────────────────────────────────────────────────
+
   test('crear producto gravado con control estricto', async ({
     productoForm,
     itemDetail,
@@ -56,9 +54,7 @@ test.describe('Creación de Productos', () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────
-  // 2. Producto gravado sin control de stock
-  // ────────────────────────────────────────────────────────
+
   test('crear producto gravado sin control de stock', async ({
     productoForm,
     itemDetail,
@@ -93,9 +89,7 @@ test.describe('Creación de Productos', () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────
-  // 3. Producto gravado con control flexible
-  // ────────────────────────────────────────────────────────
+
   test('crear producto gravado con control flexible', async ({
     productoForm,
     itemDetail,
@@ -140,9 +134,7 @@ test.describe('Creación de Productos', () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────
-  // 4. Producto exonerado con control estricto
-  // ────────────────────────────────────────────────────────
+
   test('crear producto exonerado con control estricto', async ({
     productoForm,
     itemDetail,
@@ -187,9 +179,7 @@ test.describe('Creación de Productos', () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────
-  // 5. Producto con ICBPER
-  // ────────────────────────────────────────────────────────
+
   test('crear producto con ICBPER', async ({ productoForm, itemDetail }) => {
     const nombre = buildUniqueItemName('producto', 'con ICBPER');
 
@@ -225,9 +215,7 @@ test.describe('Creación de Productos', () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────
-  // 6. Producto con ISC sistema al valor
-  // ────────────────────────────────────────────────────────
+
   test('crear producto con ISC sistema al valor', async ({
     productoForm,
     itemDetail,
@@ -273,9 +261,7 @@ test.describe('Creación de Productos', () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────
-  // 7. Producto con ISC aplicación al monto fijo
-  // ────────────────────────────────────────────────────────
+
   test('crear producto con ISC monto fijo', async ({
     productoForm,
     itemDetail,

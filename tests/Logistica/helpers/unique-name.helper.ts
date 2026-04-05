@@ -12,16 +12,6 @@
 
 export type TipoItem = 'producto' | 'servicio' | 'insumo' | 'combo' | 'receta' | 'lista';
 
-/**
- * Genera un nombre único y trazable para un item de prueba.
- *
- * @example
- * buildUniqueItemName('producto', 'gravado estricto')
- * // → "Producto gravado estricto 03-04-2026_22-15-10"
- *
- * buildUniqueItemName('insumo', 'sin control')
- * // → "Insumo sin control 03-04-2026_22-15-10"
- */
 export function buildUniqueItemName(tipoItem: TipoItem, descripcionBase: string): string {
   const fecha = new Date();
   const fechaHora = fecha

@@ -3,9 +3,7 @@ import { buildUniqueItemName } from '../helpers/unique-name.helper';
 import type { InsumoReceta } from '../helpers/item-data.types';
 
 test.describe('Creación de Recetas', () => {
-  // ────────────────────────────────────────────────────────
-  // 1. Receta con insumos estrictos
-  // ────────────────────────────────────────────────────────
+
   test('crear receta con insumos estrictos', async ({
     recetaForm,
     itemDetail,
@@ -50,9 +48,7 @@ test.describe('Creación de Recetas', () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────
-  // 2. Receta con insumos sin control de stock
-  // ────────────────────────────────────────────────────────
+
   test('crear receta con insumos sin control', async ({
     recetaForm,
     itemDetail,
@@ -115,9 +111,7 @@ test.describe('Creación de Recetas', () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────
-  // 3. Receta con productos estrictos
-  // ────────────────────────────────────────────────────────
+
   test('crear receta con productos estrictos', async ({
     recetaForm,
     itemDetail,

@@ -3,9 +3,7 @@ import { buildUniqueItemName } from '../helpers/unique-name.helper';
 import type { ComponenteCombo } from '../helpers/item-data.types';
 
 test.describe('Creación de Combos', () => {
-  // ────────────────────────────────────────────────────────
-  // 1. Combo con items estrictos gravados
-  // ────────────────────────────────────────────────────────
+
   test('crear combo con items estrictos gravados', async ({
     comboForm,
     itemDetail,
@@ -51,9 +49,7 @@ test.describe('Creación de Combos', () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────
-  // 2. Combo con items flexibles gravados
-  // ────────────────────────────────────────────────────────
+
   test('crear combo con items flexibles gravados', async ({
     comboForm,
     itemDetail,
@@ -100,9 +96,6 @@ test.describe('Creación de Combos', () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────
-  // 3. Combo con items sin control de stock
-  // ────────────────────────────────────────────────────────
   test('crear combo con items sin control de stock', async ({
     comboForm,
     itemDetail,

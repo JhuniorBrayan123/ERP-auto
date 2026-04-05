@@ -21,6 +21,30 @@
 444666 = insumo con equivalencias control estricto
 666444 = insumo flexible
 
+999999 = item para editado nombre manual
+889988 = item para editado precio manual
+888999 = item para editado tipo de afectacion manual
+888888 = item para clonar
+
+tipos de afectacion:
+Gravado (Paga IGV 18%)
+Gravado - Retiro por premio (Paga IGV 18%)
+Gravado - Retiro por donacion (Paga IGV 18%)
+Gravado - Retiro (Paga IGV 18%)
+Gravado - Retiro por publicidad (Paga IGV 18%)
+Gravado - Bonificaciones (Paga IGV 18%)
+Gravado - Retiro por entrega a trabajadores (Paga IGV 18%)
+Exonerado (No paga IGV)
+Exonerado - Transferencia Gratuita
+Inafecto (No paga IGV)
+Inafecto - Retiro por Bonificación
+Inafecto - Retiro
+Inafecto - Retiro por Muestras Médicas
+Inafecto - Retiro por Convenio Colectivo
+Inafecto - Retiro por Premio
+Inafecto - Retiro por Publicidad
+Exportación
+
 
 
 

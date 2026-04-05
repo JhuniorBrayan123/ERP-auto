@@ -2,9 +2,7 @@ import { test, expect } from '../fixtures/items-fixture';
 import { buildUniqueItemName } from '../helpers/unique-name.helper';
 
 test.describe('Creación de Servicios', () => {
-  // ────────────────────────────────────────────────────────
-  // 1. Servicio gravado
-  // ────────────────────────────────────────────────────────
+
   test('crear servicio gravado', async ({ servicioForm, itemDetail }) => {
     const nombre = buildUniqueItemName('servicio', 'gravado');
 
@@ -34,9 +32,7 @@ test.describe('Creación de Servicios', () => {
     });
   });
 
-  // ────────────────────────────────────────────────────────
-  // 2. Servicio exonerado
-  // ────────────────────────────────────────────────────────
+
   test('crear servicio exonerado', async ({ servicioForm, itemDetail }) => {
     const nombre = buildUniqueItemName('servicio', 'exonerado');
 
