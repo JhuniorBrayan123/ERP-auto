@@ -3,6 +3,9 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 
 const testEnv = process.env.TEST_ENV || 'qa';
+// Silenciar los mensajes ruidosos y publicidad de dotenv (los "[dotenv...] tip:")
+process.env.DOTENV_QUIET = 'true';
+process.env.DOTENV_SUPPRESS_WARNINGS = 'true';
 dotenv.config({ path: path.resolve(__dirname, `.env.${testEnv}`) });
 
 function required(name: string): string {

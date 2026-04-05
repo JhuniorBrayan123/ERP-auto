@@ -135,4 +135,36 @@ export class ListaItemsPage {
     await this.openFirstMovementActions();
     await this.clickVerItemFromMovements();
   }
+
+  // ─── Exportar ítems ─────────────────────────────────────────
+
+  /**
+   * Exporta la lista de ítems a Excel/CSV.
+   *
+   * Flujo:
+   * 1. Abre el menú de opciones (icono ⋮ superior)
+   * 2. Registra la promesa de descarga ANTES de clickear "Exportar"
+   *    (requisito de Playwright para capturar el evento download)
+   * 3. Clickea la opción "Exportar"
+   * 4. Retorna el objeto Download para que el spec pueda validar
+   *    nombre de archivo, guardarlo en disco, etc.
+   *
+   * @returns El objeto Download de Playwright con el archivo exportado
+   */
+  async exportarItems(): Promise<import('@playwright/test').Download> {
+    // Abrir menú de opciones (el mismo icono que se usa para carga masiva)
+    await this.page
+      .locator('[id="lgt_cmp-items_cmp-datos-items.cmp-option-button:options"]')
+      .click();
+
+    // Registrar la promesa ANTES del click (Playwright la necesita pendiente)
+    const downloadPromise = this.page.waitForEvent('download');
+
+    // Clickear "Exportar"
+    await this.page
+      .locator('[id="lgt_cmp-items_cmp-datos-items.li:export"]')
+      .click();
+
+    return downloadPromise;
+  }
 }
