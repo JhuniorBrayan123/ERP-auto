@@ -34,7 +34,10 @@ export function buildTimestampSuffix(): string {
   return new Date()
     .toLocaleString('es-PE', { timeZone: 'America/Lima' })
     .replace(/[\/:]/g, '-')
-    .replace(', ', '_');
+    .replace(', ', '_')
+    .replace(/\u00A0/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /**

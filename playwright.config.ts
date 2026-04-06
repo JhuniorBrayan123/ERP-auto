@@ -21,7 +21,11 @@ const baseURL = required('BASE_URL');
 export default defineConfig({
   testDir: './tests',
 
-  /* ─── Ejecución secuencial para estabilidad ─── */
+  /**
+   * Estabilidad (ERP, datos compartidos, wizards):
+   * - fullyParallel: false + workers: 1 evitan choques entre escenarios masivos.
+   * Los specs de actualización masiva viven en tests/Logistica/ActualizacionMasiva/.
+   */
   fullyParallel: false,
   workers: 1,
 
@@ -33,8 +37,8 @@ export default defineConfig({
   timeout: 60_000,           // 60s por test
   expect: { timeout: 10_000 }, // 10s para assertions
 
-  /* ─── Ignorar archivos con prefijo _ (codegen de referencia) ─── */
-  testIgnore: ['**/_*'],
+  /* ─── Ignorar codegen / borradores (no son suites de regresión) ─── */
+  testIgnore: ['**/_*', '**/_codegen/**'],
 
   /* ─── Reporters ─── */
   reporter: [

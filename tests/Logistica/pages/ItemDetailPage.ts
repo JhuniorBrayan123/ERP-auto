@@ -82,9 +82,9 @@ export class ItemDetailPage {
       .click();
   }
 
-  /** Navega al tab de Bitácora usando texto (alternativa más estable en ciertos contextos) */
+  /** Navega al tab de Bitácora (evita `getByText('Bitácora')`: choca con "Descargar PDF (Bitácora)"). */
   async irATabBitacoraPorTexto(): Promise<void> {
-    await this.page.getByText('Bitácora').click();
+    await this.irATabBitacora();
   }
 
   /** Clickea "Ver listado" (específico de listas) */

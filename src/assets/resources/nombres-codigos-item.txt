@@ -27,6 +27,9 @@
 888999 = item para editado tipo de afectacion manual
 888888 = item para clonar
 
+//para la edicion de items masivos primero se tiene que importar el excel de cada uno (OJO solo para la edicion masiva)
+
+
 tipos de afectacion:
 Gravado (Paga IGV 18%)
 Gravado - Retiro por premio (Paga IGV 18%)

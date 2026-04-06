@@ -1,4 +1,8 @@
 import { type Page, type Locator } from '@playwright/test';
+import {
+  mapColumnByFileHeader as applyColumnMapping,
+  waitForColumnAssignmentStep,
+} from '../helpers/column-mapping.helper';
 
 /**
  * Page Object para el wizard de carga masiva de ítems desde Excel.
@@ -129,194 +133,18 @@ export class CargaMasivaPage {
 
   // ─── Paso 5: Asignación de columnas ────────────────────────
 
-  // ── Helpers de texto ──
-
   /**
-   * Elimina acentos/diacríticos y convierte a mayúsculas.
-   * "PRECIO ESTÁNDAR" → "PRECIO ESTANDAR"
-   */
-  private stripAccents(text: string): string {
-    return text
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toUpperCase()
-      .trim();
-  }
-
-  /**
-   * Construye un RegExp que tolera diferencias de acentos.
-   * "PRECIO ESTÁNDAR" → /PRECIO EST[AÁÀ]ND[AÁÀ]R/i
-   */
-  private buildAccentTolerantRegex(text: string): RegExp {
-    const escaped = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const tolerant = escaped
-      .replace(/[aáà]/gi, '[aáà]')
-      .replace(/[eéè]/gi, '[eéè]')
-      .replace(/[iíì]/gi, '[iíì]')
-      .replace(/[oóò]/gi, '[oóò]')
-      .replace(/[uúù]/gi, '[uúù]')
-      .replace(/[nñ]/gi, '[nñ]');
-    return new RegExp(tolerant, 'i');
-  }
-
-  // ── Sincronización ──
-
-  /**
-   * Espera a que la pantalla "Asignación de columnas" esté completamente
-   * renderizada y lista para interactuar.
-   *
-   * ¿Por qué NO usamos `getByRole('heading')`?
-   * El ERP renderiza los títulos con componentes Vue personalizados
-   * (ej: `<span class="v-text v-h3 bold">Asignación de columnas</span>`)
-   * que se VEN como headings pero NO son elementos `<h1>`-`<h6>` reales.
-   * `getByRole('heading')` solo matchea elementos con rol implícito de
-   * heading (h1-h6) o rol explícito `role="heading"`. Como esta app usa
-   * spans estilizados, ese selector SIEMPRE hará timeout.
-   *
-   * Solución: Esperamos a que los dropdown arrows de la tabla de mapeo
-   * (`.v-select-header-small-arrow` dentro de `th`) sean visibles.
-   * Estos elementos son ÚNICOS de este paso del wizard y confirman que
-   * la tabla está renderizada y es interactiva.
+   * Espera la tabla de mapeo con dropdowns en `th` (no hay heading semántico real).
    */
   async waitForColumnAssignmentStep(): Promise<void> {
-    await this.page
-      .locator('th .v-select-header-small-arrow')
-      .first()
-      .waitFor({ state: 'visible', timeout: 15_000 });
+    await waitForColumnAssignmentStep(this.page);
   }
 
-  // ── Mapeo de columnas ──
-
   /**
-   * Mapea una columna del archivo Excel a un campo del sistema en la
-   * tabla de asignación de columnas.
-   *
-   * Estrategia:
-   * 1. Usa `page.evaluate` para recorrer el DOM de la tabla buscando
-   *    el texto del encabezado Excel con comparación sin acentos
-   * 2. Si el th ya empieza con el campo objetivo (normalizado) → no hace nada
-   * 3. Si empieza como “Esta columna no…” → abre el dropdown y selecciona
-   * 4. Valida por prefijo (el DOM sigue conteniendo el texto de otras opciones)
-   *
-   * @param fileHeader  - Encabezado del archivo Excel (ej: "PRECIO ESTÁNDAR")
-   * @param targetField - Campo del sistema a seleccionar (ej: "PRECIO ESTANDAR")
-   *
-   * @example
-   * await this.mapColumnByFileHeader('PRECIO ESTÁNDAR', 'PRECIO ESTANDAR');
-   * await this.mapColumnByFileHeader('TIPO DE AFECTACIÓN IGV', 'Tipo de afectación IGV');
+   * Delega en {@link mapColumnByFileHeader} del helper compartido.
    */
-  async mapColumnByFileHeader(
-    fileHeader: string,
-    targetField: string,
-  ): Promise<void> {
-    // Acotar TODO a la tabla de mapeo (la que tiene dropdowns en los th)
-    // Esto evita strict mode violations cuando hay múltiples tablas en la página
-    const mappingTable = this.page.locator('table').filter({
-      has: this.page.locator('th .v-select-header-small-arrow'),
-    });
-
-    // 1. Encontrar el índice de columna (1-based para :nth-child)
-    const targetNormalized = this.stripAccents(fileHeader);
-
-    // Solo la fila de mapeo (dropdowns en th). Si recorremos todas las filas,
-    // la fila de vista previa tiene celdas con texto corto ("Precio estándar")
-    // que igualan al target y el índice coincide por casualidad, pero luego
-    // `th:nth-child(n)` matchea dos filas → strict mode violation.
-    const colIndex = await mappingTable.evaluate((tableEl, target) => {
-      const normalize = (s: string) =>
-        s
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .toUpperCase()
-          .trim();
-
-      const mappingRow = Array.from(tableEl.querySelectorAll('tr')).find(
-        (tr) => tr.querySelector('th .v-select-header-small-arrow'),
-      );
-      if (!mappingRow) return -1;
-
-      const tryCells = (row: HTMLTableRowElement) => {
-        const rowCells = row.querySelectorAll('td, th');
-        for (let c = 0; c < rowCells.length; c++) {
-          const n = normalize(rowCells[c].textContent ?? '');
-          if (n === target || n.startsWith(`${target} `)) {
-            return c + 1;
-          }
-        }
-        return -1;
-      };
-
-      // 1) Fila de mapeo: "PRECIO ESTÁNDAR Esta columna…" o ya mapeado igual al Excel
-      const fromMapping = tryCells(mappingRow as HTMLTableRowElement);
-      if (fromMapping > 0) return fromMapping;
-
-      // 2) Fallback: fila de vista previa con encabezado corto ("Precio estándar").
-      // En combos/insumos/recetas/servicios la fila de mapeo puede seguir en
-      // "Esta columna no es importante" y solo la segunda fila refleja el Excel.
-      const rows = tableEl.querySelectorAll('tr');
-      for (const row of rows) {
-        if (row === mappingRow) continue;
-        const rowCells = row.querySelectorAll('td, th');
-        for (let c = 0; c < rowCells.length; c++) {
-          if (normalize(rowCells[c].textContent ?? '') === target) {
-            return c + 1;
-          }
-        }
-      }
-      return -1;
-    }, targetNormalized);
-
-    if (colIndex <= 0) {
-      // No se encontró la columna — no se requiere mapeo (ej: Listas)
-      return;
-    }
-
-    // 2. Verificar si ya está auto-mapeada (solo la fila de dropdowns, no la de preview)
-    const mappingHeaderRow = mappingTable.locator('tr').filter({
-      has: this.page.locator('th .v-select-header-small-arrow'),
-    }).first();
-    const thLocator = mappingHeaderRow.locator(`th:nth-child(${colIndex})`);
-    const currentText = await thLocator.textContent({ timeout: 3_000 });
-    const curNorm = this.stripAccents(currentText ?? '');
-    const targetNorm = this.stripAccents(targetField);
-
-    // Ya muestra el campo objetivo al inicio (el th incluye mucho texto de opciones;
-    // no usar includes('Esta columna no') porque sigue apareciendo en el blob aunque esté bien mapeado).
-    if (curNorm.startsWith(targetNorm) || curNorm.startsWith(targetNormalized)) {
-      return;
-    }
-
-    // Solo intentar mapear si el valor visible empieza como “columna no importante”
-    if (!curNorm.startsWith('ESTA COLUMNA NO')) {
-      return;
-    }
-
-    // 3. Abrir el dropdown de esa columna
-    await thLocator
-      .locator('.v-select-header-small-arrow')
-      .click({ timeout: 5_000 });
-
-    // 4. Seleccionar la opción del sistema (tolerante a acentos)
-    const optionRegex = this.buildAccentTolerantRegex(targetField);
-
-    // Solo el panel del dropdown abierto: si no, hay muchas opciones "Precio estándar"
-    // en listas ocultas del mismo paso y Playwright entra en strict mode.
-    await this.page
-      .locator('.v-select-base-options.is-open')
-      .locator('.v-text.v-p.regular.ellipsis.text-align-left')
-      .filter({ hasText: optionRegex })
-      .first()
-      .click({ timeout: 5_000 });
-
-    // 5. Validar por prefijo: el valor elegido va primero; el resto puede incluir "Esta columna no…"
-    const updatedText = await thLocator.textContent({ timeout: 3_000 });
-    const updNorm = this.stripAccents(updatedText ?? '');
-    if (!updNorm.startsWith(targetNorm) && !updNorm.startsWith(targetNormalized)) {
-      throw new Error(
-        `Mapeo de columna falló: "${fileHeader}" → "${targetField}". ` +
-          `El encabezado muestra: "${(updatedText ?? '').trim()}"`,
-      );
-    }
+  async mapColumnByFileHeader(fileHeader: string, targetField: string): Promise<void> {
+    await applyColumnMapping(this.page, fileHeader, targetField);
   }
 
   // ── Orquestación ──
