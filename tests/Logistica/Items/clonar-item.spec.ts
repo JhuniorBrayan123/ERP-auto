@@ -1,5 +1,5 @@
-import { test, expect } from '../fixtures/edicion-clonado-fixture';
-import { buildUniqueClonedItemName } from '../helpers/nombre-clonado.helper';
+import { test, expect } from '../../../src/fixtures/Logistica/edicion-clonado-fixture';
+import { buildUniqueClonedItemName } from '../../../src/helpers/Logistica/nombre-clonado.helper';
 
 test.describe('Clonado de item', () => {
 

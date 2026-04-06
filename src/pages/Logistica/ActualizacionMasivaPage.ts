@@ -2,8 +2,8 @@ import { type Page, type Locator } from '@playwright/test';
 import {
   mapColumnByFileHeader as applyColumnMapping,
   waitForColumnAssignmentStep,
-} from '../helpers/column-mapping.helper';
-import type { ColumnMappingRule } from '../helpers/actualizacion-masiva-config.helper';
+} from '../../helpers/Logistica/column-mapping.helper';
+import type { ColumnMappingRule } from '../../helpers/Logistica/actualizacion-masiva-config.helper';
 
 /**
  * Wizard de actualización masiva (datos o stock). Separado de {@link CargaMasivaPage} (creación).

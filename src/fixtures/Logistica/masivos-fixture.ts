@@ -1,6 +1,6 @@
 import { test as base } from '@playwright/test';
-import { NavigationPage } from '../pages/NavigationPage';
-import { CargaMasivaPage } from '../pages/CargaMasivaPage';
+import { NavigationPage } from '../../pages/Logistica/NavigationPage';
+import { CargaMasivaPage } from '../../pages/Logistica/CargaMasivaPage';
 
 /**
  * Tipos de fixtures para tests de carga masiva.

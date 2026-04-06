@@ -1,6 +1,6 @@
-import { test, expect } from '../fixtures/items-fixture';
-import { buildUniqueItemName } from '../helpers/unique-name.helper';
-import type { ProductoListaItem } from '../helpers/item-data.types';
+import { test, expect } from '../../../src/fixtures/Logistica/items-fixture';
+import { buildUniqueItemName } from '../../../src/helpers/Logistica/unique-name.helper';
+import type { ProductoListaItem } from '../../../src/helpers/Logistica/item-data.types';
 
 test.describe('Creación de Listas', () => {
 

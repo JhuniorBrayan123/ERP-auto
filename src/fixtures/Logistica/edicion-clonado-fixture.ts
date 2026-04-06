@@ -1,8 +1,8 @@
 import { test as base } from '@playwright/test';
-import { NavigationPage } from '../pages/NavigationPage';
-import { ListaItemsPage } from '../pages/ListaItemsPage';
-import { EdicionItemPage } from '../pages/EdicionItemPage';
-import { ItemDetailPage } from '../pages/ItemDetailPage';
+import { NavigationPage } from '../../pages/Logistica/NavigationPage';
+import { ListaItemsPage } from '../../pages/Logistica/ListaItemsPage';
+import { EdicionItemPage } from '../../pages/Logistica/EdicionItemPage';
+import { ItemDetailPage } from '../../pages/Logistica/ItemDetailPage';
 
 /**
  * Tipos de las fixtures disponibles para tests de edición y clonado.

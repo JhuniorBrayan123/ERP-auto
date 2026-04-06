@@ -1,5 +1,5 @@
-import { test, expect } from '../fixtures/items-fixture';
-import { buildUniqueItemName } from '../helpers/unique-name.helper';
+import { test, expect } from '../../../src/fixtures/Logistica/items-fixture';
+import { buildUniqueItemName } from '../../../src/helpers/Logistica/unique-name.helper';
 
 test.describe('Creación de Insumos', () => {
 

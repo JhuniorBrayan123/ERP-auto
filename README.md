@@ -72,4 +72,4 @@ npx playwright test --trace on
 ## 💡 4. Comandos Frecuentes
 
 *   `npx playwright show-report`: Abre el reporte analítico (HTML) de la última ejecución.
-*   `npx playwright codegen <URL>`: Abre una sesión de grabación donde Playwright te auto-generará el código mientras tú haces clics en la página.
+

@@ -1,12 +1,12 @@
 import { test as base } from '@playwright/test';
-import { NavigationPage } from '../pages/NavigationPage';
-import { ProductoFormPage } from '../pages/ProductoFormPage';
-import { ServicioFormPage } from '../pages/ServicioFormPage';
-import { InsumoFormPage } from '../pages/InsumoFormPage';
-import { ComboFormPage } from '../pages/ComboFormPage';
-import { RecetaFormPage } from '../pages/RecetaFormPage';
-import { ListaFormPage } from '../pages/ListaFormPage';
-import { ItemDetailPage } from '../pages/ItemDetailPage';
+import { NavigationPage } from '../../pages/Logistica/NavigationPage';
+import { ProductoFormPage } from '../../pages/Logistica/ProductoFormPage';
+import { ServicioFormPage } from '../../pages/Logistica/ServicioFormPage';
+import { InsumoFormPage } from '../../pages/Logistica/InsumoFormPage';
+import { ComboFormPage } from '../../pages/Logistica/ComboFormPage';
+import { RecetaFormPage } from '../../pages/Logistica/RecetaFormPage';
+import { ListaFormPage } from '../../pages/Logistica/ListaFormPage';
+import { ItemDetailPage } from '../../pages/Logistica/ItemDetailPage';
 
 /**
  * Tipos de todas las fixtures disponibles para tests de items.

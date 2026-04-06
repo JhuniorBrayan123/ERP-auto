@@ -1,8 +1,8 @@
-import { test, expect } from '../fixtures/actualizacion-masiva-fixture';
+import { test, expect } from '../../../src/fixtures/Logistica/actualizacion-masiva-fixture';
 import {
   buildStockMasivoExcel,
   cleanupTempFile,
-} from '../helpers/actualizacion-masiva-excel.helper';
+} from '../../../src/helpers/Logistica/actualizacion-masiva-excel.helper';
 
 /**
  * Índice de almacén en el wizard de stock (0 = primer checkbox del codegen).

@@ -1,5 +1,5 @@
-import { test, expect } from '../fixtures/edicion-clonado-fixture';
-import { generateRandomPrice } from '../helpers/random-price.helper';
+import { test, expect } from '../../../src/fixtures/Logistica/edicion-clonado-fixture';
+import { generateRandomPrice } from '../../../src/helpers/Logistica/random-price.helper';
 
 test.describe('Edición de precio de item', () => {
 

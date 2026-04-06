@@ -1,6 +1,6 @@
-import { test, expect } from '../fixtures/masivos-fixture';
-import { MASIVO_CONFIG } from '../helpers/masivo-config.helper';
-import { buildMassiveExcel, cleanupTempFile } from '../helpers/masivo-excel.helper';
+import { test, expect } from '../../../src/fixtures/Logistica/masivos-fixture';
+import { MASIVO_CONFIG } from '../../../src/helpers/Logistica/masivo-config.helper';
+import { buildMassiveExcel, cleanupTempFile } from '../../../src/helpers/Logistica/masivo-excel.helper';
 
 const CONFIG = MASIVO_CONFIG.productos;
 

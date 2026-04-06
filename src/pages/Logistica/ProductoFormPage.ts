@@ -1,6 +1,6 @@
 import { type Page } from '@playwright/test';
 import { ItemFormBasePage } from './ItemFormBasePage';
-import type { StockConfig, ISCConfig } from '../helpers/item-data.types';
+import type { StockConfig, ISCConfig } from '../../helpers/Logistica/item-data.types';
 
 /**
  * Page Object para el formulario de creación de PRODUCTOS.

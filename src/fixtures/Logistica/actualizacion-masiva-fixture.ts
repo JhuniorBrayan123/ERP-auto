@@ -1,8 +1,8 @@
 import { test as base } from '@playwright/test';
-import { NavigationPage } from '../pages/NavigationPage';
-import { ActualizacionMasivaPage } from '../pages/ActualizacionMasivaPage';
-import { ListaItemsPage } from '../pages/ListaItemsPage';
-import { ItemDetailPage } from '../pages/ItemDetailPage';
+import { NavigationPage } from '../../pages/Logistica/NavigationPage';
+import { ActualizacionMasivaPage } from '../../pages/Logistica/ActualizacionMasivaPage';
+import { ListaItemsPage } from '../../pages/Logistica/ListaItemsPage';
+import { ItemDetailPage } from '../../pages/Logistica/ItemDetailPage';
 
 type ActualizacionMasivaFixtures = {
   navigationPage: NavigationPage;

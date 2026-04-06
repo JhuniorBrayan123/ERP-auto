@@ -1,5 +1,5 @@
-import { test, expect } from '../fixtures/edicion-clonado-fixture';
-import { getRandomAffectationType } from '../helpers/afectacion-igv.helper';
+import { test, expect } from '../../../src/fixtures/Logistica/edicion-clonado-fixture';
+import { getRandomAffectationType } from '../../../src/helpers/Logistica/afectacion-igv.helper';
 
 test.describe('Edición de tipo de afectación de item', () => {
 

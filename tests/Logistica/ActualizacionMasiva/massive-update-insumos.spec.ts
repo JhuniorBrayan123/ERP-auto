@@ -1,9 +1,9 @@
-import { test, expect } from '../fixtures/actualizacion-masiva-fixture';
-import { ACTUALIZACION_DATOS_CONFIG } from '../helpers/actualizacion-masiva-config.helper';
+import { test, expect } from '../../../src/fixtures/Logistica/actualizacion-masiva-fixture';
+import { ACTUALIZACION_DATOS_CONFIG } from '../../../src/helpers/Logistica/actualizacion-masiva-config.helper';
 import {
   buildActualizacionDatosExcel,
   cleanupTempFile,
-} from '../helpers/actualizacion-masiva-excel.helper';
+} from '../../../src/helpers/Logistica/actualizacion-masiva-excel.helper';
 
 const CONFIG = ACTUALIZACION_DATOS_CONFIG.insumos;
 

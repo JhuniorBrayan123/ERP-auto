@@ -1,6 +1,6 @@
 import { type Page, type Locator } from '@playwright/test';
 import { ItemFormBasePage } from './ItemFormBasePage';
-import type { ProductoListaItem } from '../helpers/item-data.types';
+import type { ProductoListaItem } from '../../helpers/Logistica/item-data.types';
 
 /**
  * Page Object para el formulario de creación de LISTAS.

@@ -2,7 +2,7 @@ import { type Page, type Locator } from '@playwright/test';
 import {
   mapColumnByFileHeader as applyColumnMapping,
   waitForColumnAssignmentStep,
-} from '../helpers/column-mapping.helper';
+} from '../../helpers/Logistica/column-mapping.helper';
 
 /**
  * Page Object para el wizard de carga masiva de ítems desde Excel.

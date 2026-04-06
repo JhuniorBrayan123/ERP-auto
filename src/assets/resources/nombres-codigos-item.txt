@@ -11,7 +11,7 @@
 202020 = item equivalente flexible
 303030 = item ewquivalente sin control
 
-454545 = tem selector gravado estricto con item manual
+454545 = item selector gravado estricto con item manual
 545454 = item selector flexible
 
 222222 = combo exonerado hijo

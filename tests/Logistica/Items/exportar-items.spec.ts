@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/edicion-clonado-fixture';
+import { test, expect } from '../../../src/fixtures/Logistica/edicion-clonado-fixture';
 
 test.describe('Exportar lista de ítems', () => {
 

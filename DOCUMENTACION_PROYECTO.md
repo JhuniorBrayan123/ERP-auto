@@ -94,17 +94,3 @@ El núcleo de pruebas está situado dentro del directorio `tests/`:
 **En conclusión,** la suite de automatización ERP Perú 2 no es un mero "guion de clics", es una solución estandarizada de testing orientada a la protección y aserción de transacciones de negocio. Implementa los pilares de la escalabilidad frontend: Single Responsibility (POM), Configuración Inmutable por Entornos (Environment Params), e Identidad Global Caching. Esto posicionará en firme la integración continua tan pronto se levante el switch del pipeline.
 
 ***
-
-### ⏱️ Versión Corta (Pitch de 3 Minutos)
-
-**"Hola a todos.** Hoy quiero presentarles nuestro framework de pruebas automatizadas E2E, construido en **TypeScript y Playwright** para ERP Perú 2.
-
-**¿Qué resolvimos?**
-Diseñamos una arquitectura basada en Page Object Model (POM) para que nuestros test sean resistentes a los continuos cambios de interfaz. 
-A nivel de negocio, logramos cubrir las transacciones críticas: Autenticación, Movimientos logísticos, Insumos, y flujos peligrosos como las recargas masivas de Items.
-
-**¿Cómo funciona por debajo?**
-Para no sobrecargar los tests ni comernos el cuello de botella del login, Playwright se autentica **una única vez** al inicio y guarda una credencial maestra. Luego, para asegurar de que un proceso masivo *no rompa la validación en base de datos* de otro proceso adyacente, hemos seteado `workers: 1`, controlando que la inserción de data sea estrictamente serial y ordenada.
-
-**¿Qué sigue?**
-Nuestros pilares están maduros. Nuestro siguiente gran objetivo es prender con confianza nuestra tubería de GitLab CI que actualmente está pausada, e implementar ejecución basada en "Tags", permitiéndonos decirle a Playwright: *'Córreme únicamente los 5 escenarios más críticos'* con un simple flag. Esto robustece nuestra cultura de calidad entregando fe ciega de que ninguna actualización en Logística romperá el sistema."
