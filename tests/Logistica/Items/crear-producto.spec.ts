@@ -16,6 +16,8 @@ test.describe('Creación de Productos', () => {
     await test.step('Llenar datos básicos', async () => {
       await productoForm.llenarNombre(nombre);
       await productoForm.llenarPrecios('10', '10');
+
+      //throw new Error('Error intencional para validar el manejo de fallos en crear-producto.spec.ts');
     });
 
     await test.step('Configurar stock estricto', async () => {
