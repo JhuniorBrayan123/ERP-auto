@@ -36,7 +36,6 @@ Playwright actúa como el "titiritero" del navegador, con reglas fuertemente aco
 
 *   **Sin Paralelismo para la Estabilidad (Serialización):** Configurado con `fullyParallel: false` y `workers: 1` (`playwright.config.ts:29-30`). En sistemas ERP, la lectura de stocks/costos chocan si multihilos editan los mismos productos al mismo tiempo.
 *   **Timeouts Flexibles:** Esperas adaptadas para procesos complejos. Tiempos de acción de 15s y navegación total de 30s (`playwright.config.ts:55`).
-*   **Manejo de Borradores:** Existen pruebas generadas automáticamente (`CodeGen`), pero el proyecto restringe su ejecución oficial ignorando `tests/_codegen/` (`testIgnore: ['**/_*']`) porque no utilizan POM y son más frágiles.
 *   **Integración CI:** `retries` están programados para correr 2 veces solo si detectan variable de entorno de integraciones continuas, o 0 si corren localmente.
 
 ---
@@ -63,7 +62,6 @@ El núcleo de pruebas está situado dentro del directorio `tests/`:
 > [!WARNING] 
 > Oportunidades de mejora en radar:
 *   ⏳ **Lentitud Intencional:** Al estar serializadas (`workers: 1`), a medida que los tests de logística crezcan, la corrida total podría tomar demasiado tiempo obligándonos a considerar paralelismo particionado por usuarios o bodegas distintas.
-*   🧹 **Código Legado:** Aún tenemos rastro de pruebas generadas automáticamente (codegen en `_codegen`, monolitos puros).
 *   🏷️ **Falta de Segmentación (Tags):** No disponemos del mecanismo `--grep` integrado, por lo cual, correr un set "Smoke Test" rápido todavía requiere especificar archivos a mano.
 
 ---
