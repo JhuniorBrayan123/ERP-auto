@@ -6,32 +6,76 @@ import { type Page, type Locator } from '@playwright/test';
  *
  * Responsabilidades:
  * - Abrir menús de opciones en la lista
- * - Navegar a Ver Ítem / Visualizar Ítem
+ * - Navegar a Ver item
  * - Navegar entre tabs (Ventas, Compras, Bitácora, Ver listado)
  * - Leer datos del detalle para assertions
  */
 export class ItemDetailPage {
   constructor(private readonly page: Page) {}
 
+  private readonly overloadLoading = this.page.locator('[id="cmn_cmp-overload:loading"]');
+
+  private readonly tabVentas = this.page.locator(
+    '[id="lgt_ver-item_cmp-dashboard-item:tabs:cmp-tabs-options-item:opcion_div:ventas"]',
+  );
+
+  private readonly tabCompras = this.page.locator(
+    '[id="lgt_ver-item_cmp-dashboard-item:tabs:cmp-tabs-options-item:opcion_div:compras"]',
+  );
+
+  private readonly tabBitacora = this.page.locator(
+    '[id="lgt_ver-item_cmp-dashboard-item:tabs:cmp-tabs-options-item:opcion_div:bitacora"]',
+  );
+
+  private readonly toggleAccionesItem = this.page
+    .locator(
+      '.flex-row-align-items-center-justify-content-center > .cmp-dropdown > .cmp-dropdown-toggle',
+    )
+    .first();
+
   // ─── Menú de opciones en la lista de items ───────────────
 
   /** Abre el menú desplegable de opciones del primer item de la lista */
   async abrirMenuAccionesItem(): Promise<void> {
-    await this.page
-      .locator(
-        '.flex-row-align-items-center-justify-content-center > .cmp-dropdown > .cmp-dropdown-toggle',
-      )
-      .first()
-      .click();
+    await this.toggleAccionesItem.click();
   }
 
-  /** Clickea "Visualizar item" desde el menú de opciones → abre modal de stock */
+  private async esperarListadoCargado(): Promise<void> {
+    await this.overloadLoading.waitFor({ state: 'hidden', timeout: 20_000 }).catch(() => {});
+    await this.toggleAccionesItem.waitFor({ state: 'visible', timeout: 15_000 });
+  }
+
+  private async clickOpcionVerItemPorTexto(): Promise<boolean> {
+    const option = this.page.getByText(/^Ver [ií]tem$/i).first();
+    try {
+      await option.waitFor({ state: 'visible', timeout: 2000 });
+      await option.click();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /** Clickea "Ver item" desde el menú de opciones → abre modal de stock */
   async clickVisualizarItem(): Promise<void> {
-    await this.page
-      .locator(
-        '[id="lgt_items_cmp-grid-item-option:opciones_items_cmp-dropdown:options-li:visualizar-item"]',
-      )
-      .click();
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (await this.clickOpcionVerItemPorTexto()) return;
+
+      // Si la opción no está visible, volvemos a abrir acciones del item.
+      await this.abrirMenuAccionesItem();
+    }
+
+    throw new Error('No se encontró la opción "Ver item" en la grilla de ítems.');
+  }
+
+  /** Clickea "Ver item" desde el menú de la grilla de ítems */
+  async clickVerItemDesdeItems(): Promise<void> {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (await this.clickOpcionVerItemPorTexto()) return;
+      await this.abrirMenuAccionesItem();
+    }
+
+    throw new Error('No se encontró la opción "Ver item" en el menú de ítems.');
   }
 
   /** Cierra el modal de visualización de stock */
@@ -46,40 +90,34 @@ export class ItemDetailPage {
 
   /** Clickea "Ver item" desde el menú de opciones de movimiento */
   async clickVerItem(): Promise<void> {
-    await this.page
-      .locator(
-        '[id="lgt_movimientos_cmp-grid-options:opciones_movimiento_cmp-dropdown:options-li:ver-item"]',
-      )
-      .click();
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (await this.clickOpcionVerItemPorTexto()) return;
+
+      // Si no se ve la opción, reabrimos menú de movimientos.
+      await this.clickIconoAcciones();
+    }
+
+    throw new Error('No se encontró la opción "Ver item" en el menú de movimientos.');
   }
 
   // ─── Tabs dentro de Ver Ítem ─────────────────────────────
 
   /** Navega al tab de Ventas */
   async irATabVentas(): Promise<void> {
-    await this.page
-      .locator(
-        '[id="lgt_ver-item_cmp-dashboard-item:tabs:cmp-tabs-options-item:opcion_div:ventas"]',
-      )
-      .click();
+    await this.tabVentas.click();
   }
 
   /** Navega al tab de Compras */
   async irATabCompras(): Promise<void> {
-    await this.page
-      .locator(
-        '[id="lgt_ver-item_cmp-dashboard-item:tabs:cmp-tabs-options-item:opcion_div:compras"]',
-      )
-      .click();
+    await this.tabCompras.click();
   }
 
   /** Navega al tab de Bitácora */
   async irATabBitacora(): Promise<void> {
-    await this.page
-      .locator(
-        '[id="lgt_ver-item_cmp-dashboard-item:tabs:cmp-tabs-options-item:opcion_div:bitacora"]',
-      )
-      .click();
+    // A veces el ERP muestra un overlay de carga que intercepta clicks.
+    // Esperamos a que desaparezca para evitar timeouts por "intercepts pointer events".
+    await this.overloadLoading.waitFor({ state: 'hidden', timeout: 20_000 }).catch(() => {});
+    await this.tabBitacora.click();
   }
 
   /** Navega al tab de Bitácora (evita `getByText('Bitácora')`: choca con "Descargar PDF (Bitácora)"). */
@@ -97,6 +135,33 @@ export class ItemDetailPage {
     await this.page.getByRole('button', { name: 'Atrás' }).click();
   }
 
+  /** Navega a Compras o Ventas según la pestaña que esté disponible en el detalle. */
+  async irATabComprasOVentasDisponible(): Promise<'compras' | 'ventas'> {
+    if (await this.tabCompras.isVisible()) {
+      await this.irATabCompras();
+      return 'compras';
+    }
+
+    if (await this.tabVentas.isVisible()) {
+      await this.irATabVentas();
+      return 'ventas';
+    }
+
+    throw new Error('No se encontró la pestaña de Compras ni la de Ventas en el detalle del item.');
+  }
+
+  private async verificarTabs(opciones: {
+    verificarVentas?: boolean;
+    verificarCompras?: boolean;
+    verificarComprasOVentas?: boolean;
+    verificarBitacora?: boolean;
+  }): Promise<void> {
+    if (opciones.verificarVentas) await this.irATabVentas();
+    if (opciones.verificarCompras) await this.irATabCompras();
+    if (opciones.verificarComprasOVentas) await this.irATabComprasOVentasDisponible();
+    if (opciones.verificarBitacora) await this.irATabBitacora();
+  }
+
   // ─── Flujos compuestos de verificación ───────────────────
 
   /**
@@ -106,13 +171,13 @@ export class ItemDetailPage {
   async verificarItemDesdeMenu(opciones: {
     verificarVentas?: boolean;
     verificarCompras?: boolean;
+    verificarComprasOVentas?: boolean;
     verificarBitacora?: boolean;
   }): Promise<void> {
+    await this.esperarListadoCargado();
     await this.abrirMenuAccionesItem();
-    await this.clickVerItem();
-    if (opciones.verificarVentas) await this.irATabVentas();
-    if (opciones.verificarCompras) await this.irATabCompras();
-    if (opciones.verificarBitacora) await this.irATabBitacora();
+    await this.clickVerItemDesdeItems();
+    await this.verificarTabs(opciones);
     await this.clickAtras();
   }
 
@@ -123,17 +188,10 @@ export class ItemDetailPage {
   async verificarItemCompleto(opciones: {
     verificarVentas?: boolean;
     verificarCompras?: boolean;
+    verificarComprasOVentas?: boolean;
     verificarBitacora?: boolean;
   }): Promise<void> {
-    await this.abrirMenuAccionesItem();
-    await this.clickVisualizarItem();
-    await this.cerrarModalVisualizacion();
-    await this.clickIconoAcciones();
-    await this.clickVerItem();
-    if (opciones.verificarVentas) await this.irATabVentas();
-    if (opciones.verificarCompras) await this.irATabCompras();
-    if (opciones.verificarBitacora) await this.irATabBitacora();
-    await this.clickAtras();
+    await this.verificarItemDesdeMenu(opciones);
   }
 
   // ─── Lectura de datos para assertions ────────────────────

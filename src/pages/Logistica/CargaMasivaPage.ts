@@ -68,6 +68,10 @@ export class CargaMasivaPage {
     return this.page.getByRole('button', { name: 'Ir al inicio' });
   }
 
+  private get modalErrorProcesarArchivoTitulo(): Locator {
+    return this.page.getByText('ERROR AL PROCESAR ARCHIVO');
+  }
+
   // ─── Paso 1: Abrir carga masiva ────────────────────────────
 
   /**
@@ -164,15 +168,31 @@ export class CargaMasivaPage {
   async asignarColumnas(): Promise<void> {
     await this.waitForColumnAssignmentStep();
 
+    // PRODUCTOS: el Excel trae DESCRIPCION (primera columna) pero el ERP valida "Nombre" como obligatorio.
+    // Si el wizard deja por defecto "Descripción", forzamos el mapeo a "Nombre".
+    //await this.mapColumnByFileHeader('DESCRIPCION', 'NOMBRE');
+
     // Mapear PRECIO ESTÁNDAR si no se auto-mapeó por diferencia de acentos
     await this.mapColumnByFileHeader('PRECIO ESTÁNDAR', 'PRECIO ESTANDAR');
   }
 
   // ─── Paso 6: Selección de almacenes ────────────────────────
 
-  /** Clickea "Seleccionar todos" para los almacenes */
+  /**
+   * Clickea "Seleccionar todos" para los almacenes.
+   *
+   * Patrón resiliente (igual que Precio Estándar):
+   * - Espera a que el checkbox sea visible antes de clickear
+   * - Si el paso de almacenes no aparece (no todos los tipos lo muestran),
+   *   retorna silenciosamente en lugar de lanzar timeout
+   */
   async seleccionarTodosAlmacenes(): Promise<void> {
-    await this.checkboxTodosAlmacenes.click();
+    try {
+      await this.checkboxTodosAlmacenes.waitFor({ state: 'visible', timeout: 10_000 });
+      await this.checkboxTodosAlmacenes.click();
+    } catch {
+      // El paso de almacenes no apareció — no es requerido para este tipo de item
+    }
   }
 
   // ─── Paso 7: Procesar ──────────────────────────────────────
@@ -180,6 +200,97 @@ export class CargaMasivaPage {
   /** Clickea "Procesar" para iniciar la carga masiva */
   async clickProcesar(): Promise<void> {
     await this.botonProcesar.click();
+  }
+
+  private async leerMensajeModalErrorProcesamiento(timeout = 3_000): Promise<string | null> {
+    const titulo = this.modalErrorProcesarArchivoTitulo.first();
+    try {
+      await titulo.waitFor({ state: 'visible', timeout });
+    } catch {
+      return null;
+    }
+
+    // El contenido del modal no siempre matchea bien con un locator por regex.
+    // Leemos el contenedor padre del título para obtener el texto completo.
+    const modalContainer = titulo.locator('xpath=ancestor::*[self::div or self::section][1]');
+    const modalText = ((await modalContainer.textContent().catch(() => null)) ?? '').trim();
+
+    if (modalText) {
+      const normalized = modalText.replace(/\s+/g, ' ').trim();
+      if (normalized.length > 0) {
+        return normalized;
+      }
+    }
+
+    // Fallback defensivo: buscar directamente en todo el body el patrón de validación.
+    const bodyText = ((await this.page.locator('body').textContent().catch(() => null)) ?? '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const bodyMatch = bodyText.match(/El campo\s+([A-Za-zÁÉÍÓÚáéíóúÑñ]+)\s+es obligatorio/i);
+    if (bodyMatch) {
+      return bodyMatch[0];
+    }
+
+    return 'ERROR AL PROCESAR ARCHIVO';
+  }
+
+  private async cerrarModalErrorProcesamiento(): Promise<void> {
+    const closeCandidates: Locator[] = [
+      this.page.locator('.cmp-carga-errores-validacion .button-close').first(),
+      this.page.locator('.cmp-carga-errores-validacion .button-close .icon').first(),
+      this.page.locator('.cmp-carga-errores-validacion .icon-close').first(),
+      this.page.locator('.popup-container .button-close').first(),
+      this.page.locator('.popup-container .button-close .icon').first(),
+      this.page.locator('.cmp-modal .button-close').first(),
+      this.page.locator('.cmp-modal .icon-close').first(),
+      this.page.getByRole('button', { name: /cerrar|close|x/i }).first(),
+    ];
+
+    for (const locator of closeCandidates) {
+      try {
+        if (await locator.isVisible({ timeout: 500 })) {
+          await locator.click();
+          await this.modalErrorProcesarArchivoTitulo.first().waitFor({ state: 'hidden', timeout: 2_000 });
+          return;
+        }
+      } catch {
+        // Intentar siguiente candidato
+      }
+    }
+
+    // Algunos modales se cierran clickeando fuera del contenido (overlay area).
+    await this.areaOverscreen.click().catch(() => { });
+    await this.modalErrorProcesarArchivoTitulo.first().waitFor({ state: 'hidden', timeout: 1_500 }).catch(() => { });
+
+    if (!(await this.modalErrorProcesarArchivoTitulo.first().isVisible().catch(() => false))) {
+      return;
+    }
+
+    await this.page.keyboard.press('Escape').catch(() => { });
+    await this.modalErrorProcesarArchivoTitulo.first().waitFor({ state: 'hidden', timeout: 1_500 }).catch(() => { });
+
+    // Fallback final: click en la esquina superior derecha del modal
+    // (donde está el ícono "X") cuando no hay selector estable.
+    const modal = this.page.locator('.cmp-carga-errores-validacion').first();
+    const modalVisible = await modal.isVisible().catch(() => false);
+    if (modalVisible) {
+      const box = await modal.boundingBox();
+      if (box) {
+        await this.page.mouse.click(box.x + box.width - 18, box.y + 18).catch(() => { });
+        await this.modalErrorProcesarArchivoTitulo.first().waitFor({ state: 'hidden', timeout: 1_500 }).catch(() => { });
+      }
+    }
+  }
+
+  private async asegurarModalErrorCerradoAntesDeMapear(): Promise<void> {
+    const abierto = await this.modalErrorProcesarArchivoTitulo.first().isVisible().catch(() => false);
+    if (!abierto) return;
+
+    await this.cerrarModalErrorProcesamiento();
+    const sigueAbierto = await this.modalErrorProcesarArchivoTitulo.first().isVisible().catch(() => false);
+    if (sigueAbierto) {
+      throw new Error('No se pudo cerrar el modal de "ERROR AL PROCESAR ARCHIVO" para remapear columnas.');
+    }
   }
 
   // ─── Paso 8: Volver al inicio ──────────────────────────────
@@ -221,5 +332,52 @@ export class CargaMasivaPage {
     // Paso 4: Seleccionar almacenes y procesar
     await this.seleccionarTodosAlmacenes();
     await this.clickProcesar();
+  }
+
+  /**
+   * Flujo especial SOLO para "Productos":
+   * si el sistema falla al procesar pidiendo "Nombre" o "Descripción",
+   * remapea la columna DESCRIPCION en función del mensaje y reintenta.
+   */
+  async ejecutarFlujoCargaMasivaProductosConAutoRemapeo(cardLabel: string, filePath: string): Promise<void> {
+    await this.seleccionarTipoItem(cardLabel);
+    await this.clickSiguiente();
+
+    await this.subirArchivo(filePath);
+    await this.clickSiguiente();
+
+    await this.asignarColumnas();
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await this.clickSiguiente();
+
+      const modalMessage = await this.leerMensajeModalErrorProcesamiento(4_000);
+      if (!modalMessage) {
+        // Ya avanzó al siguiente paso, continuar flujo normal.
+        await this.seleccionarTodosAlmacenes();
+        await this.clickProcesar();
+        return;
+      }
+
+      const msg = modalMessage.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+      if (msg.includes('CAMPO NOMBRE')) {
+        await this.cerrarModalErrorProcesamiento();
+        await this.asegurarModalErrorCerradoAntesDeMapear();
+        await this.mapColumnByFileHeader('DESCRIPCION', 'NOMBRE');
+        continue;
+      }
+      if (msg.includes('CAMPO DESCRIPCION')) {
+        await this.cerrarModalErrorProcesamiento();
+        await this.asegurarModalErrorCerradoAntesDeMapear();
+        await this.mapColumnByFileHeader('DESCRIPCION', 'DESCRIPCION');
+        continue;
+      }
+
+      throw new Error(`Modal de error no reconocido durante creación masiva de productos: "${modalMessage}"`);
+    }
+
+    throw new Error(
+      'No se pudo avanzar en creación masiva de productos tras reintentos de remapeo dinámico de DESCRIPCION.',
+    );
   }
 }

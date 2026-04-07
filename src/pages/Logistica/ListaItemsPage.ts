@@ -2,7 +2,7 @@ import { type Page, type Locator } from '@playwright/test';
 
 /**
  * Page Object para la lista de ítems y la vista de movimientos post-edición.
- *
+ * download'
  * Responsabilidades:
  * - Buscar ítems por código en la lista
  * - Abrir menú de acciones del item encontrado
@@ -120,11 +120,13 @@ export class ListaItemsPage {
 
   /** Clickea "Ver item" desde el menú de opciones de movimiento */
   async clickVerItemFromMovements(): Promise<void> {
-    await this.page
-      .locator(
-        '[id="lgt_movimientos_cmp-grid-options:opciones_movimiento_cmp-dropdown:options-li:ver-item"]',
-      )
-      .click();
+    const option = this.page.getByText(/^Ver item$/i).first();
+    if (await option.isVisible().catch(() => false)) {
+      await option.click();
+      return;
+    }
+
+    throw new Error('No se encontró la opción "Ver item" en movimientos.');
   }
 
   /**
@@ -162,7 +164,7 @@ export class ListaItemsPage {
 
     // Clickear "Exportar"
     await this.page
-      .locator('[id="lgt_cmp-items_cmp-datos-items.li:export"]')
+      .locator('[id="lgt_cmp-items_cmp-datos-items.li:exportar-sin-filtro"]')
       .click();
 
     return downloadPromise;

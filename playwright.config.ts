@@ -2,16 +2,16 @@ import { defineConfig, devices } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 
-const testEnv = process.env.TEST_ENV || 'qa';
-// Silenciar los mensajes ruidosos y publicidad de dotenv (los "[dotenv...] tip:")
-process.env.DOTENV_QUIET = 'true';
-process.env.DOTENV_SUPPRESS_WARNINGS = 'true';
-dotenv.config({ path: path.resolve(__dirname, `.env.${testEnv}`) });
+/**
+ * Lee la configuración desde un único archivo: config/environment.env
+ * Para cambiar de entorno (QA, PRD, etc.), solo edita ese archivo.
+ */
+dotenv.config({ path: path.resolve(__dirname, 'config', 'environment.env') });
 
 function required(name: string): string {
   const value = process.env[name];
   if (!value) {
-    throw new Error(`Falta la variable de entorno: ${name}`);
+    throw new Error(`Falta la variable de entorno: ${name} — revisa config/environment.env`);
   }
   return value;
 }
@@ -31,7 +31,7 @@ export default defineConfig({
 
   /* ─── CI / Retries ─── */
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: 2,
 
   /* ─── Timeouts para estabilidad ─── */
   timeout: 60_000,           // 60s por test

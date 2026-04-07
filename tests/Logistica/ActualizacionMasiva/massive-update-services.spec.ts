@@ -16,13 +16,13 @@ test.describe('Actualización masiva — datos de servicios', () => {
   }) => {
     let tempPath = '';
     let primerCodigo = '';
-    let textoBusqueda = '';
+    let primerNombreEditado = '';
 
     await test.step('Preparar Excel desde plantilla en src/data', async () => {
       const r = await buildActualizacionDatosExcel('servicios');
       tempPath = r.tempFilePath;
       primerCodigo = r.primerCodigo;
-      textoBusqueda = r.textoBusqueda;
+      primerNombreEditado = r.primerNombreEditado;
     });
 
     await test.step('Ejecutar wizard: actualizar datos → servicios → subir → procesar', async () => {
@@ -39,15 +39,18 @@ test.describe('Actualización masiva — datos de servicios', () => {
       ).toBeVisible({ timeout: 60_000 });
     });
 
-    await test.step('Ver ítem: bitácora refleja la edición masiva', async () => {
+    await test.step('Ver ítem: nombre en detalle y tab Bitácora', async () => {
       await actualizacionMasiva.clickIrAlInicio();
       await listaItems.searchByCode(primerCodigo);
       await itemDetail.abrirMenuAccionesItem();
       await itemDetail.clickVerItem();
+      await expect(page.getByText(primerNombreEditado).first()).toBeVisible({
+        timeout: 30_000,
+      });
       await itemDetail.irATabBitacoraPorTexto();
       await expect(
         page.locator('.bitacora, [class*="bitacora"]').first(),
-      ).toContainText(textoBusqueda, { timeout: 25_000 });
+      ).toContainText(primerNombreEditado, { timeout: 45_000 });
       await itemDetail.clickAtras();
     });
 

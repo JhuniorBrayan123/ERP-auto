@@ -41,7 +41,8 @@ export const ACTUALIZACION_DATOS_CONFIG: Record<
     dataRow: 2,
     nombreColumnHeader: 'DESCRIPCION',
     claveColumnHeader: 'CODIGO',
-    columnMappings: [],
+    // En productos, el Excel trae DESCRIPCION pero el ERP valida/usa "Nombre" como principal.
+    columnMappings: [{ fileHeader: 'DESCRIPCION', systemTarget: 'NOMBRE' }],
   },
   servicios: {
     tipo: 'servicios',
@@ -49,9 +50,11 @@ export const ACTUALIZACION_DATOS_CONFIG: Record<
     excelFile: 'FORMATO_EDICION_SERVICIOS_Masivos.xlsx',
     sheetName: 'SERVICIOS',
     dataRow: 2,
-    nombreColumnHeader: 'DESCRIPCION',
+    // En la plantilla de SERVICIOS existe columna NOMBRE y es el texto principal visible.
+    nombreColumnHeader: 'NOMBRE',
     claveColumnHeader: 'CODIGO',
-    columnMappings: [],
+    // El ERP a veces deja "DESCRIPCION" auto-seleccionado; forzamos "NOMBRE" para que la edición sea visible.
+    columnMappings: [{ fileHeader: 'NOMBRE', systemTarget: 'NOMBRE' }],
   },
   insumos: {
     tipo: 'insumos',
@@ -59,9 +62,11 @@ export const ACTUALIZACION_DATOS_CONFIG: Record<
     excelFile: 'FORMATO_EDICION_INSUMOS_Masivos.xlsx',
     sheetName: 'INSUMOS',
     dataRow: 2,
-    nombreColumnHeader: 'DESCRIPCION',
+    // En la plantilla de INSUMOS existe columna NOMBRE y es el texto principal visible.
+    nombreColumnHeader: 'NOMBRE',
     claveColumnHeader: 'CODIGO',
-    columnMappings: [],
+    // Forzar "NOMBRE" para que el cambio se refleje en el nombre del ítem.
+    columnMappings: [{ fileHeader: 'NOMBRE', systemTarget: 'NOMBRE' }],
   },
 };
 

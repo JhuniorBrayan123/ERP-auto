@@ -31,8 +31,8 @@ test.describe('Carga masiva de productos desde Excel', () => {
       console.log(`  → Nombre generado: ${result.nombreGenerado}`);
     });
 
-    await test.step(`Seleccionar tipo Productos y subir archivo`, async () => {
-      await cargaMasiva.ejecutarFlujoCargaMasiva(CONFIG.cardLabel, tempFilePath);
+    await test.step('Seleccionar tipo Productos y subir archivo con auto-remapeo', async () => {
+      await cargaMasiva.ejecutarFlujoCargaMasivaProductosConAutoRemapeo(CONFIG.cardLabel, tempFilePath);
     });
 
     await test.step('Verificar que la carga finalizó correctamente', async () => {

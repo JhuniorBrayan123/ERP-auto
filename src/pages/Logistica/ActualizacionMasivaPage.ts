@@ -203,8 +203,13 @@ export class ActualizacionMasivaPage {
     await this.subirArchivo(filePath);
     await this.clickSiguiente();
     await this.aplicarMapeosColumnas(rules);
+    // En algunos entornos el paso de mapeo no requiere "Siguiente" (se procesa desde el mismo paso).
+    // Si existe, avanzamos; si no, continuamos a "Procesar".
     if (rules.length > 0) {
-      await this.clickSiguiente();
+      const btn = this.botonSiguienteWizard();
+      if (await btn.isVisible().catch(() => false)) {
+        await this.clickSiguiente();
+      }
     }
     await this.clickProcesar();
     await this.waitForFinishStep();

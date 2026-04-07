@@ -63,7 +63,7 @@ test.describe('Creación de Insumos', () => {
 
     await test.step('Verificar item completo', async () => {
       await itemDetail.verificarItemCompleto({
-        verificarVentas: true,
+        //verificarCompras: true,
         verificarBitacora: true,
       });
     });

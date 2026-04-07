@@ -77,26 +77,7 @@ test.describe('Creación de Recetas', () => {
 
     await test.step('Configurar información adicional', async () => {
       await recetaForm.expandirOpcionesAvanzadas();
-      // Usar patrón alternativo con "Ninguna" para recetas sin control
-      const page = recetaForm['page'];
-      await page
-        .locator('[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:tabs-1"]')
-        .nth(2)
-        .click();
-
-      await page
-        .locator('div')
-        .filter({ hasText: /^Ninguna$/ })
-        .nth(2)
-        .click();
-      await page.getByText('AUTO-TEST').click();
-
-      await page
-        .locator('div')
-        .filter({ hasText: /^Ninguna$/ })
-        .nth(2)
-        .click();
-      await page.getByText('AUTOMATIZADO').click();
+      await recetaForm.llenarInfoAdicional('AUTO-TEST', 'AUTOMATIZADO');
     });
 
     await test.step('Crear receta y confirmar', async () => {

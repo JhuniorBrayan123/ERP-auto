@@ -101,11 +101,10 @@ export async function mapColumnByFileHeader(
   const curNorm = stripAccents(currentText ?? '');
   const targetNorm = stripAccents(targetField);
 
-  if (curNorm.startsWith(targetNorm) || curNorm.startsWith(targetNormalized)) {
-    return;
-  }
-
-  if (!curNorm.startsWith('ESTA COLUMNA NO')) {
+  // Solo consideramos "ya mapeado" cuando el encabezado ya refleja el campo destino.
+  // Si el encabezado muestra el header del archivo (p. ej. DESCRIPCION) eso NO garantiza
+  // que esté mapeado al campo correcto (p. ej. Nombre) y debemos permitir remapeo.
+  if (curNorm.startsWith(targetNorm)) {
     return;
   }
 

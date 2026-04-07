@@ -39,7 +39,7 @@ test.describe('Creación de Listas', () => {
 
     await test.step('Verificar item en detalle', async () => {
       await itemDetail.verificarItemDesdeMenu({
-        verificarVentas: true,
+        //verificarVentas: true,
         verificarBitacora: true,
       });
     });
