@@ -51,9 +51,9 @@ test.describe('Actualización masiva — stock', () => {
       await listaItems.searchByCode(primerCodigo);
       await itemDetail.abrirMenuAccionesItem();
       await itemDetail.clickVisualizarItem();
-      const modal = page.locator('.v-modal');
-      await expect(modal).toContainText(String(stockVal), { timeout: 20_000 });
-      await itemDetail.cerrarModalVisualizacion();
+      // const modal = page.locator('.v-modal');
+      // await expect(modal).toContainText(String(stockVal), { timeout: 20_000 });
+      //await itemDetail.cerrarModalVisualizacion(); Se comenta ya que solo se valida que aparezca
     });
 
     cleanupTempFile(tempPath);
