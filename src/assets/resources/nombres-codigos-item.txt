@@ -1,14 +1,13 @@
-111111 = Item para combos estricto gravado
+111111 = Item para combos estricto gravado //Se usa para movimientos tambien
 121212 = item para combos gravado flexible
 151515 = item gravado sin control
 
-
-313131= item con variante flexible
+313131= item con variante flexible //Se usa para movimientos tambien
 131313 = item variante estricto gravado
 333333 = item variante sin control gravado
 
 101010 = item equivalente estricto
-202020 = item equivalente flexible
+202020 = item equivalente flexible //Se usa para movimientos tambien
 303030 = item ewquivalente sin control
 
 454545 = item selector gravado estricto con item manual
@@ -20,7 +19,7 @@
 444444 = Nuevo insumo sin control de stock+
 464646 = Nuevo insumo test1
 444666 = nuevo insumo con equivalencias estricto
-666444 = nuevo insumo flexible
+666444 = nuevo insumo flexible //Se usa para movimientos tambien
 
 999999 = item para editado nombre manual
 889988 = item para editado precio manual
@@ -29,6 +28,15 @@
 
 //para la edicion de items masivos primero se tiene que importar el excel de cada uno (OJO solo para la edicion masiva)
 
+correo para enviar movimientos:
+    srqapruebaserp2@gmail.com
+
+Cambios de input en isc:
+
+  // // inpuot de ISC sistema al valor:
+  // await page.getByRole('textbox', { name: '%' }).click();
+  // //input de isc aplicacion al monto final:
+  // await page.getByRole('textbox', { name: 'S/' }).click();
 
 tipos de afectacion:
 Gravado (Paga IGV 18%)

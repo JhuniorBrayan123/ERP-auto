@@ -1,7 +1,7 @@
 import { test, expect } from '../../../src/fixtures/Logistica/edicion-clonado-fixture';
 import { buildUniqueClonedItemName } from '../../../src/helpers/Logistica/nombre-clonado.helper';
 
-test.describe('Clonado de item', () => {
+test.describe('Clonado de item',{ tag: ['@logistica'] }, () => {
 
   /**
    * Escenario: clonar un producto existente (código 888888) cambiando el nombre.

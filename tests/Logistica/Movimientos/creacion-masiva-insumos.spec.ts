@@ -4,7 +4,7 @@ import { buildMassiveExcel, cleanupTempFile } from '../../../src/helpers/Logisti
 
 const CONFIG = MASIVO_CONFIG.insumos;
 
-test.describe('Carga masiva de insumos desde Excel', () => {
+test.describe('Carga masiva de insumos desde Excel',{ tag: ['@logistica'] }, () => {
 
   test('crear insumos masivamente desde excel', async ({
     page,

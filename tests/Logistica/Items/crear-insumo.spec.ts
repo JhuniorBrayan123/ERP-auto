@@ -1,7 +1,7 @@
 import { test, expect } from '../../../src/fixtures/Logistica/items-fixture';
 import { buildUniqueItemName } from '../../../src/helpers/Logistica/unique-name.helper';
 
-test.describe('Creación de Insumos', () => {
+test.describe('Creación de Insumos', { tag: ['@logistica'] },() => {
 
   test('crear insumo sin control de stock', async ({ insumoForm, itemDetail }) => {
     const nombre = buildUniqueItemName('insumo', 'sin control');

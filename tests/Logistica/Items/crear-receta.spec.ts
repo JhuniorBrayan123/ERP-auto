@@ -2,7 +2,7 @@ import { test, expect } from '../../../src/fixtures/Logistica/items-fixture';
 import { buildUniqueItemName } from '../../../src/helpers/Logistica/unique-name.helper';
 import type { InsumoReceta } from '../../../src/helpers/Logistica/item-data.types';
 
-test.describe('Creación de Recetas', () => {
+test.describe('Creación de Recetas',{ tag: ['@logistica'] }, () => {
 
   test('crear receta con insumos estrictos', async ({
     recetaForm,

@@ -1,7 +1,7 @@
 import { test, expect } from '../../../src/fixtures/Logistica/edicion-clonado-fixture';
 import { buildUniqueItemName } from '../../../src/helpers/Logistica/unique-name.helper';
 
-test.describe('Edición de nombre de item', () => {
+test.describe('Edición de nombre de item', { tag: ['@logistica'] },() => {
 
   /**
    * Escenario: editar el nombre de un producto existente (código 999999).

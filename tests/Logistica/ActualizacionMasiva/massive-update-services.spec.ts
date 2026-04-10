@@ -7,7 +7,7 @@ import {
 
 const CONFIG = ACTUALIZACION_DATOS_CONFIG.servicios;
 
-test.describe('Actualización masiva — datos de servicios', () => {
+test.describe('Actualización masiva — datos de servicios',{ tag: ['@logistica'] }, () => {
   test('actualizar datos de servicios masivamente desde Excel', async ({
     page,
     actualizacionMasiva,

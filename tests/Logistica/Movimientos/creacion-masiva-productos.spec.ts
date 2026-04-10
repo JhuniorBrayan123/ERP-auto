@@ -4,7 +4,7 @@ import { buildMassiveExcel, cleanupTempFile } from '../../../src/helpers/Logisti
 
 const CONFIG = MASIVO_CONFIG.productos;
 
-test.describe('Carga masiva de productos desde Excel', () => {
+test.describe('Carga masiva de productos desde Excel', { tag: ['@logistica'] },() => {
 
   /**
    * Escenario: crear productos masivamente subiendo un Excel con nombre único.

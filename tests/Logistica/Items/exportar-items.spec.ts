@@ -1,6 +1,6 @@
 import { test, expect } from '../../../src/fixtures/Logistica/edicion-clonado-fixture';
 
-test.describe('Exportar lista de ítems', () => {
+test.describe('Exportar lista de ítems', { tag: ['@logistica'] },() => {
 
   /**
    * Escenario: exportar la lista de ítems a archivo Excel/CSV.

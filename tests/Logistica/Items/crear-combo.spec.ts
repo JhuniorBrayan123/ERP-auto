@@ -2,7 +2,7 @@ import { test, expect } from '../../../src/fixtures/Logistica/items-fixture';
 import { buildUniqueItemName } from '../../../src/helpers/Logistica/unique-name.helper';
 import type { ComponenteCombo } from '../../../src/helpers/Logistica/item-data.types';
 
-test.describe('Creación de Combos', () => {
+test.describe('Creación de Combos',{ tag: ['@logistica'] }, () => {
 
   test('crear combo con items estrictos gravados', async ({
     comboForm,

@@ -7,7 +7,7 @@ import {
 
 const CONFIG = ACTUALIZACION_DATOS_CONFIG.insumos;
 
-test.describe('Actualización masiva — datos de insumos', () => {
+test.describe('Actualización masiva — datos de insumos',{ tag: ['@logistica'] }, () => {
   test('actualizar datos de insumos masivamente desde Excel', async ({
     page,
     actualizacionMasiva,

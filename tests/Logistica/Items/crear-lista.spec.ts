@@ -2,7 +2,7 @@ import { test, expect } from '../../../src/fixtures/Logistica/items-fixture';
 import { buildUniqueItemName } from '../../../src/helpers/Logistica/unique-name.helper';
 import type { ProductoListaItem } from '../../../src/helpers/Logistica/item-data.types';
 
-test.describe('Creación de Listas', () => {
+test.describe('Creación de Listas', { tag: ['@logistica'] },() => {
 
   test('crear lista con items estrictos', async ({ listaForm, itemDetail }) => {
     const nombre = buildUniqueItemName('lista', 'items estrictos');

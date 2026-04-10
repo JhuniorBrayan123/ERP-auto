@@ -4,7 +4,7 @@ import { buildMassiveExcel, cleanupTempFile } from '../../../src/helpers/Logisti
 
 const CONFIG = MASIVO_CONFIG.recetas;
 
-test.describe('Carga masiva de recetas desde Excel', () => {
+test.describe('Carga masiva de recetas desde Excel',{ tag: ['@logistica'] }, () => {
 
   test('crear recetas masivamente desde excel', async ({
     page,

@@ -1,7 +1,7 @@
 import { test, expect } from '../../../src/fixtures/Logistica/edicion-clonado-fixture';
 import { generateRandomPrice } from '../../../src/helpers/Logistica/random-price.helper';
 
-test.describe('Edición de precio de item', () => {
+test.describe('Edición de precio de item',{ tag: ['@logistica'] }, () => {
 
   /**
    * Escenario: editar los precios en soles y dólares de un producto existente (código 889988).

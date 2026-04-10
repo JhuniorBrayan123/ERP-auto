@@ -15,7 +15,7 @@ function indiceAlmacenStock(): number {
   return Number.isFinite(n) && n >= 0 ? n : 0;
 }
 
-test.describe('Actualización masiva — stock', () => {
+test.describe('Actualización masiva — stock',{ tag: ['@logistica'] }, () => {
   test('actualizar stock masivamente desde Excel', async ({
     page,
     actualizacionMasiva,

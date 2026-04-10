@@ -1,7 +1,7 @@
 import { test, expect } from '../../../src/fixtures/Logistica/items-fixture';
 import { buildUniqueItemName } from '../../../src/helpers/Logistica/unique-name.helper';
 
-test.describe('Creación de Servicios', () => {
+test.describe('Creación de Servicios',{ tag: ['@logistica'] }, () => {
 
   test('crear servicio gravado', async ({ servicioForm, itemDetail }) => {
     const nombre = buildUniqueItemName('servicio', 'gravado');

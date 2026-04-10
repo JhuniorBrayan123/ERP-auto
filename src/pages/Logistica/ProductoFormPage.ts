@@ -128,8 +128,9 @@ export class ProductoFormPage extends ItemFormBasePage {
       await this.page.getByText('Aplicación al monto fijo').click();
     }
 
-    // Llenar monto
-    const inputMonto = this.page.getByRole('textbox', { name: 'Monto', exact: true });
+    // Llenar monto dependiendo del tipo de sistema ISC
+    const inputName = config.tipoSistema === 'Sistema al valor' ? '%' : 'S/';
+    const inputMonto = this.page.getByRole('textbox', { name: inputName, exact: true });
     await inputMonto.click();
     await inputMonto.fill(config.monto);
   }

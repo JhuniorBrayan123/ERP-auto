@@ -9,4 +9,4 @@ node_modules/
 /playwright/.auth/
 .idea/
 .github/
-
+tests/test-1.spec.ts

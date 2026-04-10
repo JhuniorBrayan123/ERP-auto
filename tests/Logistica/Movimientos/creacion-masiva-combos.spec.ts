@@ -4,7 +4,7 @@ import { buildMassiveExcel, cleanupTempFile } from '../../../src/helpers/Logisti
 
 const CONFIG = MASIVO_CONFIG.combos;
 
-test.describe('Carga masiva de combos desde Excel', () => {
+test.describe('Carga masiva de combos desde Excel',{ tag: ['@logistica'] }, () => {
 
   test('crear combos masivamente desde excel', async ({
     page,

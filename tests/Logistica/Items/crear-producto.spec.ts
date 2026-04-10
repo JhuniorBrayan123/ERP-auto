@@ -1,7 +1,7 @@
 import { test, expect } from '../../../src/fixtures/Logistica/items-fixture';
 import { buildUniqueItemName } from '../../../src/helpers/Logistica/unique-name.helper';
 
-test.describe('Creación de Productos', () => {
+test.describe('Creación de Productos',{ tag: ['@logistica'] },() => {
 
   test('crear producto gravado con control estricto', async ({
     productoForm,

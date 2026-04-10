@@ -1,7 +1,7 @@
 import { test, expect } from '../../../src/fixtures/Logistica/edicion-clonado-fixture';
 import { getRandomAffectationType } from '../../../src/helpers/Logistica/afectacion-igv.helper';
 
-test.describe('Edición de tipo de afectación de item', () => {
+test.describe('Edición de tipo de afectación de item',{ tag: ['@logistica'] }, () => {
 
   /**
    * Escenario: cambiar el tipo de afectación IGV de un producto existente (código 888999).
