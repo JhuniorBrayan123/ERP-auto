@@ -152,7 +152,7 @@ export class RegistroMovimientoPage {
             .nth(2)
             .click();
         await this.page.waitForTimeout(500); // Esperar a que renderice la lista
-        await this.page.getByText(motivoNuevo).click();
+        await this.page.getByText(motivoNuevo, {exact: true}).click();
     }
 
     /** Selecciona motivo clickeando directamente en el texto (para selects ya abiertos) */
@@ -178,7 +178,7 @@ export class RegistroMovimientoPage {
             .nth(3)
             .click();
         await this.page.waitForTimeout(500); // Esperar a que renderice la lista
-        await this.page.getByText(motivoNuevo).click();
+        await this.page.getByText(motivoNuevo, {exact: true}).click();
     }
 
     // ─── Búsqueda y selección de ítems ──────────────────────────

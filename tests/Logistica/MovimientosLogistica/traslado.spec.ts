@@ -47,7 +47,7 @@ test.describe('Traslados de Almacén @traslado', {tag: ['@logistica', '@movimien
             //await page.locator('.module.module-205').click();
             //await page.getByRole('textbox', {name: 'Buscar por nombre, código o c'}).click();
             //await page.getByRole('textbox', {name: 'Buscar por nombre, código o c'}).fill(ITEMS_TEST.PRODUCTO_GRAVADO.codigo); Anterior
-            await stockVerificacion.buscarPorCodigo(ITEMS_TEST.PRODUCTO_GRAVADO.codigo)
+            await stockVerificacion.buscarPorCodigo(ITEMS_TEST.PRODUCTO_GRAVADO.codigo) //ultimo cambio xs codigo en traslado
             // await page.getByRole('cell', {name: 'Varios*'}).click();
             await stockVerificacion.clickVariosTexto();
         });
