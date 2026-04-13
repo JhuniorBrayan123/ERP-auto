@@ -2,6 +2,8 @@
 121212 = item para combos gravado flexible
 151515 = item gravado sin control
 
+111222 = item sin stock para movimientos  // este es nuevo item creacion manual Se usa para movimientos tambien
+
 313131= item con variante flexible //Se usa para movimientos tambien
 131313 = item variante estricto gravado
 333333 = item variante sin control gravado

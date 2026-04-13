@@ -27,11 +27,7 @@ export class ProductoFormPage extends ItemFormBasePage {
 
   // ─── Precios ─────────────────────────────────────────────
 
-  /**
-   * Llena precio de venta y precio de compra.
-   * Nota: Ambos inputs tienen el mismo role "Monto final".
-   * Se distinguen por posición: first() = venta, nth(1) = compra.
-   */
+
   async llenarPrecios(precioVenta: string, precioCompra: string): Promise<void> {
     const inputPrecioVenta = this.page.getByRole('textbox', { name: 'Monto final' }).first();
     const inputPrecioCompra = this.page.getByRole('textbox', { name: 'Monto final' }).nth(1);

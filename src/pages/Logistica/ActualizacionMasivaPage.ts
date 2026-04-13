@@ -185,9 +185,7 @@ export class ActualizacionMasivaPage {
     await this.page.locator(`[id="${id}"]`).click();
   }
 
-  /**
-   * Flujo datos: tipo actualización → siguiente → tipo ítem → siguiente → archivo → siguiente → mapeos opcionales → procesar.
-   */
+
   async ejecutarActualizacionDatosItem(
     cardLabel: string,
     filePath: string,
@@ -215,9 +213,7 @@ export class ActualizacionMasivaPage {
     await this.waitForFinishStep();
   }
 
-  /**
-   * Flujo stock: tipo stock → siguiente → archivo → siguiente (×2 si aplica) → almacén → procesar.
-   */
+
   async ejecutarActualizacionStock(
     filePath: string,
     almacenIndex: number,
