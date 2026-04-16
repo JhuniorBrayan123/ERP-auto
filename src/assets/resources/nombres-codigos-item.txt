@@ -1,0 +1,66 @@
+111111 = Item para combos estricto gravado //Se usa para movimientos tambien
+121212 = item para combos gravado flexible
+151515 = item gravado sin control
+
+111222 = item sin stock para movimientos  // este es nuevo item creacion manual Se usa para movimientos tambien
+
+313131= item con variante flexible //Se usa para movimientos tambien
+131313 = item variante estricto gravado
+333333 = QA
+
+101010 = item equivalente estricto
+202020 = item equivalente flexible //Se usa para movimientos tambien
+303030 = item ewquivalente sin control
+
+454545 = item selector gravado estricto con item manual
+545454 = item selector flexible
+
+222222 = combo exonerado hijo
+
+//mayormente estos entran en las recetas
+444444 = Nuevo insumo sin control de stock+
+464646 = Nuevo insumo test1
+444666 = nuevo insumo con equivalencias estricto
+666444 = nuevo insumo flexible //Se usa para movimientos tambien
+
+999999 = item para editado nombre manual
+889988 = item para editado precio manual
+888999 = item para editado tipo de afectacion manual
+888888 = item para clonar
+
+//para la edicion de items masivos primero se tiene que importar el excel de cada uno (OJO solo para la edicion masiva)
+
+correo para enviar movimientos:
+    srqapruebaserp2@gmail.com
+
+Cambios de input en isc:
+
+  // // inpuot de ISC sistema al valor:
+  // await page.getByRole('textbox', { name: '%' }).click();
+  // //input de isc aplicacion al monto final:
+  // await page.getByRole('textbox', { name: 'S/' }).click();
+
+tipos de afectacion:
+Gravado (Paga IGV 18%)
+Gravado - Retiro por premio (Paga IGV 18%)
+Gravado - Retiro por donacion (Paga IGV 18%)
+Gravado - Retiro (Paga IGV 18%)
+Gravado - Retiro por publicidad (Paga IGV 18%)
+Gravado - Bonificaciones (Paga IGV 18%)
+Gravado - Retiro por entrega a trabajadores (Paga IGV 18%)
+Exonerado (No paga IGV)
+Exonerado - Transferencia Gratuita
+Inafecto (No paga IGV)
+Inafecto - Retiro por Bonificación
+Inafecto - Retiro
+Inafecto - Retiro por Muestras Médicas
+Inafecto - Retiro por Convenio Colectivo
+Inafecto - Retiro por Premio
+Inafecto - Retiro por Publicidad
+Exportación
+
+
+
+
+
+
