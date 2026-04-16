@@ -154,18 +154,21 @@ export class ListaItemsPage {
    * @returns El objeto Download de Playwright con el archivo exportado
    */
   async exportarItems(): Promise<import('@playwright/test').Download> {
+    // ⚠️ Registrar la promesa ANTES de cualquier click para evitar race conditions.
+    // Si el evento 'download' se dispara antes de waitForEvent(), se pierde.
+    const downloadPromise = this.page.waitForEvent('download', { timeout: 30_000 });
+
     // Abrir menú de opciones (el mismo icono que se usa para carga masiva)
     await this.page
       .locator('[id="lgt_cmp-items_cmp-datos-items.cmp-option-button:options"]')
       .click();
 
-    // Registrar la promesa ANTES del click (Playwright la necesita pendiente)
-    const downloadPromise = this.page.waitForEvent('download');
+    // Esperar a que la opción "Exportar" sea visible antes de clickear
+    const exportarBtn = this.page.locator('[id="lgt_cmp-items_cmp-datos-items.li:exportar-sin-filtro"]');
+    await exportarBtn.waitFor({ state: 'visible', timeout: 10_000 });
 
-    // Clickear "Exportar"
-    await this.page
-      .locator('[id="lgt_cmp-items_cmp-datos-items.li:exportar-sin-filtro"]')
-      .click();
+    // Clickear "Exportar" — dispara la descarga
+    await exportarBtn.click();
 
     return downloadPromise;
   }

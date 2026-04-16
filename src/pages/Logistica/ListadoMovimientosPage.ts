@@ -60,7 +60,7 @@ export class ListadoMovimientosPage {
      */
     async clickEliminaElMovimiento(): Promise<void> {
         const opcion = this.page.getByText('Elimina el movimiento permanentemente').first();
-        await opcion.waitFor({state: 'visible', timeout: 10_000});
+        //await opcion.waitFor({state: 'visible', timeout: 10_000});
         await opcion.click();
     }
 

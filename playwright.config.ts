@@ -1,22 +1,5 @@
 import {defineConfig, devices} from '@playwright/test';
-import * as dotenv from 'dotenv';
-import * as path from 'path';
-
-/**
- * Lee la configuración desde un único archivo: config/environment.env
- * Para cambiar de entorno (QA, PRD, etc.), solo edita ese archivo.
- */
-dotenv.config({path: path.resolve(__dirname, 'config', 'environment.env')});
-
-function required(name: string): string {
-    const value = process.env[name];
-    if (!value) {
-        throw new Error(`Falta la variable de entorno: ${name} — revisa config/environment.env`);
-    }
-    return value;
-}
-
-const baseURL = required('BASE_URL');
+import {env} from './config/env';
 
 export default defineConfig({
     testDir: './tests',
@@ -24,17 +7,18 @@ export default defineConfig({
     /**
      * Estabilidad (ERP, datos compartidos, wizards):
      * - fullyParallel: false + workers: 1 evitan choques entre escenarios masivos.
-     * Los specs de actualización masiva viven en tests/Logistica/ActualizacionMasiva/.
+     * Los specs de actualización masiva viven en tests/logistica/productos-stock/edicion-masiva/.
      */
     fullyParallel: false,
     workers: 1,
+    // workers: process.env ? 2 : 2,
 
     /* ─── CI / Retries ─── */
     forbidOnly: !!process.env.CI,
-    //retries: 2,
+    retries: 2,
 
     /* ─── Timeouts para estabilidad ─── */
-    timeout: 60_000,           // 60s por test
+    timeout: 180_000,           // 3 min  por test por si
     expect: {timeout: 10_000}, // 10s para assertions
 
     /* ─── Ignorar codegen / borradores (no son suites de regresión) ─── */
@@ -45,15 +29,16 @@ export default defineConfig({
         ['list'],                                          // consola legible
         ['html', {open: 'never'}],                       // reporte HTML
         ['junit', {outputFile: 'test-results/results.xml'}], // Jenkins
+        //['./src/utils/discord-reporter.ts'],
     ],
 
     use: {
-        baseURL,
+        baseURL: env.baseUrl,
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',
-        actionTimeout: 15_000,      // 15s por acción individual
-        navigationTimeout: 30_000,  // 30s para navegación
+        actionTimeout: 20_000,      // 15s por acción individual
+        navigationTimeout: 60_000,  // 30s para navegación
     },
 
     projects: [

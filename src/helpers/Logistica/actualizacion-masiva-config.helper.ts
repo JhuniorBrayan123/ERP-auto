@@ -39,10 +39,10 @@ export const ACTUALIZACION_DATOS_CONFIG: Record<
     excelFile: 'FORMATO_EDICION_PRODUCTOS_Masivos.xlsx',
     sheetName: 'PRODUCTOS',
     dataRow: 2,
-    nombreColumnHeader: 'DESCRIPCION',
+    nombreColumnHeader: 'NOMBRE',
     claveColumnHeader: 'CODIGO',
-    // En productos, el Excel trae DESCRIPCION pero el ERP valida/usa "Nombre" como principal.
-    columnMappings: [{ fileHeader: 'DESCRIPCION', systemTarget: 'NOMBRE' }],
+    // En productos, el Excel trae NOMBRE 
+    columnMappings: [{ fileHeader: 'NOMBRE', systemTarget: 'NOMBRE' }],
   },
   servicios: {
     tipo: 'servicios',

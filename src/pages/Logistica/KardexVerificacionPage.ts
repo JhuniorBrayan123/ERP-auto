@@ -41,7 +41,7 @@ export class KardexVerificacionPage {
 
         await this.esperarSinOverload(25_000);
         // Esperar a que la tabla renderice el ítem antes de buscar sus botones
-        await expect(this.page.getByRole('table').getByText(codigo).first()).toBeVisible({timeout: 15000});
+        await expect(this.page.getByRole('table').getByText(codigo).first()).toBeVisible({timeout: 15_000});
     }
 
     // ─── Almacenes ──────────────────────────────────────────────
@@ -163,11 +163,14 @@ export class KardexVerificacionPage {
     async abrirVerDetalle(indice: number = 0): Promise<void> {
         await this.esperarSinOverload();
         const btn = this.verDetalleButtons();
+
         if (indice === 0) {
             await btn.first().waitFor({state: 'visible', timeout: 25_000});
+            await this.esperarSinOverload(); // ← segunda espera justo antes del click
             await btn.first().click();
         } else {
             await btn.nth(indice).waitFor({state: 'visible', timeout: 25_000});
+            await this.esperarSinOverload(); // ← segunda espera justo antes del click
             await btn.nth(indice).click();
         }
     }
@@ -206,6 +209,35 @@ export class KardexVerificacionPage {
         await boton.click();
 
         await this.esperarSinOverload();
+    }
+
+    async abrirVerDetallePorAlmacen2(nombreAlmacen: string): Promise<void> {
+        const strip = (s: string) =>
+            s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+        const nombreNormalizado = strip(nombreAlmacen).trim().toLowerCase();
+
+        const cards = this.page.locator('.cmp-cards-almacen');
+
+        const total = await cards.count();
+
+        for (let i = 0; i < total; i++) {
+            const card = cards.nth(i);
+
+            const titulo = await card.locator('.info-almacen .title').innerText();
+            const tituloNormalizado = strip(titulo).trim().toLowerCase();
+
+            if (tituloNormalizado.includes(nombreNormalizado)) {
+                const boton = card.getByRole('button', {name: /ver detalle/i});
+                await boton.waitFor({state: 'visible', timeout: 10_000});
+                await card.scrollIntoViewIfNeeded();
+                await boton.click();
+                await this.esperarSinOverload();
+                return;
+            }
+        }
+
+        throw new Error(`No se encontró el almacén: ${nombreAlmacen}`);
     }
 
     // ─── Verificación de movimiento ─────────────────────────────
