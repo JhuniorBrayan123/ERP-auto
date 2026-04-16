@@ -96,7 +96,23 @@ export class MovimientoRapidoPage {
             .locator('[id="lgt_items_v-modal:movimiento-stock_v-select:motivo"] div')
             .filter({hasText: new RegExp(`^${motivoActual.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`)})
             .click();
-        await this.page.getByText(motivoNuevo).click();
+        await this.page.getByText(motivoNuevo, {exact: true}).click();
+    }
+
+    async clickexpandeVariante(codigoItem: string): Promise<void> {
+        await this.page
+            .getByRole('row')
+            .filter({hasText: '313131'})
+            .locator('.icon-item')
+            .first()
+            .click();
+        ;
+    }
+
+    async seleccionarAccionVarianter(codigoItem: string): Promise<void> {
+        await this.page.locator('.cmp-dropdown-toggle.justify-content-center')
+            .filter({hasText: new RegExp(`^${codigoItem}`)})
+            .first().click();
     }
 
     /** Selecciona motivo de ingreso a almacén con segundo nivel */
@@ -242,7 +258,15 @@ export class MovimientoRapidoPage {
 
     /** Click en tipo de ítem para filtrar (ej. "Producto") */
     async filtrarPorTipoItem(tipo: string): Promise<void> {
-        await this.page.getByText(tipo, {exact: true}).click();
+        await this.page.getByText(tipo, {exact: true}).first().click();
+    }
+
+    async abrirTabInsumos(): Promise<void> {
+        await this.page.locator('[id="lgt_items_cmp-datos-item:filter_section:section_tipo_tipo_item:3"]');
+    }
+
+    async seleccionarcardProductos(): Promise<void> {
+        await this.page.locator('[id="lgt_movimientos_creacion-masivo_cmp-tipo-movimiento:elegir-tipo-movimiento_cmp-card-movimiento:ingreso"]').first().click();
     }
 
     /** Click en búsqueda de ítems */

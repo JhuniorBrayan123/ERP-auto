@@ -32,7 +32,7 @@ export class RegistroMovimientoPage {
         return this.page.getByRole('textbox', {name: 'Buscar por nombre, código o c'});
     }
 
-    private get cantidadInput(): Locator {
+    public get cantidadInput(): Locator {
         return this.page.locator(
             '[id="lgt_reg-movimiento_cmp-grid-items-movimiento:body_v-grid:body-grilla_v-step:cantidad"]',
         );

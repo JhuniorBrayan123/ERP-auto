@@ -1,7 +1,12 @@
 /**
  * Acceso tipado a las variables de entorno.
- * Todas se leen de config/environment.env (cargadas por playwright.config.ts vía dotenv).
+ * Centralizamos la carga de dotenv aquí. Ningún otro archivo debe llamar a dotenv.config().
  */
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+
+// Cargar variables de entorno desde config/environment.env
+dotenv.config({ path: path.resolve(__dirname, 'environment.env') });
 
 function required(name: string): string {
     const value = process.env[name];

@@ -63,6 +63,8 @@ export class MovimientosNavigationPage {
     async navegarAKardexTotal(): Promise<void> {
         await this.clickProductosYServicios();
         await this.page.getByText('Kardex total').click();
+
+
     }
 
     // ─── Submódulos de Ítems (para movimientos rápidos) ─────────
