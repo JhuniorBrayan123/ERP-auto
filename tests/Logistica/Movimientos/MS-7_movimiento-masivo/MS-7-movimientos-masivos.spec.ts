@@ -8,15 +8,15 @@ test.describe('MS-7 | Movimientos Masivos @masivos', {tag: ['@logistica', '@movi
     // Scenario 34: Registrar movimiento masivo correctamente
     // ═══════════════════════════════════════════════════════════════
     test('debe procesar movimiento masivo de ingresos desde excel @MS-7', async ({
-                                                                               movimientosNav,
-                                                                               listadoMovimientos,
-                                                                               stockVerificacion,
-                                                                               kardexVerificacion,
-                                                                               movimientoRapido,
-                                                                               page,
-                                                                           }) => {
+                                                                                     movimientosNav,
+                                                                                     listadoMovimientos,
+                                                                                     stockVerificacion,
+                                                                                     kardexVerificacion,
+                                                                                     movimientoRapido,
+                                                                                     page,
+                                                                                 }) => {
 
-        const excelPath = path.resolve(__dirname, '../../../src/data', EXCEL_MASIVOS.INGRESOS);
+        const excelPath = path.resolve(__dirname, '../../../../src/data', EXCEL_MASIVOS.INGRESOS);
 
         await test.step('Given: navegar a Ingresos', async () => {
             await movimientosNav.navegarAIngresos();
@@ -73,15 +73,15 @@ test.describe('MS-7 | Movimientos Masivos @masivos', {tag: ['@logistica', '@movi
     // Scenario 35: Movimiento masivo con productos e insumos
     // ═══════════════════════════════════════════════════════════════
     test('debe procesar movimiento masivo con productos e insumos @MS-7', async ({
-                                                                               movimientosNav,
-                                                                               listadoMovimientos,
-                                                                               stockVerificacion,
-                                                                               kardexVerificacion,
-                                                                               movimientoRapido,
-                                                                               page,
-                                                                           }) => {
+                                                                                     movimientosNav,
+                                                                                     listadoMovimientos,
+                                                                                     stockVerificacion,
+                                                                                     kardexVerificacion,
+                                                                                     movimientoRapido,
+                                                                                     page,
+                                                                                 }) => {
 
-        const excelPath = path.resolve(__dirname, '../../../src/data', EXCEL_MASIVOS.INGRESOS_INSUMOS);
+        const excelPath = path.resolve(__dirname, '../../../../src/data', EXCEL_MASIVOS.INGRESOS_INSUMOS);
 
         await test.step('Given: navegar a Ingresos', async () => {
             await movimientosNav.navegarAIngresos();
@@ -121,8 +121,6 @@ test.describe('MS-7 | Movimientos Masivos @masivos', {tag: ['@logistica', '@movi
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.MASIVO_INSUMO.codigo);
             await kardexVerificacion.clickVariosTexto();
             await kardexVerificacion.clickKardexPorProducto();
-            await page.getByText('ALMACÉN DE VENTASSaldo').click();
-            await page.getByText('ALMACÉN DE VENTASSaldo').click();
             await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.VENTAS);
             await expect(page.getByText(PATRON_CODIGO.INGRESO).first()).toBeVisible();
             await kardexVerificacion.cerrarModalDetalle();

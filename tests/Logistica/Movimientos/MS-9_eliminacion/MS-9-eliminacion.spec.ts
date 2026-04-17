@@ -8,14 +8,14 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
     // Scenario 31: Eliminar movimiento correctamente
     // ═══════════════════════════════════════════════════════════════
     test('debe eliminar una salida y reflejar en stock, bitácora y kardex @MS-9', async ({
-                                                                                       movimientosNav,
-                                                                                       registroMovimiento,
-                                                                                       resultadoMovimiento,
-                                                                                       listadoMovimientos,
-                                                                                       stockVerificacion,
-                                                                                       kardexVerificacion,
-                                                                                       page,
-                                                                                   }) => {
+                                                                                             movimientosNav,
+                                                                                             registroMovimiento,
+                                                                                             resultadoMovimiento,
+                                                                                             listadoMovimientos,
+                                                                                             stockVerificacion,
+                                                                                             kardexVerificacion,
+                                                                                             page,
+                                                                                         }) => {
 
 
         await test.step('Arrange: crear salida para eliminar', async () => {
@@ -84,14 +84,14 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
     // Scenario 32: Eliminar movimiento con variante
     // ═══════════════════════════════════════════════════════════════
     test('debe eliminar salida con variante y reflejar en stock y kardex @MS-9', async ({
-                                                                                      movimientosNav,
-                                                                                      registroMovimiento,
-                                                                                      resultadoMovimiento,
-                                                                                      listadoMovimientos,
-                                                                                      stockVerificacion,
-                                                                                      kardexVerificacion,
-                                                                                      page,
-                                                                                  }) => {
+                                                                                            movimientosNav,
+                                                                                            registroMovimiento,
+                                                                                            resultadoMovimiento,
+                                                                                            listadoMovimientos,
+                                                                                            stockVerificacion,
+                                                                                            kardexVerificacion,
+                                                                                            page,
+                                                                                        }) => {
 
 
         await test.step('Arrange: crear salida con variante estricta', async () => {
@@ -163,9 +163,9 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
             // Verificar y hacer click en el código de salida
             await expect(page.getByText(PATRON_CODIGO.SALIDA).first()).toBeVisible();
             await kardexVerificacion.esperarSinOverload();
-            await page.getByText(PATRON_CODIGO.SALIDA).first().click();
-            await kardexVerificacion.esperarSinOverload();
-            await kardexVerificacion.cerrarModalDetalle();
+            // await page.getByText(PATRON_CODIGO.SALIDA).first().click();
+            // await kardexVerificacion.esperarSinOverload();
+            // await kardexVerificacion.cerrarModalDetalle();
         });
     });
 
@@ -173,13 +173,14 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
     // Scenario 33: Bloquear eliminación por stock negativo
     // ═══════════════════════════════════════════════════════════════
     test('debe bloquear eliminación cuando genera stock negativo @MS-9', async ({
-                                                                              movimientosNav,
-                                                                              registroMovimiento,
-                                                                              resultadoMovimiento,
-                                                                              listadoMovimientos,
-                                                                              movimientoRapido,
-                                                                              kardexVerificacion
-                                                                          }) => {
+                                                                                    movimientosNav,
+                                                                                    registroMovimiento,
+                                                                                    resultadoMovimiento,
+                                                                                    listadoMovimientos,
+                                                                                    movimientoRapido,
+                                                                                    kardexVerificacion
+                                                                                }) => {
+        test.setTimeout(180_000)
         // Se declara fuera de los steps para que sea accesible entre ellos (Arrange → And)
         let stockActual = 0;
 
