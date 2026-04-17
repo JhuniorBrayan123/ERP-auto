@@ -15,7 +15,10 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
                                                                                              stockVerificacion,
                                                                                              kardexVerificacion,
                                                                                              page,
+                                                                                             request,
                                                                                          }) => {
+        let saldoAfectadoAPI = 0;
+        let token = '';
 
 
         await test.step('Arrange: crear salida para eliminar', async () => {
@@ -43,14 +46,29 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
             await expect(kardexPage.getByText(PATRON_CODIGO.SALIDA).first()).toBeVisible();
             await kardexPopup.cerrarModalDetalle();
 
-            // // Navegar al kardex total desde el popup
-            // await kardexPopup.navegarAKardexTotalDesdePopup1();
-            // await kardexPopup.buscarPorCodigo(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
-            // await kardexPopup.clickVariosTexto();
-            // await kardexPopup.clickKardexPorProducto();
-            // await kardexPopup.abrirVerDetalle(1);
-            // await expect(kardexPage.getByText(PATRON_CODIGO.SALIDA).first()).toBeVisible();
-            // await kardexPopup.cerrarModalDetalle();
+        });
+
+        await test.step('API Arrange: Extraer token y obtener saldo antes de eliminar', async () => {
+            // El usuario ya inició sesión gracias al storageState y el dominio ya está cargado
+            token = (await page.evaluate(() => localStorage.getItem('AccessToken'))) || '';
+            const fechaHoy = new Date().toISOString().split('T')[0]; // Hoy
+
+            const apiUrl = `https://erpperuapi-crt-3.smartclic.pe/Logistica/api/v1/kardexs/total/filtroAvanzado?fechaInicio=2020-01-01&fechaFin=${fechaHoy}&tipoSaldoInicial=2&pagina=1&tamanio=10&Almacenes=255629&Almacenes=255630&TipoItem=1&TipoItem=6&BusquedaCompuesta=${ITEMS_TEST.PRODUCTO_GRAVADO.codigo}`;
+
+            const response = await request.get(apiUrl, {
+                headers: {'Authorization': `Bearer ${token}`}
+            });
+            const body = await response.json();
+
+            // Asumimos que la data trae el primer item y luego iteramos sus almacenes buscando el AUTO
+            const dataItem = body.Data[0];
+            const almacenAuto = dataItem.Almacenes.find((a: any) =>
+                a.DescripcionAlmacen && a.DescripcionAlmacen.includes('AUTO')
+            );
+
+            // Si lo encuentra guarda el Saldo Final actual (post-salida), sino el del primer almacén por defecto.
+            saldoAfectadoAPI = almacenAuto ? almacenAuto.SaldoFinal : dataItem.Almacenes[0].SaldoFinal;
+            // console.log(`\n [Backend] KARDEX (ANTES de eliminar): El Saldo Final del Almacén AUTO es = ${saldoAfectadoAPI}`);
         });
 
         await test.step('Act: eliminar el movimiento desde el listado', async () => {
@@ -77,6 +95,29 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
             await kardexVerificacion.clickVariosTexto();
             await kardexVerificacion.clickKardexPorProducto();
             await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
+        });
+
+        await test.step('API Assert: verificar que el backend sumó el saldo tras eliminación', async () => {
+            // Re-evaluar api despues de la eliminación por UI (Eliminar una salida de 10 suma 10 al stock)
+            const fechaHoy = new Date().toISOString().split('T')[0];
+            const apiUrl = `https://erpperuapi-crt-3.smartclic.pe/Logistica/api/v1/kardexs/total/filtroAvanzado?fechaInicio=2020-01-01&fechaFin=${fechaHoy}&tipoSaldoInicial=2&pagina=1&tamanio=10&Almacenes=255629&Almacenes=255630&TipoItem=1&TipoItem=6&BusquedaCompuesta=${ITEMS_TEST.PRODUCTO_GRAVADO.codigo}`;
+
+            const response = await request.get(apiUrl, {
+                headers: {'Authorization': `Bearer ${token}`}
+            });
+            const body = await response.json();
+
+            const dataItem = body.Data[0];
+            const almacenAuto = dataItem.Almacenes.find((a: any) =>
+                a.DescripcionAlmacen && a.DescripcionAlmacen.includes('AUTO')
+            );
+            const saldoFinalPostEliminacion = almacenAuto ? almacenAuto.SaldoFinal : dataItem.Almacenes[0].SaldoFinal;
+
+            // console.log(` [Backend] KARDEX (DESPUÉS de eliminar): El Saldo Final del Almacén AUTO es = ${saldoFinalPostEliminacion}`);
+            // console.log(` [Validación Matemática]: Se esperaba que pase de ${saldoAfectadoAPI} a ${saldoAfectadoAPI + 10}. ¡Y resultó ser ${saldoFinalPostEliminacion}!`);
+
+            // Como eliminamos una salida de 10 unidades, el saldo actual debe ser el saldoAfectadoAPI + 10
+            expect(saldoFinalPostEliminacion).toBe(saldoAfectadoAPI + 10);
         });
     });
 
