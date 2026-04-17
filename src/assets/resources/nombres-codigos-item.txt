@@ -6,7 +6,7 @@
 
 313131= item con variante flexible //Se usa para movimientos tambien
 131313 = item variante estricto gravado
-333333 = QA
+333333 =item variante sin control gravado
 
 101010 = item equivalente estricto
 202020 = item equivalente flexible //Se usa para movimientos tambien

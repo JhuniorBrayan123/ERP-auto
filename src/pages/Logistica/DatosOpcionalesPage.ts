@@ -102,6 +102,45 @@ export class DatosOpcionalesPage {
         await this.page.getByText(texto).click();
     }
 
+    /** Crea un cliente nuevo completo */
+    async crearCliente(datos: ProveedorData): Promise<void> {
+        await this.page.getByRole('button', {name: 'Agregar cliente'}).click();
+
+        // Número de documento (DNI por defecto en UI)
+        const inputDoc = this.page.locator(
+            '[id="pv_conductores_form-registro-relacionado-entidad:form_basico:v-input:num-document"]',
+        );
+        await inputDoc.click();
+        await inputDoc.fill(datos.numDocumento);
+
+        // Consultar SUNAT/RENIEC
+        await this.page.getByRole('button', {name: 'Consultar SUNAT/RENIEC'}).click();
+
+        // Dirección
+        if (datos.direccion) {
+            const inputDir = this.page.getByRole('textbox', {name: 'Ej. Calle Los Manzanos 120,'});
+            await inputDir.click();
+            await inputDir.fill(datos.direccion);
+        }
+
+        // Teléfono
+        if (datos.telefono) {
+            const inputTel = this.page.getByRole('textbox', {name: 'Ej. 954588556'});
+            await inputTel.click();
+            await inputTel.fill(datos.telefono);
+        }
+
+        // Email
+        if (datos.email) {
+            const inputEmail = this.page.getByRole('textbox', {name: 'Ej. usuario@correo.com'});
+            await inputEmail.click();
+            await inputEmail.fill(datos.email);
+        }
+
+        // Crear cliente
+        await this.page.getByRole('button', {name: 'Crear cliente'}).click();
+    }
+
     // ─── Campos adicionales ─────────────────────────────────────
 
     /** Click en "Nuevo campo adicional" */
