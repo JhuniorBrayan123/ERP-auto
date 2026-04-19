@@ -10,7 +10,7 @@ test.describe('MS-3 | Datos Adicionales de Movimientos @datos-adicionales', {tag
     // ═══════════════════════════════════════════════════════════════
     // Scenario 47: Registrar datos adicionales completos
     // ═══════════════════════════════════════════════════════════════
-    test('debe registrar movimiento con datos adicionales completos y verificar en detalle @MS-3', async ({
+    test('Registrar datos adicionales completos @MS-3', async ({
                                                                                                         movimientosNav,
                                                                                                         registroMovimiento,
                                                                                                         datosOpcionales,
@@ -66,7 +66,7 @@ test.describe('MS-3 | Datos Adicionales de Movimientos @datos-adicionales', {tag
     // ═══════════════════════════════════════════════════════════════
     // Scenario 48: Agregar documento relacionado (comprobante)
     // ═══════════════════════════════════════════════════════════════
-    test('debe agregar comprobante relacionado al movimiento y verificar en tab Comprobantes @MS-3', async ({
+    test('Agregar documento relacionado (comprobante) @MS-3', async ({
                                                                                                           movimientosNav,
                                                                                                           registroMovimiento,
                                                                                                           datosOpcionales,

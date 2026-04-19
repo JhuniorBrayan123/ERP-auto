@@ -13,7 +13,7 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
     // ═══════════════════════════════════════════════════════════════
     // Scenario 43: Aumentar stock desde modal de producto
     // ═══════════════════════════════════════════════════════════════
-    test('debe aumentar stock de un producto desde el modal rápido @MS-12', async ({
+    test('Aumentar stock desde modal de producto @MS-12', async ({
                                                                                 movimientosNav,
                                                                                 movimientoRapido,
                                                                                 stockVerificacion,
@@ -71,7 +71,7 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
     // ═══════════════════════════════════════════════════════════════
     // Scenario 44: Aumentar stock con variante
     // ═══════════════════════════════════════════════════════════════
-    test('debe aumentar stock de una variante desde el modal rápido @MS-12', async ({
+    test('Aumentar stock con variante @MS-12', async ({
                                                                                  movimientosNav,
                                                                                  movimientoRapido,
                                                                                  stockVerificacion,
@@ -118,7 +118,7 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
     // ═══════════════════════════════════════════════════════════════
     // Scenario 45: Disminuir stock desde modal de producto
     // ═══════════════════════════════════════════════════════════════
-    test('debe disminuir stock de un producto desde el modal rápido @MS-12', async ({
+    test('Disminuir stock desde modal de producto @MS-12', async ({
                                                                                  movimientosNav,
                                                                                  movimientoRapido,
                                                                                  stockVerificacion,
@@ -168,7 +168,7 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
     // ═══════════════════════════════════════════════════════════════
     // Scenario 46: Disminuir stock con insumo
     // ═══════════════════════════════════════════════════════════════
-    test('debe disminuir stock de un insumo desde el modal rápido @MS-12', async ({
+    test('Disminuir stock con insumo @MS-12', async ({
                                                                                movimientosNav,
                                                                                movimientoRapido,
                                                                                stockVerificacion,

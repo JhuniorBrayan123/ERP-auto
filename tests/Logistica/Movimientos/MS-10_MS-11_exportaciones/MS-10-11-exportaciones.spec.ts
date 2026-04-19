@@ -5,7 +5,7 @@ test.describe('MS-10-11 | Exportaciones de Movimientos @exportaciones', { tag: [
   // ═══════════════════════════════════════════════════════════════
   // Scenario 41: Exportar movimientos con filtros
   // ═══════════════════════════════════════════════════════════════
-  test('debe exportar movimientos filtrados por tipo y almacén @MS-10-11', async ({
+  test('Exportar movimientos con filtros @MS-10-11', async ({
     movimientosNav,
     listadoMovimientos,
     page,
@@ -33,7 +33,7 @@ test.describe('MS-10-11 | Exportaciones de Movimientos @exportaciones', { tag: [
   // ═══════════════════════════════════════════════════════════════
   // Scenario 42: Exportar todos los movimientos detallados
   // ═══════════════════════════════════════════════════════════════
-  test('debe exportar todos los movimientos detallados sin filtros @MS-10-11', async ({
+  test('Exportar todos los movimientos detallados @MS-10-11', async ({
     movimientosNav,
     listadoMovimientos,
     page,

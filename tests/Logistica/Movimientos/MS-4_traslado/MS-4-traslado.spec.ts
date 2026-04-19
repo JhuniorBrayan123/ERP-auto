@@ -14,7 +14,7 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
     // ═══════════════════════════════════════════════════════════════
     // Scenario 18: Registrar traslado correctamente
     // ═══════════════════════════════════════════════════════════════
-    test('debe registrar un traslado entre almacenes y verificar stock y kardex @MS-4', async ({
+    test('Registrar traslado correctamente @MS-4', async ({
                                                                                              movimientosNav,
                                                                                              registroMovimiento,
                                                                                              resultadoMovimiento,
@@ -73,7 +73,7 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
     // ═══════════════════════════════════════════════════════════════
     // Scenario 19: Validar traslado con mismo almacén
     // ═══════════════════════════════════════════════════════════════
-    test('debe bloquear traslado cuando origen y destino son el mismo almacén @MS-4', async ({
+    test('Validar traslado con mismo almacén @MS-4', async ({
                                                                                            movimientosNav,
                                                                                            registroMovimiento,
                                                                                            page,
@@ -104,7 +104,7 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
     // ═══════════════════════════════════════════════════════════════
     // Scenario 20: Registrar traslado con variante
     // ═══════════════════════════════════════════════════════════════
-    test('debe registrar traslado con variante y verificar stock @MS-4', async ({
+    test('Registrar traslado con variante @MS-4', async ({
                                                                               movimientosNav,
                                                                               registroMovimiento,
                                                                               resultadoMovimiento,
@@ -151,7 +151,7 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
     // ═══════════════════════════════════════════════════════════════
     // Scenario 21: Registrar traslado con datos adicionales
     // ═══════════════════════════════════════════════════════════════
-    test('debe registrar traslado con datos adicionales @MS-4', async ({
+    test('Registrar traslado con datos adicionales @MS-4', async ({
                                                                      movimientosNav,
                                                                      registroMovimiento,
                                                                      datosOpcionales,
@@ -207,7 +207,7 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
     // ═══════════════════════════════════════════════════════════════
     // Scenario 22: Registrar traslado por confirmar + configuración
     // ═══════════════════════════════════════════════════════════════
-    test('debe registrar traslado por confirmar con preferencia avanzada @MS-4', async ({
+    test('Registrar traslado por confirmar + configuración @MS-4', async ({
                                                                                       movimientosNav,
                                                                                       registroMovimiento,
                                                                                       resultadoMovimiento,

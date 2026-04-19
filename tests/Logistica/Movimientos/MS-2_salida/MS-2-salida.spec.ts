@@ -14,7 +14,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
     // ═══════════════════════════════════════════════════════════════
     // Scenario 7: Registrar salida correctamente y reflejar disminución de stock
     // ═══════════════════════════════════════════════════════════════
-    test('debe registrar una salida con producto y verificar disminución de stock y kardex @MS-2', async ({
+    test('Registrar salida correctamente y reflejar disminución de stock @MS-2', async ({
                                                                                                               movimientosNav,
                                                                                                               registroMovimiento,
                                                                                                               resultadoMovimiento,
@@ -67,7 +67,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
     // ═══════════════════════════════════════════════════════════════
     // Scenario 8: Registrar salida con insumo
     // ═══════════════════════════════════════════════════════════════
-    test('debe registrar una salida con insumo y verificar stock y kardex @MS-2', async ({
+    test('Registrar salida con insumo @MS-2', async ({
                                                                                              movimientosNav,
                                                                                              registroMovimiento,
                                                                                              resultadoMovimiento,
@@ -116,7 +116,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
     // ═══════════════════════════════════════════════════════════════
     // Scenario 9: Registrar salida con variante
     // ═══════════════════════════════════════════════════════════════
-    test('debe registrar una salida con variante y verificar stock y kardex @MS-2', async ({
+    test('Registrar salida con variante @MS-2', async ({
                                                                                                movimientosNav,
                                                                                                registroMovimiento,
                                                                                                resultadoMovimiento,
@@ -158,7 +158,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
     // ═══════════════════════════════════════════════════════════════
     // Scenario 10: Registrar salida con ítem con equivalencia
     // ═══════════════════════════════════════════════════════════════
-    test('debe registrar una salida con ítem con equivalencia y verificar stock @MS-2', async ({
+    test('Registrar salida con ítem con equivalencia @MS-2', async ({
                                                                                                    movimientosNav,
                                                                                                    registroMovimiento,
                                                                                                    resultadoMovimiento,
@@ -202,7 +202,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
     // ═══════════════════════════════════════════════════════════════
     // Scenario 11: Despachar salida correctamente liberando stock comprometido
     // ═══════════════════════════════════════════════════════════════
-    test('debe despachar salida registrada y liberar stock comprometido @MS-2', async ({
+    test('Despachar salida correctamente liberando stock comprometido @MS-2', async ({
                                                                                            movimientosNav,
                                                                                            registroMovimiento,
                                                                                            resultadoMovimiento,
@@ -256,7 +256,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
     // ═══════════════════════════════════════════════════════════════
     // Scenario 12: Registrar salida con datos adicionales
     // ═══════════════════════════════════════════════════════════════
-    test('debe registrar salida con datos adicionales (cliente existente) @MS-2', async ({
+    test('Registrar salida con datos adicionales @MS-2', async ({
                                                                                              movimientosNav,
                                                                                              registroMovimiento,
                                                                                              datosOpcionales,

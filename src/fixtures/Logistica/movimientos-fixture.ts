@@ -7,6 +7,8 @@ import { StockVerificacionPage } from '../../pages/Logistica/StockVerificacionPa
 import { KardexVerificacionPage } from '../../pages/Logistica/KardexVerificacionPage';
 import { DatosOpcionalesPage } from '../../pages/Logistica/DatosOpcionalesPage';
 import { MovimientoRapidoPage } from '../../pages/Logistica/MovimientoRapidoPage';
+import { KardexApi } from '../../services/Logistica/KardexApi';
+import { getAccessToken } from '../../helpers/Logistica/get-access-token.helper';
 
 /**
  * Tipos de todas las fixtures disponibles para tests de Movimientos de Logística.
@@ -20,6 +22,7 @@ type MovimientosFixtures = {
   kardexVerificacion: KardexVerificacionPage;
   datosOpcionales: DatosOpcionalesPage;
   movimientoRapido: MovimientoRapidoPage;
+  kardexApi: KardexApi;
 };
 
 /**
@@ -69,22 +72,11 @@ export const test = base.extend<MovimientosFixtures>({
   movimientoRapido: async ({ page }, use) => {
     await use(new MovimientoRapidoPage(page));
   },
-});
 
-/**
- * afterEach hook global: Imprime PASS/FAIL en consola tras cada test.
- * Facilita la lectura de resultados en Jenkins y terminal.
- */
-test.afterEach(async ({}, testInfo) => {
-  const status = testInfo.status === 'passed' ? ' PASS' : ' FAIL';
-  const duracion = ((testInfo.duration ?? 0) / 1000).toFixed(1);
-  const mensaje = `${status}: ${testInfo.title} (${duracion}s)`;
-
-  if (testInfo.status !== 'passed' && testInfo.error) {
-    console.log(`${mensaje} → ${testInfo.error.message}`);
-  } else {
-    console.log(mensaje);
-  }
+  kardexApi: async ({ request, page }, use) => {
+    const token = await getAccessToken(page);
+    await use(new KardexApi(request, token));
+  },
 });
 
 export { expect } from '@playwright/test';

@@ -6,7 +6,7 @@ test.describe('MS-8 | Acciones de Movimientos @acciones', { tag: ['@logistica', 
   // ═══════════════════════════════════════════════════════════════
   // Scenario 36: Imprimir movimiento A4
   // ═══════════════════════════════════════════════════════════════
-  test('debe imprimir movimiento en formato A4 desde la lista @MS-8', async ({
+  test('Imprimir movimiento A4 @MS-8', async ({
     movimientosNav,
     listadoMovimientos,
     page,
@@ -30,7 +30,7 @@ test.describe('MS-8 | Acciones de Movimientos @acciones', { tag: ['@logistica', 
   // ═══════════════════════════════════════════════════════════════
   // Scenario 37: Imprimir movimiento Ticket
   // ═══════════════════════════════════════════════════════════════
-  test('debe imprimir movimiento en formato Ticket desde la lista @MS-8', async ({
+  test('Imprimir movimiento Ticket @MS-8', async ({
     movimientosNav,
     listadoMovimientos,
     page,
@@ -54,7 +54,7 @@ test.describe('MS-8 | Acciones de Movimientos @acciones', { tag: ['@logistica', 
   // ═══════════════════════════════════════════════════════════════
   // Scenario 38: Enviar movimiento por WhatsApp
   // ═══════════════════════════════════════════════════════════════
-  test('debe enviar movimiento por WhatsApp desde la lista @MS-8', async ({
+  test('Enviar movimiento por WhatsApp @MS-8', async ({
     movimientosNav,
     listadoMovimientos,
     page,
@@ -79,7 +79,7 @@ test.describe('MS-8 | Acciones de Movimientos @acciones', { tag: ['@logistica', 
   // ═══════════════════════════════════════════════════════════════
   // Scenario 39: Enviar movimiento por Email
   // ═══════════════════════════════════════════════════════════════
-  test('debe enviar movimiento por Email desde la lista @MS-8', async ({
+  test('Enviar movimiento por Email @MS-8', async ({
     movimientosNav,
     listadoMovimientos,
     page,
@@ -104,7 +104,7 @@ test.describe('MS-8 | Acciones de Movimientos @acciones', { tag: ['@logistica', 
   // ═══════════════════════════════════════════════════════════════
   // Scenario 40: Descargar PDF de movimiento
   // ═══════════════════════════════════════════════════════════════
-  test('debe descargar PDF de un movimiento desde la lista @MS-8', async ({
+  test('Descargar PDF de movimiento @MS-8', async ({
     movimientosNav,
     listadoMovimientos,
     page,

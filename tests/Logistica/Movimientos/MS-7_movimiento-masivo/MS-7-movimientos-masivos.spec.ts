@@ -7,7 +7,7 @@ test.describe('MS-7 | Movimientos Masivos @masivos', {tag: ['@logistica', '@movi
     // ═══════════════════════════════════════════════════════════════
     // Scenario 34: Registrar movimiento masivo correctamente
     // ═══════════════════════════════════════════════════════════════
-    test('debe procesar movimiento masivo de ingresos desde excel @MS-7', async ({
+    test('Registrar movimiento masivo correctamente @MS-7', async ({
                                                                                      movimientosNav,
                                                                                      listadoMovimientos,
                                                                                      stockVerificacion,
@@ -72,7 +72,7 @@ test.describe('MS-7 | Movimientos Masivos @masivos', {tag: ['@logistica', '@movi
     // ═══════════════════════════════════════════════════════════════
     // Scenario 35: Movimiento masivo con productos e insumos
     // ═══════════════════════════════════════════════════════════════
-    test('debe procesar movimiento masivo con productos e insumos @MS-7', async ({
+    test('Movimiento masivo con productos e insumos @MS-7', async ({
                                                                                      movimientosNav,
                                                                                      listadoMovimientos,
                                                                                      stockVerificacion,

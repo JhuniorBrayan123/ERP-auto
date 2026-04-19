@@ -26,8 +26,8 @@ export default defineConfig({
 
     /* ─── Reporters ─── */
     reporter: [
-        ['list'],                                          // consola legible
-        ['html', {open: 'never'}],                       // reporte HTML
+        ['./src/utils/maven-reporter.ts'],                   // consola estilo Maven/Surefire
+        ['html', {open: 'never'}],                           // reporte HTML
         ['junit', {outputFile: 'test-results/results.xml'}], // Jenkins
         //['./src/utils/discord-reporter.ts'],
     ],
