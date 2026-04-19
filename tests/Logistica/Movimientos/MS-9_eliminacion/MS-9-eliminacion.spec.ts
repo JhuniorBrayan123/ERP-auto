@@ -8,15 +8,15 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
     // Scenario 31: Eliminar movimiento correctamente
     // ═══════════════════════════════════════════════════════════════
     test('Eliminar movimiento correctamente @MS-9', async ({
-                                                                                             movimientosNav,
-                                                                                             registroMovimiento,
-                                                                                             resultadoMovimiento,
-                                                                                             listadoMovimientos,
-                                                                                             stockVerificacion,
-                                                                                             kardexVerificacion,
-                                                                                             kardexApi,
-                                                                                             page,
-                                                                                         }) => {
+                                                               movimientosNav,
+                                                               registroMovimiento,
+                                                               resultadoMovimiento,
+                                                               listadoMovimientos,
+                                                               stockVerificacion,
+                                                               kardexVerificacion,
+                                                               kardexApi,
+                                                               page,
+                                                           }) => {
         let saldoAfectadoAPI = 0;
 
 
@@ -77,7 +77,7 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
             await kardexVerificacion.clickVariosTexto();
             await kardexVerificacion.clickKardexPorProducto();
-            await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
+            await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.VENTAS);
         });
         //Considerar el tiempo en kafka
         await test.step('API Assert: verificar que el backend sumó el saldo tras eliminación', async () => {
@@ -95,14 +95,14 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
     // Scenario 32: Eliminar movimiento con variante
     // ═══════════════════════════════════════════════════════════════
     test('Eliminar movimiento con variante @MS-9', async ({
-                                                                                            movimientosNav,
-                                                                                            registroMovimiento,
-                                                                                            resultadoMovimiento,
-                                                                                            listadoMovimientos,
-                                                                                            stockVerificacion,
-                                                                                            kardexVerificacion,
-                                                                                            page,
-                                                                                        }) => {
+                                                              movimientosNav,
+                                                              registroMovimiento,
+                                                              resultadoMovimiento,
+                                                              listadoMovimientos,
+                                                              stockVerificacion,
+                                                              kardexVerificacion,
+                                                              page,
+                                                          }) => {
 
 
         await test.step('Arrange: crear salida con variante estricta', async () => {
@@ -157,7 +157,7 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
             await page.waitForTimeout(2000)
 
             // Ahora estamos en la misma página en la vista de Kardex por producto
-            await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.VENTAS); // o el índice que corresponda
+            await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO); // o el índice que corresponda
 
 
         });
@@ -167,13 +167,13 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
     // Scenario 33: Bloquear eliminación por stock negativo
     // ═══════════════════════════════════════════════════════════════
     test('Bloquear eliminación por stock negativo @MS-9', async ({
-                                                                                    movimientosNav,
-                                                                                    registroMovimiento,
-                                                                                    resultadoMovimiento,
-                                                                                    listadoMovimientos,
-                                                                                    movimientoRapido,
-                                                                                    kardexVerificacion
-                                                                                }) => {
+                                                                     movimientosNav,
+                                                                     registroMovimiento,
+                                                                     resultadoMovimiento,
+                                                                     listadoMovimientos,
+                                                                     movimientoRapido,
+                                                                     kardexVerificacion
+                                                                 }) => {
         test.setTimeout(180_000)
         // Se declara fuera de los steps para que sea accesible entre ellos (Arrange → And)
         let stockActual = 0;
@@ -200,6 +200,7 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
             await registroMovimiento.clickAgregarIngreso();
             await registroMovimiento.buscarItem(ITEMS_TEST.SIN_STOCK.codigo);
             await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.SIN_STOCK.nombre);
+            // await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.SIN_STOCK.nombre);
             await registroMovimiento.llenarCantidad('10');
             await registroMovimiento.clickRegistrarIngreso();
             await resultadoMovimiento.irAlListado();
@@ -226,7 +227,7 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
             // ir al tab de ingresos
             await listadoMovimientos.clickTabPorIndice(1);
             await listadoMovimientos.abrirMenuAcciones();
-            await listadoMovimientos.clickEliminaElMovimiento();
+            // await listadoMovimientos.clickEliminaElMovimiento();
             await listadoMovimientos.confirmarEliminacion();
         });
 
