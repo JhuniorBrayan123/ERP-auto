@@ -89,59 +89,6 @@ export class KardexVerificacionPage {
         });
     }
 
-    /**
-     * En la pestaña "Kardex por producto", elige el almacén en el filtro superior.
-     * Sin esto el panel Stock puede quedar vacío y no aparece ningún "VER DETALLE".
-     */
-    // async seleccionarAlmacenFiltroKardexPorProducto(nombreAlmacen: string): Promise<void> {
-    //     await this.esperarSinOverload();
-    //     const scope = this.page.getByRole('article');
-    //     await expect(scope.getByText('Información básica')).toBeVisible({timeout: 15_000});
-    //
-    //     // ── Abrir el dropdown: clickea el select/combobox junto al label "Almacén" ──
-    //     // Estrategia 1: combobox o select dentro del article
-    //     const dropdown = scope.getByRole('combobox').first();
-    //     if (await dropdown.isVisible().catch(() => false)) {
-    //         await dropdown.click();
-    //     } else {
-    //         // Estrategia 2: el contenedor del label "Almacén" + su control hermano
-    //         const labelAlmacen = scope.getByText('Almacén', {exact: true}).first();
-    //         // Sube al padre y busca el elemento clickeable dentro (select, button, input)
-    //         await labelAlmacen
-    //             .locator('..')
-    //             .locator('select, input, button, .v-select__selection, [role="button"]')
-    //             .first()
-    //             .click();
-    //     }
-    //
-    //     await this.page.waitForTimeout(400);
-    //
-    //     // ── Seleccionar la opción del almacén ────────────────────────────────────
-    //     const strip = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    //     const parts = strip(nombreAlmacen)
-    //         .split(/\s+/)
-    //         .filter(Boolean)
-    //         .map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-    //     const nombreRx = new RegExp(parts.join('.*'), 'i');
-    //
-    //     // Las opciones del dropdown aparecen fuera del article
-    //     const opcion = this.page
-    //         .getByRole('option', {name: nombreRx})
-    //         .or(this.page.locator('.v-list-item, li').filter({hasText: nombreRx}))
-    //         .first();
-    //
-    //     await opcion.waitFor({state: 'visible', timeout: 5_000});
-    //     await opcion.click();
-    //
-    //     await this.esperarSinOverload();
-    //
-    //     // ── Scroll a VER DETALLE ─────────────────────────────────────────────────
-    //     const verDetallePrimero = this.verDetalleButtons().first();
-    //     await verDetallePrimero.waitFor({state: 'attached', timeout: 25_000});
-    //     await verDetallePrimero.scrollIntoViewIfNeeded();
-    //     await verDetallePrimero.waitFor({state: 'visible', timeout: 10_000});
-    // }
-
     // ─── Variantes ──────────────────────────────────────────────
 
     /** Click en una variante dentro del Kardex */
@@ -200,7 +147,7 @@ export class KardexVerificacionPage {
 
         await cardAlmacen.scrollIntoViewIfNeeded();
 
-        // ✅ Apunta solo al <button>, no a los divs con el mismo ID
+        //  Apunta solo al <button>, no a los divs con el mismo ID
         const boton = cardAlmacen.locator(
             'button[id="lgt_kardexs_cmp-cards-almacen:card-almacen_v-button:ver-detalle"]'
         ).first();

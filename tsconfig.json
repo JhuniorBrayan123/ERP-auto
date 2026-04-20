@@ -15,7 +15,8 @@
       "@fixtures/*": ["src/fixtures/*"],
       "@helpers/*": ["src/helpers/*"],
       "@pages/*": ["src/pages/*"],
-      "@data/*": ["src/data/*"]
+      "@data/*": ["src/data/*"],
+      "@services/*": ["src/services/*"]
     }
   },
   "include": [
