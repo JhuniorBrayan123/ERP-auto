@@ -9,6 +9,7 @@ import {
 import {
     crearAjusteConItem,
     definirCantidadYFactor,
+    ejecutarAjusteEstandar,
     registrarAjusteEIrAlListado,
     verificarStockYKardex
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
@@ -29,17 +30,17 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
                                                            page,
                                                        }) => {
 
-        await test.step('Given: navegar a Ajustes', async () => {
-            await movimientosNav.navegarAAjustes();
-        });
-        await crearAjusteConItem(registroMovimiento,
-            ITEMS_TEST.PRODUCTO_ESTRICTO.codigo,
-            ITEMS_TEST.PRODUCTO_ESTRICTO.nombre);
-        await definirCantidadYFactor(registroMovimiento, '500', 'Agregar')
-        await registrarAjusteEIrAlListado(registroMovimiento, resultadoMovimiento);
-        await verificarStockYKardex(
-            movimientosNav, stockVerificacion, kardexVerificacion, page,
-            ITEMS_TEST.PRODUCTO_ESTRICTO.codigo, ALMACENES.AUTO, PATRON_CODIGO.AJUSTE
+        await ejecutarAjusteEstandar(
+            movimientosNav, registroMovimiento, resultadoMovimiento,
+            stockVerificacion, kardexVerificacion, page,
+            {
+                codigoItem: ITEMS_TEST.PRODUCTO_ESTRICTO.codigo,
+                nombreItem: ITEMS_TEST.PRODUCTO_ESTRICTO.nombre,
+                cantidad: '500',
+                factor: 'Agregar',
+                almacen: ALMACENES.AUTO,
+                patronCodigo: PATRON_CODIGO.AJUSTE,
+            }
         );
     });
 
@@ -59,15 +60,11 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
         await test.step('Given: navegar a Ajustes', async () => {
             await movimientosNav.navegarAAjustesDesdeMenu();
         });
-
         await crearAjusteConItem(registroMovimiento,
             ITEMS_TEST.PRODUCTO_ESTRICTO.codigo,
             ITEMS_TEST.PRODUCTO_ESTRICTO.nombre
         );
-        await test.step('And: definir cantidad y factor Quitar', async () => {
-            await registroMovimiento.llenarCantidad('400');
-            await registroMovimiento.seleccionarFactorAjuste('Quitar');
-        });
+        await definirCantidadYFactor(registroMovimiento, '400', 'Quitar')
         await registrarAjusteEIrAlListado(registroMovimiento, resultadoMovimiento
         );
         await verificarStockYKardex(

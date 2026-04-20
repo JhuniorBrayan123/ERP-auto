@@ -83,4 +83,39 @@ export const definirCantidadYFactor = async (
         await registroMovimiento.seleccionarFactorAjuste(factor);
     });
 };
+/**
+ * Flujo completo estándar de un ajuste de almacén.
+ * Cubre el 90% de los scenarios: navegar → crear → cantidad/factor → registrar → verificar.
+ */
+export const ejecutarAjusteEstandar = async (
+    movimientosNav: MovimientosNavigationPage,
+    registroMovimiento: RegistroMovimientoPage,
+    resultadoMovimiento: ResultadoMovimientoPage,
+    stockVerificacion: StockVerificacionPage,
+    kardexVerificacion: KardexVerificacionPage,
+    page: Page,
+    params: {
+        codigoItem: string;
+        nombreItem: string;
+        cantidad: string;
+        factor: 'Agregar' | 'Quitar';
+        almacen: string;
+        patronCodigo: RegExp;
+        textClickEquivalente?: string;
+    }
+) => {
+    await test.step('Given: navegar a Ajustes', async () => {
+        await movimientosNav.navegarAAjustes();
+    });
 
+    await crearAjusteConItem(registroMovimiento, params.codigoItem, params.nombreItem);
+
+    await definirCantidadYFactor(registroMovimiento, params.cantidad, params.factor);
+
+    await registrarAjusteEIrAlListado(registroMovimiento, resultadoMovimiento);
+
+    await verificarStockYKardex(
+        movimientosNav, stockVerificacion, kardexVerificacion, page,
+        params.codigoItem, params.almacen, params.patronCodigo, params.textClickEquivalente
+    );
+};
