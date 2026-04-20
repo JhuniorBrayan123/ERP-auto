@@ -28,12 +28,25 @@ export const ITEMS_TEST = {
 // ─── Variantes ────────────────────────────────────────────────────────
 
 export const VARIANTES = {
-    V1_FLEXIBLE: 'Variante 1 flexible',
-    V2_FLEXIBLE: 'Variante 2 flexible',
-    V3_FLEXIBLE: 'Variante 3 flexible',
-    V3_ESTRICTO: 'Variante 3 estricto',
+    V1_FLEXIBLE: {
+        nombre: 'Variante 1 flexible',
+        codigo: '313131-V001',
+    },
+    V2_FLEXIBLE: {
+        nombre: 'Variante 2 flexible',
+        codigo: '313131-V002',
+    },
+    V3_FLEXIBLE: {
+        nombre: 'Variante 3 flexible',
+        codigo: '313131-V003',
+    },
+    V3_ESTRICTO: {
+        nombre: 'Variante 3 estricto',
+        codigo: '131313-V003',
+    },
     EQUIVALENTE_X2: 'Equivalente X2',
 };
+
 
 // ─── Almacenes ────────────────────────────────────────────────────────
 
