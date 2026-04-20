@@ -63,9 +63,6 @@ test.describe('MS-7 | Movimientos Masivos @masivos', {tag: ['@logistica', '@movi
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.MASIVO_PROD.codigo);
             await kardexVerificacion.clickVariosNth(0);
             await page.getByRole('row', {name: `1 P Producto ${ITEMS_TEST.MASIVO_PROD.codigo}5 Tippy`}).getByRole('button').click();
-            // await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
-            // await expect(page.getByText(PATRON_CODIGO.INGRESO).first()).toBeVisible();
-            // await kardexVerificacion.cerrarModalDetalle();
         });
     });
 

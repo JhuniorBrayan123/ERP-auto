@@ -5,9 +5,6 @@ import {
 } from '../../helpers/Logistica/column-mapping.helper';
 import type { ColumnMappingRule } from '../../helpers/Logistica/actualizacion-masiva-config.helper';
 
-/**
- * Wizard de actualización masiva (datos o stock). Separado de {@link CargaMasivaPage} (creación).
- */
 export class ActualizacionMasivaPage {
   constructor(private readonly page: Page) {}
 
@@ -39,16 +36,10 @@ export class ActualizacionMasivaPage {
     return this.page.getByText('Procesar');
   }
 
-  /** Mismo patrón que {@link botonSiguienteWizard}: suele ser capa clicable, no `<button>`. */
   private botonIrAlInicioWizard(): Locator {
     return this.page.getByText('Ir al inicio', { exact: true }).last();
   }
 
-  /**
-   * "Siguiente" en el wizard no siempre expone `role="button"` (suele ser div/capa clicable).
-   * `getByRole('button', { name: 'Siguiente' })` hace timeout; se usa texto exacto.
-   * Si hay varios nodos en el DOM, el del pie del flujo suele ser el último.
-   */
   private botonSiguienteWizard(): Locator {
     return this.page.getByText('Siguiente', { exact: true }).last();
   }
@@ -88,11 +79,6 @@ export class ActualizacionMasivaPage {
     await this.botonIrAlInicioWizard().waitFor({ state: 'visible', timeout: 60_000 });
   }
 
-  /**
-   * Elige "Actualizar datos de ítems".
-   * En esta pantalla el título y la descripción van pegados ("ítemsActualiza…");
-   * no hay el mismo patrón card + botón "Seleccionar" que en creación masiva.
-   */
   async seleccionarActualizarDatosItems(): Promise<void> {
     await this.page
       .getByText(
@@ -102,9 +88,6 @@ export class ActualizacionMasivaPage {
       .click();
   }
 
-  /**
-   * Elige "Actualizar stock de ítems" (misma interacción por texto unido).
-   */
   async seleccionarActualizarStockItems(): Promise<void> {
     await this.page
       .getByText(
@@ -120,10 +103,6 @@ export class ActualizacionMasivaPage {
     await btn.click();
   }
 
-  /**
-   * Producto / Servicio / Insumo: en actualización masiva suele mostrarse el texto
-   * pegado "ProductosSeleccionar¿Qué es…"; si no, se intenta el botón de la card.
-   */
   async seleccionarTipoItem(cardLabel: string): Promise<void> {
     const escaped = cardLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const mergedText = this.page.getByText(new RegExp(`${escaped}Seleccionar`, 'i'));
@@ -176,15 +155,10 @@ export class ActualizacionMasivaPage {
     await this.page.waitForLoadState('networkidle');
   }
 
-  /**
-   * Asignación de almacén en flujo de stock (IDs estables del ERP).
-   * @param index 0-based según `elegir-almacen-{index}` del codegen.
-   */
   async seleccionarAlmacenStockPorIndice(index: number): Promise<void> {
     const id = `lgt_items_actualizacion-masivo_cmp-asignacion-almacenes:almacen_v-checkbox:elegir-almacen-${index}`;
     await this.page.locator(`[id="${id}"]`).click();
   }
-
 
   async ejecutarActualizacionDatosItem(
     cardLabel: string,
@@ -201,8 +175,6 @@ export class ActualizacionMasivaPage {
     await this.subirArchivo(filePath);
     await this.clickSiguiente();
     await this.aplicarMapeosColumnas(rules);
-    // En algunos entornos el paso de mapeo no requiere "Siguiente" (se procesa desde el mismo paso).
-    // Si existe, avanzamos; si no, continuamos a "Procesar".
     if (rules.length > 0) {
       const btn = this.botonSiguienteWizard();
       if (await btn.isVisible().catch(() => false)) {
@@ -212,7 +184,6 @@ export class ActualizacionMasivaPage {
     await this.clickProcesar();
     await this.waitForFinishStep();
   }
-
 
   async ejecutarActualizacionStock(
     filePath: string,

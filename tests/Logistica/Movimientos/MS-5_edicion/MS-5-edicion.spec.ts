@@ -127,9 +127,6 @@ test.describe('MS-5 | Edición de Movimientos @edicion', {tag: ['@logistica', '@
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.VARIANTE_FLEXIBLE.codigo);
             await page.getByRole('cell', {name: VARIANTES.V2_FLEXIBLE}).click();
             await page.getByRole('row', {name: '313131-V002 Variante 2'}).getByRole('button').click();
-            // await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
-            // await kardexVerificacion.expectPatronCodigoMovimientoVisible(PATRON_CODIGO.INGRESO);
-            // await kardexVerificacion.cerrarModalDetalle();
         });
     });
 
@@ -250,17 +247,14 @@ test.describe('MS-5 | Edición de Movimientos @edicion', {tag: ['@logistica', '@
             await datosOpcionales.seleccionarProveedor(PROVEEDOR_EXISTENTE.nombre);
 
             // Campo texto
-            //await datosOpcionales.crearCampoTexto('nombre ingreso');
             await datosOpcionales.llenarCampoTexto(0, 'test-modificacion de datos adicionales');
 
             // Campo fecha
-            //await datosOpcionales.crearCampoFecha('fecha-test');
             await datosOpcionales.clickCampoFecha(0);
             // Espera que el picker realmente aparezca en el DOM
             await datosOpcionales.seleccionarDiaEnDatepickerVisible('15');
 
             // Campo selección
-            // await datosOpcionales.crearCampoSeleccion('entorno', ['certificación', 'producción']);
             await datosOpcionales.seleccionarCampoSeleccion('certificación');
 
             await datosOpcionales.guardarDatos();

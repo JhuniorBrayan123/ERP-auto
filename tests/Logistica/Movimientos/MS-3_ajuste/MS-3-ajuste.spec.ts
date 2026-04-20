@@ -210,7 +210,6 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
             await kardexVerificacion.clickVariosTexto();
             await kardexVerificacion.clickKardexPorProducto();
             await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
-            //await kardexVerificacion.abrirVerDetalle(1) // se cambio el ver detalle aqui
             await kardexVerificacion.expectPatronCodigoMovimientoVisible(PATRON_CODIGO.AJUSTE);
             await kardexVerificacion.cerrarModalDetalle();
         });
@@ -250,19 +249,15 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
 
             // Campo de texto
 
-            //await datosOpcionales.crearCampoTexto('nombre');
             await datosOpcionales.llenarCampoTexto(0, 'auto');
 
             // Campo de fecha
-            //await datosOpcionales.crearCampoFecha('fecha');
             await datosOpcionales.clickCampoFecha(0);
             await datosOpcionales.seleccionarDiaEnDatepickerVisible('15');
 
             // Campo de selección
-            //await datosOpcionales.crearCampoSeleccion('entorno', ['certificación', 'producción'], true);
 
             // Campo de número
-            //await datosOpcionales.crearCampoNumero('numero de test');
             await datosOpcionales.llenarCampoNumero(0, '98989898989898989');
 
             await datosOpcionales.guardarDatos();
@@ -286,7 +281,6 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.PRODUCTO_ESTRICTO.codigo);
             await kardexVerificacion.clickVariosTexto();
             await kardexVerificacion.clickKardexPorProducto();
-            // await kardexVerificacion.seleccionarAlmacenFiltroKardexPorProducto(ALMACENES.VENTAS);
             await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.VENTAS);
             await kardexVerificacion.expectPatronCodigoMovimientoVisible(PATRON_CODIGO.AJUSTE);
             await kardexVerificacion.clickCodigoMovimientoRegex(PATRON_CODIGO.AJUSTE);

@@ -116,10 +116,6 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
         await test.step('And: verificar movimiento en kardex de la variante', async () => {
             const kardexPage = await stockVerificacion.abrirKardexVariante('313131-V001 Variante 1');
             const kardexPopup = new (await import('@pages/Logistica/KardexVerificacionPage')).KardexVerificacionPage(kardexPage);
-            // await kardexPage.waitForLoadState('networkidle');
-            // await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
-            // await kardexPopup.clickCodigoMovimientoRegex(PATRON_CODIGO.INGRESO);
-            // await kardexPopup.cerrarModalDetalle();
         });
     });
 
@@ -170,8 +166,6 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
         await test.step('And: verificar movimiento en kardex', async () => {
             const kardexPage = await stockVerificacion.abrirKardexDesdeStock();
             const kardexPopup = new (await import('@pages/Logistica/KardexVerificacionPage')).KardexVerificacionPage(kardexPage);
-            // await kardexPage.waitForLoadState('networkidle');
-            // await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.VENTAS);
         });
     });
 
@@ -192,7 +186,6 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
 
         await test.step('When: seleccionar almacén, motivo y agregar ítem con cantidad cero', async () => {
             await registroMovimiento.seleccionarAlmacen(ALMACENES.AUTO, ALMACENES.AUTO);
-            // await page.getByText(ALMACENES.AUTO).nth(1).click();
             await registroMovimiento.abrirSelectorMotivo();
             await registroMovimiento.seleccionarMotivoDirecto(MOTIVOS_INGRESO.TRASLADO);
             await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_ESTRICTO.codigo);
@@ -229,13 +222,10 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
         await test.step('Given: navegar a Ingresos y crear nuevo ingreso', async () => {
             await movimientosNav.navegarAIngresosDesdeMenu();
             await registroMovimiento.clickNuevoMovimiento();
-            //await registroMovimiento.clickNuevoIngreso();
         });
 
         await test.step('When: agregar el mismo ítem dos veces', async () => {
             await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_ESTRICTO.codigo);
-            //await page.getByText('Pproducto111111Item para combos estricto gravado160 un').click();
-            //await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_ESTRICTO.codigo);
             await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.PRODUCTO_ESTRICTO.nombre);
         });
 
@@ -269,7 +259,6 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
         await test.step('Given: navegar a Ingresos y crear nuevo ingreso', async () => {
             await movimientosNav.navegarAIngresosDesdeMenu();
             await registroMovimiento.clickNuevoMovimiento();
-            //await registroMovimiento.clickNuevoIngreso();
         });
 
         await test.step('When: abrir datos opcionales y crear proveedor nuevo', async () => {

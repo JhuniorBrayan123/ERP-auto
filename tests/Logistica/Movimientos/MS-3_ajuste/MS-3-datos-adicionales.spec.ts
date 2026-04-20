@@ -45,7 +45,6 @@ test.describe('MS-3 | Datos Adicionales de Movimientos @datos-adicionales', {tag
             await datosOpcionales.seleccionarCampoSeleccion('certificación');
 
             // Campo numérico
-            //await datosOpcionales.llenarCampoNumero(0, '42');
 
             await datosOpcionales.guardarDatos();
         });
@@ -97,12 +96,10 @@ test.describe('MS-3 | Datos Adicionales de Movimientos @datos-adicionales', {tag
             await listadoMovimientos.abrirMenuAcciones();
             await listadoMovimientos.clickVerMovimiento();
             await listadoMovimientos.clickDatosOpcionalesEnDetalle();
-            //await listadoMovimientos.clickTabComprobantes(); nO TENEMOS UN TAB DE COMPROBANTES
             const datosOpcionales = page.locator('text=Datos opcionales').locator('..');
             await expect(
                 page.getByText(`${COMPROBANTE_TEST.tipo} ${COMPROBANTE_TEST.serie}-${COMPROBANTE_TEST.numero} ${COMPROBANTE_TEST.cuc}`)
             ).toBeVisible();
-            //await expect(page.getByText(COMPROBANTE_TEST.serie)).toBeVisible();
             await listadoMovimientos.cerrarModal();
         });
     });

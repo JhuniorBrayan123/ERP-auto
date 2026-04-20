@@ -1,4 +1,4 @@
-import {expect, test} from '@fixtures/Logistica/movimientos-fixture';
+import { expect, test } from '@fixtures/Logistica/movimientos-fixture';
 import {
     ALMACENES,
     ITEMS_TEST,
@@ -7,20 +7,20 @@ import {
     PROVEEDOR_EXISTENTE,
     VARIANTES,
 } from '@helpers/Logistica/movimiento-data.helper';
-import {KardexVerificacionPage} from '@pages/Logistica/KardexVerificacionPage';
+import { KardexVerificacionPage } from '@pages/Logistica/KardexVerificacionPage';
 
-test.describe('Traslados de Almacén @traslado', {tag: ['@logistica', '@movimientos']}, () => {
+test.describe('Traslados de Almacén @traslado', { tag: ['@logistica', '@movimientos'] }, () => {
 
     // ═══════════════════════════════════════════════════════════════
     // Scenario 18: Registrar traslado correctamente
     // ═══════════════════════════════════════════════════════════════
     test('debe registrar un traslado entre almacenes y verificar stock y kardex', async ({
-                                                                                             movimientosNav,
-                                                                                             registroMovimiento,
-                                                                                             resultadoMovimiento,
-                                                                                             stockVerificacion,
-                                                                                             page,
-                                                                                         }) => {
+        movimientosNav,
+        registroMovimiento,
+        resultadoMovimiento,
+        stockVerificacion,
+        page,
+    }) => {
         test.setTimeout(180_000);
 
         await test.step('Given: navegar a Traslados', async () => {
@@ -29,7 +29,6 @@ test.describe('Traslados de Almacén @traslado', {tag: ['@logistica', '@movimien
 
         await test.step('When: crear nuevo traslado con almacenes origen y destino distintos', async () => {
             await registroMovimiento.clickAgregarTraslado();
-            //await registroMovimiento.seleccionarAlmacenesTraslado1(ALMACENES.AUTO, ALMACENES.AUTO, ALMACENES.VENTAS, ALMACENES.VENTAS);
         });
 
         await test.step('And: buscar producto, definir cantidad y registrar', async () => {
@@ -45,11 +44,7 @@ test.describe('Traslados de Almacén @traslado', {tag: ['@logistica', '@movimien
 
         await test.step('And: verificar stock', async () => {
             await movimientosNav.navegarAStockProductos();
-            //await page.locator('.module.module-205').click();
-            //await page.getByRole('textbox', {name: 'Buscar por nombre, código o c'}).click();
-            //await page.getByRole('textbox', {name: 'Buscar por nombre, código o c'}).fill(ITEMS_TEST.PRODUCTO_GRAVADO.codigo); Anterior
             await stockVerificacion.buscarPorCodigo(ITEMS_TEST.PRODUCTO_GRAVADO.codigo) //ultimo cambio xs codigo en traslado
-            // await page.getByRole('cell', {name: 'Varios*'}).click();
             await stockVerificacion.clickVariosTexto();
         });
 
@@ -61,12 +56,6 @@ test.describe('Traslados de Almacén @traslado', {tag: ['@logistica', '@movimien
             await expect(kardexPage.getByText(PATRON_CODIGO.TRASLADO).first()).toBeVisible();
             await kardexPopup.clickCodigoMovimientoRegex(PATRON_CODIGO.TRASLADO)
             await kardexPopup.cerrarModalDetalle();
-            // await kardexPage.waitForLoadState('networkidle');
-            // await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
-            // await expect(kardexPage.getByText(PATRON_CODIGO.TRASLADO).first()).toBeVisible();
-            // await kardexPopup.clickCodigoMovimientoRegex(PATRON_CODIGO.TRASLADO)
-            // await kardexPopup.clickDatosOpcionales();
-            // await kardexPopup.cerrarModalDetalle();
         });
     });
 
@@ -74,10 +63,10 @@ test.describe('Traslados de Almacén @traslado', {tag: ['@logistica', '@movimien
     // Scenario 19: Validar traslado con mismo almacén
     // ═══════════════════════════════════════════════════════════════
     test('debe bloquear traslado cuando origen y destino son el mismo almacén', async ({
-                                                                                           movimientosNav,
-                                                                                           registroMovimiento,
-                                                                                           page,
-                                                                                       }) => {
+        movimientosNav,
+        registroMovimiento,
+        page,
+    }) => {
         test.setTimeout(180_000);
 
         await test.step('Given: navegar a Traslados', async () => {
@@ -86,7 +75,7 @@ test.describe('Traslados de Almacén @traslado', {tag: ['@logistica', '@movimien
 
         await test.step('When: crear traslado seleccionando mismo almacén', async () => {
             await registroMovimiento.clickAgregarTraslado();
-            await page.locator('div').filter({hasText: /^ALMACEN-AUTO$/}).nth(3).click();
+            await page.locator('div').filter({ hasText: /^ALMACEN-AUTO$/ }).nth(3).click();
             await page.getByText(ALMACENES.VENTAS).first().click();
         });
 
@@ -105,12 +94,12 @@ test.describe('Traslados de Almacén @traslado', {tag: ['@logistica', '@movimien
     // Scenario 20: Registrar traslado con variante
     // ═══════════════════════════════════════════════════════════════
     test('debe registrar traslado con variante y verificar stock', async ({
-                                                                              movimientosNav,
-                                                                              registroMovimiento,
-                                                                              resultadoMovimiento,
-                                                                              stockVerificacion,
-                                                                              page,
-                                                                          }) => {
+        movimientosNav,
+        registroMovimiento,
+        resultadoMovimiento,
+        stockVerificacion,
+        page,
+    }) => {
         test.setTimeout(180_000);
 
         await test.step('Given: navegar a Traslados', async () => {
@@ -123,7 +112,7 @@ test.describe('Traslados de Almacén @traslado', {tag: ['@logistica', '@movimien
             await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.VARIANTE_FLEXIBLE.nombre);
             await registroMovimiento.seleccionarVariante(VARIANTES.V1_FLEXIBLE);
             await registroMovimiento.llenarCantidad('05');
-            await page.locator('div').filter({hasText: /^TRASLADO INTERNO$/}).nth(3).click();
+            await page.locator('div').filter({ hasText: /^TRASLADO INTERNO$/ }).nth(3).click();
             await page.getByText(MOTIVOS_TRASLADO.OTROS).click();
         });
 
@@ -152,13 +141,13 @@ test.describe('Traslados de Almacén @traslado', {tag: ['@logistica', '@movimien
     // Scenario 21: Registrar traslado con datos adicionales
     // ═══════════════════════════════════════════════════════════════
     test('debe registrar traslado con datos adicionales', async ({
-                                                                     movimientosNav,
-                                                                     registroMovimiento,
-                                                                     datosOpcionales,
-                                                                     resultadoMovimiento,
-                                                                     stockVerificacion,
-                                                                     page,
-                                                                 }) => {
+        movimientosNav,
+        registroMovimiento,
+        datosOpcionales,
+        resultadoMovimiento,
+        stockVerificacion,
+        page,
+    }) => {
         test.setTimeout(180_000);
 
         await test.step('Given: navegar a Traslados y crear nuevo', async () => {
@@ -208,12 +197,12 @@ test.describe('Traslados de Almacén @traslado', {tag: ['@logistica', '@movimien
     // Scenario 22: Registrar traslado por confirmar + configuración
     // ═══════════════════════════════════════════════════════════════
     test('debe registrar traslado por confirmar con preferencia avanzada', async ({
-                                                                                      movimientosNav,
-                                                                                      registroMovimiento,
-                                                                                      resultadoMovimiento,
-                                                                                      listadoMovimientos,
-                                                                                      page,
-                                                                                  }) => {
+        movimientosNav,
+        registroMovimiento,
+        resultadoMovimiento,
+        listadoMovimientos,
+        page,
+    }) => {
         test.setTimeout(180_000);
 
         await test.step('Given: activar preferencia avanzada de traslado por confirmar', async () => {
@@ -222,7 +211,7 @@ test.describe('Traslados de Almacén @traslado', {tag: ['@logistica', '@movimien
             await page.getByText('Preferencias avanzadas').nth(2).click();
             await page.locator('.cmp-items-preferencias-avanzadas > div:nth-child(4) > .icon').click();
             await page.locator('div:nth-child(4) > .switch.flex-row > .v-switch > .switch-content > .switch > .slider').click();
-            await page.getByRole('button', {name: 'Guardar'}).click();
+            await page.getByRole('button', { name: 'Guardar' }).click();
             await page.locator('.v-modal > div').first().click();
         });
 

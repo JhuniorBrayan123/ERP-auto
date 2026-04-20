@@ -200,7 +200,6 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
             await registroMovimiento.clickAgregarIngreso();
             await registroMovimiento.buscarItem(ITEMS_TEST.SIN_STOCK.codigo);
             await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.SIN_STOCK.nombre);
-            // await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.SIN_STOCK.nombre);
             await registroMovimiento.llenarCantidad('10');
             await registroMovimiento.clickRegistrarIngreso();
             await resultadoMovimiento.irAlListado();

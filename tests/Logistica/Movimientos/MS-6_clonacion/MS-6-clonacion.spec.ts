@@ -34,13 +34,6 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
             await stockVerificacion.clickVariosTexto();
         });
 
-        // await test.step('And: verificar kardex antes de clonar', async () => {
-        //     await movimientosNav.navegarAKardexTotal();
-        //     await page.waitForTimeout(2000)
-        //     await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
-        //     await kardexVerificacion.clickVariosTexto();
-        //     await kardexVerificacion.clickKardexPorProducto();
-        //     await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
         // });
 
         await test.step('Act: clonar el movimiento', async () => {

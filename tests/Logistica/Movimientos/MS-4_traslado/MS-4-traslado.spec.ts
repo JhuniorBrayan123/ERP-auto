@@ -29,7 +29,6 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
 
         await test.step('When: crear nuevo traslado con almacenes origen y destino distintos', async () => {
             await registroMovimiento.clickAgregarTraslado();
-            //await registroMovimiento.seleccionarAlmacenesTraslado1(ALMACENES.AUTO, ALMACENES.AUTO, ALMACENES.VENTAS, ALMACENES.VENTAS);
         });
 
         await test.step('And: buscar producto, definir cantidad y registrar', async () => {
@@ -45,11 +44,7 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
 
         await test.step('And: verificar stock', async () => {
             await movimientosNav.navegarAStockProductos();
-            //await page.locator('.module.module-205').click();
-            //await page.getByRole('textbox', {name: 'Buscar por nombre, código o c'}).click();
-            //await page.getByRole('textbox', {name: 'Buscar por nombre, código o c'}).fill(ITEMS_TEST.PRODUCTO_GRAVADO.codigo); Anterior
             await stockVerificacion.buscarPorCodigo(ITEMS_TEST.PRODUCTO_GRAVADO.codigo) //ultimo cambio xs codigo en traslado
-            // await page.getByRole('cell', {name: 'Varios*'}).click();
             await stockVerificacion.clickVariosTexto();
         });
 
@@ -61,12 +56,6 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
             await expect(kardexPage.getByText(PATRON_CODIGO.TRASLADO).first()).toBeVisible();
             await kardexPopup.clickCodigoMovimientoRegex(PATRON_CODIGO.TRASLADO)
             await kardexPopup.cerrarModalDetalle();
-            // await kardexPage.waitForLoadState('networkidle');
-            // await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
-            // await expect(kardexPage.getByText(PATRON_CODIGO.TRASLADO).first()).toBeVisible();
-            // await kardexPopup.clickCodigoMovimientoRegex(PATRON_CODIGO.TRASLADO)
-            // await kardexPopup.clickDatosOpcionales();
-            // await kardexPopup.cerrarModalDetalle();
         });
     });
 
