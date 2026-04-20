@@ -292,7 +292,7 @@ export class DatosOpcionalesPage {
 
     async agregarComprobanteParcial(tipo: string): Promise<void> {
         await this.page.getByRole('button', {name: 'Añadir comprobante'}).click();
-        await this.page.getByText('Seleccionar', {exact: true}).click();
+        await this.page.getByText('Seleccionar', {exact: true}).first().click();
         await this.page.getByText(tipo).click();
         await this.page.getByRole('button', {name: 'Añadir'}).click();
         await this.cerrarModal();

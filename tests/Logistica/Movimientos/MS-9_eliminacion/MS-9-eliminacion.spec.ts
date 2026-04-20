@@ -104,7 +104,7 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
                                                               page,
                                                               kardexApi,
                                                           }) => {
-        // let saldoAfectadoApi = 0;
+        let saldoAfectadoApi = 0;
 
         await test.step('Arrange: crear salida con variante estricta', async () => {
             await movimientosNav.navegarASalidas();
@@ -133,11 +133,11 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
 
         });
 
-        // await test.step('And : Verificando Kardex API', async () => {
-        //     saldoAfectadoApi = await kardexApi.obtenerSaldoPorProducto({
-        //         codigoProducto: VARIANTES.V3_ESTRICTO.nombre, almacenFiltro: 'VENTAS'
-        //     })
-        // })
+        await test.step('And : Verificando Kardex API', async () => {
+            saldoAfectadoApi = await kardexApi.obtenerSaldoPorProducto({
+                codigoProducto: VARIANTES.V3_ESTRICTO.codigo, almacenFiltro: 'VENTAS'
+            })
+        })
 
         await test.step('Act: eliminar movimiento', async () => {
             await movimientosNav.navegarASalidas();
@@ -167,12 +167,12 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
 
 
         });
-        // await test.step('Assert : Api Kardex despues de eliminar', async () => {
-        //     const saldoPostElimiacion = await kardexApi.obtenerSaldoPorProducto({
-        //         codigoProducto: VARIANTES.V3_ESTRICTO.nombre, almacenFiltro: 'VENTAS'
-        //     })
-        //     expect(saldoPostElimiacion).toBe(saldoAfectadoApi + 1)
-        // })
+        await test.step('Assert : Api Kardex despues de eliminar', async () => {
+            const saldoPostElimiacion = await kardexApi.obtenerSaldoPorProducto({
+                codigoProducto: VARIANTES.V3_ESTRICTO.codigo, almacenFiltro: 'VENTAS'
+            })
+            expect(saldoPostElimiacion).toBe(saldoAfectadoApi + 1)
+        })
     });
 
     // ═══════════════════════════════════════════════════════════════

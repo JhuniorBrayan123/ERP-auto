@@ -10,12 +10,13 @@ export default defineConfig({
      * Los specs de actualización masiva viven en tests/logistica/productos-stock/edicion-masiva/.
      */
     fullyParallel: false,
+    // fullyParallel: true,
     workers: 1,
     // workers: process.env ? 2 : 2,
 
     /* ─── CI / Retries ─── */
     forbidOnly: !!process.env.CI,
-    retries: 2,
+    // retries: 2,
 
     /* ─── Timeouts para estabilidad ─── */
     timeout: 180_000,           // 3 min  por test por si
