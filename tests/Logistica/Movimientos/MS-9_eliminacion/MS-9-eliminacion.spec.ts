@@ -227,7 +227,7 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
             // ir al tab de ingresos
             await listadoMovimientos.clickTabPorIndice(1);
             await listadoMovimientos.abrirMenuAcciones();
-            // await listadoMovimientos.clickEliminaElMovimiento();
+            await listadoMovimientos.clickEliminaElMovimiento();
             await listadoMovimientos.confirmarEliminacion();
         });
 
