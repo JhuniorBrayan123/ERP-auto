@@ -25,18 +25,43 @@ export default defineConfig({
     testIgnore: ['**/_*', '**/_codegen/**'],
 
     /* ─── Reporters ─── */
+    // === CONFIGURACIÓN ANTERIOR (Comentada por seguridad) ===
+
     reporter: [
-        ['list'],                                          // consola legible
-        ['html', {open: 'never'}],                       // reporte HTML
+        // ['list'], //nativo
+        ['./src/utils/maven-reporter.ts'],                   // consola estilo Maven/Surefire
+        ['html', {open: 'never'}],                           // reporte HTML
         ['junit', {outputFile: 'test-results/results.xml'}], // Jenkins
         //['./src/utils/discord-reporter.ts'],
     ],
+    // // === NUEVA CONFIGURACIÓN DINÁMICA ===
+    // reporter: process.env.CI ? [
+    //     // ️ Entorno CI (Jenkins/GitHub Actions):
+    //     ['dot'],                                              // Máxima velocidad I/O (1 puntito por test)
+    //     ['junit', { outputFile: 'test-results/results.xml' }] // Integración CI clásica
+    // ] : [
+    //     //  Entorno Local:
+    //     ['line'],                                             // Terminal limpia de una sola línea
+    //     ['html', { open: 'on-failure' }],                     // Super poder: Auto-abre el reporte solo si fallas
+    //     // ['./src/utils/maven-reporter.ts'],                 // Tu custom reporter estilo Maven
+    // ],
+
 
     use: {
         baseURL: env.baseUrl,
+
+        // === CONFIGURACIÓN ANTERIOR (Comentada por seguridad) ===
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',
+
+        // /* ─── Artefactos de Evidencia ─── */
+        // // Guarda la evidencia visual (Trace, Screenshot, Video) ÚNICAMENTE cuando ocurre un fallo
+        // trace: 'retain-on-failure',
+        // screenshot: 'only-on-failure',
+        // video: 'retain-on-failure',
+
+        /* ─── Timeouts ─── */
         actionTimeout: 20_000,      // 15s por acción individual
         navigationTimeout: 60_000,  // 30s para navegación
     },

@@ -12,7 +12,7 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
     // ═══════════════════════════════════════════════════════════════
     // Scenario 13: Registrar ajuste tipo Agregar
     // ═══════════════════════════════════════════════════════════════
-    test('debe registrar un ajuste tipo Agregar e incrementar stock @MS-3', async ({
+    test('Registrar ajuste tipo Agregar @MS-3', async ({
                                                                                  movimientosNav,
                                                                                  registroMovimiento,
                                                                                  resultadoMovimiento,
@@ -63,7 +63,7 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
     // ═══════════════════════════════════════════════════════════════
     // Scenario 14: Registrar ajuste tipo Quitar
     // ═══════════════════════════════════════════════════════════════
-    test('debe registrar un ajuste tipo Quitar y disminuir stock @MS-3', async ({
+    test('Registrar ajuste tipo Quitar @MS-3', async ({
                                                                               movimientosNav,
                                                                               registroMovimiento,
                                                                               resultadoMovimiento,
@@ -114,7 +114,7 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
     // ═══════════════════════════════════════════════════════════════
     // Scenario 15: Registrar ajuste con insumo
     // ═══════════════════════════════════════════════════════════════
-    test('debe registrar un ajuste con insumo y verificar stock @MS-3', async ({
+    test('Registrar ajuste con insumo @MS-3', async ({
                                                                              movimientosNav,
                                                                              registroMovimiento,
                                                                              resultadoMovimiento,
@@ -165,7 +165,7 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
     // ═══════════════════════════════════════════════════════════════
     // Scenario 16: Registrar ajuste con equivalencia
     // ═══════════════════════════════════════════════════════════════
-    test('debe registrar un ajuste con ítem equivalente y verificar stock @MS-3', async ({
+    test('Registrar ajuste con equivalencia @MS-3', async ({
                                                                                        movimientosNav,
                                                                                        registroMovimiento,
                                                                                        resultadoMovimiento,
@@ -210,7 +210,6 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
             await kardexVerificacion.clickVariosTexto();
             await kardexVerificacion.clickKardexPorProducto();
             await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
-            //await kardexVerificacion.abrirVerDetalle(1) // se cambio el ver detalle aqui
             await kardexVerificacion.expectPatronCodigoMovimientoVisible(PATRON_CODIGO.AJUSTE);
             await kardexVerificacion.cerrarModalDetalle();
         });
@@ -219,7 +218,7 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
     // ═══════════════════════════════════════════════════════════════
     // Scenario 17: Registrar ajuste con datos adicionales
     // ═══════════════════════════════════════════════════════════════
-    test('debe registrar ajuste con datos adicionales y campos personalizados @MS-3', async ({
+    test('Registrar ajuste con datos adicionales @MS-3', async ({
                                                                                            movimientosNav,
                                                                                            registroMovimiento,
                                                                                            datosOpcionales,
@@ -250,19 +249,15 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
 
             // Campo de texto
 
-            //await datosOpcionales.crearCampoTexto('nombre');
             await datosOpcionales.llenarCampoTexto(0, 'auto');
 
             // Campo de fecha
-            //await datosOpcionales.crearCampoFecha('fecha');
             await datosOpcionales.clickCampoFecha(0);
             await datosOpcionales.seleccionarDiaEnDatepickerVisible('15');
 
             // Campo de selección
-            //await datosOpcionales.crearCampoSeleccion('entorno', ['certificación', 'producción'], true);
 
             // Campo de número
-            //await datosOpcionales.crearCampoNumero('numero de test');
             await datosOpcionales.llenarCampoNumero(0, '98989898989898989');
 
             await datosOpcionales.guardarDatos();
@@ -286,7 +281,6 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.PRODUCTO_ESTRICTO.codigo);
             await kardexVerificacion.clickVariosTexto();
             await kardexVerificacion.clickKardexPorProducto();
-            // await kardexVerificacion.seleccionarAlmacenFiltroKardexPorProducto(ALMACENES.VENTAS);
             await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.VENTAS);
             await kardexVerificacion.expectPatronCodigoMovimientoVisible(PATRON_CODIGO.AJUSTE);
             await kardexVerificacion.clickCodigoMovimientoRegex(PATRON_CODIGO.AJUSTE);

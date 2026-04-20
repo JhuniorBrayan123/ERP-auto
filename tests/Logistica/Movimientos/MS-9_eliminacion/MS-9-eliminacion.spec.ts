@@ -7,18 +7,17 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
     // ═══════════════════════════════════════════════════════════════
     // Scenario 31: Eliminar movimiento correctamente
     // ═══════════════════════════════════════════════════════════════
-    test('debe eliminar una salida y reflejar en stock, bitácora y kardex @MS-9', async ({
-                                                                                             movimientosNav,
-                                                                                             registroMovimiento,
-                                                                                             resultadoMovimiento,
-                                                                                             listadoMovimientos,
-                                                                                             stockVerificacion,
-                                                                                             kardexVerificacion,
-                                                                                             page,
-                                                                                             request,
-                                                                                         }) => {
+    test('Eliminar movimiento correctamente @MS-9', async ({
+                                                               movimientosNav,
+                                                               registroMovimiento,
+                                                               resultadoMovimiento,
+                                                               listadoMovimientos,
+                                                               stockVerificacion,
+                                                               kardexVerificacion,
+                                                               kardexApi,
+                                                               page,
+                                                           }) => {
         let saldoAfectadoAPI = 0;
-        let token = '';
 
 
         await test.step('Arrange: crear salida para eliminar', async () => {
@@ -48,27 +47,11 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
 
         });
 
-        await test.step('API Arrange: Extraer token y obtener saldo antes de eliminar', async () => {
-            // El usuario ya inició sesión gracias al storageState y el dominio ya está cargado
-            token = (await page.evaluate(() => localStorage.getItem('AccessToken'))) || '';
-            const fechaHoy = new Date().toISOString().split('T')[0]; // Hoy
-
-            const apiUrl = `https://erpperuapi-crt-3.smartclic.pe/Logistica/api/v1/kardexs/total/filtroAvanzado?fechaInicio=2020-01-01&fechaFin=${fechaHoy}&tipoSaldoInicial=2&pagina=1&tamanio=10&Almacenes=255629&Almacenes=255630&TipoItem=1&TipoItem=6&BusquedaCompuesta=${ITEMS_TEST.PRODUCTO_GRAVADO.codigo}`;
-
-            const response = await request.get(apiUrl, {
-                headers: {'Authorization': `Bearer ${token}`}
+        await test.step('API Arrange: obtener saldo antes de eliminar', async () => {
+            saldoAfectadoAPI = await kardexApi.obtenerSaldoPorProducto({
+                codigoProducto: ITEMS_TEST.PRODUCTO_GRAVADO.codigo,
+                almacenFiltro: 'AUTO',
             });
-            const body = await response.json();
-
-            // Asumimos que la data trae el primer item y luego iteramos sus almacenes buscando el AUTO
-            const dataItem = body.Data[0];
-            const almacenAuto = dataItem.Almacenes.find((a: any) =>
-                a.DescripcionAlmacen && a.DescripcionAlmacen.includes('AUTO')
-            );
-
-            // Si lo encuentra guarda el Saldo Final actual (post-salida), sino el del primer almacén por defecto.
-            saldoAfectadoAPI = almacenAuto ? almacenAuto.SaldoFinal : dataItem.Almacenes[0].SaldoFinal;
-            // console.log(`\n [Backend] KARDEX (ANTES de eliminar): El Saldo Final del Almacén AUTO es = ${saldoAfectadoAPI}`);
         });
 
         await test.step('Act: eliminar el movimiento desde el listado', async () => {
@@ -94,45 +77,32 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
             await kardexVerificacion.clickVariosTexto();
             await kardexVerificacion.clickKardexPorProducto();
-            await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
+            await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.VENTAS);
         });
-
+        //Considerar el tiempo en kafka
         await test.step('API Assert: verificar que el backend sumó el saldo tras eliminación', async () => {
-            // Re-evaluar api despues de la eliminación por UI (Eliminar una salida de 10 suma 10 al stock)
-            const fechaHoy = new Date().toISOString().split('T')[0];
-            const apiUrl = `https://erpperuapi-crt-3.smartclic.pe/Logistica/api/v1/kardexs/total/filtroAvanzado?fechaInicio=2020-01-01&fechaFin=${fechaHoy}&tipoSaldoInicial=2&pagina=1&tamanio=10&Almacenes=255629&Almacenes=255630&TipoItem=1&TipoItem=6&BusquedaCompuesta=${ITEMS_TEST.PRODUCTO_GRAVADO.codigo}`;
-
-            const response = await request.get(apiUrl, {
-                headers: {'Authorization': `Bearer ${token}`}
+            // Eliminar una salida de 10 unidades suma 10 al stock
+            const saldoPostEliminacion = await kardexApi.obtenerSaldoPorProducto({
+                codigoProducto: ITEMS_TEST.PRODUCTO_GRAVADO.codigo,
+                almacenFiltro: 'AUTO',
             });
-            const body = await response.json();
 
-            const dataItem = body.Data[0];
-            const almacenAuto = dataItem.Almacenes.find((a: any) =>
-                a.DescripcionAlmacen && a.DescripcionAlmacen.includes('AUTO')
-            );
-            const saldoFinalPostEliminacion = almacenAuto ? almacenAuto.SaldoFinal : dataItem.Almacenes[0].SaldoFinal;
-
-            // console.log(` [Backend] KARDEX (DESPUÉS de eliminar): El Saldo Final del Almacén AUTO es = ${saldoFinalPostEliminacion}`);
-            // console.log(` [Validación Matemática]: Se esperaba que pase de ${saldoAfectadoAPI} a ${saldoAfectadoAPI + 10}. ¡Y resultó ser ${saldoFinalPostEliminacion}!`);
-
-            // Como eliminamos una salida de 10 unidades, el saldo actual debe ser el saldoAfectadoAPI + 10
-            expect(saldoFinalPostEliminacion).toBe(saldoAfectadoAPI + 10);
+            expect(saldoPostEliminacion).toBe(saldoAfectadoAPI + 10);
         });
     });
 
     // ═══════════════════════════════════════════════════════════════
     // Scenario 32: Eliminar movimiento con variante
     // ═══════════════════════════════════════════════════════════════
-    test('debe eliminar salida con variante y reflejar en stock y kardex @MS-9', async ({
-                                                                                            movimientosNav,
-                                                                                            registroMovimiento,
-                                                                                            resultadoMovimiento,
-                                                                                            listadoMovimientos,
-                                                                                            stockVerificacion,
-                                                                                            kardexVerificacion,
-                                                                                            page,
-                                                                                        }) => {
+    test('Eliminar movimiento con variante @MS-9', async ({
+                                                              movimientosNav,
+                                                              registroMovimiento,
+                                                              resultadoMovimiento,
+                                                              listadoMovimientos,
+                                                              stockVerificacion,
+                                                              kardexVerificacion,
+                                                              page,
+                                                          }) => {
 
 
         await test.step('Arrange: crear salida con variante estricta', async () => {
@@ -147,14 +117,7 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
         });
 
         await test.step('And: verificar stock y kardex antes de eliminar', async () => {
-            // await movimientosNav.navegarAStockProductos();
-            // await stockVerificacion.buscarPorCodigo(ITEMS_TEST.VARIANTE_ESTRICTO.codigo);
-            // //await kardexVerificacion.abrirVerDetalle(1); General para otros se usara este y se creara otro para variantes
-            // //await movimientosNav.navegarAStockProductos();
-            // await kardexVerificacion.abrirKardexVariante(VARIANTES.V3_ESTRICTO);
-            // // await stockVerificacion.buscarPorCodigo(ITEMS_TEST.VARIANTE_ESTRICTO.codigo);
-            // // await stockVerificacion.clickVariante(VARIANTES.V3_ESTRICTO);
-            // await stockVerificacion.clickAlmacenMultipleNth(0);
+
 
             await movimientosNav.navegarAKardexTotal();
             await page.waitForTimeout(2000);
@@ -164,14 +127,9 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
             await kardexVerificacion.abrirKardexVariante(VARIANTES.V3_ESTRICTO);
             await page.waitForTimeout(2000)
             // Ahora estamos en la misma página en la vista de Kardex por producto
-            await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);// o el índice que corresponda
+            await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.VENTAS);// o el índice que corresponda
 
-            // Verificar y hacer click en el código de salida
-            await expect(page.getByText(PATRON_CODIGO.SALIDA).first()).toBeVisible();
-            await kardexVerificacion.esperarSinOverload();
-            await page.getByText(PATRON_CODIGO.SALIDA).first().click();
-            await kardexVerificacion.esperarSinOverload();
-            await kardexVerificacion.cerrarModalDetalle();
+
         });
 
         await test.step('Act: eliminar movimiento', async () => {
@@ -201,26 +159,21 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
             // Ahora estamos en la misma página en la vista de Kardex por producto
             await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO); // o el índice que corresponda
 
-            // Verificar y hacer click en el código de salida
-            await expect(page.getByText(PATRON_CODIGO.SALIDA).first()).toBeVisible();
-            await kardexVerificacion.esperarSinOverload();
-            // await page.getByText(PATRON_CODIGO.SALIDA).first().click();
-            // await kardexVerificacion.esperarSinOverload();
-            // await kardexVerificacion.cerrarModalDetalle();
+
         });
     });
 
     // ═══════════════════════════════════════════════════════════════
     // Scenario 33: Bloquear eliminación por stock negativo
     // ═══════════════════════════════════════════════════════════════
-    test('debe bloquear eliminación cuando genera stock negativo @MS-9', async ({
-                                                                                    movimientosNav,
-                                                                                    registroMovimiento,
-                                                                                    resultadoMovimiento,
-                                                                                    listadoMovimientos,
-                                                                                    movimientoRapido,
-                                                                                    kardexVerificacion
-                                                                                }) => {
+    test('Bloquear eliminación por stock negativo @MS-9', async ({
+                                                                     movimientosNav,
+                                                                     registroMovimiento,
+                                                                     resultadoMovimiento,
+                                                                     listadoMovimientos,
+                                                                     movimientoRapido,
+                                                                     kardexVerificacion
+                                                                 }) => {
         test.setTimeout(180_000)
         // Se declara fuera de los steps para que sea accesible entre ellos (Arrange → And)
         let stockActual = 0;

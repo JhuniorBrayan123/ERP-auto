@@ -13,7 +13,7 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
     // ═══════════════════════════════════════════════════════════════
     // Scenario 43: Aumentar stock desde modal de producto
     // ═══════════════════════════════════════════════════════════════
-    test('debe aumentar stock de un producto desde el modal rápido @MS-12', async ({
+    test('Aumentar stock desde modal de producto @MS-12', async ({
                                                                                 movimientosNav,
                                                                                 movimientoRapido,
                                                                                 stockVerificacion,
@@ -39,20 +39,15 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
         });
 
         await test.step('And: configurar movimiento rápido de ingreso y aumentar stock', async () => {
-            //await movimientoRapido.seleccionarAlmacenRapido(ALMACENES.VENTAS);
-            //await movimientoRapido.seleccionarMotivoIngresoRapido(MOTIVOS_INGRESO.ALMACEN, MOTIVOS_INGRESO.ABASTECIMIENTO);
             await movimientoRapido.llenarCantidadRapida('10');
             await movimientoRapido.clickBtnAumentarStock();
             await movimientoRapido.cerrarModalConfirmacion();
         });
 
-        // await test.step('Then:  y aumentar stock', async () => {
         //     //await movimientoRapido.clickBtnAumentarStock();
-        //     await movimientoRapido.cerrarModalConfirmacion();
         // });
 
         await test.step('And: verificar stock', async () => {
-            //await page.locator('.v-modal > div').first().click();
             await movimientosNav.navegarAStockProductos();
             await stockVerificacion.buscarPorCodigo(ITEMS_TEST.PRODUCTO_ESTRICTO.codigo);
             await stockVerificacion.clickVariosTexto();
@@ -62,8 +57,6 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
             const kardexPage = await stockVerificacion.abrirKardexDesdeStock();
             const kardexPopup = new KardexVerificacionPage(kardexPage);
 
-            // await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.VENTAS);
-            // await kardexPopup.cerrarModalDetalle();
 
         });
     });
@@ -71,7 +64,7 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
     // ═══════════════════════════════════════════════════════════════
     // Scenario 44: Aumentar stock con variante
     // ═══════════════════════════════════════════════════════════════
-    test('debe aumentar stock de una variante desde el modal rápido @MS-12', async ({
+    test('Aumentar stock con variante @MS-12', async ({
                                                                                  movimientosNav,
                                                                                  movimientoRapido,
                                                                                  stockVerificacion,
@@ -118,7 +111,7 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
     // ═══════════════════════════════════════════════════════════════
     // Scenario 45: Disminuir stock desde modal de producto
     // ═══════════════════════════════════════════════════════════════
-    test('debe disminuir stock de un producto desde el modal rápido @MS-12', async ({
+    test('Disminuir stock desde modal de producto @MS-12', async ({
                                                                                  movimientosNav,
                                                                                  movimientoRapido,
                                                                                  stockVerificacion,
@@ -160,15 +153,13 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
         await test.step('And: verificar kardex', async () => {
             const kardexPage = await stockVerificacion.abrirKardexDesdeStock();
             const kardexPopup = new KardexVerificacionPage(kardexPage);
-            // await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
-            // await kardexPopup.cerrarModalDetalle();
         });
     });
 
     // ═══════════════════════════════════════════════════════════════
     // Scenario 46: Disminuir stock con insumo
     // ═══════════════════════════════════════════════════════════════
-    test('debe disminuir stock de un insumo desde el modal rápido @MS-12', async ({
+    test('Disminuir stock con insumo @MS-12', async ({
                                                                                movimientosNav,
                                                                                movimientoRapido,
                                                                                stockVerificacion,
@@ -183,7 +174,6 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
 
         await test.step('When: buscar insumo y abrir disminuir stock', async () => {
             await movimientoRapido.buscarItemPorCodigo(ITEMS_TEST.INSUMO_FLEXIBLE.codigo);
-            // await page
             //     .locator('[id="lgt_items_cmp-filtro-items:filtro:filtro_section_v-input:button_search"]')
             //     .click();
             await page.waitForLoadState('networkidle');

@@ -7,7 +7,7 @@ test.describe('MS-7 | Movimientos Masivos @masivos', {tag: ['@logistica', '@movi
     // ═══════════════════════════════════════════════════════════════
     // Scenario 34: Registrar movimiento masivo correctamente
     // ═══════════════════════════════════════════════════════════════
-    test('debe procesar movimiento masivo de ingresos desde excel @MS-7', async ({
+    test('Registrar movimiento masivo correctamente @MS-7', async ({
                                                                                      movimientosNav,
                                                                                      listadoMovimientos,
                                                                                      stockVerificacion,
@@ -63,16 +63,13 @@ test.describe('MS-7 | Movimientos Masivos @masivos', {tag: ['@logistica', '@movi
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.MASIVO_PROD.codigo);
             await kardexVerificacion.clickVariosNth(0);
             await page.getByRole('row', {name: `1 P Producto ${ITEMS_TEST.MASIVO_PROD.codigo}5 Tippy`}).getByRole('button').click();
-            // await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
-            // await expect(page.getByText(PATRON_CODIGO.INGRESO).first()).toBeVisible();
-            // await kardexVerificacion.cerrarModalDetalle();
         });
     });
 
     // ═══════════════════════════════════════════════════════════════
     // Scenario 35: Movimiento masivo con productos e insumos
     // ═══════════════════════════════════════════════════════════════
-    test('debe procesar movimiento masivo con productos e insumos @MS-7', async ({
+    test('Movimiento masivo con productos e insumos @MS-7', async ({
                                                                                      movimientosNav,
                                                                                      listadoMovimientos,
                                                                                      stockVerificacion,

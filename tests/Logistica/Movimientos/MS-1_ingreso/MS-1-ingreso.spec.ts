@@ -13,14 +13,14 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
     // Scenario 1: Registrar ingreso de almacén correctamente con
     // producto y reflejar aumento de stock
     // ═══════════════════════════════════════════════════════════════
-    test('debe registrar un ingreso con producto y verificar stock, kardex y acciones post-registro @MS-1', async ({
-                                                                                                                 movimientosNav,
-                                                                                                                 registroMovimiento,
-                                                                                                                 resultadoMovimiento,
-                                                                                                                 stockVerificacion,
-                                                                                                                 kardexVerificacion,
-                                                                                                                 page,
-                                                                                                             }) => {
+    test('Registrar ingreso de almacén correctamente con producto y reflejar aumento de stock @MS-1', async ({
+                                                                                                                       movimientosNav,
+                                                                                                                       registroMovimiento,
+                                                                                                                       resultadoMovimiento,
+                                                                                                                       stockVerificacion,
+                                                                                                                       kardexVerificacion,
+                                                                                                                       page,
+                                                                                                                   }) => {
 
 
         await test.step('Given: navegar a pantalla de Ingresos', async () => {
@@ -72,14 +72,14 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
     // ═══════════════════════════════════════════════════════════════
     // Scenario 2: Registrar ingreso con ítem con variante
     // ═══════════════════════════════════════════════════════════════
-    test('debe registrar un ingreso con ítem con variante y verificar stock y kardex @MS-1', async ({
-                                                                                                  movimientosNav,
-                                                                                                  registroMovimiento,
-                                                                                                  resultadoMovimiento,
-                                                                                                  stockVerificacion,
-                                                                                                  kardexVerificacion,
-                                                                                                  page,
-                                                                                              }) => {
+    test('Registrar ingreso con ítem con variante @MS-1', async ({
+                                                                                                        movimientosNav,
+                                                                                                        registroMovimiento,
+                                                                                                        resultadoMovimiento,
+                                                                                                        stockVerificacion,
+                                                                                                        kardexVerificacion,
+                                                                                                        page,
+                                                                                                    }) => {
 
 
         await test.step('Given: navegar a Ingresos y crear nuevo ingreso', async () => {
@@ -116,24 +116,20 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
         await test.step('And: verificar movimiento en kardex de la variante', async () => {
             const kardexPage = await stockVerificacion.abrirKardexVariante('313131-V001 Variante 1');
             const kardexPopup = new (await import('@pages/Logistica/KardexVerificacionPage')).KardexVerificacionPage(kardexPage);
-            // await kardexPage.waitForLoadState('networkidle');
-            // await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
-            // await kardexPopup.clickCodigoMovimientoRegex(PATRON_CODIGO.INGRESO);
-            // await kardexPopup.cerrarModalDetalle();
         });
     });
 
     // ═══════════════════════════════════════════════════════════════
     // Scenario 3: Registrar ingreso con ítem con equivalencia
     // ═══════════════════════════════════════════════════════════════
-    test('debe registrar un ingreso con ítem con equivalencia y respetar equivalencia en stock @MS-1', async ({
-                                                                                                            movimientosNav,
-                                                                                                            registroMovimiento,
-                                                                                                            resultadoMovimiento,
-                                                                                                            stockVerificacion,
-                                                                                                            kardexVerificacion,
-                                                                                                            page,
-                                                                                                        }) => {
+    test('Registrar ingreso con ítem con equivalencia @MS-1', async ({
+                                                                                                                  movimientosNav,
+                                                                                                                  registroMovimiento,
+                                                                                                                  resultadoMovimiento,
+                                                                                                                  stockVerificacion,
+                                                                                                                  kardexVerificacion,
+                                                                                                                  page,
+                                                                                                              }) => {
         test.setTimeout(180_000)
 
         await test.step('Given: navegar a Ingresos y crear nuevo ingreso', async () => {
@@ -170,19 +166,17 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
         await test.step('And: verificar movimiento en kardex', async () => {
             const kardexPage = await stockVerificacion.abrirKardexDesdeStock();
             const kardexPopup = new (await import('@pages/Logistica/KardexVerificacionPage')).KardexVerificacionPage(kardexPage);
-            // await kardexPage.waitForLoadState('networkidle');
-            // await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.VENTAS);
         });
     });
 
     // ═══════════════════════════════════════════════════════════════
     // Scenario 4: Validar cantidad inválida en ingreso
     // ═══════════════════════════════════════════════════════════════
-    test('debe mostrar error al intentar registrar ingreso con cantidad cero @MS-1', async ({
-                                                                                          movimientosNav,
-                                                                                          registroMovimiento,
-                                                                                          page,
-                                                                                      }) => {
+    test('Validar cantidad inválida en ingreso @MS-1', async ({
+                                                                                                movimientosNav,
+                                                                                                registroMovimiento,
+                                                                                                page,
+                                                                                            }) => {
         test.setTimeout(180_000)
 
         await test.step('Given: navegar a Ingresos y crear nuevo ingreso', async () => {
@@ -192,7 +186,6 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
 
         await test.step('When: seleccionar almacén, motivo y agregar ítem con cantidad cero', async () => {
             await registroMovimiento.seleccionarAlmacen(ALMACENES.AUTO, ALMACENES.AUTO);
-            // await page.getByText(ALMACENES.AUTO).nth(1).click();
             await registroMovimiento.abrirSelectorMotivo();
             await registroMovimiento.seleccionarMotivoDirecto(MOTIVOS_INGRESO.TRASLADO);
             await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_ESTRICTO.codigo);
@@ -219,23 +212,20 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
     // ═══════════════════════════════════════════════════════════════
     // Scenario 5: Validar duplicidad de ítems en ingreso
     // ═══════════════════════════════════════════════════════════════
-    test('debe incrementar cantidad al agregar mismo ítem dos veces @MS-1', async ({
-                                                                                 movimientosNav,
-                                                                                 registroMovimiento,
-                                                                                 page,
-                                                                             }) => {
+    test('Validar duplicidad de ítems en ingreso @MS-1', async ({
+                                                                                       movimientosNav,
+                                                                                       registroMovimiento,
+                                                                                       page,
+                                                                                   }) => {
         test.setTimeout(180_000)
 
         await test.step('Given: navegar a Ingresos y crear nuevo ingreso', async () => {
             await movimientosNav.navegarAIngresosDesdeMenu();
             await registroMovimiento.clickNuevoMovimiento();
-            //await registroMovimiento.clickNuevoIngreso();
         });
 
         await test.step('When: agregar el mismo ítem dos veces', async () => {
             await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_ESTRICTO.codigo);
-            //await page.getByText('Pproducto111111Item para combos estricto gravado160 un').click();
-            //await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_ESTRICTO.codigo);
             await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.PRODUCTO_ESTRICTO.nombre);
         });
 
@@ -254,22 +244,21 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
     // ═══════════════════════════════════════════════════════════════
     // Scenario 6: Registrar ingreso con datos adicionales
     // ═══════════════════════════════════════════════════════════════
-    test('debe registrar ingreso con datos adicionales y proveedor nuevo @MS-1', async ({
-                                                                                      movimientosNav,
-                                                                                      registroMovimiento,
-                                                                                      datosOpcionales,
-                                                                                      resultadoMovimiento,
-                                                                                      stockVerificacion,
-                                                                                      kardexVerificacion,
-                                                                                      page,
-                                                                                  }) => {
+    test('Registrar ingreso con datos adicionales @MS-1', async ({
+                                                                                            movimientosNav,
+                                                                                            registroMovimiento,
+                                                                                            datosOpcionales,
+                                                                                            resultadoMovimiento,
+                                                                                            stockVerificacion,
+                                                                                            kardexVerificacion,
+                                                                                            page,
+                                                                                        }) => {
 
         test.setTimeout(180_000)
 
         await test.step('Given: navegar a Ingresos y crear nuevo ingreso', async () => {
             await movimientosNav.navegarAIngresosDesdeMenu();
             await registroMovimiento.clickNuevoMovimiento();
-            //await registroMovimiento.clickNuevoIngreso();
         });
 
         await test.step('When: abrir datos opcionales y crear proveedor nuevo', async () => {

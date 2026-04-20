@@ -13,15 +13,15 @@ test.describe('MS-5 | Edición de Movimientos @edicion', {tag: ['@logistica', '@
     // Scenario 23: Editar movimiento correctamente (cantidad)
     // Para edición: se crea un ingreso y luego se edita
     // ═══════════════════════════════════════════════════════════════
-    test('debe editar la cantidad de un ingreso y reflejar cambio en stock y kardex @MS-5', async ({
-                                                                                                 movimientosNav,
-                                                                                                 registroMovimiento,
-                                                                                                 resultadoMovimiento,
-                                                                                                 listadoMovimientos,
-                                                                                                 stockVerificacion,
-                                                                                                 kardexVerificacion,
-                                                                                                 page,
-                                                                                             }) => {
+    test('Editar movimiento correctamente (cantidad) Para edición: se crea un ingreso y luego se edita @MS-5', async ({
+                                                                                                                          movimientosNav,
+                                                                                                                          registroMovimiento,
+                                                                                                                          resultadoMovimiento,
+                                                                                                                          listadoMovimientos,
+                                                                                                                          stockVerificacion,
+                                                                                                                          kardexVerificacion,
+                                                                                                                          page,
+                                                                                                                      }) => {
         test.setTimeout(120_000)
 
         await test.step('Arrange: crear ingreso para editar', async () => {
@@ -71,15 +71,15 @@ test.describe('MS-5 | Edición de Movimientos @edicion', {tag: ['@logistica', '@
     // ═══════════════════════════════════════════════════════════════
     // Scenario 24: Editar movimiento con variante
     // ═══════════════════════════════════════════════════════════════
-    test('debe editar un ingreso con variante y reflejar cambio @MS-5', async ({
-                                                                             movimientosNav,
-                                                                             registroMovimiento,
-                                                                             resultadoMovimiento,
-                                                                             listadoMovimientos,
-                                                                             stockVerificacion,
-                                                                             kardexVerificacion,
-                                                                             page,
-                                                                         }) => {
+    test('Editar movimiento con variante @MS-5', async ({
+                                                            movimientosNav,
+                                                            registroMovimiento,
+                                                            resultadoMovimiento,
+                                                            listadoMovimientos,
+                                                            stockVerificacion,
+                                                            kardexVerificacion,
+                                                            page,
+                                                        }) => {
         test.setTimeout(120_000)
 
         await test.step('Arrange: crear ingreso con variante', async () => {
@@ -127,24 +127,21 @@ test.describe('MS-5 | Edición de Movimientos @edicion', {tag: ['@logistica', '@
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.VARIANTE_FLEXIBLE.codigo);
             await page.getByRole('cell', {name: VARIANTES.V2_FLEXIBLE}).click();
             await page.getByRole('row', {name: '313131-V002 Variante 2'}).getByRole('button').click();
-            // await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
-            // await kardexVerificacion.expectPatronCodigoMovimientoVisible(PATRON_CODIGO.INGRESO);
-            // await kardexVerificacion.cerrarModalDetalle();
         });
     });
 
     // ═══════════════════════════════════════════════════════════════
     // Scenario 25: Editar movimiento con control estricto válido
     // ═══════════════════════════════════════════════════════════════
-    test('debe editar ingreso con control estricto y permitir guardar @MS-5', async ({
-                                                                                   movimientosNav,
-                                                                                   registroMovimiento,
-                                                                                   resultadoMovimiento,
-                                                                                   listadoMovimientos,
-                                                                                   stockVerificacion,
-                                                                                   kardexVerificacion,
-                                                                                   page,
-                                                                               }) => {
+    test('Editar movimiento con control estricto válido @MS-5', async ({
+                                                                           movimientosNav,
+                                                                           registroMovimiento,
+                                                                           resultadoMovimiento,
+                                                                           listadoMovimientos,
+                                                                           stockVerificacion,
+                                                                           kardexVerificacion,
+                                                                           page,
+                                                                       }) => {
         test.setTimeout(120_000)
 
         await test.step('Arrange: crear ingreso con producto estricto', async () => {
@@ -192,14 +189,14 @@ test.describe('MS-5 | Edición de Movimientos @edicion', {tag: ['@logistica', '@
     // ═══════════════════════════════════════════════════════════════
     // Scenario 26: Bloquear edición por integridad
     // ═══════════════════════════════════════════════════════════════
-    test('debe bloquear edición cuando afecta la integridad del movimiento @MS-5', async ({
-                                                                                        movimientosNav,
-                                                                                        registroMovimiento,
-                                                                                        resultadoMovimiento,
-                                                                                        listadoMovimientos,
-                                                                                        page,
-                                                                                    }) => {
-        test.setTimeout(120_000)
+    test('Bloquear edición por integridad @MS-5', async ({
+                                                             movimientosNav,
+                                                             registroMovimiento,
+                                                             resultadoMovimiento,
+                                                             listadoMovimientos,
+                                                             page,
+                                                         }) => {
+
 
         await test.step('Arrange: crear salida para intentar editar', async () => {
             await movimientosNav.navegarASalidasDesdeMenu();
@@ -229,14 +226,14 @@ test.describe('MS-5 | Edición de Movimientos @edicion', {tag: ['@logistica', '@
     // ═══════════════════════════════════════════════════════════════
     // Scenario 27: Editar movimiento con datos adicionales
     // ═══════════════════════════════════════════════════════════════
-    test('debe editar un movimiento y actualizar sus datos adicionales @MS-5', async ({
-                                                                                    movimientosNav,
-                                                                                    registroMovimiento,
-                                                                                    datosOpcionales,
-                                                                                    resultadoMovimiento,
-                                                                                    listadoMovimientos,
-                                                                                    page,
-                                                                                }) => {
+    test('Editar movimiento con datos adicionales @MS-5', async ({
+                                                                     movimientosNav,
+                                                                     registroMovimiento,
+                                                                     datosOpcionales,
+                                                                     resultadoMovimiento,
+                                                                     listadoMovimientos,
+                                                                     page,
+                                                                 }) => {
         test.setTimeout(120_000)
 
         await test.step('Arrange: crear ingreso con datos adicionales completos', async () => {
@@ -250,17 +247,14 @@ test.describe('MS-5 | Edición de Movimientos @edicion', {tag: ['@logistica', '@
             await datosOpcionales.seleccionarProveedor(PROVEEDOR_EXISTENTE.nombre);
 
             // Campo texto
-            //await datosOpcionales.crearCampoTexto('nombre ingreso');
             await datosOpcionales.llenarCampoTexto(0, 'test-modificacion de datos adicionales');
 
             // Campo fecha
-            //await datosOpcionales.crearCampoFecha('fecha-test');
             await datosOpcionales.clickCampoFecha(0);
             // Espera que el picker realmente aparezca en el DOM
             await datosOpcionales.seleccionarDiaEnDatepickerVisible('15');
 
             // Campo selección
-            // await datosOpcionales.crearCampoSeleccion('entorno', ['certificación', 'producción']);
             await datosOpcionales.seleccionarCampoSeleccion('certificación');
 
             await datosOpcionales.guardarDatos();

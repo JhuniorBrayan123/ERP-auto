@@ -6,7 +6,7 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
     // ═══════════════════════════════════════════════════════════════
     // Scenario 28: Clonar movimiento correctamente
     // ═══════════════════════════════════════════════════════════════
-    test('debe clonar un ingreso y verificar nuevo movimiento en kardex @MS-6', async ({
+    test('Clonar movimiento correctamente @MS-6', async ({
                                                                                      movimientosNav,
                                                                                      registroMovimiento,
                                                                                      resultadoMovimiento,
@@ -34,13 +34,6 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
             await stockVerificacion.clickVariosTexto();
         });
 
-        // await test.step('And: verificar kardex antes de clonar', async () => {
-        //     await movimientosNav.navegarAKardexTotal();
-        //     await page.waitForTimeout(2000)
-        //     await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
-        //     await kardexVerificacion.clickVariosTexto();
-        //     await kardexVerificacion.clickKardexPorProducto();
-        //     await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
         // });
 
         await test.step('Act: clonar el movimiento', async () => {
@@ -73,7 +66,7 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
     // ═══════════════════════════════════════════════════════════════
     // Scenario 29: Clonar movimiento con equivalencia
     // ═══════════════════════════════════════════════════════════════
-    test('debe clonar ingreso con equivalencia y respetar lógica de equivalencia @MS-6', async ({
+    test('Clonar movimiento con equivalencia @MS-6', async ({
                                                                                               movimientosNav,
                                                                                               registroMovimiento,
                                                                                               resultadoMovimiento,
@@ -120,7 +113,7 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
     // ═══════════════════════════════════════════════════════════════
     // Scenario 30: Clonar movimiento con datos adicionales
     // ═══════════════════════════════════════════════════════════════
-    test('debe clonar ingreso con datos adicionales y editarlos @MS-6', async ({
+    test('Clonar movimiento con datos adicionales @MS-6', async ({
                                                                              movimientosNav,
                                                                              registroMovimiento,
                                                                              datosOpcionales,
