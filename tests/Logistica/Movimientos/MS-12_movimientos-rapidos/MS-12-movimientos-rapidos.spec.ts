@@ -14,12 +14,12 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
     // Scenario 43: Aumentar stock desde modal de producto
     // ═══════════════════════════════════════════════════════════════
     test('Aumentar stock desde modal de producto @MS-12', async ({
-                                                                                movimientosNav,
-                                                                                movimientoRapido,
-                                                                                stockVerificacion,
-                                                                                kardexVerificacion,
-                                                                                page,
-                                                                            }) => {
+                                                                     movimientosNav,
+                                                                     movimientoRapido,
+                                                                     stockVerificacion,
+                                                                     kardexVerificacion,
+                                                                     page,
+                                                                 }) => {
 
         await test.step('Given: navegar a lista de ítems (Productos)', async () => {
             await movimientosNav.navegarAItemsProductos();
@@ -44,8 +44,6 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
             await movimientoRapido.cerrarModalConfirmacion();
         });
 
-        //     //await movimientoRapido.clickBtnAumentarStock();
-        // });
 
         await test.step('And: verificar stock', async () => {
             await movimientosNav.navegarAStockProductos();
@@ -65,11 +63,11 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
     // Scenario 44: Aumentar stock con variante
     // ═══════════════════════════════════════════════════════════════
     test('Aumentar stock con variante @MS-12', async ({
-                                                                                 movimientosNav,
-                                                                                 movimientoRapido,
-                                                                                 stockVerificacion,
-                                                                                 page,
-                                                                             }) => {
+                                                          movimientosNav,
+                                                          movimientoRapido,
+                                                          stockVerificacion,
+                                                          page,
+                                                      }) => {
 
         await test.step('Given: navegar a lista de ítems (Productos)', async () => {
             await movimientosNav.navegarAItemsProductos();
@@ -86,7 +84,7 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
         await test.step('And: seleccionar variante y incrementar stock', async () => {
             // Click en la variante fila
             await movimientoRapido.clickexpandeVariante(ITEMS_TEST.VARIANTE_FLEXIBLE.codigo);
-            await movimientoRapido.abrirMenuItemAcciones(VARIANTES.V1_FLEXIBLE);
+            await movimientoRapido.abrirMenuItemAcciones(VARIANTES.V1_FLEXIBLE.nombre);
             await movimientoRapido.clickIncrementarStockVariante();
         });
 
@@ -104,7 +102,7 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
         await test.step('And: verificar stock de la variante', async () => {
             await movimientosNav.navegarAStockProductos();
             await stockVerificacion.buscarPorCodigo(ITEMS_TEST.VARIANTE_FLEXIBLE.codigo);
-            await stockVerificacion.clickVariante(VARIANTES.V1_FLEXIBLE);
+            await stockVerificacion.clickVariante(VARIANTES.V1_FLEXIBLE.nombre);
         });
     });
 
@@ -112,12 +110,12 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
     // Scenario 45: Disminuir stock desde modal de producto
     // ═══════════════════════════════════════════════════════════════
     test('Disminuir stock desde modal de producto @MS-12', async ({
-                                                                                 movimientosNav,
-                                                                                 movimientoRapido,
-                                                                                 stockVerificacion,
-                                                                                 page,
-                                                                                 kardexVerificacion,
-                                                                             }) => {
+                                                                      movimientosNav,
+                                                                      movimientoRapido,
+                                                                      stockVerificacion,
+                                                                      page,
+                                                                      kardexVerificacion,
+                                                                  }) => {
 
         await test.step('Given: navegar a lista de ítems (Productos)', async () => {
             await movimientosNav.navegarAItemsProductos();
@@ -160,11 +158,11 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
     // Scenario 46: Disminuir stock con insumo
     // ═══════════════════════════════════════════════════════════════
     test('Disminuir stock con insumo @MS-12', async ({
-                                                                               movimientosNav,
-                                                                               movimientoRapido,
-                                                                               stockVerificacion,
-                                                                               page,
-                                                                           }) => {
+                                                         movimientosNav,
+                                                         movimientoRapido,
+                                                         stockVerificacion,
+                                                         page,
+                                                     }) => {
 
         await test.step('Given: navegar a lista de Insumos', async () => {
             await movimientosNav.navegarAItemsProductos();
