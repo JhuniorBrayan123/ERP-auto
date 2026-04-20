@@ -27,16 +27,19 @@ interface ObtenerSaldoParams {
  * const saldo = await kardexApi.obtenerSaldoPorProducto({
  *     codigoProducto: '121212',
  *     almacenFiltro: 'AUTO',
+ *     codigo segu
  * });
  * ```
  */
 export class KardexApi {
     private readonly request: APIRequestContext;
     private readonly token: string;
+    private readonly almacenesQuery: string;
 
-    constructor(request: APIRequestContext, token: string) {
+    constructor(request: APIRequestContext, token: string, almacenesQuery: string) {
         this.request = request;
         this.token = token;
+        this.almacenesQuery = almacenesQuery;
     }
 
     // ─── Métodos privados ────────────────────────────────────────────
@@ -68,7 +71,7 @@ export class KardexApi {
             `&tipoSaldoInicial=2`,
             `&pagina=1`,
             `&tamanio=10`,
-            `&${env.almacenesQuery}`,
+            `&${this.almacenesQuery}`,
             `&${tipoItemQuery}`,
             `&BusquedaCompuesta=${params.codigoProducto}`,
         ].join('');
@@ -92,6 +95,7 @@ export class KardexApi {
         const {
             codigoProducto,
             almacenFiltro = 'AUTO',
+            // almacenFiltro = 'VENTAS',
             fechaInicio = '2020-01-01',
             tipoItem = [1, 6],
         } = params;
@@ -116,22 +120,46 @@ export class KardexApi {
                 `Respuesta: ${JSON.stringify(body)}`,
             );
         }
+        //console.log('BODY:', JSON.stringify(body, null, 2));
 
         const dataItem = body.Data[0];
-        const almacenEncontrado = dataItem.Almacenes.find(
-            (a: { DescripcionAlmacen?: string }) =>
-                a.DescripcionAlmacen?.includes(almacenFiltro),
-        );
 
-        if (!almacenEncontrado) {
-            console.warn(
-                `️ KardexApi: No se encontró almacén "${almacenFiltro}" para "${codigoProducto}". ` +
-                `Se usará el primer almacén: ${dataItem.Almacenes[0]?.DescripcionAlmacen}`,
+// 🔹 Caso 1: producto sin variantes
+        if (dataItem.Almacenes?.length) {
+            const almacenEncontrado = dataItem.Almacenes.find(
+                (a: { DescripcionAlmacen?: string }) =>
+                    a.DescripcionAlmacen?.includes(almacenFiltro),
             );
+
+            if (!almacenEncontrado) {
+                console.warn(`No se encontró almacén "${almacenFiltro}"`);
+            }
+
+            return almacenEncontrado
+                ? almacenEncontrado.SaldoFinal
+                : dataItem.Almacenes[0].SaldoFinal;
         }
 
-        return almacenEncontrado
-            ? almacenEncontrado.SaldoFinal
-            : dataItem.Almacenes[0].SaldoFinal;
+// 🔹 Caso 2: producto con variantes
+        if (dataItem.Variaciones?.length) {
+            const variacion = dataItem.Variaciones.find(
+                (v: any) => v.CodigoItem === codigoProducto
+            );
+
+            if (!variacion?.Almacenes?.length) {
+                throw new Error(`No hay almacenes para la variante "${codigoProducto}"`);
+            }
+
+            const almacenEncontrado = variacion.Almacenes.find(
+                (a: { DescripcionAlmacen?: string }) =>
+                    a.DescripcionAlmacen?.includes(almacenFiltro),
+            );
+
+            return almacenEncontrado
+                ? almacenEncontrado.SaldoFinal
+                : variacion.Almacenes[0].SaldoFinal;
+        }
+
+        throw new Error('Estructura inesperada en Kardex API');
     }
 }

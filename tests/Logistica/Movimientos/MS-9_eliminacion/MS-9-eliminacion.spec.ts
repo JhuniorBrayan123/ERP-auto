@@ -102,15 +102,16 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
                                                               stockVerificacion,
                                                               kardexVerificacion,
                                                               page,
+                                                              kardexApi,
                                                           }) => {
-
+        // let saldoAfectadoApi = 0;
 
         await test.step('Arrange: crear salida con variante estricta', async () => {
             await movimientosNav.navegarASalidas();
             await registroMovimiento.clickAgregarSalida();
             await registroMovimiento.buscarItem(ITEMS_TEST.VARIANTE_ESTRICTO.codigo);
             await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.VARIANTE_ESTRICTO.nombre);
-            await registroMovimiento.seleccionarVariante(VARIANTES.V3_ESTRICTO);
+            await registroMovimiento.seleccionarVariante(VARIANTES.V3_ESTRICTO.nombre);
             await registroMovimiento.clickTextoRegistrarSalida();
             await registroMovimiento.clickRegistrarYDespachar();
             await resultadoMovimiento.irAlListado();
@@ -124,13 +125,19 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.VARIANTE_ESTRICTO.codigo);
 
             // Click en "Kardex por producto" de la fila de la variante 3
-            await kardexVerificacion.abrirKardexVariante(VARIANTES.V3_ESTRICTO);
+            await kardexVerificacion.abrirKardexVariante(VARIANTES.V3_ESTRICTO.nombre);
             await page.waitForTimeout(2000)
             // Ahora estamos en la misma página en la vista de Kardex por producto
             await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.VENTAS);// o el índice que corresponda
 
 
         });
+
+        // await test.step('And : Verificando Kardex API', async () => {
+        //     saldoAfectadoApi = await kardexApi.obtenerSaldoPorProducto({
+        //         codigoProducto: VARIANTES.V3_ESTRICTO.nombre, almacenFiltro: 'VENTAS'
+        //     })
+        // })
 
         await test.step('Act: eliminar movimiento', async () => {
             await movimientosNav.navegarASalidas();
@@ -153,14 +160,19 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.VARIANTE_ESTRICTO.codigo);
 
             // Click en "Kardex por producto" de la fila de la variante 3
-            await kardexVerificacion.abrirKardexVariante(VARIANTES.V3_ESTRICTO);
+            await kardexVerificacion.abrirKardexVariante(VARIANTES.V3_ESTRICTO.nombre);
             await page.waitForTimeout(2000)
-
             // Ahora estamos en la misma página en la vista de Kardex por producto
             await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO); // o el índice que corresponda
 
 
         });
+        // await test.step('Assert : Api Kardex despues de eliminar', async () => {
+        //     const saldoPostElimiacion = await kardexApi.obtenerSaldoPorProducto({
+        //         codigoProducto: VARIANTES.V3_ESTRICTO.nombre, almacenFiltro: 'VENTAS'
+        //     })
+        //     expect(saldoPostElimiacion).toBe(saldoAfectadoApi + 1)
+        // })
     });
 
     // ═══════════════════════════════════════════════════════════════

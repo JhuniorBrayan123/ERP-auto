@@ -87,7 +87,7 @@ test.describe('MS-5 | Edición de Movimientos @edicion', {tag: ['@logistica', '@
             await registroMovimiento.clickAgregarIngreso();
             await registroMovimiento.buscarItem(ITEMS_TEST.VARIANTE_FLEXIBLE.codigo);
             await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.VARIANTE_FLEXIBLE.nombre);
-            await registroMovimiento.seleccionarVariante(VARIANTES.V2_FLEXIBLE);
+            await registroMovimiento.seleccionarVariante(VARIANTES.V2_FLEXIBLE.nombre);
             await registroMovimiento.llenarCantidad('100');
             await registroMovimiento.clickRegistrarIngreso();
             await resultadoMovimiento.irAlListado();
@@ -117,7 +117,7 @@ test.describe('MS-5 | Edición de Movimientos @edicion', {tag: ['@logistica', '@
         await test.step('Assert: verificar stock de la variante', async () => {
             await movimientosNav.navegarAStockProductos();
             await stockVerificacion.buscarPorCodigo(ITEMS_TEST.VARIANTE_FLEXIBLE.codigo);
-            await stockVerificacion.clickVariante(VARIANTES.V2_FLEXIBLE);
+            await stockVerificacion.clickVariante(VARIANTES.V2_FLEXIBLE.nombre);
             await stockVerificacion.clickAlmacenMultipleNth(1);
         });
 
@@ -125,7 +125,7 @@ test.describe('MS-5 | Edición de Movimientos @edicion', {tag: ['@logistica', '@
             await movimientosNav.navegarAKardexTotal();
             await page.waitForTimeout(2000);
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.VARIANTE_FLEXIBLE.codigo);
-            await page.getByRole('cell', {name: VARIANTES.V2_FLEXIBLE}).click();
+            await page.getByRole('cell', {name: VARIANTES.V2_FLEXIBLE.nombre}).click();
             await page.getByRole('row', {name: '313131-V002 Variante 2'}).getByRole('button').click();
         });
     });

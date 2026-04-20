@@ -15,13 +15,13 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
     // Scenario 7: Registrar salida correctamente y reflejar disminución de stock
     // ═══════════════════════════════════════════════════════════════
     test('Registrar salida correctamente y reflejar disminución de stock @MS-2', async ({
-                                                                                                              movimientosNav,
-                                                                                                              registroMovimiento,
-                                                                                                              resultadoMovimiento,
-                                                                                                              stockVerificacion,
-                                                                                                              kardexVerificacion,
-                                                                                                              page,
-                                                                                                          }) => {
+                                                                                            movimientosNav,
+                                                                                            registroMovimiento,
+                                                                                            resultadoMovimiento,
+                                                                                            stockVerificacion,
+                                                                                            kardexVerificacion,
+                                                                                            page,
+                                                                                        }) => {
 
         await test.step('Given: navegar a Salidas', async () => {
             await movimientosNav.navegarASalidas();
@@ -68,13 +68,13 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
     // Scenario 8: Registrar salida con insumo
     // ═══════════════════════════════════════════════════════════════
     test('Registrar salida con insumo @MS-2', async ({
-                                                                                             movimientosNav,
-                                                                                             registroMovimiento,
-                                                                                             resultadoMovimiento,
-                                                                                             stockVerificacion,
-                                                                                             kardexVerificacion,
-                                                                                             page,
-                                                                                         }) => {
+                                                         movimientosNav,
+                                                         registroMovimiento,
+                                                         resultadoMovimiento,
+                                                         stockVerificacion,
+                                                         kardexVerificacion,
+                                                         page,
+                                                     }) => {
         test.setTimeout(120_000)
 
         await test.step('Given: navegar a Salidas', async () => {
@@ -117,13 +117,13 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
     // Scenario 9: Registrar salida con variante
     // ═══════════════════════════════════════════════════════════════
     test('Registrar salida con variante @MS-2', async ({
-                                                                                               movimientosNav,
-                                                                                               registroMovimiento,
-                                                                                               resultadoMovimiento,
-                                                                                               stockVerificacion,
-                                                                                               kardexVerificacion,
-                                                                                               page,
-                                                                                           }) => {
+                                                           movimientosNav,
+                                                           registroMovimiento,
+                                                           resultadoMovimiento,
+                                                           stockVerificacion,
+                                                           kardexVerificacion,
+                                                           page,
+                                                       }) => {
 
         await test.step('Given: estar en lista de salidas y crear nueva salida', async () => {
             await movimientosNav.navegarASalidas()
@@ -133,7 +133,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
         await test.step('When: buscar variante y registrar salida', async () => {
             await registroMovimiento.buscarItem(ITEMS_TEST.VARIANTE_FLEXIBLE.codigo);
             await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.VARIANTE_FLEXIBLE.nombre);
-            await registroMovimiento.seleccionarVariante(VARIANTES.V2_FLEXIBLE);
+            await registroMovimiento.seleccionarVariante(VARIANTES.V2_FLEXIBLE.nombre);
             await registroMovimiento.clickTextoRegistrarSalida();
             await registroMovimiento.clickRegistrarYDespachar();
             await resultadoMovimiento.irAlListado();
@@ -142,7 +142,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
         await test.step('Then: verificar stock de la variante', async () => {
             await movimientosNav.navegarAStockProductos();
             await stockVerificacion.buscarPorCodigo(ITEMS_TEST.VARIANTE_FLEXIBLE.codigo);
-            await stockVerificacion.clickVariante(VARIANTES.V2_FLEXIBLE);
+            await stockVerificacion.clickVariante(VARIANTES.V2_FLEXIBLE.nombre);
         });
 
         await test.step('And: verificar kardex de la variante', async () => {
@@ -159,12 +159,12 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
     // Scenario 10: Registrar salida con ítem con equivalencia
     // ═══════════════════════════════════════════════════════════════
     test('Registrar salida con ítem con equivalencia @MS-2', async ({
-                                                                                                   movimientosNav,
-                                                                                                   registroMovimiento,
-                                                                                                   resultadoMovimiento,
-                                                                                                   stockVerificacion,
-                                                                                                   page,
-                                                                                               }) => {
+                                                                        movimientosNav,
+                                                                        registroMovimiento,
+                                                                        resultadoMovimiento,
+                                                                        stockVerificacion,
+                                                                        page,
+                                                                    }) => {
 
         await test.step('Given: crear nueva salida con almacén VENTAS', async () => {
             await movimientosNav.navegarASalidas()
@@ -203,13 +203,13 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
     // Scenario 11: Despachar salida correctamente liberando stock comprometido
     // ═══════════════════════════════════════════════════════════════
     test('Despachar salida correctamente liberando stock comprometido @MS-2', async ({
-                                                                                           movimientosNav,
-                                                                                           registroMovimiento,
-                                                                                           resultadoMovimiento,
-                                                                                           listadoMovimientos,
-                                                                                           stockVerificacion,
-                                                                                           page,
-                                                                                       }) => {
+                                                                                         movimientosNav,
+                                                                                         registroMovimiento,
+                                                                                         resultadoMovimiento,
+                                                                                         listadoMovimientos,
+                                                                                         stockVerificacion,
+                                                                                         page,
+                                                                                     }) => {
         test.setTimeout(120_000);
 
         await test.step('Given: navegar a Salidas y crear salida solo registrar (sin despacho)', async () => {
@@ -217,7 +217,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
             await registroMovimiento.clickAgregarSalida();
             await registroMovimiento.buscarItem(ITEMS_TEST.VARIANTE_FLEXIBLE.codigo);
             await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.VARIANTE_FLEXIBLE.nombre);
-            await registroMovimiento.seleccionarVariante(VARIANTES.V3_FLEXIBLE);
+            await registroMovimiento.seleccionarVariante(VARIANTES.V3_FLEXIBLE.nombre);
             await registroMovimiento.clickTextoRegistrarSalida();
             await registroMovimiento.clickRegistrarSoloSalida();
             await resultadoMovimiento.irAlListado();
@@ -240,7 +240,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
         await test.step('Then: verificar stock actualizado tras despacho', async () => {
             await movimientosNav.navegarAStockProductos();
             await stockVerificacion.buscarPorCodigo(ITEMS_TEST.VARIANTE_FLEXIBLE.codigo);
-            await stockVerificacion.clickVariante(VARIANTES.V3_FLEXIBLE);
+            await stockVerificacion.clickVariante(VARIANTES.V3_FLEXIBLE.nombre);
         });
 
         await test.step('And: verificar kardex de variante', async () => {
@@ -257,13 +257,13 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
     // Scenario 12: Registrar salida con datos adicionales
     // ═══════════════════════════════════════════════════════════════
     test('Registrar salida con datos adicionales @MS-2', async ({
-                                                                                             movimientosNav,
-                                                                                             registroMovimiento,
-                                                                                             datosOpcionales,
-                                                                                             resultadoMovimiento,
-                                                                                             stockVerificacion,
-                                                                                             page,
-                                                                                         }) => {
+                                                                    movimientosNav,
+                                                                    registroMovimiento,
+                                                                    datosOpcionales,
+                                                                    resultadoMovimiento,
+                                                                    stockVerificacion,
+                                                                    page,
+                                                                }) => {
         test.setTimeout(180_000)
 
         await test.step('Given: crear nueva salida', async () => {
