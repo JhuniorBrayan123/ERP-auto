@@ -147,16 +147,7 @@ export class MovimientoRapidoPage {
     async cerrarModalCancelarModal(): Promise<void> {
         await this.page.locator('.v-modal > div').first().click();
     }
-
-    async cerrarModalStock(): Promise<void> {
-        await this.page.keyboard.press('Escape');
-        await this.page
-            .locator('.v-modal')
-            .first()
-            .waitFor({state: 'hidden', timeout: 5_000})
-            .catch(() => { 
-            });
-    }
+    
 
     async buscarItemPorCodigo(codigo: string): Promise<void> {
         const searchInput = this.page.getByRole('textbox', {name: 'Buscar por nombre, código o c'});
