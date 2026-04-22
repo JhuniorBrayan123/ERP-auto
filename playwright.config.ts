@@ -16,7 +16,7 @@ export default defineConfig({
 
     /* ─── CI / Retries ─── */
     forbidOnly: !!process.env.CI,
-    // retries: 2,
+    retries: 2,
 
     /* ─── Timeouts para estabilidad ─── */
     timeout: 240_000,           // 3 min  por test por si

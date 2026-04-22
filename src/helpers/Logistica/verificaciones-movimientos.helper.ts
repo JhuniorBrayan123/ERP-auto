@@ -152,6 +152,16 @@ export const definirCantidadYRegistrarIngreso = async (
     });
 };
 
+export const registrarIngresoEIrAlListado = async (
+    registroMovimiento: RegistroMovimientoPage,
+    resultadoMovimiento: ResultadoMovimientoPage
+) => {
+    await test.step('And: registrar ingreso', async () => {
+        await registroMovimiento.clickRegistrarIngreso();
+        await resultadoMovimiento.irAlListado();
+    });
+};
+
 export const registrarSalidaYDespachar = async (
     registroMovimiento: RegistroMovimientoPage,
     resultadoMovimiento: ResultadoMovimientoPage,
