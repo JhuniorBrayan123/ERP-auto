@@ -69,10 +69,7 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
                                                               page,
                                                               kardexApi,
                                                           }) => {
-        // let saldoAfectadoApi = 0;
-
         await crearSalidaEstandarParaPrecondicion(movimientosNav, registroMovimiento, resultadoMovimiento, ITEMS_TEST.VARIANTE_ESTRICTO.codigo, ITEMS_TEST.VARIANTE_ESTRICTO.nombre, '10', VARIANTES.V3_ESTRICTO.nombre);
-
         await test.step('And: verificar stock y kardex antes de eliminar', async () => {
             await movimientosNav.navegarAKardexTotal();
             await page.waitForTimeout(2000);
@@ -82,19 +79,12 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
             await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.VENTAS);
         });
 
-        // await test.step('And : Verificando Kardex API', async () => {
-        //     saldoAfectadoApi = await kardexApi.obtenerSaldoPorProducto({
-        //         codigoProducto: VARIANTES.V3_ESTRICTO.codigo, almacenFiltro: 'VENTAS'
-        //     })
-        // });
 
         await test.step('Act: eliminar movimiento', async () => {
             await movimientosNav.navegarASalidas();
         });
         await eliminarMovimientoDesdeListado(listadoMovimientos);
-
         await verificarEventoEnBitacora(listadoMovimientos, 'Eliminación');
-
         await test.step('Assert: verificar kardex refleja eliminación', async () => {
             await movimientosNav.navegarAKardexTotal();
             await page.waitForTimeout(2000);
@@ -103,13 +93,6 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
             await page.waitForTimeout(2000)
             await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
         });
-
-        // await test.step('Assert : Api Kardex despues de eliminar', async () => {
-        //     const saldoPostElimiacion = await kardexApi.obtenerSaldoPorProducto({
-        //         codigoProducto: VARIANTES.V3_ESTRICTO.codigo, almacenFiltro: 'VENTAS'
-        //     })
-        //     expect(saldoPostElimiacion).toBe(saldoAfectadoApi + 1)
-        // });
     });
 
     test('Bloquear eliminación por stock negativo @MS-9', async ({

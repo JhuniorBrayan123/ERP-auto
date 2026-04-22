@@ -1,0 +1,185 @@
+import {test} from '../../fixtures/Logistica/items-fixture';
+import {expect, Page} from '@playwright/test';
+import {ItemFormBasePage} from '../../pages/Logistica/ItemFormBasePage';
+import {ProductoFormPage} from '../../pages/Logistica/ProductoFormPage';
+import {ComboFormPage} from '../../pages/Logistica/ComboFormPage';
+import {RecetaFormPage} from '../../pages/Logistica/RecetaFormPage';
+import {ListaFormPage} from '../../pages/Logistica/ListaFormPage';
+import type {ComponenteCombo, InsumoReceta, ProductoListaItem, StockConfig} from './item-data.types';
+
+// ─── Cross-type: Crear y Confirmar ───────────────────────────────────
+
+/**
+ * Bloque común a TODOS los tests de creación PS-3:
+ * ejecutar la función de crear → esperar botón de confirmación → ir a lista.
+ *
+ * @param form Cualquier PO que herede de ItemFormBasePage
+ * @param crearFn La función de creación específica del tipo de item
+ */
+export const confirmarCreacionEIrALista = async (
+    form: ItemFormBasePage,
+    crearFn: () => Promise<void>,
+) => {
+    await test.step('Crear item y confirmar', async () => {
+        await crearFn();
+        await expect(form['page'].getByRole('button', {name: 'Ir a lista de ítems'}))
+            .toBeVisible();
+        await form.clickIrAListaItems();
+    });
+};
+
+// ─── PS-3 Producto ───────────────────────────────────────────────────
+
+/**
+ * Prepara un producto: iniciar creación → nombre → precios → opciones avanzadas → stock → info adicional.
+ * Soporta stock estricto, flexible o sin control.
+ */
+export const prepararProductoBase = async (
+    productoForm: ProductoFormPage,
+    nombre: string,
+    precios: { venta: string; compra: string },
+    opciones?: {
+        stockConfig?: StockConfig;
+        skipStock?: boolean;
+    }
+) => {
+    await test.step('Preparar producto base', async () => {
+        await productoForm.iniciarCreacionProducto();
+        await productoForm.llenarNombre(nombre);
+        await productoForm.llenarPrecios(precios.venta, precios.compra);
+        await productoForm.expandirOpcionesAvanzadas();
+        if (opciones?.stockConfig) {
+            await productoForm.configurarStock(opciones.stockConfig);
+        } else if (!opciones?.skipStock) {
+            await productoForm.irATabStock();
+        }
+    });
+};
+
+// ─── PS-3 Combo ──────────────────────────────────────────────────────
+
+/**
+ * Prepara un combo: iniciar → nombre → precios → componentes → info adicional.
+ */
+export const prepararComboBase = async (
+    comboForm: ComboFormPage,
+    nombre: string,
+    precios: { venta: string; compra: string },
+    componentes: ComponenteCombo[],
+) => {
+    await test.step('Preparar combo base', async () => {
+        await comboForm.iniciarCreacionCombo();
+        await comboForm.llenarNombre(nombre);
+        await comboForm.llenarPrecios(precios.venta, precios.compra);
+        await comboForm.irATabComponentes();
+        for (const comp of componentes) {
+            await comboForm.buscarYAgregarComponente(comp);
+        }
+        await comboForm.expandirOpcionesAvanzadas();
+        await comboForm.llenarInfoAdicional('AUTO-TEST', 'AUTOMATIZADO');
+    });
+};
+
+// ─── PS-3 Receta ─────────────────────────────────────────────────────
+
+/**
+ * Prepara una receta: iniciar → nombre → precios → insumos → info adicional.
+ */
+export const prepararRecetaBase = async (
+    recetaForm: RecetaFormPage,
+    nombre: string,
+    precios: { venta: string; compra: string },
+    insumos: InsumoReceta[],
+) => {
+    await test.step('Preparar receta base', async () => {
+        await recetaForm.iniciarCreacionReceta();
+        await recetaForm.llenarNombre(nombre);
+        await recetaForm.llenarPrecios(precios.venta, precios.compra);
+        await recetaForm.irATabInsumos();
+        for (const insumo of insumos) {
+            await recetaForm.buscarYAgregarInsumo(insumo);
+        }
+        await recetaForm.expandirOpcionesAvanzadas();
+        await recetaForm.llenarInfoAdicional('AUTO-TEST', 'AUTOMATIZADO');
+    });
+};
+
+// ─── PS-3 Lista ──────────────────────────────────────────────────────
+
+/**
+ * Prepara una lista: iniciar → nombre → descripción → productos.
+ */
+export const prepararListaBase = async (
+    listaForm: ListaFormPage,
+    nombre: string,
+    descripcion: string,
+    productos: ProductoListaItem[],
+) => {
+    await test.step('Preparar lista base', async () => {
+        await listaForm.iniciarCreacionLista();
+        await listaForm.llenarNombre(nombre);
+        await listaForm.llenarDescripcion(descripcion);
+        for (const prod of productos) {
+            await listaForm.buscarYAgregarProducto(prod);
+        }
+    });
+};
+
+// ─── PS-2 Carga Masiva ───────────────────────────────────────────────
+
+/**
+ * Flujo completo de test de carga masiva:
+ * buildExcel → ejecutar carga → verificar éxito → ir inicio → buscar item → verificar en tabla → cleanup.
+ */
+export const ejecutarTestCargaMasiva = async (
+    page: Page,
+    cargaMasiva: any,
+    tipoItem: string,
+    config: { cardLabel: string },
+    usarAutoRemapeo: boolean = false,
+) => {
+    const {buildMassiveExcel, cleanupTempFile} = await import('./masivo-excel.helper');
+
+    let tempFilePath = '';
+    let textoBusqueda = '';
+
+    await test.step('Preparar Excel con nombre único', async () => {
+        const result = await buildMassiveExcel(tipoItem as any, 'masivo');
+        tempFilePath = result.tempFilePath;
+        textoBusqueda = result.textoBusqueda;
+        console.log(`  → Nombre generado: ${result.nombreGenerado}`);
+    });
+
+    await test.step(`Seleccionar tipo ${config.cardLabel} y subir archivo`, async () => {
+        if (usarAutoRemapeo) {
+            await cargaMasiva.ejecutarFlujoCargaMasivaProductosConAutoRemapeo(config.cardLabel, tempFilePath);
+        } else {
+            await cargaMasiva.ejecutarFlujoCargaMasiva(config.cardLabel, tempFilePath);
+        }
+    });
+
+    await test.step('Verificar que la carga finalizó correctamente', async () => {
+        await expect(page.getByRole('button', {name: 'Ir al inicio'})).toBeVisible({
+            timeout: 30_000,
+        });
+    });
+
+    await test.step('Volver al inicio', async () => {
+        await cargaMasiva.clickIrAlInicio();
+    });
+
+    await test.step('Verificar item creado buscando por nombre en la lista', async () => {
+        await page.getByRole('textbox', {name: 'Buscar por nombre, código o c'}).click();
+        await page.getByRole('textbox', {name: 'Buscar por nombre, código o c'}).fill(textoBusqueda);
+        await page
+            .locator('[id="lgt_items_cmp-filtro-items:filtro:filtro_section_v-input:button_search"]')
+            .click();
+        await page.waitForLoadState('networkidle');
+
+        await expect(
+            page.getByRole('table').getByText(textoBusqueda).first(),
+        ).toBeAttached({timeout: 15_000});
+    });
+
+    cleanupTempFile(tempFilePath);
+};

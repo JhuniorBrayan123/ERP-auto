@@ -7,6 +7,8 @@ import {
     PROVEEDOR_EXISTENTE,
 } from '@helpers/Logistica/movimiento-data.helper';
 import {
+    buscarYSeleccionarItem,
+    configurarDatosOpcionalesEstandar,
     crearAjusteConItem,
     definirCantidadYFactor,
     registrarAjusteEIrAlListado,
@@ -74,13 +76,15 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
         });
         await crearAjusteConItem(registroMovimiento,
             ITEMS_TEST.EQUIVALENTE_EST.codigo,
-            ITEMS_TEST.EQUIVALENTE_EST.nombre
+            ITEMS_TEST.EQUIVALENTE_EST.nombre,
+            page,
+            'item equivalente estricto gravadoFactor Multiplicador:1S/'
         );
         await definirCantidadYFactor(registroMovimiento, '10', 'Agregar');
         await registrarAjusteEIrAlListado(registroMovimiento, resultadoMovimiento);
         await verificarStockYKardex(
             movimientosNav, stockVerificacion, kardexVerificacion, page,
-            ITEMS_TEST.EQUIVALENTE_EST.codigo, ALMACENES.AUTO, PATRON_CODIGO.AJUSTE, 'item equivalente estricto gravadoFactor Multiplicador:1S/'
+            ITEMS_TEST.EQUIVALENTE_EST.codigo, ALMACENES.AUTO, PATRON_CODIGO.AJUSTE, 'item equivalente estricto'
         );
     });
 
@@ -92,8 +96,6 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
                                                           kardexVerificacion,
                                                           page,
                                                       }) => {
-        test.setTimeout(120_000);
-
         await test.step('Given: navegar a Ajustes', async () => {
             await movimientosNav.navegarAAjustesDesdeMenu();
         });
@@ -118,8 +120,6 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
                                                                     kardexVerificacion,
                                                                     page,
                                                                 }) => {
-        test.setTimeout(120_000);
-
         await test.step('Given: navegar a Ajustes con almacén y motivo específicos', async () => {
             await movimientosNav.navegarAAjustes();
             await registroMovimiento.clickNuevoMovimiento();
@@ -127,29 +127,19 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
             await page.getByText(MOTIVOS_AJUSTE.ACTUALIZACION).first().click();
             await page.getByText(MOTIVOS_AJUSTE.VENCIMIENTO).click();
         });
-
-        await crearAjusteConItem(registroMovimiento,
+        await buscarYSeleccionarItem(registroMovimiento,
             ITEMS_TEST.PRODUCTO_ESTRICTO.codigo,
             ITEMS_TEST.PRODUCTO_ESTRICTO.nombre
         );
-
-        await test.step('And: configurar datos opcionales con proveedor y campos adicionales', async () => {
-            await datosOpcionales.abrirDatosOpcionales();
-            await datosOpcionales.buscarProveedor(PROVEEDOR_EXISTENTE.numDocumento);
-            await datosOpcionales.seleccionarProveedor(PROVEEDOR_EXISTENTE.nombre);
-            await datosOpcionales.llenarCampoTexto(0, 'auto');
-            await datosOpcionales.clickCampoFecha(0);
-            await datosOpcionales.seleccionarDiaEnDatepickerVisible('15');
-            await datosOpcionales.llenarCampoNumero(0, '98989898989898989');
-            await datosOpcionales.guardarDatos();
-        });
-
+        await configurarDatosOpcionalesEstandar(
+            datosOpcionales,
+            PROVEEDOR_EXISTENTE.numDocumento,
+            PROVEEDOR_EXISTENTE.nombre
+        );
         await test.step('And: definir cantidad y registrar ajuste', async () => {
-            // factor por default parece ser agregar aqui, solo llenan cantidad
             await registroMovimiento.llenarCantidad('10');
         });
         await registrarAjusteEIrAlListado(registroMovimiento, resultadoMovimiento);
-
         await verificarStockYKardex(
             movimientosNav, stockVerificacion, kardexVerificacion, page,
             ITEMS_TEST.PRODUCTO_ESTRICTO.codigo, ALMACENES.VENTAS, PATRON_CODIGO.AJUSTE

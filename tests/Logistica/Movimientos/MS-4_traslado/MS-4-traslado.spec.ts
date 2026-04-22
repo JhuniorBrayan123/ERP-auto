@@ -9,9 +9,12 @@ import {
 } from '@helpers/Logistica/movimiento-data.helper';
 import {KardexVerificacionPage} from '@pages/Logistica/KardexVerificacionPage';
 import {
+    navegarATrasladosYNuevo,
     registrarTrasladoEIrAlListado,
+    buscarYSeleccionarItem,
     verificarKardexDesdeStock,
-    verificarStockPorCodigoYClick
+    verificarStockPorCodigoYClick,
+    verificarBitacoraEdicion,
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
 
 test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@movimientos']}, () => {
@@ -24,14 +27,11 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
                                                           }) => {
         test.setTimeout(180_000);
 
-        await test.step('Given: navegar a Traslados y crear nuevo', async () => {
-            await movimientosNav.navegarATraslados();
-            await registroMovimiento.clickAgregarTraslado();
-        });
+        await navegarATrasladosYNuevo(movimientosNav, registroMovimiento);
 
-        await test.step('When: buscar producto y configurar traslado', async () => {
-            await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
-            await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.PRODUCTO_GRAVADO.nombre);
+        await buscarYSeleccionarItem(registroMovimiento, ITEMS_TEST.PRODUCTO_GRAVADO.codigo, ITEMS_TEST.PRODUCTO_GRAVADO.nombre);
+
+        await test.step('When: definir cantidad', async () => {
             await registroMovimiento.llenarCantidad('100');
         });
 
@@ -49,10 +49,7 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
                                                             }) => {
         test.setTimeout(180_000);
 
-        await test.step('Given: navegar a Traslados y crear nuevo', async () => {
-            await movimientosNav.navegarATraslados();
-            await registroMovimiento.clickAgregarTraslado();
-        });
+        await navegarATrasladosYNuevo(movimientosNav, registroMovimiento);
 
         await test.step('When: crear traslado seleccionando mismo almacén', async () => {
             await page.locator('div').filter({hasText: /^ALMACEN-AUTO$/}).nth(3).click();
@@ -79,10 +76,7 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
                                                          }) => {
         test.setTimeout(180_000);
 
-        await test.step('Given: navegar a Traslados y crear nuevo', async () => {
-            await movimientosNav.navegarATraslados();
-            await registroMovimiento.clickAgregarTraslado();
-        });
+        await navegarATrasladosYNuevo(movimientosNav, registroMovimiento);
 
         await test.step('When: buscar variante, definir cantidad y motivo', async () => {
             await registroMovimiento.buscarItem(ITEMS_TEST.VARIANTE_FLEXIBLE.codigo);
@@ -118,18 +112,13 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
                                                                       stockVerificacion,
                                                                       page,
                                                                   }) => {
-        test.setTimeout(180_000);
 
-        await test.step('Given: navegar a Traslados y crear nuevo', async () => {
-            await movimientosNav.navegarATraslados();
-            await registroMovimiento.clickAgregarTraslado();
-        });
+        await navegarATrasladosYNuevo(movimientosNav, registroMovimiento);
 
         await test.step('When: buscar ítem', async () => {
             await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
             await page.getByText('Pproducto121212item para').click();
         });
-
         await test.step('And: configurar datos opcionales', async () => {
             await datosOpcionales.abrirDatosOpcionales();
             await datosOpcionales.buscarProveedor(PROVEEDOR_EXISTENTE.numDocumento);
@@ -166,7 +155,6 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
                                                                               page,
                                                                           }) => {
 
-
         await test.step('Given: activar preferencia avanzada de traslado por confirmar', async () => {
             await movimientosNav.navegarAConfiguracionSucursales();
             await page.locator('[id="cfg_cmp-menu-configuracion.v-button:menu-2-4"]').click();
@@ -186,12 +174,6 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
 
         await registrarTrasladoEIrAlListado(registroMovimiento, resultadoMovimiento);
 
-        await test.step('Then: verificar bitácora de creación', async () => {
-            await listadoMovimientos.abrirMenuAcciones();
-            await listadoMovimientos.clickVerBitacora();
-            await listadoMovimientos.clickEventoBitacora('Creación');
-            await page.getByText('Todos').first().click();
-            await listadoMovimientos.cerrarBitacora();
-        });
+        await verificarBitacoraEdicion(listadoMovimientos, ['Creación']);
     });
 });

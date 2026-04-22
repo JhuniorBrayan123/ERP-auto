@@ -6,6 +6,8 @@ import {KardexVerificacionPage} from '../../pages/Logistica/KardexVerificacionPa
 import {RegistroMovimientoPage} from '../../pages/Logistica/RegistroMovimientoPage';
 import {ResultadoMovimientoPage} from '../../pages/Logistica/ResultadoMovimientoPage';
 import {MovimientoRapidoPage} from '../../pages/Logistica/MovimientoRapidoPage';
+import {DatosOpcionalesPage} from '../../pages/Logistica/DatosOpcionalesPage';
+import {ListadoMovimientosPage} from '../../pages/Logistica/ListadoMovimientosPage';
 
 export const verificarStockYKardex = async (
     movimientosNav: MovimientosNavigationPage,
@@ -45,11 +47,16 @@ export const crearAjusteConItem = async (
     registroMovimiento: RegistroMovimientoPage,
     codigoItem: string,
     nombreItem: string,
+    page?: Page,
+    textClickEquivalente?: string
 ) => {
     await test.step('When: crear ajuste con ítem', async () => {
         await registroMovimiento.clickAgregarAjuste();
         await registroMovimiento.buscarItem(codigoItem);
         await registroMovimiento.seleccionarItemEnResultados(nombreItem);
+        if (page && textClickEquivalente) {
+            await page.getByText(textClickEquivalente).click();
+        }
     });
 };
 
@@ -321,7 +328,7 @@ export const crearSalidaEstandarParaPrecondicion = async (
 };
 
 export const eliminarMovimientoDesdeListado = async (
-    listadoMovimientos: any,
+    listadoMovimientos: ListadoMovimientosPage,
     usarIcono: boolean = false
 ) => {
     await test.step('Act: eliminar el movimiento desde el listado', async () => {
@@ -337,7 +344,7 @@ export const eliminarMovimientoDesdeListado = async (
 };
 
 export const verificarEventoEnBitacora = async (
-    listadoMovimientos: any,
+    listadoMovimientos: ListadoMovimientosPage,
     evento: string
 ) => {
     await test.step(`Assert: verificar bitácora de ${evento}`, async () => {
@@ -345,5 +352,164 @@ export const verificarEventoEnBitacora = async (
         await listadoMovimientos.clickVerBitacora();
         await listadoMovimientos.clickEventoBitacora(evento);
         await listadoMovimientos.cerrarBitacora();
+    });
+};
+
+export const configurarDatosOpcionalesEstandar = async (
+    datosOpcionales: DatosOpcionalesPage,
+    numDocumentoProveedor: string,
+    nombreProveedor: string
+) => {
+    await test.step('And: configurar datos opcionales con proveedor y campos adicionales', async () => {
+        await datosOpcionales.abrirDatosOpcionales();
+        await datosOpcionales.buscarProveedor(numDocumentoProveedor);
+        await datosOpcionales.seleccionarProveedor(nombreProveedor);
+        await datosOpcionales.llenarCampoTexto(0, 'auto');
+        await datosOpcionales.clickCampoFecha(0);
+        await datosOpcionales.seleccionarDiaEnDatepickerVisible('15');
+        await datosOpcionales.llenarCampoNumero(0, '98989898989898989');
+        await datosOpcionales.guardarDatos();
+    });
+};
+
+// ─── Helpers MS-4 Traslado ────────────────────────────────────────────
+
+export const navegarATrasladosYNuevo = async (
+    movimientosNav: MovimientosNavigationPage,
+    registroMovimiento: RegistroMovimientoPage,
+) => {
+    await test.step('Given: navegar a Traslados y crear nuevo', async () => {
+        await movimientosNav.navegarATraslados();
+        await registroMovimiento.clickAgregarTraslado();
+    });
+};
+
+// ─── Helpers MS-2 Salida ──────────────────────────────────────────────
+
+export const navegarASalidasYNuevo = async (
+    movimientosNav: MovimientosNavigationPage,
+    registroMovimiento: RegistroMovimientoPage,
+    desdeMenu: boolean = false,
+    usarAgregar: boolean = false,
+) => {
+    await test.step('Given: navegar a Salidas y crear nueva', async () => {
+        if (desdeMenu) {
+            await movimientosNav.navegarASalidasDesdeMenu();
+        } else {
+            await movimientosNav.navegarASalidas();
+        }
+        if (usarAgregar) {
+            await registroMovimiento.clickAgregarSalida();
+        } else {
+            await registroMovimiento.clickNuevoMovimiento();
+        }
+    });
+};
+
+// ─── Helpers MS-5 Edición ─────────────────────────────────────────────
+
+export const verificarBitacoraEdicion = async (
+    listadoMovimientos: ListadoMovimientosPage,
+    eventos: string[],
+    cerrarAlternativo: boolean = false,
+) => {
+    await test.step(`Assert: verificar bitácora (${eventos.join(', ')})`, async () => {
+        await listadoMovimientos.abrirMenuAcciones();
+        await listadoMovimientos.clickVerBitacora();
+        for (const evento of eventos) {
+            await listadoMovimientos.clickEventoBitacora(evento);
+        }
+        if (cerrarAlternativo) {
+            await listadoMovimientos.cerrarBitacoraAlternativo();
+        } else {
+            await listadoMovimientos.cerrarBitacora();
+        }
+    });
+};
+
+export const editarCantidadDeMovimiento = async (
+    listadoMovimientos: ListadoMovimientosPage,
+    registroMovimiento: RegistroMovimientoPage,
+    cantidad: string,
+    tipo: 'ingreso' | 'salida' = 'ingreso',
+) => {
+    await test.step(`Act: editar cantidad a ${cantidad}`, async () => {
+        await listadoMovimientos.abrirMenuAcciones();
+        await listadoMovimientos.clickEditarMovimiento();
+        await registroMovimiento.llenarCantidad(cantidad);
+        if (tipo === 'ingreso') {
+            await registroMovimiento.clickActualizarIngreso();
+        } else {
+            await registroMovimiento.clickActualizarSalida();
+        }
+        await listadoMovimientos.cerrarModal();
+    });
+};
+
+// ─── Helpers MS-6 Clonación ───────────────────────────────────────────
+
+export const crearIngresoBaseParaClonacion = async (
+    movimientosNav: MovimientosNavigationPage,
+    registroMovimiento: RegistroMovimientoPage,
+    resultadoMovimiento: ResultadoMovimientoPage,
+    codigoItem: string,
+    nombreItem: string,
+    opciones?: {
+        waitAntes?: Page;
+        seleccionarEquivalente?: string;
+        configurarDatos?: () => Promise<void>;
+    }
+) => {
+    await test.step('Arrange: crear ingreso base para clonación', async () => {
+        await movimientosNav.navegarAIngresos();
+        await registroMovimiento.clickAgregarIngreso();
+        if (opciones?.waitAntes) {
+            await opciones.waitAntes.waitForTimeout(2000);
+        }
+        await registroMovimiento.buscarItem(codigoItem);
+        await registroMovimiento.seleccionarItemEnResultados(nombreItem);
+        if (opciones?.seleccionarEquivalente) {
+            await registroMovimiento.seleccionarEquivalente(opciones.seleccionarEquivalente);
+        }
+        if (opciones?.configurarDatos) {
+            await opciones.configurarDatos();
+        }
+        await registroMovimiento.clickRegistrarIngreso();
+        await resultadoMovimiento.irAlListado();
+    });
+};
+
+export const clonarMovimientoDesdeListado = async (
+    listadoMovimientos: ListadoMovimientosPage,
+    registroMovimiento: RegistroMovimientoPage,
+    antesDeConfirmar?: () => Promise<void>,
+) => {
+    await test.step('Act: clonar movimiento', async () => {
+        await listadoMovimientos.abrirMenuAcciones();
+        await listadoMovimientos.clickClonarMovimiento();
+        if (antesDeConfirmar) {
+            await antesDeConfirmar();
+        }
+        await registroMovimiento.clickClonarIngreso();
+        await listadoMovimientos.cerrarModal();
+    });
+};
+
+// ─── Helpers MS-8 Acciones / Impresión ────────────────────────────────
+
+export const navegarAIngresosYAbrirAccionesImpresion = async (
+    movimientosNav: MovimientosNavigationPage,
+    listadoMovimientos: ListadoMovimientosPage,
+    desdeMenu: boolean = false,
+) => {
+    await test.step('Given: navegar a Ingresos y abrir acciones de impresión', async () => {
+        if (desdeMenu) {
+            await movimientosNav.navegarAIngresosDesdeMenu();
+        } else {
+            await movimientosNav.navegarAIngresos();
+        }
+        await listadoMovimientos.clickTabPorIndice(0);
+        await listadoMovimientos.abrirMenuAcciones();
+        await listadoMovimientos.clickImprimirDescargarEnviar();
     });
 };

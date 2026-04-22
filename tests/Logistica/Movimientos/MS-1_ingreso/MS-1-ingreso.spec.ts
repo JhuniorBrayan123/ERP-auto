@@ -14,6 +14,7 @@ import {
     verificarStockPorCodigoYClick,
     verificarStockYKardex,
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
+import {KardexVerificacionPage} from '@pages/Logistica/KardexVerificacionPage';
 
 test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@movimientos']}, () => {
 
@@ -27,7 +28,6 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
                                                                                                                  kardexApi,
                                                                                                              }) => {
         let saldoAfectadoApi = 0;
-
         await navegarAIngresosYNuevo(movimientosNav, registroMovimiento);
         await definirAlmacenYMotivo(registroMovimiento, ALMACENES.AUTO, ALMACENES.AUTO, 'INGRESO A ALMACÉN', MOTIVOS_INGRESO.ABASTECIMIENTO);
         await buscarYSeleccionarItem(registroMovimiento, ITEMS_TEST.PRODUCTO_ESTRICTO.codigo, ITEMS_TEST.PRODUCTO_ESTRICTO.nombre);
@@ -53,7 +53,6 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
             });
             expect(saldoPosIngreso).toBe(saldoAfectadoApi + 150)
         })
-
         await test.step('And: regresar a Ingresos', async () => {
             await movimientosNav.navegarAIngresos();
         });
@@ -84,7 +83,7 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
 
         await test.step('And: verificar movimiento en kardex de la variante', async () => {
             const kardexPage = await stockVerificacion.abrirKardexVariante('313131-V001 Variante 1');
-            const kardexPopup = new (await import('@pages/Logistica/KardexVerificacionPage')).KardexVerificacionPage(kardexPage);
+            const kardexPopup = new KardexVerificacionPage(kardexPage);
         });
     });
 
@@ -110,7 +109,7 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
         });
         await test.step('And: verificar movimiento en kardex', async () => {
             const kardexPage = await stockVerificacion.abrirKardexDesdeStock();
-            const kardexPopup = new (await import('@pages/Logistica/KardexVerificacionPage')).KardexVerificacionPage(kardexPage);
+            const kardexPopup = new KardexVerificacionPage(kardexPage);
         });
     });
 
@@ -205,7 +204,7 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
         });
         await test.step('And: verificar movimiento y datos opcionales en kardex', async () => {
             const kardexPage = await stockVerificacion.abrirKardexDesdeStock();
-            const kardexPopup = new (await import('@pages/Logistica/KardexVerificacionPage')).KardexVerificacionPage(kardexPage);
+            const kardexPopup = new KardexVerificacionPage(kardexPage);
             await kardexPage.waitForLoadState('networkidle');
             await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
             await kardexPopup.clickCodigoMovimientoRegex(PATRON_CODIGO.INGRESO);

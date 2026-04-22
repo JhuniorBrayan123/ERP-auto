@@ -8,8 +8,10 @@ import {
 } from '@helpers/Logistica/movimiento-data.helper';
 import {
     crearIngresoEstandarParaPrecondicion,
+    editarCantidadDeMovimiento,
+    verificarBitacoraEdicion,
     verificarStockPorCodigoYClick,
-    verificarKardexTotalEstandar
+    verificarKardexTotalEstandar,
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
 
 test.describe('MS-5 | Edición de Movimientos @edicion', {tag: ['@logistica', '@movimientos']}, () => {
@@ -27,21 +29,9 @@ test.describe('MS-5 | Edición de Movimientos @edicion', {tag: ['@logistica', '@
 
         await crearIngresoEstandarParaPrecondicion(movimientosNav, registroMovimiento, resultadoMovimiento, page, ITEMS_TEST.PRODUCTO_GRAVADO.codigo, 'Pproducto121212item para', '100', true);
 
-        await test.step('Act: editar movimiento cambiando cantidad', async () => {
-            await listadoMovimientos.abrirMenuAcciones();
-            await listadoMovimientos.clickEditarMovimiento();
-            await registroMovimiento.llenarCantidad('10');
-            await registroMovimiento.clickActualizarIngreso();
-            await listadoMovimientos.cerrarModal();
-        });
+        await editarCantidadDeMovimiento(listadoMovimientos, registroMovimiento, '10');
 
-        await test.step('Assert: verificar bitácora de actualización', async () => {
-            await listadoMovimientos.abrirMenuAcciones();
-            await listadoMovimientos.clickVerBitacora();
-            await listadoMovimientos.clickEventoBitacora('Creación');
-            await listadoMovimientos.clickEventoBitacora('Actualización');
-            await listadoMovimientos.cerrarBitacora();
-        });
+        await verificarBitacoraEdicion(listadoMovimientos, ['Creación', 'Actualización']);
 
         await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
 
@@ -59,7 +49,7 @@ test.describe('MS-5 | Edición de Movimientos @edicion', {tag: ['@logistica', '@
                                                         }) => {
         test.setTimeout(120_000)
 
-        // It has a specific arrange flow: select variant. We will inline this here since it's only one.
+        // Arrange especial: crear ingreso con variante (no usa crearIngresoEstandarParaPrecondicion)
         await test.step('Arrange: crear ingreso con variante', async () => {
             await movimientosNav.navegarAIngresosDesdeMenu();
             await registroMovimiento.clickAgregarIngreso();
@@ -71,26 +61,11 @@ test.describe('MS-5 | Edición de Movimientos @edicion', {tag: ['@logistica', '@
             await resultadoMovimiento.irAlListado();
         });
 
-        await test.step('Act: verificar bitácora y editar cantidad', async () => {
-            await listadoMovimientos.abrirMenuAcciones();
-            await listadoMovimientos.clickVerBitacora();
-            await listadoMovimientos.clickEventoBitacora('Creación');
-            await listadoMovimientos.clickEventoBitacora('Actualización');
-            await listadoMovimientos.cerrarBitacora();
-            await listadoMovimientos.abrirMenuAcciones();
-            await listadoMovimientos.clickEditarMovimiento();
-            await registroMovimiento.llenarCantidad('10');
-            await registroMovimiento.clickActualizarIngreso();
-            await listadoMovimientos.cerrarModal();
-        });
+        await verificarBitacoraEdicion(listadoMovimientos, ['Creación', 'Actualización']);
 
-        await test.step('Assert: verificar bitácora post-edición', async () => {
-            await listadoMovimientos.abrirMenuAcciones();
-            await listadoMovimientos.clickVerBitacora();
-            await listadoMovimientos.clickEventoBitacora('Creación');
-            await listadoMovimientos.clickEventoBitacora('Actualización');
-            await listadoMovimientos.cerrarBitacoraAlternativo();
-        });
+        await editarCantidadDeMovimiento(listadoMovimientos, registroMovimiento, '10');
+
+        await verificarBitacoraEdicion(listadoMovimientos, ['Creación', 'Actualización'], true);
 
         await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.VARIANTE_FLEXIBLE.codigo, async () => {
             await stockVerificacion.clickVariante(VARIANTES.V2_FLEXIBLE.nombre);
@@ -119,18 +94,9 @@ test.describe('MS-5 | Edición de Movimientos @edicion', {tag: ['@logistica', '@
 
         await crearIngresoEstandarParaPrecondicion(movimientosNav, registroMovimiento, resultadoMovimiento, page, ITEMS_TEST.PRODUCTO_ESTRICTO.codigo, ITEMS_TEST.PRODUCTO_ESTRICTO.nombre, '100');
 
-        await test.step('Act: editar cantidad', async () => {
-            await listadoMovimientos.abrirMenuAcciones();
-            await listadoMovimientos.clickVerBitacora();
-            await listadoMovimientos.clickEventoBitacora('Creación');
-            await listadoMovimientos.clickEventoBitacora('Actualización');
-            await listadoMovimientos.cerrarBitacora();
-            await listadoMovimientos.abrirMenuAcciones();
-            await listadoMovimientos.clickEditarMovimiento();
-            await registroMovimiento.llenarCantidad('10');
-            await registroMovimiento.clickActualizarIngreso();
-            await listadoMovimientos.cerrarModal();
-        });
+        await verificarBitacoraEdicion(listadoMovimientos, ['Creación', 'Actualización']);
+
+        await editarCantidadDeMovimiento(listadoMovimientos, registroMovimiento, '10');
 
         await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.PRODUCTO_ESTRICTO.codigo);
 
@@ -144,7 +110,7 @@ test.describe('MS-5 | Edición de Movimientos @edicion', {tag: ['@logistica', '@
                                                              listadoMovimientos,
                                                              page,
                                                          }) => {
-
+        // Flujo completamente especial — dejar inline
         await test.step('Arrange: crear salida para intentar editar', async () => {
             await movimientosNav.navegarASalidasDesdeMenu();
             await registroMovimiento.clickAgregarSalida();
@@ -180,6 +146,7 @@ test.describe('MS-5 | Edición de Movimientos @edicion', {tag: ['@logistica', '@
                                                                  }) => {
         test.setTimeout(120_000)
 
+        // Arrange especial: datos adicionales completos — dejar inline
         await test.step('Arrange: crear ingreso con datos adicionales completos', async () => {
             await movimientosNav.navegarAIngresosDesdeMenu();
             await registroMovimiento.clickAgregarIngreso();
@@ -209,11 +176,6 @@ test.describe('MS-5 | Edición de Movimientos @edicion', {tag: ['@logistica', '@
             await listadoMovimientos.cerrarModal();
         });
 
-        await test.step('Assert: verificar bitácora de actualización', async () => {
-            await listadoMovimientos.abrirMenuAcciones();
-            await listadoMovimientos.clickVerBitacora();
-            await listadoMovimientos.clickEventoBitacora('Actualización');
-            await listadoMovimientos.cerrarBitacora();
-        });
+        await verificarBitacoraEdicion(listadoMovimientos, ['Actualización']);
     });
 });

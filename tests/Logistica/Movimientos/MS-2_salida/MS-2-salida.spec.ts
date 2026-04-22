@@ -11,6 +11,7 @@ import {KardexVerificacionPage} from '@pages/Logistica/KardexVerificacionPage';
 import {
     buscarYSeleccionarItem,
     definirAlmacenYMotivo,
+    navegarASalidasYNuevo,
     registrarSalidaYDespachar,
     verificarKardexDesdeStock,
     verificarStockPorCodigoYClick
@@ -25,10 +26,8 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
                                                                                             stockVerificacion,
                                                                                         }) => {
 
-        await test.step('Given: navegar a Salidas', async () => {
-            await movimientosNav.navegarASalidas();
-            await registroMovimiento.clickNuevoMovimiento();
-        });
+        await navegarASalidasYNuevo(movimientosNav, registroMovimiento);
+
         await definirAlmacenYMotivo(registroMovimiento, ALMACENES.AUTO, ALMACENES.VENTAS, MOTIVOS_SALIDA.VENTA, MOTIVOS_SALIDA.VENTA);
         await buscarYSeleccionarItem(registroMovimiento, ITEMS_TEST.PRODUCTO_GRAVADO.codigo, ITEMS_TEST.PRODUCTO_GRAVADO.nombre);
         await test.step('And: definir cantidad', async () => {
@@ -51,10 +50,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
                                                      }) => {
         test.setTimeout(120_000)
 
-        await test.step('Given: navegar a Salidas y crear nueva', async () => {
-            await movimientosNav.navegarASalidasDesdeMenu();
-            await registroMovimiento.clickNuevoMovimiento();
-        });
+        await navegarASalidasYNuevo(movimientosNav, registroMovimiento, true);
 
         await buscarYSeleccionarItem(registroMovimiento, ITEMS_TEST.INSUMO_FLEXIBLE.codigo, ITEMS_TEST.INSUMO_FLEXIBLE.nombre);
 
@@ -82,10 +78,8 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
                                                            page,
                                                        }) => {
 
-        await test.step('Given: estar en lista de salidas y crear nueva', async () => {
-            await movimientosNav.navegarASalidas()
-            await registroMovimiento.clickNuevoMovimiento();
-        });
+        await navegarASalidasYNuevo(movimientosNav, registroMovimiento);
+
         await buscarYSeleccionarItem(registroMovimiento, ITEMS_TEST.VARIANTE_FLEXIBLE.codigo, ITEMS_TEST.VARIANTE_FLEXIBLE.nombre);
         await test.step('When: seleccionar variante', async () => {
             await registroMovimiento.seleccionarVariante(VARIANTES.V2_FLEXIBLE.nombre);
@@ -114,6 +108,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
                                                                         page,
                                                                     }) => {
 
+        // Inline: almacén/motivo especial con locator particular
         await test.step('Given: crear nueva salida con almacén VENTAS', async () => {
             await movimientosNav.navegarASalidas()
             await registroMovimiento.clickNuevoMovimiento();
@@ -139,10 +134,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
                                                                                      }) => {
         test.setTimeout(120_000);
 
-        await test.step('Given: navegar a Salidas y crear salida solo registrar (sin despacho)', async () => {
-            await movimientosNav.navegarASalidasDesdeMenu();
-            await registroMovimiento.clickAgregarSalida();
-        });
+        await navegarASalidasYNuevo(movimientosNav, registroMovimiento, true, true);
 
         await buscarYSeleccionarItem(registroMovimiento, ITEMS_TEST.VARIANTE_FLEXIBLE.codigo, ITEMS_TEST.VARIANTE_FLEXIBLE.nombre);
 
@@ -157,6 +149,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
             await stockVerificacion.clickStockComprometido();
         });
 
+        // Inline: flujo único de despacho desde listado
         await test.step('When: despachar la salida desde el listado', async () => {
             await movimientosNav.navegarASalidas();
             await listadoMovimientos.abrirMenuAcciones();
@@ -189,13 +182,11 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
                                                                 }) => {
         test.setTimeout(180_000)
 
-        await test.step('Given: crear nueva salida', async () => {
-            await movimientosNav.navegarASalidas();
-            await registroMovimiento.clickAgregarSalida();
-        });
+        await navegarASalidasYNuevo(movimientosNav, registroMovimiento, false, true);
 
         await buscarYSeleccionarItem(registroMovimiento, ITEMS_TEST.PRODUCTO_GRAVADO.codigo, ITEMS_TEST.PRODUCTO_GRAVADO.nombre);
 
+        // Inline: datos opcionales especiales
         await test.step('When: configurar datos opcionales', async () => {
             await datosOpcionales.abrirDatosOpcionales();
             await datosOpcionales.buscarCliente(PROVEEDOR_EXISTENTE.numDocumento);
@@ -203,7 +194,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
             await datosOpcionales.guardarDatos();
         });
 
-        await registrarSalidaYDespachar(registroMovimiento, resultadoMovimiento, true); // clickTextoRegistrarSalida
+        await registrarSalidaYDespachar(registroMovimiento, resultadoMovimiento, true);
 
         await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
 

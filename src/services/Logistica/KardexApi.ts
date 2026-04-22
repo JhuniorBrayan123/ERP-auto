@@ -120,7 +120,7 @@ export class KardexApi {
                 `Respuesta: ${JSON.stringify(body)}`,
             );
         }
-        console.log('BODY:', JSON.stringify(body, null, 2));
+        //console.log('BODY:', JSON.stringify(body, null, 2));
 
         const dataItem = body.Data[0];
 
