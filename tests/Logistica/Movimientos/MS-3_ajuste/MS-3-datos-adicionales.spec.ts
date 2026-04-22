@@ -1,9 +1,5 @@
 import {expect, test} from '@fixtures/Logistica/movimientos-fixture';
-import {
-    COMPROBANTE_TEST,
-    ITEMS_TEST,
-    PROVEEDOR_EXISTENTE,
-} from '@helpers/Logistica/movimiento-data.helper';
+import {COMPROBANTE_TEST, ITEMS_TEST, PROVEEDOR_EXISTENTE,} from '@helpers/Logistica/movimiento-data.helper';
 
 test.describe('MS-3 | Datos Adicionales de Movimientos @datos-adicionales', {tag: ['@logistica', '@movimientos']}, () => {
 
@@ -11,13 +7,13 @@ test.describe('MS-3 | Datos Adicionales de Movimientos @datos-adicionales', {tag
     // Scenario 47: Registrar datos adicionales completos
     // ═══════════════════════════════════════════════════════════════
     test('Registrar datos adicionales completos @MS-3', async ({
-                                                                                                        movimientosNav,
-                                                                                                        registroMovimiento,
-                                                                                                        datosOpcionales,
-                                                                                                        resultadoMovimiento,
-                                                                                                        listadoMovimientos,
-                                                                                                        page,
-                                                                                                    }) => {
+                                                                   movimientosNav,
+                                                                   registroMovimiento,
+                                                                   datosOpcionales,
+                                                                   resultadoMovimiento,
+                                                                   listadoMovimientos,
+                                                                   page,
+                                                               }) => {
 
         await test.step('Given: navegar a Ingresos y crear nuevo ingreso', async () => {
             await movimientosNav.navegarAIngresosDesdeMenu();
@@ -33,22 +29,12 @@ test.describe('MS-3 | Datos Adicionales de Movimientos @datos-adicionales', {tag
             await datosOpcionales.abrirDatosOpcionales();
             await datosOpcionales.buscarProveedor(PROVEEDOR_EXISTENTE.numDocumento);
             await datosOpcionales.seleccionarProveedor(PROVEEDOR_EXISTENTE.nombre);
-
-            // Campo texto
             await datosOpcionales.llenarCampoTexto(0, 'campo-texto-test-completo');
-
-            // Campo fecha
             await datosOpcionales.clickCampoFecha(0);
             await datosOpcionales.seleccionarDiaEnDatepickerVisible('15');
-
-            // Campo selección
             await datosOpcionales.seleccionarCampoSeleccion('certificación');
-
-            // Campo numérico
-
             await datosOpcionales.guardarDatos();
         });
-
         await test.step('And: registrar ingreso', async () => {
             await registroMovimiento.clickRegistrarIngreso();
             await resultadoMovimiento.irAlListado();
@@ -66,13 +52,13 @@ test.describe('MS-3 | Datos Adicionales de Movimientos @datos-adicionales', {tag
     // Scenario 48: Agregar documento relacionado (comprobante)
     // ═══════════════════════════════════════════════════════════════
     test('Agregar documento relacionado (comprobante) @MS-3', async ({
-                                                                                                          movimientosNav,
-                                                                                                          registroMovimiento,
-                                                                                                          datosOpcionales,
-                                                                                                          resultadoMovimiento,
-                                                                                                          listadoMovimientos,
-                                                                                                          page,
-                                                                                                      }) => {
+                                                                         movimientosNav,
+                                                                         registroMovimiento,
+                                                                         datosOpcionales,
+                                                                         resultadoMovimiento,
+                                                                         listadoMovimientos,
+                                                                         page,
+                                                                     }) => {
 
         await test.step('Given: navegar a Ingresos y crear ingreso con comprobante en datos opcionales', async () => {
             await movimientosNav.navegarAIngresosDesdeMenu();
@@ -103,4 +89,30 @@ test.describe('MS-3 | Datos Adicionales de Movimientos @datos-adicionales', {tag
             await listadoMovimientos.cerrarModal();
         });
     });
+
+    // ═══════════════════════════════════════════════════════════════
+    // Scenario 49: AValida documento incompleto (comprobante)
+    // ═══════════════════════════════════════════════════════════════
+    test('Valida documento incompleto @MS-3', async ({
+                                                         movimientosNav,
+                                                         registroMovimiento,
+                                                         datosOpcionales,
+                                                         page,
+                                                     }) => {
+        await test.step('Given: Navegar a nuevo ingreso y crear', async () => {
+            await movimientosNav.navegarAIngresosDesdeMenu();
+            await registroMovimiento.clickAgregarIngreso();
+        });
+        await test.step(' When : agregar datos adicionales', async () => {
+            await datosOpcionales.abrirDatosOpcionales()
+        })
+        await test.step('Then : intentar guardar Documento incompleto', async () => {
+            await datosOpcionales.agregarComprobanteParcial('FACTURA')
+        })
+        await test.step(' Assert: se visualiza el error al añadir', async () => {
+            await expect(page.getByText('Campo obligatorio').first()).toBeVisible();
+            await datosOpcionales.cancelarDatos()
+        })
+
+    })
 });

@@ -1,52 +1,27 @@
-import {expect, test} from '@fixtures/Logistica/items-fixture';
+import {test} from '@fixtures/Logistica/items-fixture';
 import {buildUniqueItemName} from '@helpers/Logistica/unique-name.helper';
+import {confirmarCreacionEIrALista, prepararProductoBase,} from '@helpers/Logistica/verificaciones-items.helper';
 
 test.describe('PS-3 | Creación de Productos', {tag: ['@logistica', '@productos-stock']}, () => {
 
     test('crear producto gravado con control estricto @PS-3', async ({
-                                                                   productoForm,
-                                                                   itemDetail,
-                                                               }) => {
+                                                                         productoForm,
+                                                                         itemDetail,
+                                                                     }) => {
         const nombre = buildUniqueItemName('producto', 'gravado estricto');
-
-        await test.step('Iniciar creación de producto', async () => {
-            await productoForm.iniciarCreacionProducto();
+        await prepararProductoBase(productoForm, nombre, {venta: '10', compra: '10'}, {
+            stockConfig: {tipo: 'estricto', cantidadMaxima: '1001', cantidadMinima: '100'},
         });
-
-        await test.step('Llenar datos básicos', async () => {
-            await productoForm.llenarNombre(nombre);
-            await productoForm.llenarPrecios('10', '10');
-
-            //throw new Error('Error intencional para validar el manejo de fallos en crear-producto.spec.ts');
-        });
-
-        await test.step('Configurar stock estricto', async () => {
-            await productoForm.expandirOpcionesAvanzadas();
-            await productoForm.configurarStock({
-                tipo: 'estricto',
-                cantidadMaxima: '1001',
-                cantidadMinima: '100',
-            });
-        });
-
         await test.step('Llenar información adicional', async () => {
             await productoForm.llenarInfoAdicional('REGRESION', 'AUTO-TEST', 'AUTOMATIZADO');
         });
-
         await test.step('Llenar campos adicionales', async () => {
             await productoForm.irATabCamposAdicionales();
             await productoForm.llenarCampoAdicionalTexto('item Automatizado');
             // Fecha: se selecciona del calendario
             await productoForm.llenarCampoAdicionalNumerico('1');
         });
-
-        await test.step('Crear producto y confirmar', async () => {
-            await productoForm.crearProducto();
-            await expect(productoForm['page'].getByRole('button', {name: 'Ir a lista de ítems'}))
-                .toBeVisible();
-            await productoForm.clickIrAListaItems();
-        });
-
+        await confirmarCreacionEIrALista(productoForm, () => productoForm.crearProducto());
         await test.step('Verificar item creado en detalle', async () => {
             await itemDetail.verificarItemCompleto({
                 verificarVentas: true,
@@ -58,33 +33,20 @@ test.describe('PS-3 | Creación de Productos', {tag: ['@logistica', '@productos-
 
 
     test('crear producto gravado sin control de stock @PS-3', async ({
-                                                                   productoForm,
-                                                                   itemDetail,
-                                                               }) => {
+                                                                         productoForm,
+                                                                         itemDetail,
+                                                                     }) => {
         const nombre = buildUniqueItemName('producto', 'gravado sin control');
 
-        await test.step('Iniciar creación de producto', async () => {
-            await productoForm.iniciarCreacionProducto();
-        });
-
-        await test.step('Llenar datos básicos', async () => {
-            await productoForm.llenarNombre(nombre);
-            await productoForm.llenarPrecios('10', '10');
-        });
+        await prepararProductoBase(productoForm, nombre, {venta: '10', compra: '10'}, {skipStock: true});
 
         await test.step('Configurar sin stock + info adicional', async () => {
-            await productoForm.expandirOpcionesAvanzadas();
             await productoForm.irATabStock();
             // No seleccionar control de stock (por defecto: sin control)
             await productoForm.llenarInfoAdicional('REGRESION', 'AUTO-TEST', 'AUTOMATIZADO');
         });
 
-        await test.step('Crear producto y confirmar', async () => {
-            await productoForm.crearProducto();
-            await expect(productoForm['page'].getByRole('button', {name: 'Ir a lista de ítems'}))
-                .toBeVisible();
-            await productoForm.clickIrAListaItems();
-        });
+        await confirmarCreacionEIrALista(productoForm, () => productoForm.crearProducto());
 
         await test.step('Verificar bitácora', async () => {
             await itemDetail.verificarItemDesdeMenu({verificarBitacora: true});
@@ -93,39 +55,20 @@ test.describe('PS-3 | Creación de Productos', {tag: ['@logistica', '@productos-
 
 
     test('crear producto gravado con control flexible @PS-3', async ({
-                                                                   productoForm,
-                                                                   itemDetail,
-                                                               }) => {
+                                                                         productoForm,
+                                                                         itemDetail,
+                                                                     }) => {
         const nombre = buildUniqueItemName('producto', 'gravado flexible');
 
-        await test.step('Iniciar creación de producto', async () => {
-            await productoForm.iniciarCreacionProducto();
-        });
-
-        await test.step('Llenar datos básicos', async () => {
-            await productoForm.llenarNombre(nombre);
-            await productoForm.llenarPrecios('11.25', '11.25');
-        });
-
-        await test.step('Configurar stock flexible', async () => {
-            await productoForm.expandirOpcionesAvanzadas();
-            await productoForm.configurarStock({
-                tipo: 'flexible',
-                cantidadMaxima: '101',
-                cantidadMinima: '10',
-            });
+        await prepararProductoBase(productoForm, nombre, {venta: '11.25', compra: '11.25'}, {
+            stockConfig: {tipo: 'flexible', cantidadMaxima: '101', cantidadMinima: '10'},
         });
 
         await test.step('Llenar información adicional', async () => {
             await productoForm.llenarInfoAdicional('REGRESION', 'AUTO-TEST', 'AUTOMATIZADO');
         });
 
-        await test.step('Crear producto y confirmar', async () => {
-            await productoForm.crearProducto();
-            await expect(productoForm['page'].getByRole('button', {name: 'Ir a lista de ítems'}))
-                .toBeVisible();
-            await productoForm.clickIrAListaItems();
-        });
+        await confirmarCreacionEIrALista(productoForm, () => productoForm.crearProducto());
 
         await test.step('Verificar item completo', async () => {
             await itemDetail.verificarItemCompleto({
@@ -138,39 +81,20 @@ test.describe('PS-3 | Creación de Productos', {tag: ['@logistica', '@productos-
 
 
     test('crear producto exonerado con control estricto @PS-3', async ({
-                                                                     productoForm,
-                                                                     itemDetail,
-                                                                 }) => {
+                                                                           productoForm,
+                                                                           itemDetail,
+                                                                       }) => {
         const nombre = buildUniqueItemName('producto', 'exonerado estricto');
 
-        await test.step('Iniciar creación de producto', async () => {
-            await productoForm.iniciarCreacionProducto();
-        });
-
-        await test.step('Llenar datos básicos con tipo exonerado', async () => {
-            await productoForm.llenarNombre(nombre);
-            await productoForm.llenarPrecios('12.22', '15.25');
-        });
-
-        await test.step('Configurar stock estricto', async () => {
-            await productoForm.expandirOpcionesAvanzadas();
-            await productoForm.configurarStock({
-                tipo: 'estricto',
-                cantidadMaxima: '11',
-                cantidadMinima: '11',
-            });
+        await prepararProductoBase(productoForm, nombre, {venta: '12.22', compra: '15.25'}, {
+            stockConfig: {tipo: 'estricto', cantidadMaxima: '11', cantidadMinima: '11'},
         });
 
         await test.step('Llenar información adicional', async () => {
             await productoForm.llenarInfoAdicional('REGRESION', 'AUTO-TEST', 'AUTOMATIZADO');
         });
 
-        await test.step('Crear producto y confirmar', async () => {
-            await productoForm.crearProducto();
-            await expect(productoForm['page'].getByRole('button', {name: 'Ir a lista de ítems'}))
-                .toBeVisible();
-            await productoForm.clickIrAListaItems();
-        });
+        await confirmarCreacionEIrALista(productoForm, () => productoForm.crearProducto());
 
         await test.step('Verificar item completo', async () => {
             await itemDetail.verificarItemCompleto({
@@ -185,17 +109,9 @@ test.describe('PS-3 | Creación de Productos', {tag: ['@logistica', '@productos-
     test('crear producto con ICBPER @PS-3', async ({productoForm, itemDetail}) => {
         const nombre = buildUniqueItemName('producto', 'con ICBPER');
 
-        await test.step('Iniciar creación de producto', async () => {
-            await productoForm.iniciarCreacionProducto();
-        });
-
-        await test.step('Llenar datos básicos', async () => {
-            await productoForm.llenarNombre(nombre);
-            await productoForm.llenarPrecios('10', '10');
-        });
+        await prepararProductoBase(productoForm, nombre, {venta: '10', compra: '10'}, {skipStock: true});
 
         await test.step('Configurar stock flexible + info adicional', async () => {
-            await productoForm.expandirOpcionesAvanzadas();
             await productoForm.irATabStock();
             await productoForm.seleccionarControlStock('flexible');
             await productoForm.llenarInfoAdicional('REGRESION', 'AUTO-TEST', 'AUTOMATIZADO');
@@ -205,12 +121,7 @@ test.describe('PS-3 | Creación de Productos', {tag: ['@logistica', '@productos-
             await productoForm.activarICBPER();
         });
 
-        await test.step('Crear producto y confirmar', async () => {
-            await productoForm.crearProducto();
-            await expect(productoForm['page'].getByRole('button', {name: 'Ir a lista de ítems'}))
-                .toBeVisible();
-            await productoForm.clickIrAListaItems();
-        });
+        await confirmarCreacionEIrALista(productoForm, () => productoForm.crearProducto());
 
         await test.step('Verificar item', async () => {
             await itemDetail.verificarItemCompleto({verificarBitacora: true});
@@ -219,22 +130,14 @@ test.describe('PS-3 | Creación de Productos', {tag: ['@logistica', '@productos-
 
 
     test('crear producto con ISC sistema al valor @PS-3', async ({
-                                                               productoForm,
-                                                               itemDetail,
-                                                           }) => {
+                                                                     productoForm,
+                                                                     itemDetail,
+                                                                 }) => {
         const nombre = buildUniqueItemName('producto', 'con ISC valor');
 
-        await test.step('Iniciar creación de producto', async () => {
-            await productoForm.iniciarCreacionProducto();
-        });
-
-        await test.step('Llenar datos básicos', async () => {
-            await productoForm.llenarNombre(nombre);
-            await productoForm.llenarPrecios('15', '15.25');
-        });
+        await prepararProductoBase(productoForm, nombre, {venta: '15', compra: '15.25'}, {skipStock: true});
 
         await test.step('Configurar stock flexible + info adicional', async () => {
-            await productoForm.expandirOpcionesAvanzadas();
             await productoForm.irATabStock();
             await productoForm.seleccionarControlStock('flexible');
             await productoForm.llenarInfoAdicional('REGRESION', 'AUTO-TEST', 'AUTOMATIZADO');
@@ -247,12 +150,7 @@ test.describe('PS-3 | Creación de Productos', {tag: ['@logistica', '@productos-
             });
         });
 
-        await test.step('Crear producto y confirmar', async () => {
-            await productoForm.crearProducto();
-            await expect(productoForm['page'].getByRole('button', {name: 'Ir a lista de ítems'}))
-                .toBeVisible();
-            await productoForm.clickIrAListaItems();
-        });
+        await confirmarCreacionEIrALista(productoForm, () => productoForm.crearProducto());
 
         await test.step('Verificar item en detalle', async () => {
             await itemDetail.verificarItemDesdeMenu({
@@ -265,22 +163,14 @@ test.describe('PS-3 | Creación de Productos', {tag: ['@logistica', '@productos-
 
 
     test('crear producto con ISC monto fijo @PS-3', async ({
-                                                         productoForm,
-                                                         itemDetail,
-                                                     }) => {
+                                                               productoForm,
+                                                               itemDetail,
+                                                           }) => {
         const nombre = buildUniqueItemName('producto', 'con ISC fijo');
 
-        await test.step('Iniciar creación de producto', async () => {
-            await productoForm.iniciarCreacionProducto();
-        });
-
-        await test.step('Llenar datos básicos', async () => {
-            await productoForm.llenarNombre(nombre);
-            await productoForm.llenarPrecios('11.52', '3.5');
-        });
+        await prepararProductoBase(productoForm, nombre, {venta: '11.52', compra: '3.5'}, {skipStock: true});
 
         await test.step('Configurar stock flexible + info adicional', async () => {
-            await productoForm.expandirOpcionesAvanzadas();
             await productoForm.irATabStock();
             await productoForm.seleccionarControlStock('flexible');
             await productoForm.llenarInfoAdicional('REGRESION', 'AUTO-TEST', 'AUTOMATIZADO');
@@ -293,12 +183,7 @@ test.describe('PS-3 | Creación de Productos', {tag: ['@logistica', '@productos-
             });
         });
 
-        await test.step('Crear producto y confirmar', async () => {
-            await productoForm.crearProducto();
-            await expect(productoForm['page'].getByRole('button', {name: 'Ir a lista de ítems'}))
-                .toBeVisible();
-            await productoForm.clickIrAListaItems();
-        });
+        await confirmarCreacionEIrALista(productoForm, () => productoForm.crearProducto());
 
         await test.step('Verificar item completo', async () => {
             await itemDetail.verificarItemCompleto({

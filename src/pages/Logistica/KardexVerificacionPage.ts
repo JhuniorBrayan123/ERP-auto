@@ -15,6 +15,25 @@ export class KardexVerificacionPage {
         return this.page.getByRole('button', {name: /ver detalle/i});
     }
 
+    private async esperarKardexListo(): Promise<void> {
+        await this.page.waitForLoadState('domcontentloaded');
+
+        await this.page.waitForFunction(() => {
+            const titulos = document.querySelectorAll('.cmp-cards-almacen .info-almacen .title');
+            return titulos.length > 0 && Array.from(titulos).every(t => t.textContent?.trim() !== '');
+        }, {timeout: 15_000});
+
+        const overload = this.page.locator('.cmp-overload');
+        if (await overload.isVisible().catch(() => true)) {
+            await overload.waitFor({state: 'hidden', timeout: 15_000});
+        }
+
+        const pageError = this.page.locator('.cmp-page-error');
+        if (await pageError.isVisible().catch(() => true)) {
+            throw new Error('Kardex abrió en estado de error (.cmp-page-error) antes de hacer click en VER DETALLE');
+        }
+    }
+
     async buscarPorCodigo(codigo: string): Promise<void> {
         await this.esperarSinOverload(25_000);
         const searchInput = this.page.getByRole('textbox', {name: 'Buscar por nombre, código o c'});
@@ -121,7 +140,13 @@ export class KardexVerificacionPage {
 
         const nombreNormalizado = strip(nombreAlmacen).trim().toLowerCase();
 
+        await this.esperarKardexListo();//nuevo agregado para esperar que los datos del kardex esten listos
+
         const cards = this.page.locator('.cmp-cards-almacen');
+        await this.page.waitForFunction(() => {
+            const titulos = document.querySelectorAll('.cmp-cards-almacen .info-almacen .title');
+            return titulos.length > 0 && Array.from(titulos).every(t => t.textContent?.trim() !== '');
+        }, {timeout: 20_000});
 
         const total = await cards.count();
 

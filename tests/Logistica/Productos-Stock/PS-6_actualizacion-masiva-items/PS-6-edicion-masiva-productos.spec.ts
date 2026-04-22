@@ -1,6 +1,10 @@
 import {expect, test} from '@fixtures/Logistica/actualizacion-masiva-fixture';
 import {ACTUALIZACION_DATOS_CONFIG} from '@helpers/Logistica/actualizacion-masiva-config.helper';
-import {buildActualizacionDatosExcel, cleanupTempFile,} from '@helpers/Logistica/actualizacion-masiva-excel.helper';
+import {
+    buildActualizacionDatosExcel,
+    cleanupTempFile,
+} from '@helpers/Logistica/actualizacion-masiva-excel.helper';
+import {verificarItemActualizadoEnDetalle} from '@helpers/Logistica/verificaciones-edicion-items.helper';
 
 const CONFIG = ACTUALIZACION_DATOS_CONFIG.productos;
 
@@ -36,17 +40,14 @@ test.describe('PS-6 | Actualización masiva — datos de productos', {tag: ['@lo
             ).toBeVisible({timeout: 60_000});
         });
 
-        await test.step('Ver ítem: nombre en detalle y tab Bitácora', async () => {
-            await actualizacionMasiva.clickIrAlInicio();
-            await listaItems.searchByCode(primerCodigo);
-            await itemDetail.abrirMenuAccionesItem();
-            await itemDetail.clickVerItem();
-            await expect(page.getByText(primerNombreEditado).first()).toBeVisible({
-                timeout: 20_000,
-            });
-            await itemDetail.irATabBitacoraPorTexto();
-            await itemDetail.clickAtras();
-        });
+        await verificarItemActualizadoEnDetalle(
+            page,
+            actualizacionMasiva,
+            listaItems,
+            itemDetail,
+            primerCodigo,
+            primerNombreEditado
+        );
 
         cleanupTempFile(tempPath);
     });
