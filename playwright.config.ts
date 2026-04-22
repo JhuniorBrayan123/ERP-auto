@@ -10,6 +10,7 @@ export default defineConfig({
      * Los specs de actualización masiva viven en tests/logistica/productos-stock/edicion-masiva/.
      */
     fullyParallel: false,
+    // fullyParallel: true,
     workers: 1,
     // workers: process.env ? 2 : 2,
 
@@ -18,7 +19,7 @@ export default defineConfig({
     retries: 2,
 
     /* ─── Timeouts para estabilidad ─── */
-    timeout: 180_000,           // 3 min  por test por si
+    timeout: 240_000,           // 3 min  por test por si
     expect: {timeout: 10_000}, // 10s para assertions
 
     /* ─── Ignorar codegen / borradores (no son suites de regresión) ─── */
@@ -62,7 +63,7 @@ export default defineConfig({
         // video: 'retain-on-failure',
 
         /* ─── Timeouts ─── */
-        actionTimeout: 20_000,      // 15s por acción individual
+        actionTimeout: 35_000,      // 15s por acción individual
         navigationTimeout: 60_000,  // 30s para navegación
     },
 

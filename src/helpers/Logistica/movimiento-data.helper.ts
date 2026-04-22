@@ -111,6 +111,13 @@ export const COMPROBANTE_TEST: ComprobanteData = {
     cuc: '10101010101',
 };
 
+export const COMPROABNTE_VACIO: ComprobanteData = {
+    tipo: '',
+    serie: '',
+    numero: '',
+    cuc: '',
+}
+
 // ─── Archivos Excel para movimientos masivos ──────────────────────────
 
 export const EXCEL_MASIVOS = {

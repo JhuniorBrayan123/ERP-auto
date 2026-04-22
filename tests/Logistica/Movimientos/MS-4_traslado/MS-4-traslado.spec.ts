@@ -8,60 +8,40 @@ import {
     VARIANTES,
 } from '@helpers/Logistica/movimiento-data.helper';
 import {KardexVerificacionPage} from '@pages/Logistica/KardexVerificacionPage';
+import {
+    navegarATrasladosYNuevo,
+    registrarTrasladoEIrAlListado,
+    buscarYSeleccionarItem,
+    verificarKardexDesdeStock,
+    verificarStockPorCodigoYClick,
+    verificarBitacoraEdicion,
+} from '@helpers/Logistica/verificaciones-movimientos.helper';
 
 test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@movimientos']}, () => {
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 18: Registrar traslado correctamente
-    // ═══════════════════════════════════════════════════════════════
     test('Registrar traslado correctamente @MS-4', async ({
                                                               movimientosNav,
                                                               registroMovimiento,
                                                               resultadoMovimiento,
                                                               stockVerificacion,
-                                                              page,
                                                           }) => {
         test.setTimeout(180_000);
 
-        await test.step('Given: navegar a Traslados', async () => {
-            await movimientosNav.navegarATraslados();
-        });
+        await navegarATrasladosYNuevo(movimientosNav, registroMovimiento);
 
-        await test.step('When: crear nuevo traslado con almacenes origen y destino distintos', async () => {
-            await registroMovimiento.clickAgregarTraslado();
-        });
+        await buscarYSeleccionarItem(registroMovimiento, ITEMS_TEST.PRODUCTO_GRAVADO.codigo, ITEMS_TEST.PRODUCTO_GRAVADO.nombre);
 
-        await test.step('And: buscar producto, definir cantidad y registrar', async () => {
-            await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
-            await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.PRODUCTO_GRAVADO.nombre);
+        await test.step('When: definir cantidad', async () => {
             await registroMovimiento.llenarCantidad('100');
-            await registroMovimiento.clickRegistrarTraslado();
         });
 
-        await test.step('Then: ir al listado de movimientos', async () => {
-            await resultadoMovimiento.irAlListado();
-        });
+        await registrarTrasladoEIrAlListado(registroMovimiento, resultadoMovimiento);
 
-        await test.step('And: verificar stock', async () => {
-            await movimientosNav.navegarAStockProductos();
-            await stockVerificacion.buscarPorCodigo(ITEMS_TEST.PRODUCTO_GRAVADO.codigo) //ultimo cambio xs codigo en traslado
-            await stockVerificacion.clickVariosTexto();
-        });
+        await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
 
-        await test.step('And: verificar movimiento en kardex', async () => {
-            const kardexPage = await stockVerificacion.abrirKardexDesdeStock();
-            const kardexPopup = new KardexVerificacionPage(kardexPage);
-            await kardexPage.waitForLoadState('networkidle');
-            await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
-            await expect(kardexPage.getByText(PATRON_CODIGO.TRASLADO).first()).toBeVisible();
-            await kardexPopup.clickCodigoMovimientoRegex(PATRON_CODIGO.TRASLADO)
-            await kardexPopup.cerrarModalDetalle();
-        });
+        await verificarKardexDesdeStock(stockVerificacion, ALMACENES.AUTO, PATRON_CODIGO.TRASLADO, true);
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 19: Validar traslado con mismo almacén
-    // ═══════════════════════════════════════════════════════════════
     test('Validar traslado con mismo almacén @MS-4', async ({
                                                                 movimientosNav,
                                                                 registroMovimiento,
@@ -69,12 +49,9 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
                                                             }) => {
         test.setTimeout(180_000);
 
-        await test.step('Given: navegar a Traslados', async () => {
-            await movimientosNav.navegarATraslados();
-        });
+        await navegarATrasladosYNuevo(movimientosNav, registroMovimiento);
 
         await test.step('When: crear traslado seleccionando mismo almacén', async () => {
-            await registroMovimiento.clickAgregarTraslado();
             await page.locator('div').filter({hasText: /^ALMACEN-AUTO$/}).nth(3).click();
             await page.getByText(ALMACENES.VENTAS).first().click();
         });
@@ -90,9 +67,6 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
         });
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 20: Registrar traslado con variante
-    // ═══════════════════════════════════════════════════════════════
     test('Registrar traslado con variante @MS-4', async ({
                                                              movimientosNav,
                                                              registroMovimiento,
@@ -102,10 +76,7 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
                                                          }) => {
         test.setTimeout(180_000);
 
-        await test.step('Given: navegar a Traslados', async () => {
-            await movimientosNav.navegarATraslados();
-            await registroMovimiento.clickAgregarTraslado();
-        });
+        await navegarATrasladosYNuevo(movimientosNav, registroMovimiento);
 
         await test.step('When: buscar variante, definir cantidad y motivo', async () => {
             await registroMovimiento.buscarItem(ITEMS_TEST.VARIANTE_FLEXIBLE.codigo);
@@ -116,14 +87,10 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
             await page.getByText(MOTIVOS_TRASLADO.OTROS).click();
         });
 
-        await test.step('And: registrar traslado', async () => {
-            await registroMovimiento.clickRegistrarTraslado();
-            await resultadoMovimiento.irAlListado();
-        });
+        await registrarTrasladoEIrAlListado(registroMovimiento, resultadoMovimiento);
 
-        await test.step('Then: verificar stock de la variante', async () => {
-            await movimientosNav.navegarAStockProductos();
-            await stockVerificacion.buscarPorCodigo(ITEMS_TEST.VARIANTE_FLEXIBLE.codigo);
+        await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.VARIANTE_FLEXIBLE.codigo, async () => {
+            // no click action defined in original, but it searched variante
         });
 
         await test.step('And: verificar kardex', async () => {
@@ -137,9 +104,6 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
         });
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 21: Registrar traslado con datos adicionales
-    // ═══════════════════════════════════════════════════════════════
     test('Registrar traslado con datos adicionales @MS-4', async ({
                                                                       movimientosNav,
                                                                       registroMovimiento,
@@ -148,37 +112,27 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
                                                                       stockVerificacion,
                                                                       page,
                                                                   }) => {
-        test.setTimeout(180_000);
 
-        await test.step('Given: navegar a Traslados y crear nuevo', async () => {
-            await movimientosNav.navegarATraslados();
-            await registroMovimiento.clickAgregarTraslado();
-        });
+        await navegarATrasladosYNuevo(movimientosNav, registroMovimiento);
 
         await test.step('When: buscar ítem', async () => {
             await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
             await page.getByText('Pproducto121212item para').click();
         });
-
         await test.step('And: configurar datos opcionales', async () => {
             await datosOpcionales.abrirDatosOpcionales();
             await datosOpcionales.buscarProveedor(PROVEEDOR_EXISTENTE.numDocumento);
             await datosOpcionales.seleccionarProveedor(PROVEEDOR_EXISTENTE.nombre);
 
-            // Campo texto ya creado por datos-adicionales.setup.ts
             await datosOpcionales.crearCampoTexto('nombre de traslado');
             await datosOpcionales.llenarCampoTexto(0, 'auto-traslado');
             await datosOpcionales.guardarDatos();
         });
 
-        await test.step('And: registrar traslado', async () => {
-            await registroMovimiento.clickRegistrarTraslado();
-            await resultadoMovimiento.irAlListado();
-        });
+        await registrarTrasladoEIrAlListado(registroMovimiento, resultadoMovimiento);
 
-        await test.step('Then: verificar stock', async () => {
-            await movimientosNav.navegarAStockProductos();
-            await stockVerificacion.buscarPorCodigo(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
+        await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.PRODUCTO_GRAVADO.codigo, async () => {
+            // just search, original left it at that
         });
 
         await test.step('And: verificar kardex y datos opcionales', async () => {
@@ -193,9 +147,6 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
         });
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 22: Registrar traslado por confirmar + configuración
-    // ═══════════════════════════════════════════════════════════════
     test('Registrar traslado por confirmar + configuración @MS-4', async ({
                                                                               movimientosNav,
                                                                               registroMovimiento,
@@ -203,7 +154,6 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
                                                                               listadoMovimientos,
                                                                               page,
                                                                           }) => {
-        test.setTimeout(180_000);
 
         await test.step('Given: activar preferencia avanzada de traslado por confirmar', async () => {
             await movimientosNav.navegarAConfiguracionSucursales();
@@ -220,16 +170,10 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
             await registroMovimiento.clickAgregarTraslado();
             await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
             await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.PRODUCTO_GRAVADO.nombre);
-            await registroMovimiento.clickRegistrarTraslado();
-            await resultadoMovimiento.irAlListado();
         });
 
-        await test.step('Then: verificar bitácora de creación', async () => {
-            await listadoMovimientos.abrirMenuAcciones();
-            await listadoMovimientos.clickVerBitacora();
-            await listadoMovimientos.clickEventoBitacora('Creación');
-            await page.getByText('Todos').first().click();
-            await listadoMovimientos.cerrarBitacora();
-        });
+        await registrarTrasladoEIrAlListado(registroMovimiento, resultadoMovimiento);
+
+        await verificarBitacoraEdicion(listadoMovimientos, ['Creación']);
     });
 });

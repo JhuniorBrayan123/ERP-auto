@@ -1,17 +1,12 @@
 import {test} from '@fixtures/Logistica/edicion-clonado-fixture';
 import {generateRandomPrice} from '@helpers/Logistica/random-price.helper';
+import {
+    confirmarActualizacionItem,
+    buscarYVerItemDesdeListado,
+} from '@helpers/Logistica/verificaciones-edicion-items.helper';
 
 test.describe('PS-4 | Edición de precio de item', {tag: ['@logistica', '@productos-stock']}, () => {
 
-    /**
-     * Escenario: editar los precios en soles y dólares de un producto existente (código 889988).
-     *
-     * Flujo:
-     * 1. Buscar item por código → abrir edición
-     * 2. Cambiar precio estándar (soles) y precio dólares con valores aleatorios
-     * 3. Confirmar actualización
-     * 4. Verificar bitácora del cambio
-     */
     test('editar precios de producto existente @PS-4', async ({
                                                             page,
                                                             listaItems,
@@ -30,19 +25,9 @@ test.describe('PS-4 | Edición de precio de item', {tag: ['@logistica', '@produc
             await edicionItem.updatePrices(nuevoPrecioSoles, nuevoPrecioDolares);
         });
 
-        await test.step('Confirmar actualización', async () => {
-            await edicionItem.clickActualizarProducto();
-            await edicionItem.closeSuccessModal();
-        });
+        await confirmarActualizacionItem(edicionItem);
 
-        await test.step('Buscar item editado por código en la lista', async () => {
-            await listaItems.searchByCode(codigoItem);
-        });
-
-        await test.step('Abrir Ver Ítem desde la lista', async () => {
-            await itemDetail.abrirMenuAccionesItem();
-            await itemDetail.clickVerItem();
-        });
+        await buscarYVerItemDesdeListado(listaItems, itemDetail, codigoItem);
 
         await test.step('Verificar bitácora del cambio de precios', async () => {
             await itemDetail.irATabBitacora();
