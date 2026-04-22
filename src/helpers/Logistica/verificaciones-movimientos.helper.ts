@@ -8,6 +8,7 @@ import {ResultadoMovimientoPage} from '../../pages/Logistica/ResultadoMovimiento
 import {MovimientoRapidoPage} from '../../pages/Logistica/MovimientoRapidoPage';
 import {DatosOpcionalesPage} from '../../pages/Logistica/DatosOpcionalesPage';
 import {ListadoMovimientosPage} from '../../pages/Logistica/ListadoMovimientosPage';
+import {ITEMS_TEST} from "@helpers/Logistica/movimiento-data.helper";
 
 export const verificarStockYKardex = async (
     movimientosNav: MovimientosNavigationPage,
@@ -365,6 +366,35 @@ export const verificarEventoEnBitacora = async (
     });
 };
 
+export const abrirYCerrarBitacora = async (
+    listadoMovimientos: ListadoMovimientosPage,
+    cerrarAlternativo: boolean = false
+) => {
+    await test.step('Then: verificar apertura de bitácora', async () => {
+        await listadoMovimientos.abrirMenuAcciones();
+        await listadoMovimientos.clickVerBitacora();
+        if (cerrarAlternativo) {
+            await listadoMovimientos.cerrarBitacoraAlternativo();
+        } else {
+            await listadoMovimientos.cerrarBitacora();
+        }
+    });
+};
+export const verificarstockmasivo = async (
+    movimientosNav: MovimientosNavigationPage,
+    stockVerificacion: StockVerificacionPage,
+    nthClicks: number[] = [0],
+) => {
+    await test.step('And: verificar stock del producto', async () => {
+        await movimientosNav.navegarAStockProductos();
+        await stockVerificacion.buscarPorCodigo(ITEMS_TEST.MASIVO_PROD.codigo);
+        for (const nth of nthClicks) {
+            await stockVerificacion.clickAlmacenMultipleNth(nth);
+        }
+    });
+
+}
+
 export const configurarDatosOpcionalesEstandar = async (
     datosOpcionales: DatosOpcionalesPage,
     numDocumentoProveedor: string,
@@ -521,5 +551,30 @@ export const navegarAIngresosYAbrirAccionesImpresion = async (
         await listadoMovimientos.clickTabPorIndice(0);
         await listadoMovimientos.abrirMenuAcciones();
         await listadoMovimientos.clickImprimirDescargarEnviar();
+    });
+};
+
+// ─── Helpers MS-7 Movimientos Masivos ─────────────────────────────────
+
+export const cargarMovimientoMasivoDesdeExcel = async (
+    listadoMovimientos: ListadoMovimientosPage,
+    movimientoRapido: MovimientoRapidoPage,
+    page: Page,
+    excelPath: string,
+) => {
+    await test.step('When: abrir carga masiva y subir excel', async () => {
+        await listadoMovimientos.clickIconoOpciones();
+        await listadoMovimientos.clickCrearDesdeExcel();
+        await page.locator('.popup-container > .button-close > .icon').click();
+        await movimientoRapido.seleccionarcardProductos();
+        await page.getByText('Siguiente').click();
+        await page.locator('input[type="file"]').setInputFiles(excelPath);
+        await page.getByText('Siguiente').click();
+    });
+
+    await test.step('And: procesar la carga', async () => {
+        await page.getByText('Procesar').click();
+        await expect(page.getByRole('button', {name: 'Ir al inicio'})).toBeVisible({timeout: 30_000});
+        await page.getByRole('button', {name: 'Ir al inicio'}).click();
     });
 };

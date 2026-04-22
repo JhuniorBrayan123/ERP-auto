@@ -1,92 +1,208 @@
-# ERPPeru2-Automation
+# 🚀 erpperu2-automation
 
+![Playwright](https://img.shields.io/badge/Playwright-1.58.2-blue?logo=playwright)
+![TypeScript](https://img.shields.io/badge/TypeScript-ES2020-blue?logo=typescript)
+![Node.js](https://img.shields.io/badge/Node.js-v18+-green?logo=node.js)
+![ExcelJS](https://img.shields.io/badge/ExcelJS-4.4.0-brightgreen)
 
+## 📋 Índice
+1. [Descripción del proyecto](#-1--descripción-del-proyecto)
+2. [Stack tecnológico](#-2--stack-tecnológico)
+3. [Requisitos previos](#-3--requisitos-previos)
+4. [Instalación y configuración](#-4--instalación-y-configuración)
+5. [Estructura del proyecto](#-5--estructura-del-proyecto)
+6. [Cómo ejecutar los tests](#-6--cómo-ejecutar-los-tests)
+7. [Variables de entorno](#-7--variables-de-entorno)
+8. [Convenciones y estándares](#-8--convenciones-y-estándares)
+9. [Arquitectura](#-9--arquitectura)
 
-## Getting started
+---
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## 📋 1 — Descripción del proyecto
+Este proyecto contiene la automatización de pruebas End-to-End (E2E) para el sistema **ERP Perú 2**.
+El foco principal actual de la automatización cubre los módulos de:
+- **Logística**: Movimientos de almacén, ingresos, ajustes.
+- **Productos - Stock**: Creación de ítems, edición, clonación, exportación y actualización masiva mediante Excel.
+- **Login / Autenticación**: Acceso al sistema.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+**Propósito general**: Validar de manera automatizada y robusta la integridad de las operaciones logísticas y de inventario (Kardex, stock) combinando validaciones desde la UI con comprobaciones en la base de datos a través de la API, asegurando la calidad antes de despliegues a producción.
 
-## Add your files
+---
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## 🛠️ 2 — Stack tecnológico
 
+| Tecnología | Versión | Propósito |
+| :--- | :--- | :--- |
+| **@playwright/test** | `^1.58.2` | Core framework para automatización de pruebas End-to-End y control del navegador. |
+| **@types/node** | `^25.5.0` | Definiciones de tipos de TypeScript para Node.js. |
+| **exceljs** | `^4.4.0` | Lectura, escritura y manipulación de archivos Excel (usado en tests de carga/actualización masiva). |
+| **dotenv** | `^17.3.1` | Gestión y carga de variables de entorno desde el archivo de configuración `.env`. |
+
+---
+
+## ⚙️ 3 — Requisitos previos
+Para ejecutar este proyecto de forma local, necesitas instalar:
+- **Node.js** (Versión 18 o superior recomendada, según tipados).
+- **npm** (Viene integrado con Node.js).
+- **Git** para clonar el repositorio.
+- **Navegadores soportados por Playwright**.
+
+---
+
+## 🚀 4 — Instalación y configuración
+
+Sigue estos pasos en orden para configurar tu entorno local:
+
+**1. Clonar el repositorio**
+```bash
+git clone <!-- TODO: completar URL del repo -->
+cd erpperu2-automation
 ```
-cd existing_repo
-git remote add origin https://gitlab.sreasons.com/GU-CalidadTI/erpperu2-automation.git
-git branch -M main
-git push -uf origin main
+
+**2. Instalar dependencias**
+```bash
+npm install
 ```
 
-## Integrate with your tools
+**3. Configurar variables de entorno**
+```bash
+# Copiar el entorno (ver sección 7) a config/environment.env
+# Editar config/environment.env con los datos correctos
+```
 
-- [ ] [Set up project integrations](https://gitlab.sreasons.com/GU-CalidadTI/erpperu2-automation/-/settings/integrations)
+**4. Instalar browsers de Playwright**
+```bash
+npx playwright install
+```
 
-## Collaborate with your team
+**5. Verificar que todo funciona**
+```bash
+npm run test
+```
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+---
 
-## Test and Deploy
+## 📁 5 — Estructura del proyecto
+La estructura está organizada aplicando Page Object Model y separación de responsabilidades:
 
-Use the built-in continuous integration in GitLab.
+```text
+erpperu2-automation/
+├── config/                  # Contiene la configuración de variables de entorno y env.ts
+├── src/                     # Core de automatización
+│   ├── data/                # Datos estáticos o mock data (@data/)
+│   ├── fixtures/            # Inyectores personalizados de Playwright (@fixtures/)
+│   ├── helpers/             # Funciones reutilizables de lógica de negocio y acciones (@helpers/)
+│   ├── pages/               # Clases del Page Object Model (@pages/)
+│   ├── services/            # Funciones para consumo de APIs (ej. kardexApi) (@services/)
+│   └── utils/               # Utilidades de uso general (reportes maven, etc)
+├── tests/                   # Archivos de prueba (specs) agrupados por módulos
+│   ├── Login/               # Pruebas de acceso
+│   └── Logistica/           # Módulo logístico
+│       ├── Movimientos/     # Tests de ingresos y ajustes de almacén
+│       └── Productos-Stock/ # Tests de edición de ítems, Excel masivo, etc.
+├── playwright.config.ts     # Configuración principal de Playwright (workers, retries, reporters)
+└── tsconfig.json            # Configuración y paths alias de TypeScript
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+---
 
-***
+## ▶️ 6 — Cómo ejecutar los tests
 
-# Editing this README
+El proyecto utiliza tags de Playwright para ejecutar flujos específicos. Algunos tags disponibles son `@logistica`, `@productos-stock`, `@movimientos`, `@ingreso`, `@MS-1`, `@PS-6`, etc.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+**Correr todos los tests**
+```bash
+npx playwright test
+```
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+**Correr por tag específico (ej. @logistica)**
+```bash
+npx playwright test --grep "@logistica"
+```
 
-## Name
-Choose a self-explaining name for your project.
+**Correr un archivo específico**
+```bash
+npx playwright test tests/Logistica/Movimientos/MS-1_ingreso/MS-1-ingreso.spec.ts
+```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+**Correr en modo UI (interfaz gráfica de Playwright)**
+```bash
+npx playwright test --ui
+```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+**Correr en entorno CRT vs PRD**
+Debes modificar la variable `APP_ENV` en el archivo `config/environment.env` (ej. `APP_ENV=prd` o `APP_ENV=crt`) y luego ejecutar:
+```bash
+npx playwright test
+```
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+**Correr en modo debug**
+```bash
+npx playwright test --debug
+```
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+---
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+## 🔐 7 — Variables de entorno
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+La gestión de configuración ocurre centralizada en `config/env.ts` que lee desde `config/environment.env`.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+| Variable | Para qué sirve | Valores posibles | Obligatoria |
+| :--- | :--- | :--- | :--- |
+| `APP_ENV` | Define a qué entorno de ERP Perú 2 apuntarán las pruebas. Autogenera las URLs en `env.ts`. | `crt`, `crt-2`, `crt-3`, `crt-4`, `prd` | **Sí** |
+| `USER_EMAIL` | Correo de la cuenta de pruebas. | Un correo válido del sistema | **Sí** |
+| `USER_PASSWORD` | Contraseña del usuario. | Contraseña válida | **Sí** |
+| `BROWSER` | Sobrescribe el navegador a usar. | `chromium`, `firefox`, `webkit` | Opcional |
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+**Plantilla base de `.env.example` (para usar en `config/environment.env`):**
+```env
+# Entorno activo: crt | crt-2 | crt-3 | crt-4 | prd
+APP_ENV=prd
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+# Credenciales de acceso
+USER_EMAIL=automatizacionerp2@gmail.com
+USER_PASSWORD=Qa123456
+```
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+---
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+## 📐 8 — Convenciones y estándares
 
-## License
-For open source projects, say how it is licensed.
+A partir de la arquitectura actual se infieren las siguientes reglas:
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+- **Nomenclatura de archivos:** Sigue el patrón `<IdTicket>-<descripcion-corta>.spec.ts`. Ejemplo: `PS-6-edicion-masiva-servicios.spec.ts`.
+- **Nomenclatura de clases POM:** Sigue `PascalCase` terminando en la palabra `Page`. Ejemplo: `KardexVerificacionPage`, `RegistroMovimientoPage`.
+- **Nomenclatura de helpers:** Funciones exportadas en `camelCase` describiendo acciones. Ejemplo: `verificarStockYKardex`, `definirAlmacenYMotivo`.
+- **Estructura de un test:** Todo el flujo se envuelve en `test.step()` de manera declarativa indicando intención de negocio (Given/When/Then o And). Ejemplo: `await test.step('And: abrir datos opcionales...', async () => {...})`.
+- **Patrón AAA (Arrange, Act, Assert):** Especialmente notable al integrar API. Ejemplo:
+  - *Arrange:* `await test.step('API kardex: antes...', async () => { saldoAfectadoApi = ... })`
+  - *Act:* Acciones sobre la UI para realizar un movimiento de almacén.
+  - *Assert:* `await test.step('Asser API: verificar kardex en DB', async () => { expect(saldoPosIngreso).toBe(saldoAfectadoApi + 150) })`.
+- **Uso de Helpers (Granular vs Alto nivel):**
+  - *Helpers de Alto nivel:* Encapsulan varios pasos de una misma vista (`navegarAIngresosYNuevo`). Útiles para agilizar el Arrange.
+  - *Helpers Granulares:* Realizan validaciones o clics específicos que se repiten con variaciones menores en diferentes flujos (`buscarYSeleccionarItem`).
+
+---
+
+## 🏗️ 9 — Arquitectura
+
+El sistema se compone de capas funcionales diseñadas de abajo hacia arriba para promover la reutilización:
+
+```text
+Capa 4 — Tests (.spec.ts)
+     ↓ usan
+Capa 3 — Helpers de alto nivel
+     ↓ usan
+Capa 2 — Helpers granulares + Service Layer (API)
+     ↓ usan
+Capa 1 — Page Objects (POM)
+     ↓ usan
+Capa 0 — Fixtures y configuración base
+```
+
+**Explicación de las capas:**
+- **Capa 0 (Fixtures):** Inicializan dependencias como Pages y llamadas API, inyectándolas en las pruebas. *Ejemplo: `@fixtures/Logistica/movimientos-fixture`*.
+- **Capa 1 (POM):** Encapsulan los localizadores web y acciones directas en la pantalla sin llevar aserciones de negocio. *Ejemplo: `RegistroMovimientoPage`*.
+- **Capa 2 (Granular / Service):** Realizan aserciones pequeñas y consultan directo al backend vía HTTP. *Ejemplo: `kardexApi.obtenerSaldoPorProducto`, `buscarYSeleccionarItem`*.
+- **Capa 3 (Helpers Alto Nivel):** Orquestan múltiples POMs y acciones granulares para formar un flujo de negocio. *Ejemplo: `definirCantidadYRegistrarIngreso`*.
+- **Capa 4 (Tests):** Listas declarativas usando `test.step` que leen a un alto nivel qué está comprobando el escenario, en su mayoría limpios de selectores de UI. *Ejemplo: `MS-1-ingreso.spec.ts`*.
