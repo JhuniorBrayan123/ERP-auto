@@ -29,22 +29,12 @@ test.describe('MS-3 | Datos Adicionales de Movimientos @datos-adicionales', {tag
             await datosOpcionales.abrirDatosOpcionales();
             await datosOpcionales.buscarProveedor(PROVEEDOR_EXISTENTE.numDocumento);
             await datosOpcionales.seleccionarProveedor(PROVEEDOR_EXISTENTE.nombre);
-
-            // Campo texto
             await datosOpcionales.llenarCampoTexto(0, 'campo-texto-test-completo');
-
-            // Campo fecha
             await datosOpcionales.clickCampoFecha(0);
             await datosOpcionales.seleccionarDiaEnDatepickerVisible('15');
-
-            // Campo selección
             await datosOpcionales.seleccionarCampoSeleccion('certificación');
-
-            // Campo numérico
-
             await datosOpcionales.guardarDatos();
         });
-
         await test.step('And: registrar ingreso', async () => {
             await registroMovimiento.clickRegistrarIngreso();
             await resultadoMovimiento.irAlListado();

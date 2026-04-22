@@ -50,8 +50,23 @@ export class StockVerificacionPage {
 
     async abrirKardexDesdeStock(): Promise<Page> {
         const popupPromise = this.page.waitForEvent('popup');
+
         await this.page.getByRole('button', {name: 'Ver Kardex'}).first().click();
-        return popupPromise;
+
+        const kardexPage = await popupPromise;
+
+        await kardexPage.waitForLoadState('domcontentloaded');
+        await kardexPage.waitForURL(/kardex/i, {timeout: 15_000});
+
+        const overload = kardexPage.locator('.cmp-overload');
+        await overload.waitFor({state: 'hidden', timeout: 15_000}).catch(() => {
+        });
+        await kardexPage.locator('.cmp-cards-almacen').first().waitFor({
+            state: 'visible',
+            timeout: 15_000,
+        });
+
+        return kardexPage;
     }
 
     async abrirKardexPorAlmacen(nombreAlmacen: string): Promise<Page> {
