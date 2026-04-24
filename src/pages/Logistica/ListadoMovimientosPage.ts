@@ -115,8 +115,16 @@ export class ListadoMovimientosPage {
     }
 
     async exportarTodosMovimientos(): Promise<Download> {
+        await this.page.getByText('Descargar todos los movimientos').waitFor({state: 'visible'});
         const downloadPromise = this.page.waitForEvent('download');
-        await this.page.getByText('Exportar todos los movimientos').click();
+        await this.page.getByText('Descargar todos los movimientos').click();
+        return downloadPromise;
+    }
+
+    async exportarfiltrados(): Promise<Download> {
+        await this.page.getByText('Descargar movimientos filtrados').waitFor({state: 'visible'});
+        const downloadPromise = this.page.waitForEvent('download');
+        await this.page.getByText('Descargar movimientos filtrados').click();
         return downloadPromise;
     }
 

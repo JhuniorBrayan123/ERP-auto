@@ -29,7 +29,7 @@ function required(name: string): string {
 function buildUrls(appEnv: string): { baseUrl: string; apiUrl: string } {
     if (appEnv === 'prd') {
         return {
-            baseUrl: 'https://erpperu2.smartclic.pe/',
+            baseUrl: 'https://app.smartclic.pe/',
             apiUrl: 'https://erpperuapi.smartclic.pe/',
         };
     }

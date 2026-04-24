@@ -51,11 +51,8 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
         test.setTimeout(120_000)
 
         await navegarASalidasYNuevo(movimientosNav, registroMovimiento, true);
-
         await buscarYSeleccionarItem(registroMovimiento, ITEMS_TEST.INSUMO_FLEXIBLE.codigo, ITEMS_TEST.INSUMO_FLEXIBLE.nombre);
-
         await registrarSalidaYDespachar(registroMovimiento, resultadoMovimiento);
-
         await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.INSUMO_FLEXIBLE.codigo);
 
         await test.step('And: verificar movimiento en kardex', async () => {
@@ -118,7 +115,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
         });
         await buscarYSeleccionarItem(registroMovimiento, ITEMS_TEST.EQUIVALENTE_FLEX.codigo, ITEMS_TEST.EQUIVALENTE_FLEX.nombre);
         await test.step('When: registrar equivalencia', async () => {
-            await page.getByText(ITEMS_TEST.EQUIVALENTE_FLEX.nombre).first().click();
+            await page.getByText(VARIANTES.EQUIVALENTE_X2).first().click();
         });
         await registrarSalidaYDespachar(registroMovimiento, resultadoMovimiento);
         await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.EQUIVALENTE_FLEX.codigo);

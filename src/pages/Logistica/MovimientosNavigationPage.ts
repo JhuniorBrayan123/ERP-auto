@@ -58,22 +58,23 @@ export class MovimientosNavigationPage {
 
     async navegarAIngresosDesdeMenu(): Promise<void> {
         await this.clickProductosYServicios();
-        await this.page
-            .locator('[id="nvg_selects_cmp-header-selects_select:select-module-204-item-2008"]')
+        await this.page.locator('.v-popu, .popup-container, nav')
+            .getByText('Ingresos', {exact: true})
+            .first()
             .click();
     }
 
     async navegarASalidasDesdeMenu(): Promise<void> {
         await this.clickProductosYServicios();
         await this.page
-            .locator('[id="nvg_selects_cmp-header-selects_select:select-module-204-item-2009"]')
+            .locator('[id="nvg_selects_cmp-header-selects_select:select-module-204-item-2010"]')
             .click();
     }
 
     async navegarAAjustesDesdeMenu(): Promise<void> {
         await this.clickProductosYServicios();
         await this.page
-            .locator('[id="nvg_selects_cmp-header-selects_select:select-module-204-item-2011"]')
+            .locator('[id="nvg_selects_cmp-header-selects_select:select-module-204-item-2012"]')
             .click();
     }
 

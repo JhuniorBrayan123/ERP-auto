@@ -49,6 +49,20 @@ export class MovimientoRapidoPage {
             .click();
     }
 
+    async seleccionarAlmacenRapido2(almacen: string): Promise<void> {
+        await this.page
+            .locator('[id="lgt_items_v-modal:movimiento-stock_v-select:almacen"] div')
+            .filter({hasText: /^Seleccionar$/})
+            .click();
+
+        // Apuntar solo a las opciones de la lista desplegable
+        await this.page
+            .locator('[id="lgt_items_v-modal:movimiento-stock_v-select:almacen"]')
+            .getByText(almacen, {exact: true})
+            .last() // la opción en la lista, no el valor seleccionado
+            .click();
+    }
+
     async seleccionarAlmacenRapido(almacen: string): Promise<void> {
         await this.page
             .locator('[id="lgt_items_v-modal:movimiento-stock_v-select:almacen"] div')
@@ -56,6 +70,7 @@ export class MovimientoRapidoPage {
             .click();
         await this.page.locator('form').getByText(almacen).click();
     }
+
 
     async seleccionarMotivoIngresoRapido(motivoActual: string, motivoNuevo: string): Promise<void> {
         await this.page
@@ -147,7 +162,7 @@ export class MovimientoRapidoPage {
     async cerrarModalCancelarModal(): Promise<void> {
         await this.page.locator('.v-modal > div').first().click();
     }
-    
+
 
     async buscarItemPorCodigo(codigo: string): Promise<void> {
         const searchInput = this.page.getByRole('textbox', {name: 'Buscar por nombre, código o c'});

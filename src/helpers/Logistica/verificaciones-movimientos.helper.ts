@@ -117,6 +117,7 @@ export const navegarAIngresosYNuevo = async (
     desdeMenu: boolean = false
 ) => {
     await test.step('Given: navegar a Ingresos y crear nuevo ingreso', async () => {
+        // Comentado para evitar fallos en PRD (los IDs varían). Siempre usamos navegación por texto.
         if (desdeMenu) {
             await movimientosNav.navegarAIngresosDesdeMenu();
         } else {
@@ -286,6 +287,24 @@ export const configurarYRetirarStockRapido = async (
 ) => {
     await test.step('And: configurar movimiento y retirar stock', async () => {
         await movimientoRapido.seleccionarAlmacenRapido(almacen);
+        await movimientoRapido.seleccionarMotivoSalidaDesdeDiv(motivoGral, motivoEspecifico);
+        await movimientoRapido.llenarCantidadRapida(cantidad);
+    });
+
+    await test.step('Then: confirmar retirar stock', async () => {
+        await movimientoRapido.clickBtnRetirarStock();
+        await movimientoRapido.cerrarModalConfirmacion();
+    });
+};
+export const configurarYRetirarStockRapido2 = async (
+    movimientoRapido: MovimientoRapidoPage,
+    almacen: string,
+    motivoGral: string,
+    motivoEspecifico: string,
+    cantidad: string
+) => {
+    await test.step('And: configurar movimiento y retirar stock', async () => {
+        await movimientoRapido.seleccionarAlmacenRapido2(almacen);
         await movimientoRapido.seleccionarMotivoSalidaDesdeDiv(motivoGral, motivoEspecifico);
         await movimientoRapido.llenarCantidadRapida(cantidad);
     });
