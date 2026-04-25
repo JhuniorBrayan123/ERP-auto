@@ -52,15 +52,17 @@ export default defineConfig({
         baseURL: env.baseUrl,
 
         // === CONFIGURACIÓN ANTERIOR (Comentada por seguridad) ===
+
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
-        video: 'retain-on-failure',
+        video: 'on',
+
 
         // /* ─── Artefactos de Evidencia ─── */
         // // Guarda la evidencia visual (Trace, Screenshot, Video) ÚNICAMENTE cuando ocurre un fallo
-        // trace: 'retain-on-failure',
+        // trace: 'on',
         // screenshot: 'only-on-failure',
-        // video: 'retain-on-failure',
+        // video: 'on',
 
         /* ─── Timeouts ─── */
         actionTimeout: 35_000,      // 15s por acción individual

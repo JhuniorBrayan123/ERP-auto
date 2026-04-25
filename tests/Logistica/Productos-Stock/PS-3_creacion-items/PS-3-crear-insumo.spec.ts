@@ -1,4 +1,4 @@
-import {test} from '@fixtures/Logistica/items-fixture';
+import {expect, test} from '@fixtures/Logistica/items-fixture';
 import {buildUniqueItemName} from '@helpers/Logistica/unique-name.helper';
 import {confirmarCreacionEIrALista} from '@helpers/Logistica/verificaciones-items.helper';
 
@@ -15,9 +15,11 @@ test.describe('PS-3 | Creación de Insumos', {tag: ['@logistica', '@productos-st
         });
         await test.step('Configurar info adicional y código de barras', async () => {
             await insumoForm.expandirOpcionesAvanzadas();
-            await insumoForm.irATabStock();
-            // Sin control de stock → no seleccionamos tipo
+            await expect(
+                insumoForm.page.getByText('Información adicional')
+            ).toBeVisible({timeout: 5000});
             await insumoForm.llenarInfoAdicional('REGRESION', 'AUTO-TEST', 'AUTOMATIZADO');
+            // await insumoForm.irATabStock();
             await insumoForm.llenarCodigoBarras(Date.now().toString());
         });
         await confirmarCreacionEIrALista(insumoForm, () => insumoForm.crearInsumo());

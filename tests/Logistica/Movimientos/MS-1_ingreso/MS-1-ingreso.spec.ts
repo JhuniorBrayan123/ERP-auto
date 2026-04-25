@@ -152,10 +152,8 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
                                                                     movimientosNav,
                                                                     registroMovimiento,
                                                                 }) => {
-        test.setTimeout(180_000)
 
         await navegarAIngresosYNuevo(movimientosNav, registroMovimiento, true);
-
         await test.step('When: agregar el mismo ítem dos veces', async () => {
             await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_ESTRICTO.codigo);
             await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.PRODUCTO_ESTRICTO.nombre);

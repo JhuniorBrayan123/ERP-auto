@@ -242,16 +242,19 @@ export const crearIngresoEstandarParaPrecondicion = async (
     cantidad: string,
     desdeMenu: boolean = false
 ) => {
-    await test.step('Arrange: crear ingreso estandar para precondición', async () => {
+    return await test.step('Arrange: crear ingreso estandar para precondición', async () => {
         if (desdeMenu) {
             await movimientosNav.navegarAIngresosDesdeMenu();
         } else {
             await movimientosNav.navegarAIngresos();
         }
+
         await registroMovimiento.clickAgregarIngreso();
+
         if (codigoItem === '111111') {
             await page.waitForTimeout(2000);
         }
+
         await registroMovimiento.buscarItem(codigoItem);
         if (nombreItem.includes('Pproducto')) {
             await page.getByText(nombreItem).click();
@@ -259,7 +262,7 @@ export const crearIngresoEstandarParaPrecondicion = async (
             await registroMovimiento.seleccionarItemEnResultados(nombreItem);
         }
         await registroMovimiento.llenarCantidad(cantidad);
-        await registroMovimiento.clickRegistrarIngreso();
+        await registroMovimiento.clickRegistrarIngreso()
         await resultadoMovimiento.irAlListado();
     });
 };

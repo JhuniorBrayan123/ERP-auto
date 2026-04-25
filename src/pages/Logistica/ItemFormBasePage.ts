@@ -7,7 +7,7 @@ export abstract class ItemFormBasePage {
         '.v-select-base-header > .v-select-header-base-form > ' +
         '.v-select-header-form > .v-select-header-form-arrow';
 
-    constructor(protected readonly page: Page) {
+    constructor(readonly page: Page) {
     }
 
     protected get inputNombre(): Locator {
