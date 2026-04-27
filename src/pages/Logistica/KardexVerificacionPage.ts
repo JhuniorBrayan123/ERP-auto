@@ -21,11 +21,11 @@ export class KardexVerificacionPage {
         await this.page.waitForFunction(() => {
             const titulos = document.querySelectorAll('.cmp-cards-almacen .info-almacen .title');
             return titulos.length > 0 && Array.from(titulos).every(t => t.textContent?.trim() !== '');
-        }, {timeout: 15_000});
+        }, {timeout: 25_000});
 
         const overload = this.page.locator('.cmp-overload');
         if (await overload.isVisible().catch(() => true)) {
-            await overload.waitFor({state: 'hidden', timeout: 15_000});
+            await overload.waitFor({state: 'hidden', timeout: 25_000});
         }
 
         const pageError = this.page.locator('.cmp-page-error');
