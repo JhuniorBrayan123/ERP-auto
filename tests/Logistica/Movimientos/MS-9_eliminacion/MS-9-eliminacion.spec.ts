@@ -103,7 +103,7 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
                                                                      movimientoRapido,
                                                                      page,
                                                                  }) => {
-        test.setTimeout(180_000)
+
         let stockActual = 0;
 
         await test.step('Arrange: obtener stock actual del almacén AUTO', async () => {
@@ -118,8 +118,8 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
         await crearSalidaEstandarParaPrecondicion(movimientosNav, registroMovimiento, resultadoMovimiento, ITEMS_TEST.SIN_STOCK.codigo, ITEMS_TEST.SIN_STOCK.nombre, (stockActual + 8).toString());
 
         await test.step('Act: intentar eliminar el ingreso original (generaría stock negativo)', async () => {
-            await listadoMovimientos.clickTabPorIndice(1);
-            await listadoMovimientos.abrirMenuAcciones();
+            await listadoMovimientos.clickTabPorIndice2(1);
+            await listadoMovimientos.abrirMenuAcciones()
             await listadoMovimientos.clickEliminaElMovimiento();
             await listadoMovimientos.confirmarEliminacion();
         });

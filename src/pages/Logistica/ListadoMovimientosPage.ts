@@ -1,4 +1,4 @@
-import {type Download, type Page} from '@playwright/test';
+import {type Download, expect, Locator, type Page} from '@playwright/test';
 
 export class ListadoMovimientosPage {
     constructor(private readonly page: Page) {
@@ -14,6 +14,36 @@ export class ListadoMovimientosPage {
     async abrirMenuAcciones(): Promise<void> {
         await this.esperarSinOverlayCarga();
         await this.page.locator('.cmp-dropdown-toggle.justify-content-center').first().click();
+    }
+
+    async buscarMovimientoPorCodigo(codigo: string): Promise<void> {
+        await this.esperarSinOverlayCarga();
+
+        const buscador = this.page
+            .locator('input')
+            .filter({has: this.page.locator('xpath=..')})
+            .getByRole('textbox')
+            .first();
+
+        await buscador.fill(codigo);
+        await buscador.press('Enter');
+
+        await this.esperarSinOverlayCarga();
+        await expect(this.obtenerFilaPorCodigo(codigo)).toBeVisible({timeout: 30_000});
+    }
+
+    async abrirMenuAccionesPorCodigo(codigo: string): Promise<void> {
+        await this.esperarSinOverlayCarga();
+
+        const fila = this.obtenerFilaPorCodigo(codigo);
+        await expect(fila).toBeVisible({timeout: 30_000});
+
+        const botonAcciones = fila.locator('.cmp-dropdown-toggle.justify-content-center').first();
+        await botonAcciones.click();
+    }
+
+    private obtenerFilaPorCodigo(codigo: string): Locator {
+        return this.page.locator('tr', {hasText: codigo}).first();
     }
 
     async abrirMenuAccionesIcono(): Promise<void> {
@@ -94,6 +124,22 @@ export class ListadoMovimientosPage {
         await this.page
             .locator(`[id="lgt_movimientos_cmp-header-movimientos:section_v-button:tipo_movimiento:${indice}"]`)
             .click();
+
+    }
+
+    async clickTabPorIndice2(indice: number): Promise<void> {
+        const tab = this.page
+            .locator(`[id="lgt_movimientos_cmp-header-movimientos:section_v-button:tipo_movimiento:${indice}"]`)
+        ;
+        await tab.click();
+
+        await this.esperarSinOverlayCarga();
+
+        // Espera a que exista al menos una acción visible en la grilla ya cargada
+        await this.page
+            .locator('.cmp-dropdown-toggle.justify-content-center')
+            .first()
+            .waitFor({state: 'visible', timeout: 10_000});
     }
 
     async clickIconoOpciones(): Promise<void> {
@@ -115,8 +161,16 @@ export class ListadoMovimientosPage {
     }
 
     async exportarTodosMovimientos(): Promise<Download> {
+        await this.page.getByText('Descargar todos los movimientos').waitFor({state: 'visible'});
         const downloadPromise = this.page.waitForEvent('download');
-        await this.page.getByText('Exportar todos los movimientos').click();
+        await this.page.getByText('Descargar todos los movimientos').click();
+        return downloadPromise;
+    }
+
+    async exportarfiltrados(): Promise<Download> {
+        await this.page.getByText('Descargar movimientos filtrados').waitFor({state: 'visible'});
+        const downloadPromise = this.page.waitForEvent('download');
+        await this.page.getByText('Descargar movimientos filtrados').click();
         return downloadPromise;
     }
 

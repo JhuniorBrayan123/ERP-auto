@@ -292,9 +292,16 @@ export class DatosOpcionalesPage {
 
     async agregarComprobanteParcial(tipo: string): Promise<void> {
         await this.page.getByRole('button', {name: 'Añadir comprobante'}).click();
-        await this.page.getByText('Seleccionar', {exact: true}).first().click();
+
+        // Esperar que el modal esté visible antes de interactuar
+        const modal = this.page.locator('.asignacion-documento-movimiento');
+        await modal.waitFor({state: 'visible'});
+
+        // Apuntar al Seleccionar DENTRO del modal, no el del panel lateral
+        await modal.getByText('Seleccionar', {exact: true}).click();
         await this.page.getByText(tipo).click();
         await this.page.getByRole('button', {name: 'Añadir'}).click();
+
         await this.cerrarModal();
     }
 

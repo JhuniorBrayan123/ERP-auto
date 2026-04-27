@@ -11,8 +11,10 @@ import {
     buscarItemEnListadoRapidoYAcceder,
     configurarYAumentarStockRapido,
     configurarYRetirarStockRapido,
+    configurarYRetirarStockRapido2,
     verificarStockPorCodigoYClick,
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
+
 test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@movimientos']}, () => {
 
     test('Aumentar stock desde modal de producto @MS-12', async ({
@@ -115,9 +117,7 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
             await movimientoRapido.abrirMenuItemAcciones(ITEMS_TEST.INSUMO_FLEXIBLE.codigo);
             await movimientoRapido.clickDisminuirStockDesdeMenu();
         });
-
-        await configurarYRetirarStockRapido(movimientoRapido, ALMACENES.AUTO, MOTIVOS_SALIDA.VENTA, MOTIVOS_SALIDA.INSUMOS, '3');
-
+        await configurarYRetirarStockRapido2(movimientoRapido, ALMACENES.AUTO, MOTIVOS_SALIDA.VENTA, MOTIVOS_SALIDA.INSUMOS, '3');
         await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.INSUMO_FLEXIBLE.codigo);
     });
 });

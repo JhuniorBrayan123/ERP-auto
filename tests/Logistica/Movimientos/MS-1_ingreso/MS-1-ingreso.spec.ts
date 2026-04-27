@@ -123,9 +123,10 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
         await navegarAIngresosYNuevo(movimientosNav, registroMovimiento, true);
 
         await test.step('When: seleccionar almacén, motivo y agregar ítem con cantidad cero', async () => {
-            await registroMovimiento.seleccionarAlmacen(ALMACENES.AUTO, ALMACENES.AUTO);
-            await registroMovimiento.abrirSelectorMotivo();
-            await registroMovimiento.seleccionarMotivoDirecto(MOTIVOS_INGRESO.TRASLADO);
+            // await registroMovimiento.seleccionarAlmacen(ALMACENES.AUTO, ALMACENES.AUTO);
+            // await registroMovimiento.abrirSelectorMotivo();
+            await definirAlmacenYMotivo(registroMovimiento, ALMACENES.AUTO, ALMACENES.AUTO, 'INGRESO A ALMACÉN', MOTIVOS_INGRESO.TRASLADO);
+            // await registroMovimiento.seleccionarMotivoDirecto(MOTIVOS_INGRESO.TRASLADO);
             await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_ESTRICTO.codigo);
             await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.PRODUCTO_ESTRICTO.nombre);
             await registroMovimiento.llenarCantidad('0000');
@@ -151,10 +152,8 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
                                                                     movimientosNav,
                                                                     registroMovimiento,
                                                                 }) => {
-        test.setTimeout(180_000)
 
         await navegarAIngresosYNuevo(movimientosNav, registroMovimiento, true);
-
         await test.step('When: agregar el mismo ítem dos veces', async () => {
             await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_ESTRICTO.codigo);
             await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.PRODUCTO_ESTRICTO.nombre);

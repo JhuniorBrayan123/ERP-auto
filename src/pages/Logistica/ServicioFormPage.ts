@@ -23,7 +23,8 @@ export class ServicioFormPage extends ItemFormBasePage {
 
   async seleccionarTipoAfectacionIGV(opcionTexto: string): Promise<void> {
     await this.page.locator('.v-select-header-form-arrow.form.form-control').click();
-    await this.page.getByText(opcionTexto, { exact: true }).click();
+    await this.page.waitForTimeout(500);
+    await this.page.getByText(opcionTexto, { exact: true }).click({ force: true });
   }
 
   async expandirOpcionesAvanzadasServicio(): Promise<void> {
@@ -41,17 +42,24 @@ export class ServicioFormPage extends ItemFormBasePage {
       .locator(`.subcategoria > ${this.DROPDOWN_ARROW}`)
       .first()
       .click();
-    await this.page.getByText(categoria).click();
+    await this.page.waitForTimeout(500);
+    await this.page.getByText(categoria).click({ force: true });
+
+    await this.page.waitForTimeout(500);
 
     await this.page
       .locator(`div:nth-child(2) > ${this.DROPDOWN_ARROW}`)
-      .click();
-    await this.page.getByText(subcategoria).click();
+      .click({ force: true });
+    await this.page.waitForTimeout(500);
+    await this.page.getByText(subcategoria).click({ force: true });
+
+    await this.page.waitForTimeout(500);
 
     await this.page
       .locator(`div:nth-child(3) > ${this.DROPDOWN_ARROW}`)
-      .click();
-    await this.page.getByText(marca).click();
+      .click({ force: true });
+    await this.page.waitForTimeout(500);
+    await this.page.getByText(marca).click({ force: true });
   }
 
   async crearServicio(): Promise<void> {

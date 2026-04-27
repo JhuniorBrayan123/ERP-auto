@@ -14,6 +14,15 @@ export class ListaFormPage extends ItemFormBasePage {
   async iniciarCreacionLista(): Promise<void> {
     await this.botonCrearItems.click();
     await this.page.getByText('LNueva lista').click();
+    // Esperar a que el formulario de lista se renderice completamente
+    await this.inputNombre.waitFor({ state: 'visible' });
+  }
+
+  override async llenarNombre(nombre: string): Promise<void> {
+    await this.inputNombre.waitFor({ state: 'visible' });
+    await this.inputNombre.click();
+    await this.inputNombre.fill('');
+    await this.inputNombre.pressSequentially(nombre, { delay: 30 });
   }
 
   async llenarDescripcion(descripcion: string): Promise<void> {

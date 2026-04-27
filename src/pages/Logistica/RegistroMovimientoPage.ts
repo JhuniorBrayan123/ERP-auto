@@ -1,4 +1,4 @@
-import {type Locator, type Page} from '@playwright/test';
+import {expect, type Locator, type Page} from '@playwright/test';
 
 export class RegistroMovimientoPage {
     constructor(private readonly page: Page) {
@@ -103,7 +103,10 @@ export class RegistroMovimientoPage {
     }
 
     async seleccionarMotivoDirecto(motivo: string): Promise<void> {
-        await this.page.getByText(motivo).click();
+        const opciones = this.page.locator('.v-select-base-options.is-open')
+        await opciones.getByText(motivo, {exact: true}).click();
+        await opciones.waitFor({state: 'hidden', timeout: 10_000});
+
     }
 
     async abrirSelectorMotivo(): Promise<void> {
@@ -206,6 +209,14 @@ export class RegistroMovimientoPage {
     }
 
     async clickClonarIngreso(): Promise<void> {
+        // Esperar que el dropdown de Almacén tenga valor (no "Seleccionar")
+        await expect(
+            this.page.locator('.v-select-header-form.form').first()
+        ).not.toHaveText('Seleccionar', {timeout: 15000});
+
+        // Esperar que haya ítems en la tabla
+        await this.page.locator('table tbody tr').first().waitFor({state: 'visible'});
+
         await this.page.getByRole('button', {name: 'CLONAR INGRESO'}).click();
     }
 

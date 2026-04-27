@@ -8,6 +8,7 @@ import {ResultadoMovimientoPage} from '../../pages/Logistica/ResultadoMovimiento
 import {MovimientoRapidoPage} from '../../pages/Logistica/MovimientoRapidoPage';
 import {DatosOpcionalesPage} from '../../pages/Logistica/DatosOpcionalesPage';
 import {ListadoMovimientosPage} from '../../pages/Logistica/ListadoMovimientosPage';
+import {ITEMS_TEST} from "@helpers/Logistica/movimiento-data.helper";
 
 export const verificarStockYKardex = async (
     movimientosNav: MovimientosNavigationPage,
@@ -116,6 +117,7 @@ export const navegarAIngresosYNuevo = async (
     desdeMenu: boolean = false
 ) => {
     await test.step('Given: navegar a Ingresos y crear nuevo ingreso', async () => {
+        // Comentado para evitar fallos en PRD (los IDs varían). Siempre usamos navegación por texto.
         if (desdeMenu) {
             await movimientosNav.navegarAIngresosDesdeMenu();
         } else {
@@ -240,16 +242,19 @@ export const crearIngresoEstandarParaPrecondicion = async (
     cantidad: string,
     desdeMenu: boolean = false
 ) => {
-    await test.step('Arrange: crear ingreso estandar para precondición', async () => {
+    return await test.step('Arrange: crear ingreso estandar para precondición', async () => {
         if (desdeMenu) {
             await movimientosNav.navegarAIngresosDesdeMenu();
         } else {
             await movimientosNav.navegarAIngresos();
         }
+
         await registroMovimiento.clickAgregarIngreso();
+
         if (codigoItem === '111111') {
             await page.waitForTimeout(2000);
         }
+
         await registroMovimiento.buscarItem(codigoItem);
         if (nombreItem.includes('Pproducto')) {
             await page.getByText(nombreItem).click();
@@ -257,7 +262,7 @@ export const crearIngresoEstandarParaPrecondicion = async (
             await registroMovimiento.seleccionarItemEnResultados(nombreItem);
         }
         await registroMovimiento.llenarCantidad(cantidad);
-        await registroMovimiento.clickRegistrarIngreso();
+        await registroMovimiento.clickRegistrarIngreso()
         await resultadoMovimiento.irAlListado();
     });
 };
@@ -285,6 +290,24 @@ export const configurarYRetirarStockRapido = async (
 ) => {
     await test.step('And: configurar movimiento y retirar stock', async () => {
         await movimientoRapido.seleccionarAlmacenRapido(almacen);
+        await movimientoRapido.seleccionarMotivoSalidaDesdeDiv(motivoGral, motivoEspecifico);
+        await movimientoRapido.llenarCantidadRapida(cantidad);
+    });
+
+    await test.step('Then: confirmar retirar stock', async () => {
+        await movimientoRapido.clickBtnRetirarStock();
+        await movimientoRapido.cerrarModalConfirmacion();
+    });
+};
+export const configurarYRetirarStockRapido2 = async (
+    movimientoRapido: MovimientoRapidoPage,
+    almacen: string,
+    motivoGral: string,
+    motivoEspecifico: string,
+    cantidad: string
+) => {
+    await test.step('And: configurar movimiento y retirar stock', async () => {
+        await movimientoRapido.seleccionarAlmacenRapido2(almacen);
         await movimientoRapido.seleccionarMotivoSalidaDesdeDiv(motivoGral, motivoEspecifico);
         await movimientoRapido.llenarCantidadRapida(cantidad);
     });
@@ -364,6 +387,35 @@ export const verificarEventoEnBitacora = async (
         await listadoMovimientos.cerrarBitacora();
     });
 };
+
+export const abrirYCerrarBitacora = async (
+    listadoMovimientos: ListadoMovimientosPage,
+    cerrarAlternativo: boolean = false
+) => {
+    await test.step('Then: verificar apertura de bitácora', async () => {
+        await listadoMovimientos.abrirMenuAcciones();
+        await listadoMovimientos.clickVerBitacora();
+        if (cerrarAlternativo) {
+            await listadoMovimientos.cerrarBitacoraAlternativo();
+        } else {
+            await listadoMovimientos.cerrarBitacora();
+        }
+    });
+};
+export const verificarstockmasivo = async (
+    movimientosNav: MovimientosNavigationPage,
+    stockVerificacion: StockVerificacionPage,
+    nthClicks: number[] = [0],
+) => {
+    await test.step('And: verificar stock del producto', async () => {
+        await movimientosNav.navegarAStockProductos();
+        await stockVerificacion.buscarPorCodigo(ITEMS_TEST.MASIVO_PROD.codigo);
+        for (const nth of nthClicks) {
+            await stockVerificacion.clickAlmacenMultipleNth(nth);
+        }
+    });
+
+}
 
 export const configurarDatosOpcionalesEstandar = async (
     datosOpcionales: DatosOpcionalesPage,
@@ -521,5 +573,30 @@ export const navegarAIngresosYAbrirAccionesImpresion = async (
         await listadoMovimientos.clickTabPorIndice(0);
         await listadoMovimientos.abrirMenuAcciones();
         await listadoMovimientos.clickImprimirDescargarEnviar();
+    });
+};
+
+// ─── Helpers MS-7 Movimientos Masivos ─────────────────────────────────
+
+export const cargarMovimientoMasivoDesdeExcel = async (
+    listadoMovimientos: ListadoMovimientosPage,
+    movimientoRapido: MovimientoRapidoPage,
+    page: Page,
+    excelPath: string,
+) => {
+    await test.step('When: abrir carga masiva y subir excel', async () => {
+        await listadoMovimientos.clickIconoOpciones();
+        await listadoMovimientos.clickCrearDesdeExcel();
+        await page.locator('.popup-container > .button-close > .icon').click();
+        await movimientoRapido.seleccionarcardProductos();
+        await page.getByText('Siguiente').click();
+        await page.locator('input[type="file"]').setInputFiles(excelPath);
+        await page.getByText('Siguiente').click();
+    });
+
+    await test.step('And: procesar la carga', async () => {
+        await page.getByText('Procesar').click();
+        await expect(page.getByRole('button', {name: 'Ir al inicio'})).toBeVisible({timeout: 30_000});
+        await page.getByRole('button', {name: 'Ir al inicio'}).click();
     });
 };
