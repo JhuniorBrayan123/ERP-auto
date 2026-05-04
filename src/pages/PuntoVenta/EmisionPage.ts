@@ -12,8 +12,9 @@
  * - Descuento input: locator con id pv_cmp-punto-venta_..._v-input:descuento
  * - Descuento global: locator con id pv_punto-venta_..._cmp-descuento-pedido_v-input:valor
  */
-import { expect, type Locator, type Page } from '@playwright/test';
-import type { EmisionResult } from '../../helpers/PuntoVenta/emision.types';
+import {type Locator, type Page} from '@playwright/test';
+import type {EmisionResult} from '../../helpers/PuntoVenta/emision.types';
+import {CLIENTES} from "@helpers/PuntoVenta/emision-data.helper";
 
 export class EmisionPage {
     /**
@@ -22,28 +23,29 @@ export class EmisionPage {
      */
     public ultimaEmision: EmisionResult | null = null;
 
-    constructor(private readonly page: Page) {}
+    constructor(private readonly page: Page) {
+    }
 
     // ─── Locators reales ──────────────────────────────────────────────
 
     private get searchInput(): Locator {
-        return this.page.getByRole('textbox', { name: 'Escanea o busca por nombre, c' });
+        return this.page.getByRole('textbox', {name: 'Escanea o busca por nombre, c'});
     }
 
     private get btnPagar(): Locator {
-        return this.page.getByRole('button', { name: 'PAGAR' });
+        return this.page.getByRole('button', {name: 'PAGAR'});
     }
 
     private get btnMontoExacto(): Locator {
-        return this.page.getByRole('button', { name: 'Monto exacto' });
+        return this.page.getByRole('button', {name: 'Monto exacto'});
     }
 
     private get btnRealizarPago(): Locator {
-        return this.page.getByRole('button', { name: 'Realizar Pago' });
+        return this.page.getByRole('button', {name: 'Realizar Pago'});
     }
 
     private get btnNuevaVenta(): Locator {
-        return this.page.getByRole('button', { name: 'Nueva Venta' });
+        return this.page.getByRole('button', {name: 'Nueva Venta'});
     }
 
     private get btnEditar(): Locator {
@@ -53,11 +55,11 @@ export class EmisionPage {
     }
 
     private get btnYape(): Locator {
-        return this.page.getByRole('button', { name: 'YAPE' });
+        return this.page.getByRole('button', {name: 'YAPE'});
     }
 
     private get btnAceptar(): Locator {
-        return this.page.getByRole('button', { name: 'Aceptar' });
+        return this.page.getByRole('button', {name: 'Aceptar'});
     }
 
     // ─── Intercepción de respuesta de emisión ─────────────────────────
@@ -73,7 +75,7 @@ export class EmisionPage {
     private async interceptarEmision(): Promise<EmisionResult> {
         const responsePromise = this.page.waitForResponse(
             (resp) => resp.url().includes('DocumentosContables/Emisiones') && resp.status() === 200,
-            { timeout: 30_000 },
+            {timeout: 30_000},
         );
 
         await this.clickRealizarPago();
@@ -87,7 +89,7 @@ export class EmisionPage {
         const correlativo = String(body.CorrelativoDocumento ?? '');
         const comprobanteId = body.IdComprobante ?? 0;
 
-        const result: EmisionResult = { serie, correlativo, comprobanteId };
+        const result: EmisionResult = {serie, correlativo, comprobanteId};
 
         console.log(`  📄 Emisión capturada: ${serie}-${correlativo} (ID: ${comprobanteId})`);
         this.ultimaEmision = result;
@@ -138,12 +140,12 @@ export class EmisionPage {
     }
 
     async seleccionarTipoDescuentoMonto(): Promise<void> {
-        await this.page.getByText('%', { exact: true }).click();
+        await this.page.getByText('%', {exact: true}).click();
         await this.page.getByText('Monto').click();
     }
 
     async seleccionarTipoDescuentoPorcentaje(): Promise<void> {
-        await this.page.getByText('%', { exact: true }).click();
+        await this.page.getByText('%', {exact: true}).click();
         await this.page.getByText('Porcentaje').click();
     }
 
@@ -176,13 +178,40 @@ export class EmisionPage {
     }
 
     async aplicarDescuentoGlobal(): Promise<void> {
-        await this.page.getByRole('button', { name: 'Aplicar descuento' }).click();
+        await this.page.getByRole('button', {name: 'Aplicar descuento'}).click();
     }
 
     async abrirTotales(): Promise<void> {
         await this.page.locator(
             '[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-footer_v-icon:totales"]',
         ).click();
+    }
+
+    // ─── Datos Opcionales ─────────────────────────────────────────────
+
+    async abrirDatosOpcionales(): Promise<void> {
+        await this.page.getByRole('button', {name: 'Datos'}).click();
+    }
+
+    async llenarDatosOpcionales(): Promise<void> {
+        // Seleccionar Vendedor / Cliente
+        const cliente = CLIENTES.PERSONA_AUTO;
+
+        const inputVendedor = this.page.getByRole("textbox", {name: "Nombre del vendedor"});
+        await inputVendedor.click();
+        await inputVendedor.fill(cliente.documento)
+
+        await this.page.locator(".card-entidad-cliente").filter({hasText: cliente.nombre}).first().click();
+
+        // Llenar campos de datos opcionales
+        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:orden-compra"]').fill("121");
+        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:contrato"]').fill("12");
+        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:comentarios"]').fill("observacion para datos adicionales");
+        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:campo-texto-0"]').fill("texto");
+        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:campo-numero-0"]').fill("123123");
+
+        // Guardar
+        await this.page.getByRole("button", {name: "Guardar datos"}).click();
     }
 
     // ─── Emisión / Pago ───────────────────────────────────────────────
@@ -240,11 +269,11 @@ export class EmisionPage {
     // ─── Precuenta / Vista previa ─────────────────────────────────────
 
     async clickPrecuenta(): Promise<void> {
-        await this.page.getByRole('button', { name: 'PRECUENTA' }).click();
+        await this.page.getByRole('button', {name: 'PRECUENTA'}).click();
     }
 
     async clickVistaPrevia(): Promise<void> {
-        await this.page.getByRole('button', { name: 'VISTA PREVIA' }).click();
+        await this.page.getByRole('button', {name: 'VISTA PREVIA'}).click();
     }
 
     async cerrarVistaPrevia(): Promise<void> {
@@ -275,6 +304,6 @@ export class EmisionPage {
     }
 
     async seleccionarFecha(nombreBoton: string): Promise<void> {
-        await this.page.getByRole('button', { name: nombreBoton }).click();
+        await this.page.getByRole('button', {name: nombreBoton}).click();
     }
 }

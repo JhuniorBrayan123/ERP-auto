@@ -6,7 +6,7 @@
  *
  * REGLA: no hardcodear estos valores directamente en los specs.
  */
-import type { DatosCliente, ItemVenta, TipoComprobante } from './emision.types';
+import type {DatosCliente, ItemVenta, TipoComprobante} from './emision.types';
 
 // ─── Tipos de comprobante ─────────────────────────────────────────────
 
@@ -39,6 +39,12 @@ export const CLIENTES = {
         /** Texto completo para locator de selección en UI */
         textoSelector: 'RUCReg. Único de Contribuyentes2075968585499999999automatizacionerp2 cliente',
     } as DatosCliente & { textoSelector: string },
+
+    PERSONA_AUTO: {
+        tipoDocumento: 'DNI',
+        documento: '76975258',
+        nombre: 'Vendedor auto',
+    } as DatosCliente,
 
     EMPRESA_RUC: {
         tipoDocumento: 'RUC',
@@ -160,4 +166,10 @@ export const TIPO_COMPROBANTE_IDS = {
     NOTA_DEBITO: 1006,
     NOTA_VENTA: 2016,
 };
-
+export const DETRACCION = {
+    TIPOS_OPERACION: {
+        BASE: 'Operación Sujeta a Detracción',
+        TRANSPORTE_CARGA: 'Operación Sujeta a Detracción - Servicio de Transporte de Carga',
+        TRANSPORTE_PASAJEROS: 'Operación Sujeta a Detracción - Servicio de Transporte de Pasajeros',
+    },
+};

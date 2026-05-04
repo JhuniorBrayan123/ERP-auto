@@ -108,7 +108,7 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
 
         await test.step('And: agregar producto y editar precio a 750', async () => {
             await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItemPorCodigo(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
             await emisionPage.editarPrecioItem('750.00');
         });
 
@@ -118,7 +118,7 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
 
         await test.step('Then: debe mostrar validación de monto mayor a 700', async () => {
             await expect(
-                page.getByText('Selecciona un cliente para montos mayores a S/ 700'),
+                page.getByText('Selecciona un cliente para montos mayores a S/700'),
             ).toBeVisible();
         });
 
@@ -136,7 +136,7 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
         await test.step('Given: caja abierta y producto agregado', async () => {
             await cajaPage.continuarVendiendo();
             await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItemPorCodigo(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
             await emisionPage.incrementarCantidad(7);
         });
 
@@ -180,7 +180,7 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
         await test.step('Given: caja abierta y producto con cantidad 10', async () => {
             await cajaPage.continuarVendiendo();
             await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItemPorCodigo(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
             await emisionPage.incrementarCantidad(9);
         });
 
@@ -224,7 +224,7 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
         await test.step('Given: caja abierta y producto agregado', async () => {
             await cajaPage.continuarVendiendo();
             await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItemPorCodigo(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
         });
 
         await test.step('When: aplicar descuento por ítem del 2% en porcentaje', async () => {
@@ -232,6 +232,7 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
             await page.getByText('%', {exact: true}).click();
             await page.getByText('Porcentaje').click();
             await page.locator('[id*="v-input:descuento"]').fill('2');
+            await page.locator('[id="pv_cmp-punto-venta_cmp-venta-pedido:pedido_cmp-pedido-body:acciones_dv:btn-editar"]').click();
         });
 
         await test.step('And: aplicar descuento global del 2%', async () => {
@@ -397,8 +398,8 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
         });
 
         await test.step('When: abrir datos opcionales y llenarlos', async () => {
-            await page.getByRole('button', {name: 'Datos'}).click();
-            // Los datos opcionales se configuran según el entorno
+            await emisionPage.abrirDatosOpcionales();
+            await emisionPage.llenarDatosOpcionales();
         });
 
         await test.step('And: emitir con efectivo', async () => {
@@ -417,6 +418,11 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
         const estadoSunat = await test.step('And: validar estado SUNAT desde API de Consultas', async () => {
             return await busquedaComprobantes.validarEstadoSunat();
         });
+        await test.step('And: Verificar en busqueda de comprobantes', async () => {
+            await busquedaComprobantes.abrirBitacoraDelPrimerComprobante();
+            await busquedaComprobantes.validarComprobanteEmitido(estadoSunat);
+            await busquedaComprobantes.cerrarBitacora();
+        })
 
         await test.step('And: abrir Ver comprobante y verificar datos opcionales', async () => {
             const popup = await busquedaComprobantes.abrirVerComprobante();

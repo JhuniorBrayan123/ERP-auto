@@ -7,15 +7,16 @@
  * Uso: tests que solo necesitan UI (sin validaciones API).
  * Para tests con SUNAT/stock, usar validacion-fixture.ts que extiende esta.
  */
-import { test as base } from '@playwright/test';
-import { PuntoVentaNavigationPage } from '../../pages/PuntoVenta/PuntoVentaNavigationPage';
-import { EmisionPage } from '../../pages/PuntoVenta/EmisionPage';
-import { CajaPage } from '../../pages/PuntoVenta/CajaPage';
-import { ClientePage } from '../../pages/PuntoVenta/ClientePage';
-import { ComprobantePage } from '../../pages/PuntoVenta/ComprobantePage';
-import { ComprobanteDetallePage } from '../../pages/PuntoVenta/ComprobanteDetallePage';
-import { BusquedaComprobantesPage } from '../../pages/PuntoVenta/BusquedaComprobantesPage';
-import { PrecuentaPage } from '../../pages/PuntoVenta/PrecuentaPage';
+import {test as base} from '@playwright/test';
+import {PuntoVentaNavigationPage} from '../../pages/PuntoVenta/PuntoVentaNavigationPage';
+import {EmisionPage} from '../../pages/PuntoVenta/EmisionPage';
+import {CajaPage} from '../../pages/PuntoVenta/CajaPage';
+import {ClientePage} from '../../pages/PuntoVenta/ClientePage';
+import {ComprobantePage} from '../../pages/PuntoVenta/ComprobantePage';
+import {ComprobanteDetallePage} from '../../pages/PuntoVenta/ComprobanteDetallePage';
+import {BusquedaComprobantesPage} from '../../pages/PuntoVenta/BusquedaComprobantesPage';
+import {PrecuentaPage} from '../../pages/PuntoVenta/PrecuentaPage';
+import {DetraccionPage} from "@pages/PuntoVenta/detraccion.page";
 
 type EmisionFixtures = {
     pvNav: PuntoVentaNavigationPage;
@@ -26,43 +27,47 @@ type EmisionFixtures = {
     comprobanteDetalle: ComprobanteDetallePage;
     busquedaComprobantes: BusquedaComprobantesPage;
     precuentaPage: PrecuentaPage;
+    detraccionPage: DetraccionPage;
 };
 
 export const test = base.extend<EmisionFixtures>({
-    pvNav: [async ({ page }, use) => {
+    pvNav: [async ({page}, use) => {
         const nav = new PuntoVentaNavigationPage(page);
         await page.goto('/');
         await nav.navegarAPuntoDeVenta();
         await use(nav);
-    }, { auto: true }],
+    }, {auto: true}],
 
-    emisionPage: async ({ page }, use) => {
+    emisionPage: async ({page}, use) => {
         await use(new EmisionPage(page));
     },
 
-    cajaPage: async ({ page }, use) => {
+    cajaPage: async ({page}, use) => {
         await use(new CajaPage(page));
     },
 
-    clientePage: async ({ page }, use) => {
+    clientePage: async ({page}, use) => {
         await use(new ClientePage(page));
     },
 
-    comprobantePage: async ({ page }, use) => {
+    comprobantePage: async ({page}, use) => {
         await use(new ComprobantePage(page));
     },
 
-    comprobanteDetalle: async ({ page }, use) => {
+    comprobanteDetalle: async ({page}, use) => {
         await use(new ComprobanteDetallePage(page));
     },
 
-    busquedaComprobantes: async ({ page }, use) => {
+    busquedaComprobantes: async ({page}, use) => {
         await use(new BusquedaComprobantesPage(page));
     },
 
-    precuentaPage: async ({ page }, use) => {
+    precuentaPage: async ({page}, use) => {
         await use(new PrecuentaPage(page));
     },
+    detraccionPage: async ({page}, use) => {
+        await use(new DetraccionPage(page));
+    }
 });
 
 /**
@@ -81,4 +86,4 @@ test.afterEach(async ({}, testInfo) => {
     }
 });
 
-export { expect } from '@playwright/test';
+export {expect} from '@playwright/test';
