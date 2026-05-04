@@ -1,4 +1,6 @@
 import {type Download, expect, Locator, type Page} from '@playwright/test';
+import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
+import {expectVisibleFunctional, runFunctionalAction} from '../../utils/functional-step';
 
 export class ListadoMovimientosPage {
     constructor(private readonly page: Page) {
@@ -17,29 +19,53 @@ export class ListadoMovimientosPage {
     }
 
     async buscarMovimientoPorCodigo(codigo: string): Promise<void> {
-        await this.esperarSinOverlayCarga();
+        await runFunctionalAction(this.page, {
+            ...FUNCTIONAL_CATALOG.movimientos.verificarBitacora,
+            flowStep: 'Buscar movimiento por código en listado',
+            userMessage: 'No se pudo ubicar el movimiento en el listado.',
+            technicalDetail: `Falla en el buscador o la grilla no mostró el movimiento con código ${codigo}.`,
+        }, async () => {
+            await this.esperarSinOverlayCarga();
 
-        const buscador = this.page
-            .locator('input')
-            .filter({has: this.page.locator('xpath=..')})
-            .getByRole('textbox')
-            .first();
+            const buscador = this.page
+                .locator('input')
+                .filter({has: this.page.locator('xpath=..')})
+                .getByRole('textbox')
+                .first();
 
-        await buscador.fill(codigo);
-        await buscador.press('Enter');
+            await buscador.fill(codigo);
+            await buscador.press('Enter');
 
-        await this.esperarSinOverlayCarga();
-        await expect(this.obtenerFilaPorCodigo(codigo)).toBeVisible({timeout: 30_000});
+            await this.esperarSinOverlayCarga();
+            await expectVisibleFunctional(this.page, this.obtenerFilaPorCodigo(codigo), {
+                ...FUNCTIONAL_CATALOG.movimientos.verificarBitacora,
+                flowStep: 'Confirmar que el movimiento aparece en el listado',
+                userMessage: 'El movimiento no apareció en el listado después de buscarlo.',
+                technicalDetail: `La fila con código ${codigo} no se visualizó dentro del tiempo esperado.`,
+            });
+        });
     }
 
     async abrirMenuAccionesPorCodigo(codigo: string): Promise<void> {
-        await this.esperarSinOverlayCarga();
+        await runFunctionalAction(this.page, {
+            ...FUNCTIONAL_CATALOG.movimientos.verificarBitacora,
+            flowStep: 'Abrir menú de acciones del movimiento',
+            userMessage: 'No se pudo abrir el menú de acciones del movimiento seleccionado.',
+            technicalDetail: `No se visualizó la fila o no respondió el botón de acciones para el código ${codigo}.`,
+        }, async () => {
+            await this.esperarSinOverlayCarga();
 
-        const fila = this.obtenerFilaPorCodigo(codigo);
-        await expect(fila).toBeVisible({timeout: 30_000});
+            const fila = this.obtenerFilaPorCodigo(codigo);
+            await expectVisibleFunctional(this.page, fila, {
+                ...FUNCTIONAL_CATALOG.movimientos.verificarBitacora,
+                flowStep: 'Localizar movimiento antes de abrir acciones',
+                userMessage: 'No se encontró el movimiento para abrir sus acciones.',
+                technicalDetail: `La fila para código ${codigo} no estuvo visible en el listado.`,
+            });
 
-        const botonAcciones = fila.locator('.cmp-dropdown-toggle.justify-content-center').first();
-        await botonAcciones.click();
+            const botonAcciones = fila.locator('.cmp-dropdown-toggle.justify-content-center').first();
+            await botonAcciones.click();
+        });
     }
 
     private obtenerFilaPorCodigo(codigo: string): Locator {

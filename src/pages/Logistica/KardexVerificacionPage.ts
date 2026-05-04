@@ -1,4 +1,6 @@
 import {expect, type Locator, type Page} from '@playwright/test';
+import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
+import {throwFunctionalError} from '../../utils/functional-error';
 
 export class KardexVerificacionPage {
     constructor(private readonly page: Page) {
@@ -35,14 +37,23 @@ export class KardexVerificacionPage {
     }
 
     async buscarPorCodigo(codigo: string): Promise<void> {
-        await this.esperarSinOverload(25_000);
-        const searchInput = this.page.getByRole('textbox', {name: 'Buscar por nombre, código o c'});
-        await searchInput.click();
-        await searchInput.fill(codigo);
-        await searchInput.press('Enter');
+        try {
+            await this.esperarSinOverload(25_000);
+            const searchInput = this.page.getByRole('textbox', {name: 'Buscar por nombre, código o c'});
+            await searchInput.click();
+            await searchInput.fill(codigo);
+            await searchInput.press('Enter');
 
-        await this.esperarSinOverload(25_000);
-        await expect(this.page.getByRole('table').getByText(codigo).first()).toBeVisible({timeout: 15_000});
+            await this.esperarSinOverload(25_000);
+            await expect(this.page.getByRole('table').getByText(codigo).first()).toBeVisible({timeout: 15_000});
+        } catch (error) {
+            await throwFunctionalError({
+                page: this.page,
+                ...FUNCTIONAL_CATALOG.kardex.buscarProducto,
+                technicalDetail: `${FUNCTIONAL_CATALOG.kardex.buscarProducto.technicalDetail} Código buscado: ${codigo}.`,
+                cause: error,
+            });
+        }
     }
 
     async clickAlmacenMultiple(): Promise<void> {
@@ -62,11 +73,19 @@ export class KardexVerificacionPage {
     }
 
     async clickKardexPorProducto(): Promise<void> {
-        await this.page.getByRole('button', {name: 'Kardex por producto'}).first().click();
-        await this.esperarSinOverload();
-        await expect(this.page.getByText('Información básica')).toBeVisible({timeout: 25_000});
-        await this.verDetalleButtons().first().waitFor({state: 'visible', timeout: 25_000}).catch(() => {
-        });
+        try {
+            await this.page.getByRole('button', {name: 'Kardex por producto'}).first().click();
+            await this.esperarSinOverload();
+            await expect(this.page.getByText('Información básica')).toBeVisible({timeout: 25_000});
+            await this.verDetalleButtons().first().waitFor({state: 'visible', timeout: 25_000}).catch(() => {
+            });
+        } catch (error) {
+            await throwFunctionalError({
+                page: this.page,
+                ...FUNCTIONAL_CATALOG.kardex.abrirKardexProducto,
+                cause: error,
+            });
+        }
     }
 
     async clickKardexPorProductoAlmacen(nombreAlmacen: string): Promise<void> {
@@ -135,38 +154,48 @@ export class KardexVerificacionPage {
     }
 
     async abrirVerDetallePorAlmacen2(nombreAlmacen: string): Promise<void> {
-        const strip = (s: string) =>
-            s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        try {
+            const strip = (s: string) =>
+                s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-        const nombreNormalizado = strip(nombreAlmacen).trim().toLowerCase();
+            const nombreNormalizado = strip(nombreAlmacen).trim().toLowerCase();
 
-        await this.esperarKardexListo();//nuevo agregado para esperar que los datos del kardex esten listos
+            await this.esperarKardexListo();//nuevo agregado para esperar que los datos del kardex esten listos
 
-        const cards = this.page.locator('.cmp-cards-almacen');
-        await this.page.waitForFunction(() => {
-            const titulos = document.querySelectorAll('.cmp-cards-almacen .info-almacen .title');
-            return titulos.length > 0 && Array.from(titulos).every(t => t.textContent?.trim() !== '');
-        }, {timeout: 20_000});
+            const cards = this.page.locator('.cmp-cards-almacen');
+            await this.page.waitForFunction(() => {
+                const titulos = document.querySelectorAll('.cmp-cards-almacen .info-almacen .title');
+                return titulos.length > 0 && Array.from(titulos).every(t => t.textContent?.trim() !== '');
+            }, {timeout: 20_000});
 
-        const total = await cards.count();
+            const total = await cards.count();
 
-        for (let i = 0; i < total; i++) {
-            const card = cards.nth(i);
+            for (let i = 0; i < total; i++) {
+                const card = cards.nth(i);
 
-            const titulo = await card.locator('.info-almacen .title').innerText();
-            const tituloNormalizado = strip(titulo).trim().toLowerCase();
+                const titulo = await card.locator('.info-almacen .title').innerText();
+                const tituloNormalizado = strip(titulo).trim().toLowerCase();
 
-            if (tituloNormalizado.includes(nombreNormalizado)) {
-                const boton = card.getByRole('button', {name: /ver detalle/i});
-                await boton.waitFor({state: 'visible', timeout: 10_000});
-                await card.scrollIntoViewIfNeeded();
-                await boton.click();
-                await this.esperarSinOverload();
-                return;
+                if (tituloNormalizado.includes(nombreNormalizado)) {
+                    const boton = card.getByRole('button', {name: /ver detalle/i});
+                    await boton.waitFor({state: 'visible', timeout: 10_000});
+                    await card.scrollIntoViewIfNeeded();
+                    await boton.click();
+                    await this.esperarSinOverload();
+                    return;
+                }
             }
-        }
 
-        throw new Error(`No se encontró el almacén: ${nombreAlmacen}`);
+            throw new Error(`No se encontró el almacén: ${nombreAlmacen}`);
+        } catch (error) {
+            await throwFunctionalError({
+                page: this.page,
+                ...FUNCTIONAL_CATALOG.kardex.abrirDetalleAlmacen,
+                flowStep: `${FUNCTIONAL_CATALOG.kardex.abrirDetalleAlmacen.flowStep}: ${nombreAlmacen}`,
+                technicalDetail: `${FUNCTIONAL_CATALOG.kardex.abrirDetalleAlmacen.technicalDetail} Almacén: ${nombreAlmacen}.`,
+                cause: error,
+            });
+        }
     }
 
     async clickCodigoMovimiento(patron: string): Promise<void> {

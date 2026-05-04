@@ -16,7 +16,7 @@ import {
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
 import {KardexVerificacionPage} from '@pages/Logistica/KardexVerificacionPage';
 
-test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@movimientos']}, () => {
+test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@m                                                                                                                                                                                             ovimientos']}, () => {
 
     test('Registrar ingreso de almacén correctamente con producto y reflejar aumento de stock @MS-1', async ({
                                                                                                                  movimientosNav,
@@ -44,7 +44,7 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
         });
         await verificarStockYKardex(
             movimientosNav, stockVerificacion, kardexVerificacion, page,
-            ITEMS_TEST.PRODUCTO_ESTRICTO.codigo, ALMACENES.AUTO, PATRON_CODIGO.INGRESO
+            ITEMS_TEST.PRODUCTO_ESTRICTO.codigo, ALMACENES.AUTO, PATRON_CODIGO.INGRESO 
         );
         await test.step('Asser API: verificar kardex en DB', async () => {
             const saldoPosIngreso = await kardexApi.obtenerSaldoPorProducto({
@@ -166,8 +166,8 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
         await test.step('And: limpiar y cancelar', async () => {
             await registroMovimiento.clickLimpiar();
             await registroMovimiento.clickLimpiarConfirmacion();
-            await registroMovimiento.cerrarModal();
-            await registroMovimiento.clickCancelar();
+            // await registroMovimiento.cerrarModal();
+            // await registroMovimiento.clickCancelar();
         });
     });
 
@@ -205,7 +205,7 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@mov
             const kardexPage = await stockVerificacion.abrirKardexDesdeStock();
             const kardexPopup = new KardexVerificacionPage(kardexPage);
             await kardexPage.waitForLoadState('networkidle');
-            await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
+            await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.VENTAS);//modificado en almacen de auto a VENTAS
             await kardexPopup.clickCodigoMovimientoRegex(PATRON_CODIGO.INGRESO);
             await kardexPopup.clickDatosOpcionales();
             await kardexPopup.cerrarModalDetalle();
