@@ -1,6 +1,7 @@
-import {expect, test} from '@fixtures/Logistica/items-fixture';
+import {test} from '@fixtures/Logistica/items-fixture';
 import {buildUniqueItemName} from '@helpers/Logistica/unique-name.helper';
 import type {ProductoListaItem} from '@helpers/Logistica/item-data.types';
+import {confirmarCreacionEIrALista, prepararListaBase,} from '@helpers/Logistica/verificaciones-items.helper';
 
 test.describe('PS-3 | Creación de Listas', {tag: ['@logistica', '@productos-stock']}, () => {
 
@@ -14,29 +15,8 @@ test.describe('PS-3 | Creación de Listas', {tag: ['@logistica', '@productos-sto
                 cantidadIncrementos: 4,
             },
         ];
-
-        await test.step('Iniciar creación de lista', async () => {
-            await listaForm.iniciarCreacionLista();
-        });
-
-        await test.step('Llenar datos básicos', async () => {
-            await listaForm.llenarNombre(nombre);
-            await listaForm.llenarDescripcion('nueva lista auto');
-        });
-
-        await test.step('Agregar productos a la lista', async () => {
-            for (const prod of productos) {
-                await listaForm.buscarYAgregarProducto(prod);
-            }
-        });
-
-        await test.step('Crear lista y confirmar', async () => {
-            await listaForm.crearLista();
-            await expect(listaForm['page'].getByRole('button', {name: 'Ir a lista de ítems'}))
-                .toBeVisible();
-            await listaForm.clickIrAListaItems();
-        });
-
+        await prepararListaBase(listaForm, nombre, 'nueva lista auto', productos);
+        await confirmarCreacionEIrALista(listaForm, () => listaForm.crearLista());
         await test.step('Verificar item en detalle', async () => {
             await itemDetail.verificarItemDesdeMenu({
                 //verificarVentas: true,
@@ -47,35 +27,14 @@ test.describe('PS-3 | Creación de Listas', {tag: ['@logistica', '@productos-sto
 
     test('crear lista con items sin control @PS-3', async ({listaForm, itemDetail}) => {
         const nombre = buildUniqueItemName('lista', 'items sin control');
-
         const productos: ProductoListaItem[] = [
             {
                 codigoBusqueda: '151515',
                 textoSeleccion: 'item gravado sin control',
             },
         ];
-
-        await test.step('Iniciar creación de lista', async () => {
-            await listaForm.iniciarCreacionLista();
-        });
-
-        await test.step('Llenar datos básicos', async () => {
-            await listaForm.llenarNombre(nombre);
-            await listaForm.llenarDescripcion('nueva lista auto');
-        });
-
-        await test.step('Agregar productos a la lista', async () => {
-            for (const prod of productos) {
-                await listaForm.buscarYAgregarProducto(prod);
-            }
-        });
-
-        await test.step('Crear lista y confirmar', async () => {
-            await listaForm.crearLista();
-            await expect(listaForm['page'].getByRole('button', {name: 'Ir a lista de ítems'}))
-                .toBeVisible();
-            await listaForm.clickIrAListaItems();
-        });
+        await prepararListaBase(listaForm, nombre, 'nueva lista auto', productos);
+        await confirmarCreacionEIrALista(listaForm, () => listaForm.crearLista());
 
         await test.step('Verificar bitácora y listado', async () => {
             await itemDetail.verificarItemDesdeMenu({verificarBitacora: true});
@@ -85,7 +44,6 @@ test.describe('PS-3 | Creación de Listas', {tag: ['@logistica', '@productos-sto
 
     test('crear lista con items flexibles @PS-3', async ({listaForm, itemDetail}) => {
         const nombre = buildUniqueItemName('lista', 'items flexibles');
-
         const productos: ProductoListaItem[] = [
             {codigoBusqueda: '121212', textoSeleccion: 'item para combos gravado'},
             {codigoBusqueda: '313131', textoSeleccion: 'item con variante flexible', variante: 'Variante 1 flexible'},
@@ -93,30 +51,25 @@ test.describe('PS-3 | Creación de Listas', {tag: ['@logistica', '@productos-sto
             {codigoBusqueda: '545454', textoSeleccion: 'item selector flexible'},
         ];
 
-        await test.step('Iniciar creación de lista', async () => {
-            await listaForm.iniciarCreacionLista();
-        });
-
-        await test.step('Llenar datos básicos', async () => {
-            await listaForm.llenarNombre(nombre);
-            await listaForm.llenarDescripcion('nueva lista auto');
-        });
-
-        await test.step('Agregar productos a la lista', async () => {
-            for (const prod of productos) {
-                await listaForm.buscarYAgregarProducto(prod);
-            }
-        });
-
-        await test.step('Crear lista y confirmar', async () => {
-            await listaForm.crearLista();
-            await expect(listaForm['page'].getByRole('button', {name: 'Ir a lista de ítems'}))
-                .toBeVisible();
-            await listaForm.clickIrAListaItems();
-        });
-
+        await prepararListaBase(listaForm, nombre, 'nueva lista auto', productos);
+        await confirmarCreacionEIrALista(listaForm, () => listaForm.crearLista());
         await test.step('Verificar bitácora', async () => {
             await itemDetail.verificarItemDesdeMenu({verificarBitacora: true});
         });
     });
+    // test('crear lista con items flexibles para Nota venta @PS-3', async ({listaForm, itemDetail}) => {
+    //     const nombre = buildUniqueItemName('lista', 'items flexibles');
+    //     const productos: ProductoListaItem[] = [
+    //         {codigoBusqueda: '121212', textoSeleccion: 'item para combos gravado'},
+    //         {codigoBusqueda: '313131', textoSeleccion: 'item con variante flexible', variante: 'Variante 1 flexible'},
+    //         {codigoBusqueda: '202020', textoSeleccion: 'item equivalente flexible', equivalencia: 'Equivalente X2'},
+    //         {codigoBusqueda: '545454', textoSeleccion: 'item selector flexible'},
+    //     ];
+
+    //     await prepararListaBase(listaForm, nombre, 'nueva lista auto', productos);
+    //     await confirmarCreacionEIrALista(listaForm, () => listaForm.crearLista());
+    //     await test.step('Verificar bitácora', async () => {
+    //         await itemDetail.verificarItemDesdeMenu({verificarBitacora: true});
+    //     });
+    // });
 });

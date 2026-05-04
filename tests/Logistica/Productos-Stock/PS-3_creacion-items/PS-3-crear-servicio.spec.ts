@@ -1,5 +1,6 @@
-import {expect, test} from '@fixtures/Logistica/items-fixture';
+import {test} from '@fixtures/Logistica/items-fixture';
 import {buildUniqueItemName} from '@helpers/Logistica/unique-name.helper';
+import {confirmarCreacionEIrALista} from '@helpers/Logistica/verificaciones-items.helper';
 
 test.describe('PS-3 | Creación de Servicios', {tag: ['@logistica', '@productos-stock']}, () => {
 
@@ -20,12 +21,7 @@ test.describe('PS-3 | Creación de Servicios', {tag: ['@logistica', '@productos-
             await servicioForm.llenarInfoAdicional('REGRESION', 'AUTO-TEST', 'AUTOMATIZADO');
         });
 
-        await test.step('Crear servicio y confirmar', async () => {
-            await servicioForm.crearServicio();
-            await expect(servicioForm['page'].getByRole('button', {name: 'Ir a lista de ítems'}))
-                .toBeVisible();
-            await servicioForm.clickIrAListaItems();
-        });
+        await confirmarCreacionEIrALista(servicioForm, () => servicioForm.crearServicio());
 
         await test.step('Verificar bitácora', async () => {
             await itemDetail.verificarItemDesdeMenu({verificarBitacora: true});
@@ -56,25 +52,27 @@ test.describe('PS-3 | Creación de Servicios', {tag: ['@logistica', '@productos-
                 .locator(`.subcategoria > ${servicioForm['DROPDOWN_ARROW']}`)
                 .first()
                 .click();
-            await page.getByText('REGRESION').click();
+            await page.waitForTimeout(500);
+            await page.getByText('REGRESION').click({force: true});
+
+            await page.waitForTimeout(500);
 
             await page
                 .locator(`div:nth-child(2) > ${servicioForm['DROPDOWN_ARROW']}`)
-                .click();
-            await page.getByText('AUTO-TEST').click();
+                .click({force: true});
+            await page.waitForTimeout(500);
+            await page.getByText('AUTO-TEST').click({force: true});
+
+            await page.waitForTimeout(500);
 
             await page
                 .locator(`div:nth-child(3) > ${servicioForm['DROPDOWN_ARROW']}`)
-                .click();
-            await page.getByText('AUTOMATIZADO').click();
+                .click({force: true});
+            await page.waitForTimeout(500);
+            await page.getByText('AUTOMATIZADO').click({force: true});
         });
 
-        await test.step('Crear servicio y confirmar', async () => {
-            await servicioForm.crearServicio();
-            await expect(servicioForm['page'].getByRole('button', {name: 'Ir a lista de ítems'}))
-                .toBeVisible();
-            await servicioForm.clickIrAListaItems();
-        });
+        await confirmarCreacionEIrALista(servicioForm, () => servicioForm.crearServicio());
 
         await test.step('Verificar bitácora', async () => {
             await itemDetail.verificarItemDesdeMenu({verificarBitacora: true});

@@ -1,249 +1,222 @@
-import { type Page } from '@playwright/test';
-import { ItemFormBasePage } from './ItemFormBasePage';
-import type { InsumoReceta, SelectorConfig } from '../../helpers/Logistica/item-data.types';
+import {type Page} from '@playwright/test';
+import {ItemFormBasePage} from './ItemFormBasePage';
+import type {InsumoReceta, SelectorConfig} from '../../helpers/Logistica/item-data.types';
 
-/**
- * Page Object para el formulario de creación de RECETAS.
- *
- * Específico de receta:
- * - Precios de venta y compra
- * - Tab de insumos/componentes: búsqueda y selección por código
- * - Gestión de selectores (manuales y con ítems del catálogo)
- * - Código de barras, código alternativo, descripción
- * - Info adicional con 2 dropdowns (subcategoría, marca)
- */
 export class RecetaFormPage extends ItemFormBasePage {
-  constructor(page: Page) {
-    super(page);
-  }
-
-  // ─── Inicio de creación ──────────────────────────────────
-
-  /** Abre el menú "Crear ítems" y selecciona "Nueva receta" */
-  async iniciarCreacionReceta(): Promise<void> {
-    await this.botonCrearItems.click();
-    await this.page.getByText('RNueva receta').click();
-  }
-
-  // ─── Precios ─────────────────────────────────────────────
-
-  /** Llena precio de venta y compra */
-  async llenarPrecios(precioVenta: string, precioCompra: string): Promise<void> {
-    const inputPrecioVenta = this.page.getByRole('textbox', { name: 'Monto final' }).first();
-    const inputPrecioCompra = this.page.getByRole('textbox', { name: 'Monto final' }).nth(1);
-
-    await inputPrecioVenta.click();
-    await inputPrecioVenta.fill(precioVenta);
-    await inputPrecioCompra.click();
-    await inputPrecioCompra.fill(precioCompra);
-  }
-
-  // ─── Tab de insumos/componentes ──────────────────────────
-
-  /** Navega al tab de insumos de la receta */
-  async irATabInsumos(): Promise<void> {
-    await this.page
-      .locator('[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:tabs-1"]')
-      .nth(1)
-      .click();
-  }
-
-  /** Busca y agrega un insumo/producto a la receta por código */
-  async buscarYAgregarInsumo(insumo: InsumoReceta): Promise<void> {
-    // Esperar a que desaparezca el overlay de carga antes de interactuar
-    await this.page
-      .locator('[id="cmn_cmp-overload:loading"]')
-      .waitFor({ state: 'hidden', timeout: 10_000 })
-      .catch(() => {}); // Ignorar si no aparece
-
-    const inputBuscar = this.page.getByRole('textbox', {
-      name: 'Buscar nombre del producto, c',
-    });
-
-    await inputBuscar.click();
-    await inputBuscar.fill(insumo.codigoBusqueda);
-    await this.page.getByText(insumo.textoSeleccion).first().click();
-
-    // Seleccionar variante si aplica (abre un overlay con opciones)
-    if (insumo.variante) {
-      await this.page.getByText(insumo.variante).first().click();
+    constructor(page: Page) {
+        super(page);
     }
 
-    // Seleccionar equivalencia si aplica
-    // Usamos .first() porque el texto puede aparecer tanto en el overlay
-    // de selección como en la lista de productos ya agregados
-    if (insumo.equivalencia) {
-      await this.page.getByText(insumo.equivalencia).first().click();
+    async iniciarCreacionReceta(): Promise<void> {
+        await this.botonCrearItems.click();
+        await this.page.getByText('RNueva receta').click();
     }
-  }
 
-  // ─── Selectores ──────────────────────────────────────────
+    async llenarPrecios(precioVenta: string, precioCompra: string): Promise<void> {
+        const inputPrecioVenta = this.page.getByRole('textbox', {name: 'Monto final'}).first();
+        const inputPrecioCompra = this.page.getByRole('textbox', {name: 'Monto final'}).nth(1);
 
-  /** Navega al tab de selectores */
-  async irATabSelectores(): Promise<void> {
-    await this.page
-      .locator('[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:tabs-5"]')
-      .nth(4)
-      .click();
-  }
+        await inputPrecioVenta.click();
+        await inputPrecioVenta.fill(precioVenta);
+        await inputPrecioCompra.click();
+        await inputPrecioCompra.fill(precioCompra);
+    }
 
-  /** Clickea "Añadir selector" para expandir la sección */
-  async clickAnadirSelector(): Promise<void> {
-    await this.page.locator('div').filter({ hasText: /^Añadir selector$/ }).first().click();
-  }
+    // llenar cidgo es nuevo 
+    async llenarCodigo(codigo:number): Promise<void> {
+        await this.page.getByText("Automático").first().click();
+        await this.page.getByText("Manual").first().click();
+        await this.page.locator('[id="lgt_reg-item_v-tab:informacion-basica_v-input:codigo"]').click();
+        await this.page.locator('[id="lgt_reg-item_v-tab:informacion-basica_v-input:codigo"]').fill(codigo.toString());
+    }
+    async irATabInsumos(): Promise<void> {
+        await this.page
+            .locator('[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:tabs-1"]')
+            .nth(1)
+            .click();
+    }
 
-  /** Crea un selector con opciones manuales y/o ítems del catálogo */
-  async crearSelector(config: SelectorConfig): Promise<void> {
-    await this.clickAnadirSelector();
-    await this.page.getByRole('button', { name: 'Nuevo selector' }).click();
+    async buscarYAgregarInsumo(insumo: InsumoReceta): Promise<void> {
+        await this.esperarSinOverlay();
 
-    // Título del selector
-    const inputTitulo = this.page.getByRole('textbox', {
-      name: 'Digita el título del selector',
-    });
-    await inputTitulo.click();
-    await inputTitulo.fill(config.titulo);
+        const inputBuscar = this.page.getByRole('textbox', {
+            name: 'Buscar nombre del producto, c',
+        });
+        await inputBuscar.click();
+        await inputBuscar.fill(insumo.codigoBusqueda);
+        await this.page.getByText(insumo.textoSeleccion).first().click();
 
-    // Opciones manuales (tipo libre)
-    if (config.opcionesManuales && config.opcionesManuales.length > 0) {
-      await this.page
-        .locator('[id="lgt_reg-item_cmp-card-selectores:opcion_div:libre"]')
-        .click();
+        // Espera solo el overlay de carga, NO el overscreen
+        await this.esperarSoloOverload();
 
-      for (let i = 0; i < config.opcionesManuales.length; i++) {
-        const opcion = config.opcionesManuales[i];
-
-        if (i > 0) {
-          await this.page.getByRole('button', { name: 'Añadir opción' }).click();
+        if (insumo.variante) {
+            await this.page.getByText(insumo.variante).first().click();
+            await this.esperarSoloOverload();
         }
 
-        const inputNombre = this.page
-          .locator(
-            '[id="lgt_reg-item_v-drape:gestion-selector_selector-opcion:item_v-input:nombre"]',
-          )
-          .nth(i);
-        const inputPrecio = this.page
-          .locator(
-            '[id="lgt_reg-item_v-drape:gestion-selector_selector-opcion:item_v-input:precio"]',
-          )
-          .nth(i);
-
-        await inputNombre.click();
-        await inputNombre.fill(opcion.nombre);
-        await inputPrecio.click();
-        await inputPrecio.fill(opcion.precio);
-      }
+        if (insumo.equivalencia) {
+            // El modal de equivalencia está abierto — click directo dentro de él
+            const modal = this.page.locator('#cmn_cmp-overscreen\\:block.is-open');
+            await modal.waitFor({state: 'visible', timeout: 10_000});
+            await modal.getByText(insumo.equivalencia).first().click();
+            // Ahora sí espera que el modal se cierre tras la selección
+            await modal.waitFor({state: 'hidden', timeout: 10_000});
+            await this.esperarSoloOverload();
+        }
     }
 
-    // Items del catálogo
-    if (config.itemBusqueda) {
-      await this.page.getByText('Crear selectores con ítems de').click();
-      const inputBuscar = this.page.getByRole('textbox', {
-        name: 'Buscar nombre del producto o',
-      });
-      await inputBuscar.click();
-      await inputBuscar.fill(config.itemBusqueda.codigo);
-      await this.page.getByText(config.itemBusqueda.textoSeleccion).click();
-      await this.page.locator('.v-modal > div').first().click();
-
-      // Precio del item del catálogo (siguiente al de las opciones manuales)
-      const numOpcionesPrevias = config.opcionesManuales?.length ?? 0;
-      const inputPrecioCatalogo = this.page
-        .locator(
-          '[id="lgt_reg-item_v-drape:gestion-selector_selector-opcion:item_v-input:precio"]',
-        )
-        .nth(numOpcionesPrevias);
-      await inputPrecioCatalogo.click();
-      await inputPrecioCatalogo.fill(config.itemBusqueda.precio);
+    private async esperarSinOverlay(): Promise<void> {
+        await this.esperarSoloOverload();
+        await this.page.locator('#cmn_cmp-overscreen\\:block.is-open')
+            .waitFor({state: 'hidden', timeout: 10_000})
+            .catch(() => {
+            });
     }
 
-    await this.page.getByRole('button', { name: 'Crear selector' }).click();
-  }
+    private async esperarSoloOverload(): Promise<void> {
+        await this.page.locator('[id="cmn_cmp-overload:loading"]')
+            .waitFor({state: 'hidden', timeout: 10_000})
+            .catch(() => {
+            });
+    }
 
-  /** Marca un selector como obligatorio */
-  async marcarSelectorObligatorio(): Promise<void> {
-    await this.page.locator('.obligatorio > div').click();
-  }
+    async irATabSelectores(): Promise<void> {
+        await this.page
+            .locator('[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:tabs-5"]')
+            .nth(4)
+            .click();
+    }
 
-  // ─── Campos de identificación adicional ──────────────────
+    async clickAnadirSelector(): Promise<void> {
+        await this.page.locator('div').filter({hasText: /^Añadir selector$/}).first().click();
+    }
 
-  /** Llena el campo de código de barras */
-  async llenarCodigoBarras(codigo: string): Promise<void> {
-    const input = this.page.getByRole('textbox', {
-      name: 'Escanea o digita el código de',
-    });
-    await input.click();
-    await input.fill(codigo);
-  }
+    async crearSelector(config: SelectorConfig): Promise<void> {
+        await this.clickAnadirSelector();
+        await this.page.getByRole('button', {name: 'Nuevo selector'}).click();
 
-  /** Llena el campo de código alternativo */
-  async llenarCodigoAlternativo(codigo: string): Promise<void> {
-    const input = this.page.getByRole('textbox', {
-      name: 'Ingresa código alternativo',
-    });
-    await input.click();
-    await input.fill(codigo);
-  }
+        const inputTitulo = this.page.getByRole('textbox', {
+            name: 'Digita el título del selector',
+        });
+        await inputTitulo.click();
+        await inputTitulo.fill(config.titulo);
 
-  /** Llena el campo de descripción del ítem */
-  async llenarDescripcion(descripcion: string): Promise<void> {
-    const input = this.page.getByRole('textbox', { name: 'Descripción del ítem' });
-    await input.click();
-    await input.fill(descripcion);
-  }
+        if (config.opcionesManuales && config.opcionesManuales.length > 0) {
+            await this.page
+                .locator('[id="lgt_reg-item_cmp-card-selectores:opcion_div:libre"]')
+                .click();
 
-  // ─── Información adicional (2 dropdowns) ─────────────────
+            for (let i = 0; i < config.opcionesManuales.length; i++) {
+                const opcion = config.opcionesManuales[i];
 
-  /**
-   * Llena info adicional para recetas.
-   * Receta tiene SOLO 2 dropdowns: subcategoría y marca.
-   */
-  async llenarInfoAdicional(subcategoria: string, marca: string): Promise<void> {
-    await this.page
-      .locator('[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:tabs-1"]')
-      .nth(2)
-      .click();
+                if (i > 0) {
+                    await this.page.getByRole('button', {name: 'Añadir opción'}).click();
+                }
 
-    // Subcategoría
-    await this.page
-      .locator(`.subcategoria > ${this.DROPDOWN_ARROW}`)
-      .first()
-      .click();
-    await this.page.getByText(subcategoria).click();
+                const inputNombre = this.page
+                    .locator(
+                        '[id="lgt_reg-item_v-drape:gestion-selector_selector-opcion:item_v-input:nombre"]',
+                    )
+                    .nth(i);
+                const inputPrecio = this.page
+                    .locator(
+                        '[id="lgt_reg-item_v-drape:gestion-selector_selector-opcion:item_v-input:precio"]',
+                    )
+                    .nth(i);
 
-    // Marca
-    await this.page
-      .locator(`div:nth-child(2) > ${this.DROPDOWN_ARROW}`)
-      .click();
-    await this.page.getByText(marca).click();
-  }
+                await inputNombre.click();
+                await inputNombre.fill(opcion.nombre);
+                await inputPrecio.click();
+                await inputPrecio.fill(opcion.precio);
+            }
+        }
 
-  /**
-   * Llena info adicional para recetas usando patron alternativo con "Ninguna".
-   * Usado cuando la receta tiene opciones avanzadas ya abiertas y navegadas.
-   */
-  async llenarInfoAdicionalAlternativo(subcategoria: string, marca: string): Promise<void> {
-    await this.irATabInfoAdicional();
+        if (config.itemBusqueda) {
+            await this.page.getByText('Crear selectores con ítems de').click();
+            const inputBuscar = this.page.getByRole('textbox', {
+                name: 'Buscar nombre del producto o',
+            });
+            await inputBuscar.click();
+            await inputBuscar.fill(config.itemBusqueda.codigo);
+            await this.page.getByText(config.itemBusqueda.textoSeleccion).click();
+            await this.page.locator('.v-modal > div').first().click();
 
-    await this.page
-      .locator('div')
-      .filter({ hasText: /^Ninguna$/ })
-      .nth(3)
-      .click();
-    await this.page.getByText(subcategoria).click();
+            const numOpcionesPrevias = config.opcionesManuales?.length ?? 0;
+            const inputPrecioCatalogo = this.page
+                .locator(
+                    '[id="lgt_reg-item_v-drape:gestion-selector_selector-opcion:item_v-input:precio"]',
+                )
+                .nth(numOpcionesPrevias);
+            await inputPrecioCatalogo.click();
+            await inputPrecioCatalogo.fill(config.itemBusqueda.precio);
+        }
 
-    await this.page
-      .locator('div')
-      .filter({ hasText: /^Ninguna$/ })
-      .nth(3)
-      .click();
-    await this.page.getByText(marca).click();
-  }
+        await this.page.getByRole('button', {name: 'Crear selector'}).click();
+    }
 
-  // ─── Creación ────────────────────────────────────────────
+    async marcarSelectorObligatorio(): Promise<void> {
+        await this.page.locator('.obligatorio > div').click();
+    }
 
-  /** Clickea "Crear receta" */
-  async crearReceta(): Promise<void> {
-    await this.clickBotonCrear('receta');
-  }
+    async llenarCodigoBarras(codigo: string): Promise<void> {
+        const input = this.page.getByRole('textbox', {
+            name: 'Escanea o digita el código de',
+        });
+        await input.click();
+        await input.fill(codigo);
+    }
+
+    async llenarCodigoAlternativo(codigo: string): Promise<void> {
+        const input = this.page.getByRole('textbox', {
+            name: 'Ingresa código alternativo',
+        });
+        await input.click();
+        await input.fill(codigo);
+    }
+
+    async llenarDescripcion(descripcion: string): Promise<void> {
+        const input = this.page.getByRole('textbox', {name: 'Descripción del ítem'});
+        await input.click();
+        await input.fill(descripcion);
+    }
+
+    async llenarInfoAdicional(subcategoria: string, marca: string): Promise<void> {
+        await this.page
+            .locator('[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:tabs-1"]')
+            .nth(2)
+            .click();
+
+        await this.page
+            .locator(`.subcategoria > ${this.DROPDOWN_ARROW}`)
+            .first()
+            .click();
+        await this.page.getByText(subcategoria).click();
+
+        await this.page
+            .locator(`div:nth-child(2) > ${this.DROPDOWN_ARROW}`)
+            .click();
+        await this.page.getByText(marca).click();
+    }
+
+    async llenarInfoAdicionalAlternativo(subcategoria: string, marca: string): Promise<void> {
+        await this.irATabInfoAdicional();
+
+        await this.page
+            .locator('div')
+            .filter({hasText: /^Ninguna$/})
+            .nth(3)
+            .click();
+        await this.page.getByText(subcategoria).click();
+
+        await this.page
+            .locator('div')
+            .filter({hasText: /^Ninguna$/})
+            .nth(3)
+            .click();
+        await this.page.getByText(marca).click();
+    }
+
+    async crearReceta(): Promise<void> {
+        await this.clickBotonCrear('receta');
+    }
 }

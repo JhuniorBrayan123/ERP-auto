@@ -1,13 +1,14 @@
-import {expect, test} from '@fixtures/Logistica/items-fixture';
+import {test} from '@fixtures/Logistica/items-fixture';
 import {buildUniqueItemName} from '@helpers/Logistica/unique-name.helper';
 import type {ComponenteCombo} from '@helpers/Logistica/item-data.types';
+import {confirmarCreacionEIrALista, prepararComboBase,} from '@helpers/Logistica/verificaciones-items.helper';
 
 test.describe('PS-3 | Creación de Combos', {tag: ['@logistica', '@productos-stock']}, () => {
 
     test('crear combo con items estrictos gravados @PS-3', async ({
-                                                                comboForm,
-                                                                itemDetail,
-                                                            }) => {
+                                                                      comboForm,
+                                                                      itemDetail,
+                                                                  }) => {
         test.setTimeout(120_000)
         const nombre = buildUniqueItemName('combo', 'items estrictos');
 
@@ -25,34 +26,8 @@ test.describe('PS-3 | Creación de Combos', {tag: ['@logistica', '@productos-sto
             },
         ];
 
-        await test.step('Iniciar creación de combo', async () => {
-            await comboForm.iniciarCreacionCombo();
-        });
-
-        await test.step('Llenar datos básicos', async () => {
-            await comboForm.llenarNombre(nombre);
-            await comboForm.llenarPrecios('150', '44.5');
-        });
-
-        await test.step('Agregar componentes', async () => {
-            await comboForm.irATabComponentes();
-            for (const comp of componentes) {
-                await comboForm.buscarYAgregarComponente(comp);
-            }
-        });
-
-        await test.step('Configurar información adicional', async () => {
-            await comboForm.expandirOpcionesAvanzadas();
-            await comboForm.llenarInfoAdicional('AUTO-TEST', 'AUTOMATIZADO');
-        });
-
-        await test.step('Crear combo y confirmar', async () => {
-            await comboForm.crearCombo();
-            await expect(comboForm['page'].getByRole('button', {name: 'Ir a lista de ítems'}))
-                .toBeVisible();
-            await comboForm.clickIrAListaItems();
-        });
-
+        await prepararComboBase(comboForm, nombre, {venta: '150', compra: '44.5'}, componentes);
+        await confirmarCreacionEIrALista(comboForm, () => comboForm.crearCombo());
         await test.step('Verificar bitácora', async () => {
             await itemDetail.verificarItemDesdeMenu({verificarBitacora: true});
         });
@@ -60,9 +35,9 @@ test.describe('PS-3 | Creación de Combos', {tag: ['@logistica', '@productos-sto
 
 
     test('crear combo con items flexibles gravados @PS-3', async ({
-                                                                comboForm,
-                                                                itemDetail,
-                                                            }) => {
+                                                                      comboForm,
+                                                                      itemDetail,
+                                                                  }) => {
         const nombre = buildUniqueItemName('combo', 'items flexibles');
 
         const componentes: ComponenteCombo[] = [
@@ -72,33 +47,8 @@ test.describe('PS-3 | Creación de Combos', {tag: ['@logistica', '@productos-sto
             {codigoBusqueda: '545454', textoSeleccion: 'item selector flexible'},
         ];
 
-        await test.step('Iniciar creación de combo', async () => {
-            await comboForm.iniciarCreacionCombo();
-        });
-
-        await test.step('Llenar datos básicos', async () => {
-            await comboForm.llenarNombre(nombre);
-            await comboForm.llenarPrecios('144.52', '35.9');
-        });
-
-        await test.step('Agregar componentes', async () => {
-            await comboForm.irATabComponentes();
-            for (const comp of componentes) {
-                await comboForm.buscarYAgregarComponente(comp);
-            }
-        });
-
-        await test.step('Configurar información adicional', async () => {
-            await comboForm.expandirOpcionesAvanzadas();
-            await comboForm.llenarInfoAdicional('AUTO-TEST', 'AUTOMATIZADO');
-        });
-
-        await test.step('Crear combo y confirmar', async () => {
-            await comboForm.crearCombo();
-            await expect(comboForm['page'].getByRole('button', {name: 'Ir a lista de ítems'}))
-                .toBeVisible();
-            await comboForm.clickIrAListaItems();
-        });
+        await prepararComboBase(comboForm, nombre, {venta: '144.52', compra: '35.9'}, componentes);
+        await confirmarCreacionEIrALista(comboForm, () => comboForm.crearCombo());
 
         await test.step('Verificar bitácora', async () => {
             await itemDetail.verificarItemDesdeMenu({verificarBitacora: true});
@@ -106,9 +56,9 @@ test.describe('PS-3 | Creación de Combos', {tag: ['@logistica', '@productos-sto
     });
 
     test('crear combo con items sin control de stock @PS-3', async ({
-                                                                  comboForm,
-                                                                  itemDetail,
-                                                              }) => {
+                                                                        comboForm,
+                                                                        itemDetail,
+                                                                    }) => {
         const nombre = buildUniqueItemName('combo', 'items sin control');
 
         const componentes: ComponenteCombo[] = [
@@ -116,39 +66,14 @@ test.describe('PS-3 | Creación de Combos', {tag: ['@logistica', '@productos-sto
             {codigoBusqueda: '333333', textoSeleccion: 'item variante sin control', variante: 'Variante 1'},
             {codigoBusqueda: '303030', textoSeleccion: 'item equivalente sin control', equivalencia: 'Equivalente X2'},
         ];
+        await prepararComboBase(comboForm, nombre, {venta: '155.52', compra: '155.50'}, componentes);
 
-        await test.step('Iniciar creación de combo', async () => {
-            await comboForm.iniciarCreacionCombo();
-        });
-
-        await test.step('Llenar datos básicos', async () => {
-            await comboForm.llenarNombre(nombre);
-            await comboForm.llenarPrecios('155.52', '155.50');
-        });
-
-        await test.step('Agregar componentes', async () => {
-            await comboForm.irATabComponentes();
-            for (const comp of componentes) {
-                await comboForm.buscarYAgregarComponente(comp);
-            }
-        });
-
-        await test.step('Configurar info adicional y campos adicionales', async () => {
-            await comboForm.expandirOpcionesAvanzadas();
-            await comboForm.llenarInfoAdicional('AUTO-TEST', 'AUTOMATIZADO');
-
-            // Campos adicionales para este combo
+        await test.step('Configurar campos adicionales', async () => {
             await comboForm.irATabCamposAdicionales();
             await comboForm.llenarCampoAdicionalTexto('combo automatizado');
             await comboForm.llenarCampoAdicionalNumerico('12');
         });
-
-        await test.step('Crear combo y confirmar', async () => {
-            await comboForm.crearCombo();
-            await expect(comboForm['page'].getByRole('button', {name: 'Ir a lista de ítems'}))
-                .toBeVisible();
-            await comboForm.clickIrAListaItems();
-        });
+        await confirmarCreacionEIrALista(comboForm, () => comboForm.crearCombo());
 
         await test.step('Verificar bitácora', async () => {
             await itemDetail.verificarItemDesdeMenu({verificarBitacora: true});

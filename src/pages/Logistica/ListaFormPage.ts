@@ -1,71 +1,75 @@
-import { type Page, type Locator } from '@playwright/test';
-import { ItemFormBasePage } from './ItemFormBasePage';
-import type { ProductoListaItem } from '../../helpers/Logistica/item-data.types';
+import { type Page, type Locator, expect } from "@playwright/test";
+import { ItemFormBasePage } from "./ItemFormBasePage";
+import type { ProductoListaItem } from "../../helpers/Logistica/item-data.types";
 
-/**
- * Page Object para el formulario de creación de LISTAS.
- *
- * Específico de lista:
- * - Campo de nombre con placeholder DIFERENTE ("Ej. Lista de útiles primaria")
- * - Campo de descripción
- * - Búsqueda y agregación de productos (sin precios propios)
- * - Control de cantidad de cada producto
- * - NO tiene precios propios
- * - NO tiene stock
- * - NO tiene opciones avanzadas
- */
 export class ListaFormPage extends ItemFormBasePage {
   constructor(page: Page) {
     super(page);
   }
 
-  // ─── Override del input de nombre ────────────────────────
-
-  /** El placeholder de nombre de lista es diferente al de otros tipos */
   protected override get inputNombre(): Locator {
-    return this.page.getByRole('textbox', { name: 'Ej. Lista de útiles primaria' });
+    return this.page.getByRole("textbox", {
+      name: "Ej. Lista de útiles primaria",
+    });
+  }
+  // En ListaFormPage agrega este método público
+  async obtenerValorNombre(): Promise<string> {
+    return await this.inputNombre.inputValue();
   }
 
-  // ─── Inicio de creación ──────────────────────────────────
-
-  /** Abre el menú "Crear ítems" y selecciona "Nueva lista" */
   async iniciarCreacionLista(): Promise<void> {
     await this.botonCrearItems.click();
-    await this.page.getByText('LNueva lista').click();
+    await this.page.getByText("LNueva lista").click();
+    // Esperar a que el formulario de lista se renderice completamente
+    await this.inputNombre.waitFor({ state: "visible" });
+    await this.page.waitForTimeout(2000);
   }
 
-  // ─── Descripción ─────────────────────────────────────────
+  override async llenarNombre(nombre: string): Promise<void> {
+    // Forzar foco directo sin click
+    await this.inputNombre.focus();
+    await this.inputNombre.fill(""); // limpiar
 
-  /** Llena el campo de descripción del ítem */
+    // Esperar que el componente procese el foco
+    await this.page.waitForTimeout(300);
+
+    await this.inputNombre.pressSequentially(nombre, { delay: 50 });
+    await expect(this.inputNombre).toHaveValue(nombre);
+  }
+  // llenar cidgo es nuevo
+  async llenarCodigo(codigo: number): Promise<void> {
+    await this.page.getByText("Automático").first().click();
+    await this.page.getByText("Manual").first().click();
+    await this.page
+      .locator('[id="lgt_reg-item_cmp-lista-productos:informacion-basica_v-input:codigo"]')
+      .fill(codigo.toString());
+  }
+
   async llenarDescripcion(descripcion: string): Promise<void> {
-    const input = this.page.getByRole('textbox', { name: 'Descripción del ítem' });
+    const input = this.page.getByRole("textbox", {
+      name: "Descripción del ítem",
+    });
     await input.click();
     await input.fill(descripcion);
   }
 
-  // ─── Productos de la lista ───────────────────────────────
-
-  /** Busca y agrega un producto a la lista por código */
   async buscarYAgregarProducto(item: ProductoListaItem): Promise<void> {
-    const inputBuscar = this.page.getByRole('textbox', {
-      name: 'Buscar nombre del producto, c',
+    const inputBuscar = this.page.getByRole("textbox", {
+      name: "Buscar nombre del producto, c",
     });
 
     await inputBuscar.click();
     await inputBuscar.fill(item.codigoBusqueda);
     await this.page.getByText(item.textoSeleccion).click();
 
-    // Seleccionar variante si aplica
     if (item.variante) {
       await this.page.getByText(item.variante).click();
     }
 
-    // Seleccionar equivalencia si aplica
     if (item.equivalencia) {
       await this.page.getByText(item.equivalencia).click();
     }
 
-    // Incrementar cantidad si se especifica
     if (item.cantidadIncrementos && item.cantidadIncrementos > 0) {
       const botonIncrementar = this.page.locator(
         '[id="lgt_reg-item_cmp-lista-productos_cmp-box_cmp-producto-agregado_v-step:cantidad_div:increase"]',
@@ -76,10 +80,7 @@ export class ListaFormPage extends ItemFormBasePage {
     }
   }
 
-  // ─── Creación ────────────────────────────────────────────
-
-  /** Clickea "Crear lista" */
   async crearLista(): Promise<void> {
-    await this.clickBotonCrear('lista');
+    await this.clickBotonCrear("lista");
   }
 }

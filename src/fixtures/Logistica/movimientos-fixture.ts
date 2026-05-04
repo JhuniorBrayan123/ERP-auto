@@ -8,11 +8,9 @@ import { KardexVerificacionPage } from '../../pages/Logistica/KardexVerificacion
 import { DatosOpcionalesPage } from '../../pages/Logistica/DatosOpcionalesPage';
 import { MovimientoRapidoPage } from '../../pages/Logistica/MovimientoRapidoPage';
 import { KardexApi } from '../../services/Logistica/KardexApi';
+import { AlmacenesApi } from '../../services/Logistica/AlmacenesApi';
 import { getAccessToken } from '../../helpers/Logistica/get-access-token.helper';
 
-/**
- * Tipos de todas las fixtures disponibles para tests de Movimientos de Logística.
- */
 type MovimientosFixtures = {
   movimientosNav: MovimientosNavigationPage;
   registroMovimiento: RegistroMovimientoPage;
@@ -25,19 +23,6 @@ type MovimientosFixtures = {
   kardexApi: KardexApi;
 };
 
-/**
- * Custom test con page objects pre-instanciados para Movimientos de Logística.
- *
- * Cada fixture:
- * 1. Navega a la URL base (ya autenticada por storageState)
- * 2. Inyecta movimientosNav con auto:true (navega automáticamente)
- * 3. Los demás page objects se inyectan a demanda
- *
- * La navegación al submódulo específico (Ingresos, Salidas, etc.)
- * se hace en cada spec según su necesidad usando movimientosNav.
- *
- * Incluye afterEach para imprimir PASS/FAIL en consola.
- */
 export const test = base.extend<MovimientosFixtures>({
   movimientosNav: [async ({ page }, use) => {
     const nav = new MovimientosNavigationPage(page);
@@ -75,7 +60,9 @@ export const test = base.extend<MovimientosFixtures>({
 
   kardexApi: async ({ request, page }, use) => {
     const token = await getAccessToken(page);
-    await use(new KardexApi(request, token));
+    const almacenesApi = new AlmacenesApi(request, token);
+    const almacenesQuery = await almacenesApi.buildAlmacenesQuery();
+    await use(new KardexApi(request, token, almacenesQuery));
   },
 });
 

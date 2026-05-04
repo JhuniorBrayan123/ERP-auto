@@ -29,7 +29,7 @@ function required(name: string): string {
 function buildUrls(appEnv: string): { baseUrl: string; apiUrl: string } {
     if (appEnv === 'prd') {
         return {
-            baseUrl: 'https://erpperu2.smartclic.pe/',
+            baseUrl: 'https://app.smartclic.pe/',
             apiUrl: 'https://erpperuapi.smartclic.pe/',
         };
     }
@@ -42,23 +42,12 @@ function buildUrls(appEnv: string): { baseUrl: string; apiUrl: string } {
 const appEnv = required('APP_ENV');
 const {baseUrl, apiUrl} = buildUrls(appEnv);
 
-/**
- * Construye la query string de almacenes según el entorno.
- *
- * Regla de negocio:
- *   - prd  → Almacenes=217&Almacenes=219
- *   - otro → Almacenes=255629&Almacenes=255630
- */
-const almacenesQuery =
-    appEnv === 'prd'
-        ? 'Almacenes=217&Almacenes=219'
-        : 'Almacenes=255629&Almacenes=255630';
+
 
 export const env = {
     appEnv,
     baseUrl,
     apiUrl,
-    almacenesQuery,
     userEmail: required('USER_EMAIL'),
     userPassword: required('USER_PASSWORD'),
     browser: process.env.BROWSER || 'chromium',
