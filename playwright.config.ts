@@ -28,13 +28,19 @@ export default defineConfig({
     /* ─── Reporters ─── */
     // === CONFIGURACIÓN ANTERIOR (Comentada por seguridad) ===
 
+    /* ─── Reporters ─── */
     reporter: [
-        // ['list'], //nativo
         ["./src/utils/maven-reporter.ts"], // consola estilo Maven/Surefire
-        ["html", {open: "never"}], // reporte HTML
+        ["html", {open: "never"}], // reporte HTML nativo
         ["junit", {outputFile: "test-results/results.xml"}],
-        ['json', {outputFile: 'test-results/results.json'}]// Jenkins
-        //['./src/utils/discord-reporter.ts'],
+        ['json', {outputFile: 'test-results/results.json'}],
+
+        // ✨ ¡AQUÍ ESTÁ LA MAGIA DE ALLURE! ✨
+        ['allure-playwright', {
+            detail: true,
+            outputFolder: 'allure-results',
+            suiteTitle: false
+        }]
     ],
     // // === NUEVA CONFIGURACIÓN DINÁMICA ===
     // reporter: process.env.CI ? [

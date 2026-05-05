@@ -1,0 +1,725 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - link [ref=e8] [cursor=pointer]:
+          - /url: /home
+        - button [ref=e13]
+      - generic [ref=e18]:
+        - generic "Tippy" [ref=e22]:
+          - generic [ref=e28] [cursor=pointer]: Ventas y compras
+        - generic "Tippy" [ref=e34]:
+          - generic [ref=e40] [cursor=pointer]: Productos y servicios
+        - generic "Tippy" [ref=e46]:
+          - generic [ref=e52] [cursor=pointer]: Contabilidad
+        - generic "Tippy" [ref=e58]:
+          - generic [ref=e64] [cursor=pointer]: Tienda virtual
+        - generic "Tippy" [ref=e70]:
+          - generic [ref=e76] [cursor=pointer]: Clientes y proveedores
+      - generic [ref=e79]:
+        - button "Soporte" [ref=e82] [cursor=pointer]:
+          - generic [ref=e87]: Soporte
+        - generic [ref=e89]:
+          - generic "Tippy" [ref=e92]
+          - generic "Tippy" [ref=e95]:
+            - generic [ref=e99] [cursor=pointer]:
+              - generic [ref=e100]: EMPRESA AUTO SMARTCLIC 22
+              - generic [ref=e101]:
+                - generic [ref=e102]: Gutierrez Mamani Jhunior Brayan |
+                - generic [ref=e103]: Administrador Propietario
+    - generic [ref=e108]:
+      - generic [ref=e113]:
+        - generic [ref=e117]: Búsqueda de comprobantes
+        - generic [ref=e118]:
+          - generic [ref=e119]:
+            - generic [ref=e121] [cursor=pointer]: Todos
+            - generic [ref=e123] [cursor=pointer]: Ventas
+            - generic [ref=e125] [cursor=pointer]: Facturación
+            - generic [ref=e127] [cursor=pointer]: Pedidos
+            - generic [ref=e129] [cursor=pointer]: Cotizaciones
+            - generic [ref=e131] [cursor=pointer]: Guías
+          - generic [ref=e132]:
+            - generic [ref=e134]:
+              - generic [ref=e139] [cursor=pointer]: Nuevo comprobante
+              - generic:
+                - list:
+                  - listitem:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: FE
+                    - generic:
+                      - generic: Nueva Factura
+                  - listitem:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: BE
+                    - generic:
+                      - generic: Nueva Boleta
+                  - listitem:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: NV
+                    - generic:
+                      - generic: Nueva Nota de venta
+                  - listitem:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: NC
+                    - generic:
+                      - generic: Nueva Nota de crédito
+                  - listitem:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: ND
+                    - generic:
+                      - generic: Nueva Nota de débito
+                  - listitem:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: GRr
+                    - generic:
+                      - generic: Nueva Guía de remisión rem.
+                  - listitem:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: GRt
+                    - generic:
+                      - generic: Nueva Guía de remisión trans.
+                  - listitem:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: PD
+                    - generic:
+                      - generic: Nuevo Pedido
+                  - listitem:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: CT
+                    - generic:
+                      - generic: Nueva Cotización
+            - generic [ref=e141]:
+              - generic:
+                - list:
+                  - listitem:
+                    - generic:
+                      - generic:
+                        - generic: Descargar vista actual
+                      - generic:
+                        - generic: Exporta únicamente los comprobantes mostrados en la grilla según los filtros aplicados, incluyendo su detalle visible.
+                  - listitem:
+                    - generic:
+                      - generic:
+                        - generic: Descargar todos los comprobantes
+                      - generic:
+                        - generic: Exporta el detalle completo de todos los comprobantes, sin aplicar filtros y con la totalidad de tus columnas.
+      - generic [ref=e148]:
+        - generic [ref=e152]:
+          - generic [ref=e153]:
+            - generic [ref=e160] [cursor=pointer]: 04/04/2026 - 04/05/2026
+            - button "Ver Filtros Avanzados" [ref=e163]:
+              - generic [ref=e169] [cursor=pointer]: Ver Filtros Avanzados
+          - group [ref=e175]:
+            - textbox "Buscar por nombre, razón social, serie, tipo o número de comprobante" [ref=e181]
+        - generic [ref=e187]:
+          - table [ref=e190]:
+            - rowgroup [ref=e191]:
+              - row "N° Tipo de comprobante Serie Correlativo N° de documento Nombre/Razón Social Fecha/Hora de creación Sucursal/Caja Usuario creador Condición de pago Estado de comprobante Estado de pago Estado de SUNAT Otros campos Tipo de comprobante (Obligatorio) Serie (Obligatorio) Correlativo (Obligatorio) N° de documento Nombre/Razón Social (Obligatorio) Fecha/Hora de creación Fecha de emisión Sucursal/Caja (Obligatorio) Usuario creador Peso Condición de pago Método de pago Moneda Subtotal IGV Monto total Monto pagado Monto adeudado Estado de comprobante (Obligatorio) Estado de pago Estado de SUNAT Guardar cambios" [ref=e192]:
+                - columnheader [ref=e193]:
+                  - checkbox [ref=e198] [cursor=pointer]
+                - columnheader "N°" [ref=e200]:
+                  - generic [ref=e202]: N°
+                - columnheader "Tipo de comprobante" [ref=e203]:
+                  - generic [ref=e204]: Tipo de comprobante
+                - columnheader "Serie" [ref=e205]:
+                  - generic [ref=e206]: Serie
+                - columnheader "Correlativo" [ref=e207]:
+                  - generic [ref=e208]: Correlativo
+                - columnheader "N° de documento" [ref=e209]:
+                  - generic [ref=e210]: N° de documento
+                - columnheader "Nombre/Razón Social" [ref=e211]:
+                  - generic [ref=e212]: Nombre/Razón Social
+                - columnheader "Fecha/Hora de creación" [ref=e213]:
+                  - generic [ref=e214]: Fecha/Hora de creación
+                - columnheader "Sucursal/Caja" [ref=e215]:
+                  - generic [ref=e216]: Sucursal/Caja
+                - columnheader "Usuario creador" [ref=e217]:
+                  - generic [ref=e218]: Usuario creador
+                - columnheader "Condición de pago" [ref=e219]:
+                  - generic [ref=e220]: Condición de pago
+                - columnheader "Estado de comprobante" [ref=e221]:
+                  - generic [ref=e222]: Estado de comprobante
+                - columnheader "Estado de pago" [ref=e223]:
+                  - generic [ref=e224]: Estado de pago
+                - columnheader "Estado de SUNAT" [ref=e225]:
+                  - generic [ref=e226]: Estado de SUNAT
+                - columnheader "Otros campos Tipo de comprobante (Obligatorio) Serie (Obligatorio) Correlativo (Obligatorio) N° de documento Nombre/Razón Social (Obligatorio) Fecha/Hora de creación Fecha de emisión Sucursal/Caja (Obligatorio) Usuario creador Peso Condición de pago Método de pago Moneda Subtotal IGV Monto total Monto pagado Monto adeudado Estado de comprobante (Obligatorio) Estado de pago Estado de SUNAT Guardar cambios" [ref=e227]:
+                  - generic [ref=e229]:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Otros campos
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic: Tipo de comprobante
+                                  - generic: (Obligatorio)
+                              - generic:
+                                - generic:
+                                  - generic: Serie
+                                  - generic: (Obligatorio)
+                              - generic:
+                                - generic:
+                                  - generic: Correlativo
+                                  - generic: (Obligatorio)
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - checkbox [checked]
+                                  - generic: N° de documento
+                              - generic:
+                                - generic:
+                                  - generic: Nombre/Razón Social
+                                  - generic: (Obligatorio)
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - checkbox [checked]
+                                  - generic: Fecha/Hora de creación
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - checkbox
+                                  - generic: Fecha de emisión
+                              - generic:
+                                - generic:
+                                  - generic: Sucursal/Caja
+                                  - generic: (Obligatorio)
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - checkbox [checked]
+                                  - generic: Usuario creador
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - checkbox
+                                  - generic: Peso
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - checkbox [checked]
+                                  - generic: Condición de pago
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - checkbox
+                                  - generic: Método de pago
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - checkbox
+                                  - generic: Moneda
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - checkbox
+                                  - generic: Subtotal
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - checkbox
+                                  - generic: IGV
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - checkbox
+                                  - generic: Monto total
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - checkbox
+                                  - generic: Monto pagado
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - checkbox
+                                  - generic: Monto adeudado
+                              - generic:
+                                - generic:
+                                  - generic: Estado de comprobante
+                                  - generic: (Obligatorio)
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - checkbox [checked]
+                                  - generic: Estado de pago
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - checkbox [checked]
+                                  - generic: Estado de SUNAT
+                            - generic:
+                              - generic:
+                                - button "Guardar cambios":
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - generic: Guardar cambios
+            - rowgroup [ref=e235]:
+              - row "1 BE BOLETA DE VENTA B001 48 00000000 CLIENTES VARIOS 04/05/2026 20:14 SUCURSAL VENTAS caja-auto admin Contado EMITIDO PAGADO ACEPTADO" [ref=e236]:
+                - cell [ref=e237]:
+                  - checkbox [ref=e242] [cursor=pointer]
+                - cell "1" [ref=e244]:
+                  - generic [ref=e245]: "1"
+                - cell "BE BOLETA DE VENTA" [ref=e246]:
+                  - generic [ref=e247] [cursor=pointer]:
+                    - generic [ref=e251]: BE
+                    - generic [ref=e252]: BOLETA DE VENTA
+                - cell "B001" [ref=e253]:
+                  - generic [ref=e255]: B001
+                - cell "48" [ref=e256]:
+                  - generic [ref=e258]: "48"
+                - cell "00000000" [ref=e259]:
+                  - generic [ref=e261]: "00000000"
+                - cell "CLIENTES VARIOS" [ref=e262]:
+                  - generic [ref=e264]: CLIENTES VARIOS
+                - cell "04/05/2026 20:14" [ref=e265]:
+                  - generic [ref=e267]: 04/05/2026 20:14
+                - cell "SUCURSAL VENTAS caja-auto" [ref=e268]:
+                  - generic [ref=e269]:
+                    - generic [ref=e270]: SUCURSAL VENTAS
+                    - generic [ref=e271]: caja-auto
+                - cell "admin" [ref=e272]:
+                  - generic [ref=e274]: admin
+                - cell "Contado" [ref=e275]:
+                  - generic [ref=e277]: Contado
+                - cell "EMITIDO" [ref=e278]:
+                  - generic [ref=e282]: EMITIDO
+                - cell "PAGADO" [ref=e283]:
+                  - generic [ref=e287]: PAGADO
+                - cell "ACEPTADO" [ref=e288]:
+                  - generic [ref=e292]: ACEPTADO
+                - cell [ref=e293]
+              - row "2 BE BOLETA DE VENTA B001 47 00000000 CLIENTES VARIOS 04/05/2026 20:13 SUCURSAL VENTAS caja-auto admin Contado EMITIDO PAGADO ACEPTADO" [ref=e300]:
+                - cell [ref=e301]:
+                  - checkbox [ref=e306] [cursor=pointer]
+                - cell "2" [ref=e308]:
+                  - generic [ref=e309]: "2"
+                - cell "BE BOLETA DE VENTA" [ref=e310]:
+                  - generic [ref=e311] [cursor=pointer]:
+                    - generic [ref=e315]: BE
+                    - generic [ref=e316]: BOLETA DE VENTA
+                - cell "B001" [ref=e317]:
+                  - generic [ref=e319]: B001
+                - cell "47" [ref=e320]:
+                  - generic [ref=e322]: "47"
+                - cell "00000000" [ref=e323]:
+                  - generic [ref=e325]: "00000000"
+                - cell "CLIENTES VARIOS" [ref=e326]:
+                  - generic [ref=e328]: CLIENTES VARIOS
+                - cell "04/05/2026 20:13" [ref=e329]:
+                  - generic [ref=e331]: 04/05/2026 20:13
+                - cell "SUCURSAL VENTAS caja-auto" [ref=e332]:
+                  - generic [ref=e333]:
+                    - generic [ref=e334]: SUCURSAL VENTAS
+                    - generic [ref=e335]: caja-auto
+                - cell "admin" [ref=e336]:
+                  - generic [ref=e338]: admin
+                - cell "Contado" [ref=e339]:
+                  - generic [ref=e341]: Contado
+                - cell "EMITIDO" [ref=e342]:
+                  - generic [ref=e346]: EMITIDO
+                - cell "PAGADO" [ref=e347]:
+                  - generic [ref=e351]: PAGADO
+                - cell "ACEPTADO" [ref=e352]:
+                  - generic [ref=e356]: ACEPTADO
+                - cell [ref=e357]
+              - row "3 BE BOLETA DE VENTA B001 46 20759685854 automatizacionerp2 cliente RUC 04/05/2026 17:58 SUCURSAL VENTAS caja-auto admin Contado EMITIDO PAGADO ACEPTADO" [ref=e364]:
+                - cell [ref=e365]:
+                  - checkbox [ref=e370] [cursor=pointer]
+                - cell "3" [ref=e372]:
+                  - generic [ref=e373]: "3"
+                - cell "BE BOLETA DE VENTA" [ref=e374]:
+                  - generic [ref=e375] [cursor=pointer]:
+                    - generic [ref=e379]: BE
+                    - generic [ref=e380]: BOLETA DE VENTA
+                - cell "B001" [ref=e381]:
+                  - generic [ref=e383]: B001
+                - cell "46" [ref=e384]:
+                  - generic [ref=e386]: "46"
+                - cell "20759685854" [ref=e387]:
+                  - generic [ref=e389]: "20759685854"
+                - cell "automatizacionerp2 cliente RUC" [ref=e390]:
+                  - generic [ref=e392]: automatizacionerp2 cliente RUC
+                - cell "04/05/2026 17:58" [ref=e393]:
+                  - generic [ref=e395]: 04/05/2026 17:58
+                - cell "SUCURSAL VENTAS caja-auto" [ref=e396]:
+                  - generic [ref=e397]:
+                    - generic [ref=e398]: SUCURSAL VENTAS
+                    - generic [ref=e399]: caja-auto
+                - cell "admin" [ref=e400]:
+                  - generic [ref=e402]: admin
+                - cell "Contado" [ref=e403]:
+                  - generic [ref=e405]: Contado
+                - cell "EMITIDO" [ref=e406]:
+                  - generic [ref=e410]: EMITIDO
+                - cell "PAGADO" [ref=e411]:
+                  - generic [ref=e415]: PAGADO
+                - cell "ACEPTADO" [ref=e416]:
+                  - generic [ref=e420]: ACEPTADO
+                - cell [ref=e421]
+              - row "4 BE BOLETA DE VENTA B001 45 20759685854 automatizacionerp2 cliente RUC 04/05/2026 17:53 SUCURSAL VENTAS caja-auto admin Contado EMITIDO PAGADO ACEPTADO" [ref=e428]:
+                - cell [ref=e429]:
+                  - checkbox [ref=e434] [cursor=pointer]
+                - cell "4" [ref=e436]:
+                  - generic [ref=e437]: "4"
+                - cell "BE BOLETA DE VENTA" [ref=e438]:
+                  - generic [ref=e439] [cursor=pointer]:
+                    - generic [ref=e443]: BE
+                    - generic [ref=e444]: BOLETA DE VENTA
+                - cell "B001" [ref=e445]:
+                  - generic [ref=e447]: B001
+                - cell "45" [ref=e448]:
+                  - generic [ref=e450]: "45"
+                - cell "20759685854" [ref=e451]:
+                  - generic [ref=e453]: "20759685854"
+                - cell "automatizacionerp2 cliente RUC" [ref=e454]:
+                  - generic [ref=e456]: automatizacionerp2 cliente RUC
+                - cell "04/05/2026 17:53" [ref=e457]:
+                  - generic [ref=e459]: 04/05/2026 17:53
+                - cell "SUCURSAL VENTAS caja-auto" [ref=e460]:
+                  - generic [ref=e461]:
+                    - generic [ref=e462]: SUCURSAL VENTAS
+                    - generic [ref=e463]: caja-auto
+                - cell "admin" [ref=e464]:
+                  - generic [ref=e466]: admin
+                - cell "Contado" [ref=e467]:
+                  - generic [ref=e469]: Contado
+                - cell "EMITIDO" [ref=e470]:
+                  - generic [ref=e474]: EMITIDO
+                - cell "PAGADO" [ref=e475]:
+                  - generic [ref=e479]: PAGADO
+                - cell "ACEPTADO" [ref=e480]:
+                  - generic [ref=e484]: ACEPTADO
+                - cell [ref=e485]
+              - row "5 FE FACTURA F001 28 20759685854 automatizacionerp2 cliente RUC 04/05/2026 17:52 SUCURSAL VENTAS caja-auto admin Contado EMITIDO PAGADO ACEPTADO" [ref=e492]:
+                - cell [ref=e493]:
+                  - checkbox [ref=e498] [cursor=pointer]
+                - cell "5" [ref=e500]:
+                  - generic [ref=e501]: "5"
+                - cell "FE FACTURA" [ref=e502]:
+                  - generic [ref=e503] [cursor=pointer]:
+                    - generic [ref=e507]: FE
+                    - generic [ref=e508]: FACTURA
+                - cell "F001" [ref=e509]:
+                  - generic [ref=e511]: F001
+                - cell "28" [ref=e512]:
+                  - generic [ref=e514]: "28"
+                - cell "20759685854" [ref=e515]:
+                  - generic [ref=e517]: "20759685854"
+                - cell "automatizacionerp2 cliente RUC" [ref=e518]:
+                  - generic [ref=e520]: automatizacionerp2 cliente RUC
+                - cell "04/05/2026 17:52" [ref=e521]:
+                  - generic [ref=e523]: 04/05/2026 17:52
+                - cell "SUCURSAL VENTAS caja-auto" [ref=e524]:
+                  - generic [ref=e525]:
+                    - generic [ref=e526]: SUCURSAL VENTAS
+                    - generic [ref=e527]: caja-auto
+                - cell "admin" [ref=e528]:
+                  - generic [ref=e530]: admin
+                - cell "Contado" [ref=e531]:
+                  - generic [ref=e533]: Contado
+                - cell "EMITIDO" [ref=e534]:
+                  - generic [ref=e538]: EMITIDO
+                - cell "PAGADO" [ref=e539]:
+                  - generic [ref=e543]: PAGADO
+                - cell "ACEPTADO" [ref=e544]:
+                  - generic [ref=e548]: ACEPTADO
+                - cell [ref=e549]
+              - row "6 FE FACTURA F001 27 20759685854 automatizacionerp2 cliente RUC 04/05/2026 17:52 SUCURSAL VENTAS caja-auto admin Contado EMITIDO PAGADO ACEPTADO" [ref=e556]:
+                - cell [ref=e557]:
+                  - checkbox [ref=e562] [cursor=pointer]
+                - cell "6" [ref=e564]:
+                  - generic [ref=e565]: "6"
+                - cell "FE FACTURA" [ref=e566]:
+                  - generic [ref=e567] [cursor=pointer]:
+                    - generic [ref=e571]: FE
+                    - generic [ref=e572]: FACTURA
+                - cell "F001" [ref=e573]:
+                  - generic [ref=e575]: F001
+                - cell "27" [ref=e576]:
+                  - generic [ref=e578]: "27"
+                - cell "20759685854" [ref=e579]:
+                  - generic [ref=e581]: "20759685854"
+                - cell "automatizacionerp2 cliente RUC" [ref=e582]:
+                  - generic [ref=e584]: automatizacionerp2 cliente RUC
+                - cell "04/05/2026 17:52" [ref=e585]:
+                  - generic [ref=e587]: 04/05/2026 17:52
+                - cell "SUCURSAL VENTAS caja-auto" [ref=e588]:
+                  - generic [ref=e589]:
+                    - generic [ref=e590]: SUCURSAL VENTAS
+                    - generic [ref=e591]: caja-auto
+                - cell "admin" [ref=e592]:
+                  - generic [ref=e594]: admin
+                - cell "Contado" [ref=e595]:
+                  - generic [ref=e597]: Contado
+                - cell "EMITIDO" [ref=e598]:
+                  - generic [ref=e602]: EMITIDO
+                - cell "PAGADO" [ref=e603]:
+                  - generic [ref=e607]: PAGADO
+                - cell "ACEPTADO" [ref=e608]:
+                  - generic [ref=e612]: ACEPTADO
+                - cell [ref=e613]
+              - row "7 FE FACTURA F001 26 20759685854 automatizacionerp2 cliente RUC 04/05/2026 17:51 SUCURSAL VENTAS caja-auto admin Contado EMITIDO PAGADO ACEPTADO" [ref=e620]:
+                - cell [ref=e621]:
+                  - checkbox [ref=e626] [cursor=pointer]
+                - cell "7" [ref=e628]:
+                  - generic [ref=e629]: "7"
+                - cell "FE FACTURA" [ref=e630]:
+                  - generic [ref=e631] [cursor=pointer]:
+                    - generic [ref=e635]: FE
+                    - generic [ref=e636]: FACTURA
+                - cell "F001" [ref=e637]:
+                  - generic [ref=e639]: F001
+                - cell "26" [ref=e640]:
+                  - generic [ref=e642]: "26"
+                - cell "20759685854" [ref=e643]:
+                  - generic [ref=e645]: "20759685854"
+                - cell "automatizacionerp2 cliente RUC" [ref=e646]:
+                  - generic [ref=e648]: automatizacionerp2 cliente RUC
+                - cell "04/05/2026 17:51" [ref=e649]:
+                  - generic [ref=e651]: 04/05/2026 17:51
+                - cell "SUCURSAL VENTAS caja-auto" [ref=e652]:
+                  - generic [ref=e653]:
+                    - generic [ref=e654]: SUCURSAL VENTAS
+                    - generic [ref=e655]: caja-auto
+                - cell "admin" [ref=e656]:
+                  - generic [ref=e658]: admin
+                - cell "Contado" [ref=e659]:
+                  - generic [ref=e661]: Contado
+                - cell "EMITIDO" [ref=e662]:
+                  - generic [ref=e666]: EMITIDO
+                - cell "PAGADO" [ref=e667]:
+                  - generic [ref=e671]: PAGADO
+                - cell "ACEPTADO" [ref=e672]:
+                  - generic [ref=e676]: ACEPTADO
+                - cell [ref=e677]
+              - row "8 FE FACTURA F001 25 20759685854 automatizacionerp2 cliente RUC 04/05/2026 17:50 SUCURSAL VENTAS caja-auto admin Contado EMITIDO PAGADO ACEPTADO" [ref=e684]:
+                - cell [ref=e685]:
+                  - checkbox [ref=e690] [cursor=pointer]
+                - cell "8" [ref=e692]:
+                  - generic [ref=e693]: "8"
+                - cell "FE FACTURA" [ref=e694]:
+                  - generic [ref=e695] [cursor=pointer]:
+                    - generic [ref=e699]: FE
+                    - generic [ref=e700]: FACTURA
+                - cell "F001" [ref=e701]:
+                  - generic [ref=e703]: F001
+                - cell "25" [ref=e704]:
+                  - generic [ref=e706]: "25"
+                - cell "20759685854" [ref=e707]:
+                  - generic [ref=e709]: "20759685854"
+                - cell "automatizacionerp2 cliente RUC" [ref=e710]:
+                  - generic [ref=e712]: automatizacionerp2 cliente RUC
+                - cell "04/05/2026 17:50" [ref=e713]:
+                  - generic [ref=e715]: 04/05/2026 17:50
+                - cell "SUCURSAL VENTAS caja-auto" [ref=e716]:
+                  - generic [ref=e717]:
+                    - generic [ref=e718]: SUCURSAL VENTAS
+                    - generic [ref=e719]: caja-auto
+                - cell "admin" [ref=e720]:
+                  - generic [ref=e722]: admin
+                - cell "Contado" [ref=e723]:
+                  - generic [ref=e725]: Contado
+                - cell "EMITIDO" [ref=e726]:
+                  - generic [ref=e730]: EMITIDO
+                - cell "PAGADO" [ref=e731]:
+                  - generic [ref=e735]: PAGADO
+                - cell "ACEPTADO" [ref=e736]:
+                  - generic [ref=e740]: ACEPTADO
+                - cell [ref=e741]
+              - row "9 FE FACTURA F001 24 00000000 CLIENTES VARIOS 04/05/2026 17:49 SUCURSAL VENTAS caja-auto admin Contado EMITIDO PAGADO ACEPTADO" [ref=e748]:
+                - cell [ref=e749]:
+                  - checkbox [ref=e754] [cursor=pointer]
+                - cell "9" [ref=e756]:
+                  - generic [ref=e757]: "9"
+                - cell "FE FACTURA" [ref=e758]:
+                  - generic [ref=e759] [cursor=pointer]:
+                    - generic [ref=e763]: FE
+                    - generic [ref=e764]: FACTURA
+                - cell "F001" [ref=e765]:
+                  - generic [ref=e767]: F001
+                - cell "24" [ref=e768]:
+                  - generic [ref=e770]: "24"
+                - cell "00000000" [ref=e771]:
+                  - generic [ref=e773]: "00000000"
+                - cell "CLIENTES VARIOS" [ref=e774]:
+                  - generic [ref=e776]: CLIENTES VARIOS
+                - cell "04/05/2026 17:49" [ref=e777]:
+                  - generic [ref=e779]: 04/05/2026 17:49
+                - cell "SUCURSAL VENTAS caja-auto" [ref=e780]:
+                  - generic [ref=e781]:
+                    - generic [ref=e782]: SUCURSAL VENTAS
+                    - generic [ref=e783]: caja-auto
+                - cell "admin" [ref=e784]:
+                  - generic [ref=e786]: admin
+                - cell "Contado" [ref=e787]:
+                  - generic [ref=e789]: Contado
+                - cell "EMITIDO" [ref=e790]:
+                  - generic [ref=e794]: EMITIDO
+                - cell "PAGADO" [ref=e795]:
+                  - generic [ref=e799]: PAGADO
+                - cell "ACEPTADO" [ref=e800]:
+                  - generic [ref=e804]: ACEPTADO
+                - cell [ref=e805]
+              - row "10 FE FACTURA F001 23 20759685854 automatizacionerp2 cliente RUC 04/05/2026 17:48 SUCURSAL VENTAS caja-auto admin Contado EMITIDO PAGADO ACEPTADO" [ref=e812]:
+                - cell [ref=e813]:
+                  - checkbox [ref=e818] [cursor=pointer]
+                - cell "10" [ref=e820]:
+                  - generic [ref=e821]: "10"
+                - cell "FE FACTURA" [ref=e822]:
+                  - generic [ref=e823] [cursor=pointer]:
+                    - generic [ref=e827]: FE
+                    - generic [ref=e828]: FACTURA
+                - cell "F001" [ref=e829]:
+                  - generic [ref=e831]: F001
+                - cell "23" [ref=e832]:
+                  - generic [ref=e834]: "23"
+                - cell "20759685854" [ref=e835]:
+                  - generic [ref=e837]: "20759685854"
+                - cell "automatizacionerp2 cliente RUC" [ref=e838]:
+                  - generic [ref=e840]: automatizacionerp2 cliente RUC
+                - cell "04/05/2026 17:48" [ref=e841]:
+                  - generic [ref=e843]: 04/05/2026 17:48
+                - cell "SUCURSAL VENTAS caja-auto" [ref=e844]:
+                  - generic [ref=e845]:
+                    - generic [ref=e846]: SUCURSAL VENTAS
+                    - generic [ref=e847]: caja-auto
+                - cell "admin" [ref=e848]:
+                  - generic [ref=e850]: admin
+                - cell "Contado" [ref=e851]:
+                  - generic [ref=e853]: Contado
+                - cell "EMITIDO" [ref=e854]:
+                  - generic [ref=e858]: EMITIDO
+                - cell "PAGADO" [ref=e859]:
+                  - generic [ref=e863]: PAGADO
+                - cell "ACEPTADO" [ref=e864]:
+                  - generic [ref=e868]: ACEPTADO
+                - cell [ref=e869]
+            - rowgroup
+          - generic [ref=e877]:
+            - generic [ref=e878]:
+              - generic [ref=e880]: Total 82 comprobantes
+              - generic [ref=e881]:
+                - generic [ref=e882]:
+                  - generic [ref=e886]: FE
+                  - generic [ref=e887]: (28) Facturas
+                - generic [ref=e888]:
+                  - generic [ref=e892]: BE
+                  - generic [ref=e893]: (48) Boletas
+                - generic [ref=e894]:
+                  - generic [ref=e898]: NV
+                  - generic [ref=e899]: (6) Notas de venta
+                - generic [ref=e900]:
+                  - generic [ref=e904]: NC
+                  - generic [ref=e905]: (0) Notas de crédito
+                - generic "Tippy" [ref=e908]:
+                  - button "(0) Más Comprobantes" [ref=e911]:
+                    - generic [ref=e915] [cursor=pointer]: (0) Más Comprobantes
+            - navigation [ref=e919]:
+              - link "chevron-left" [ref=e920] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e921]
+              - link "chevron-left" [ref=e923] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e924]
+              - generic [ref=e927]: Anterior
+              - list [ref=e928]:
+                - listitem [ref=e929]:
+                  - link "1" [ref=e930] [cursor=pointer]:
+                    - /url: "#"
+                    - generic [ref=e931]: "1"
+                - listitem [ref=e932]:
+                  - link "2" [ref=e933] [cursor=pointer]:
+                    - /url: "#"
+                    - generic [ref=e934]: "2"
+                - listitem [ref=e935]:
+                  - link "3" [ref=e936] [cursor=pointer]:
+                    - /url: "#"
+                    - generic [ref=e937]: "3"
+                - listitem [ref=e938]:
+                  - link "4" [ref=e939] [cursor=pointer]:
+                    - /url: "#"
+                    - generic [ref=e940]: "4"
+                - listitem [ref=e941]:
+                  - link "5" [ref=e942] [cursor=pointer]:
+                    - /url: "#"
+                    - generic [ref=e943]: "5"
+                - generic [ref=e944]:
+                  - listitem [ref=e945]:
+                    - generic [ref=e946]: ...
+                  - listitem [ref=e947]:
+                    - link "9" [ref=e948] [cursor=pointer]:
+                      - /url: "#"
+                      - generic [ref=e949]: "9"
+              - generic [ref=e951]: Siguiente
+              - link "chevron-right" [ref=e952] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e953]
+              - link "chevron-left" [ref=e955] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e956]
+  - generic [ref=e959]:
+    - img [ref=e962] [cursor=pointer]
+    - generic [ref=e964]:
+      - img [ref=e966]
+      - generic [ref=e1031]:
+        - generic [ref=e1032]: ¡Ups! Ocurrió un problema
+        - generic [ref=e1033]: Revise su conexión a internet
+    - button "Aceptar" [ref=e1035] [cursor=pointer]:
+      - generic [ref=e1036]: Aceptar
+```
