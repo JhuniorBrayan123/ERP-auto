@@ -91,7 +91,7 @@ export class EmisionPage {
 
         const result: EmisionResult = {serie, correlativo, comprobanteId};
 
-        console.log(`  📄 Emisión capturada: ${serie}-${correlativo} (ID: ${comprobanteId})`);
+        console.log(`   Emisión capturada: ${serie}-${correlativo} (ID: ${comprobanteId})`);
         this.ultimaEmision = result;
         return result;
     }

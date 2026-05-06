@@ -15,9 +15,9 @@
  */
 import {expect, type Page} from '@playwright/test';
 import type {EmisionResult} from '../../helpers/PuntoVenta/emision.types';
-import { EstadoSunat } from '../../helpers/PuntoVenta/sunat-estados.helper';
+import {EstadoSunat} from '../../helpers/PuntoVenta/sunat-estados.helper';
 
-const ESTADOS_EXITOSOS     = [EstadoSunat.ACEPTADA, EstadoSunat.ACEPTADA_OBSERVADA];
+const ESTADOS_EXITOSOS = [EstadoSunat.ACEPTADA, EstadoSunat.ACEPTADA_OBSERVADA];
 const ESTADOS_TRANSITORIOS = [EstadoSunat.PENDIENTE_ENVIO, EstadoSunat.PENDIENTE_RESPUESTA, EstadoSunat.NO_DISPONIBLE];
 
 export class BusquedaComprobantesPage {
@@ -107,6 +107,33 @@ export class BusquedaComprobantesPage {
         }
     }
 
+    async filtrarAdelanto(emision: EmisionResult | null): Promise<void> {
+        if (!emision) throw new Error('No hay emisión capturada para filtrar adelanto');
+
+        // Esperar que el modal cargue las series antes de interactuar
+        const seriesPromise = this.page.waitForResponse(
+            (resp) =>
+                resp.url().includes('entidades/series') &&
+                resp.url().includes('idtipodocumento=2016') &&
+                resp.status() === 200,
+            {timeout: 15_000},
+        );
+
+        // Esperar a que el modal esté listo
+        await seriesPromise;
+
+        const input = this.page.locator(
+            '[id="pv_punto-venta_cmp_venta_pedido:modals_cmp-gestion-adelantos__v-input:busqueda-serie-correlativo"]'
+        );
+
+        await input.click();
+        await input.fill(emision.correlativo);
+        await input.press('Enter');
+        await seriesPromise;
+
+        console.log(`   Adelanto filtrado: correlativo ${emision.correlativo}`);
+    }
+
     // ─── Validación de estado SUNAT ───────────────────────────────────
 
     async validarEstadoSunat(): Promise<'EXITOSO' | 'TRANSITORIO' | 'DEFINITIVO'> {
@@ -114,7 +141,7 @@ export class BusquedaComprobantesPage {
             console.warn('  No hay datos de Consultas — no se puede validar SUNAT');
             return 'TRANSITORIO';
         }
-        
+
         let {idEstadoSunat} = this.ultimoComprobanteConsulta;
         const {serieDescripcion, correlativoDocumento} = this.ultimoComprobanteConsulta;
         const compId = `${serieDescripcion}-${correlativoDocumento}`;
@@ -252,7 +279,7 @@ export class BusquedaComprobantesPage {
                 console.log(`  ✓ Bitácora: "${descripcion}" encontrado tras polling`);
                 return;
             }
-            console.log(`  ⏳ Bitácora: esperando "${descripcion}"...`);
+            console.log(`   Bitácora: esperando "${descripcion}"...`);
         }
 
         // Último intento con assert para generar error descriptivo
@@ -313,6 +340,13 @@ export class BusquedaComprobantesPage {
                 {timeout: 15_000},
             );
         }
+    }
+
+    async validarComprobanteEmitidonota(): Promise<void> {
+        await expect(
+            this.page.getByText('Comprobante Emitido').first(),
+        ).toBeVisible({timeout: 10_000});
+        
     }
 
     /** Valida "XML Generado" con polling */

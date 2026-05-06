@@ -456,8 +456,6 @@ test.describe('PV-2 | Emisión de Factura @factura', {tag: ['@punto-venta', '@em
             await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).click();
             await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).fill(CLIENTES.EMPRESA_RUC_AUTO.documento);
             await page.getByText(CLIENTES.EMPRESA_RUC_AUTO.textoSelector).click();
-            // await page.getByRole('textbox', {name: 'Escanea o busca por nombre, c'}).click();
-            // await page.getByText(ITEMS_PV.RECETA_INSUMOS.nombre).click();
             await emisionPage.buscarItem(ITEMS_PV.RECETA_INSUMOS.codigo);
             await emisionPage.seleccionarItem(ITEMS_PV.RECETA_INSUMOS.nombre);
         });
@@ -498,9 +496,12 @@ test.describe('PV-2 | Emisión de Factura @factura', {tag: ['@punto-venta', '@em
             await comprobantePage.seleccionarFactura();
             await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
             await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
-            await page.locator('.slider').first().click(); // Switch adelanto
             await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).click();
             await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).fill(CLIENTES.EMPRESA_RUC_AUTO.documento);
+            await page.getByText(CLIENTES.EMPRESA_RUC_AUTO.textoSelector).click();
+            await page.locator('.slider').first().click(); // Switch adelanto
+            // await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).click();
+            // await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).fill(CLIENTES.EMPRESA_RUC_AUTO.documento);
         });
 
         await test.step('When: emitir con PLIN', async () => {
