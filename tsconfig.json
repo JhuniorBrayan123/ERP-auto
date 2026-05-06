@@ -16,7 +16,8 @@
       "@helpers/*": ["src/helpers/*"],
       "@pages/*": ["src/pages/*"],
       "@data/*": ["src/data/*"],
-      "@services/*": ["src/services/*"]
+      "@services/*": ["src/services/*"],
+      "@flows/*": ["src/flows/*"]
     }
   },
   "include": [

@@ -28,6 +28,13 @@
 888999 = item para editado tipo de afectacion manual
 888888 = item para clonar
 
+112211= item con ISC AUTO 
+221122= item con ICBPER AUTO
+332211= codigo de receta con insumos estrictos
+443444= lista de items estrictos xd se sufrio con solucionar un caso xd
+
+
+
 //para la edicion de items masivos primero se tiene que importar el excel de cada uno (OJO solo para la edicion masiva)
 
 correo para enviar movimientos:
@@ -58,6 +65,10 @@ Inafecto - Retiro por Convenio Colectivo
 Inafecto - Retiro por Premio
 Inafecto - Retiro por Publicidad
 Exportación
+
+
+Se debe crear vendedor para la emision con datos adicionales
+se debe crear los campos adicionales sobre los datos adicionales tal como se hizo con los movimientos
 
 
 

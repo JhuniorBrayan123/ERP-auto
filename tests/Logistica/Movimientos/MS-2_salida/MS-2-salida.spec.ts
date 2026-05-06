@@ -48,7 +48,6 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
                                                          kardexVerificacion,
                                                          page,
                                                      }) => {
-        test.setTimeout(120_000)
 
         await navegarASalidasYNuevo(movimientosNav, registroMovimiento, true);
         await buscarYSeleccionarItem(registroMovimiento, ITEMS_TEST.INSUMO_FLEXIBLE.codigo, ITEMS_TEST.INSUMO_FLEXIBLE.nombre);

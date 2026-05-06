@@ -21,7 +21,13 @@ export class ProductoFormPage extends ItemFormBasePage {
         await inputPrecioCompra.click();
         await inputPrecioCompra.fill(precioCompra);
     }
-
+    // llenar cidgo es nuevo 
+    async llenarCodigo(codigo:number): Promise<void> {
+        await this.page.getByText("Automático").first().click();
+        await this.page.getByText("Manual").first().click();
+        await this.page.locator('[id="lgt_reg-item_v-tab:informacion-basica_v-input:codigo"]').click();
+        await this.page.locator('[id="lgt_reg-item_v-tab:informacion-basica_v-input:codigo"]').fill(codigo.toString());
+    }
     async irATabStock(): Promise<void> {
         await this.page
             .locator('[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:tabs-1"]')

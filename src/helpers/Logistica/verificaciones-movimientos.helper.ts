@@ -9,6 +9,8 @@ import {MovimientoRapidoPage} from '../../pages/Logistica/MovimientoRapidoPage';
 import {DatosOpcionalesPage} from '../../pages/Logistica/DatosOpcionalesPage';
 import {ListadoMovimientosPage} from '../../pages/Logistica/ListadoMovimientosPage';
 import {ITEMS_TEST} from "@helpers/Logistica/movimiento-data.helper";
+import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
+import {expectVisibleFunctional, runFunctionalStep} from '../../utils/functional-step';
 
 export const verificarStockYKardex = async (
     movimientosNav: MovimientosNavigationPage,
@@ -20,28 +22,43 @@ export const verificarStockYKardex = async (
     patronCodigoVisible: RegExp,
     textClickEquivalente?: string
 ) => {
-    await test.step('Then: verificar stock actualizado', async () => {
-        await movimientosNav.navegarAStockProductos();
-        await stockVerificacion.buscarPorCodigo(codigoItem);
-        if (textClickEquivalente) {
-            await page.getByText(textClickEquivalente).click();
-        }
-        await stockVerificacion.clickVariosTexto();
-    });
+    await runFunctionalStep(
+        'Verificar stock actualizado en inventario',
+        page,
+        FUNCTIONAL_CATALOG.stock.buscarProducto,
+        async () => {
+            await movimientosNav.navegarAStockProductos();
+            await stockVerificacion.buscarPorCodigo(codigoItem);
+            if (textClickEquivalente) {
+                await page.getByText(textClickEquivalente).click();
+            }
+            await stockVerificacion.clickVariosTexto();
+        },
+    );
 
-    await test.step('And: verificar movimiento en kardex', async () => {
-        await movimientosNav.navegarAKardexTotal();
-        await page.waitForTimeout(2000);
-        await kardexVerificacion.buscarPorCodigo(codigoItem);
-        if (textClickEquivalente) {
-            await page.getByText(textClickEquivalente).click();
-        }
-        await kardexVerificacion.clickVariosTexto();
-        await kardexVerificacion.clickKardexPorProducto();
-        await kardexVerificacion.abrirVerDetallePorAlmacen2(almacen);
-        await kardexVerificacion.expectPatronCodigoMovimientoVisible(patronCodigoVisible);
-        await kardexVerificacion.cerrarModalDetalle();
-    });
+    await runFunctionalStep(
+        'Verificar movimiento reflejado en kardex',
+        page,
+        {
+            ...FUNCTIONAL_CATALOG.kardex.abrirDetalleAlmacen,
+            flowStep: 'Validar movimiento en kardex por almacén',
+            userMessage: 'El flujo no logró confirmar el movimiento en la vista de kardex.',
+            technicalDetail: 'Falla al abrir kardex por producto, abrir detalle de almacén o validar el código de movimiento.',
+        },
+        async () => {
+            await movimientosNav.navegarAKardexTotal();
+            await page.waitForTimeout(2000);
+            await kardexVerificacion.buscarPorCodigo(codigoItem);
+            if (textClickEquivalente) {
+                await page.getByText(textClickEquivalente).click();
+            }
+            await kardexVerificacion.clickVariosTexto();
+            await kardexVerificacion.clickKardexPorProducto();
+            await kardexVerificacion.abrirVerDetallePorAlmacen2(almacen);
+            await kardexVerificacion.expectPatronCodigoMovimientoVisible(patronCodigoVisible);
+            await kardexVerificacion.cerrarModalDetalle();
+        },
+    );
 };
 
 export const crearAjusteConItem = async (
@@ -51,11 +68,20 @@ export const crearAjusteConItem = async (
     page?: Page,
     textClickEquivalente?: string
 ) => {
-    await test.step('When: crear ajuste con ítem', async () => {
+    if (!page) {
+        await test.step('Crear ajuste con ítem', async () => {
+            await registroMovimiento.clickAgregarAjuste();
+            await registroMovimiento.buscarItem(codigoItem);
+            await registroMovimiento.seleccionarItemEnResultados(nombreItem);
+        });
+        return;
+    }
+
+    await runFunctionalStep('Crear ajuste con ítem', page, FUNCTIONAL_CATALOG.movimientos.definirAlmacenMotivo, async () => {
         await registroMovimiento.clickAgregarAjuste();
         await registroMovimiento.buscarItem(codigoItem);
         await registroMovimiento.seleccionarItemEnResultados(nombreItem);
-        if (page && textClickEquivalente) {
+        if (textClickEquivalente) {
             await page.getByText(textClickEquivalente).click();
         }
     });
@@ -65,7 +91,7 @@ export const registrarAjusteEIrAlListado = async (
     registroMovimiento: RegistroMovimientoPage,
     resultadoMovimiento: ResultadoMovimientoPage,
 ) => {
-    await test.step('And: registrar ajuste', async () => {
+    await test.step('Registrar ajuste y volver al listado', async () => {
         await registroMovimiento.clickRegistrarAjuste();
         await resultadoMovimiento.irAlListado();
     });
@@ -76,7 +102,7 @@ export const definirCantidadYFactor = async (
     cantidad: string,
     factor: 'Agregar' | 'Quitar',
 ) => {
-    await test.step(`And: definir cantidad y factor ${factor}`, async () => {
+    await test.step(`Configurar cantidad y factor de ajuste (${factor})`, async () => {
         await registroMovimiento.llenarCantidad(cantidad);
         await registroMovimiento.seleccionarFactorAjuste(factor);
     });
@@ -87,7 +113,7 @@ export const buscarYSeleccionarItem = async (
     codigoItem: string,
     nombreItem: string,
 ) => {
-    await test.step('And: buscar y seleccionar producto', async () => {
+    await test.step('Buscar y seleccionar producto del movimiento', async () => {
         await registroMovimiento.buscarItem(codigoItem);
         await registroMovimiento.seleccionarItemEnResultados(nombreItem);
     });
@@ -99,16 +125,31 @@ export const verificarKardexDesdeStock = async (
     patronCodigo: RegExp,
     clickCodigo: boolean = false,
 ) => {
-    await test.step('And: verificar movimiento en kardex', async () => {
-        const kardexPage = await stockVerificacion.abrirKardexDesdeStock();
-        const kardexPopup = new KardexVerificacionPage(kardexPage);
-        await kardexPopup.abrirVerDetallePorAlmacen2(almacen);
-        await expect(kardexPage.getByText(patronCodigo).first()).toBeVisible();
-        if (clickCodigo) {
-            await kardexPopup.clickCodigoMovimientoRegex(patronCodigo);
-        }
-        await kardexPopup.cerrarModalDetalle();
-    });
+    await runFunctionalStep(
+        'Verificar movimiento en kardex desde stock',
+        undefined,
+        {
+            ...FUNCTIONAL_CATALOG.kardex.abrirDetalleAlmacen,
+            flowStep: 'Validar movimiento en kardex desde la vista de stock',
+            userMessage: 'No se pudo validar el movimiento en kardex desde la vista de stock.',
+            technicalDetail: 'Falla al abrir kardex, abrir detalle por almacén o validar código de movimiento.',
+        },
+        async () => {
+            const kardexPage = await stockVerificacion.abrirKardexDesdeStock();
+            const kardexPopup = new KardexVerificacionPage(kardexPage);
+            await kardexPopup.abrirVerDetallePorAlmacen2(almacen);
+            await expectVisibleFunctional(kardexPage, kardexPage.getByText(patronCodigo).first(), {
+                ...FUNCTIONAL_CATALOG.kardex.abrirDetalleAlmacen,
+                flowStep: 'Confirmar código de movimiento visible en kardex',
+                userMessage: 'No se visualizó el código de movimiento esperado en kardex.',
+                technicalDetail: `El patrón ${patronCodigo} no estuvo visible en el detalle de kardex.`,
+            });
+            if (clickCodigo) {
+                await kardexPopup.clickCodigoMovimientoRegex(patronCodigo);
+            }
+            await kardexPopup.cerrarModalDetalle();
+        },
+    );
 };
 
 export const navegarAIngresosYNuevo = async (
@@ -116,8 +157,7 @@ export const navegarAIngresosYNuevo = async (
     registroMovimiento: RegistroMovimientoPage,
     desdeMenu: boolean = false
 ) => {
-    await test.step('Given: navegar a Ingresos y crear nuevo ingreso', async () => {
-        // Comentado para evitar fallos en PRD (los IDs varían). Siempre usamos navegación por texto.
+    await test.step('Abrir ingresos y crear nuevo movimiento', async () => {
         if (desdeMenu) {
             await movimientosNav.navegarAIngresosDesdeMenu();
         } else {
@@ -134,7 +174,7 @@ export const definirAlmacenYMotivo = async (
     motivoGral: string,
     motivoEspecifico: string
 ) => {
-    await test.step('When: seleccionar almacén y motivo', async () => {
+    await runFunctionalStep('Seleccionar almacén y motivo del movimiento', undefined, FUNCTIONAL_CATALOG.movimientos.definirAlmacenMotivo, async () => {
         await registroMovimiento.seleccionarAlmacen(almacenOrigen, almacenDestino);
         await registroMovimiento.seleccionarMotivo(motivoGral, motivoEspecifico);
     });
@@ -145,7 +185,7 @@ export const definirCantidadYRegistrarIngreso = async (
     cantidad: string,
     resultadoMovimiento?: ResultadoMovimientoPage
 ) => {
-    await test.step('And: definir cantidad y registrar ingreso', async () => {
+    await runFunctionalStep('Registrar ingreso con cantidad definida', undefined, FUNCTIONAL_CATALOG.movimientos.registrarIngreso, async () => {
         await registroMovimiento.llenarCantidad(cantidad);
         await registroMovimiento.clickRegistrarIngreso();
         if (resultadoMovimiento) {
@@ -158,7 +198,7 @@ export const registrarIngresoEIrAlListado = async (
     registroMovimiento: RegistroMovimientoPage,
     resultadoMovimiento: ResultadoMovimientoPage
 ) => {
-    await test.step('And: registrar ingreso', async () => {
+    await runFunctionalStep('Registrar ingreso y volver al listado', undefined, FUNCTIONAL_CATALOG.movimientos.registrarIngreso, async () => {
         await registroMovimiento.clickRegistrarIngreso();
         await resultadoMovimiento.irAlListado();
     });
@@ -169,7 +209,16 @@ export const registrarSalidaYDespachar = async (
     resultadoMovimiento: ResultadoMovimientoPage,
     usarMetodoAvanzado: boolean = false
 ) => {
-    await test.step('And: registrar salida con despacho e ir al listado', async () => {
+    await runFunctionalStep(
+        'Registrar salida con despacho y volver al listado',
+        undefined,
+        {
+            ...FUNCTIONAL_CATALOG.movimientos.registrarIngreso,
+            flowStep: 'Registrar salida y despacharla',
+            userMessage: 'No se pudo registrar y despachar la salida de almacén.',
+            technicalDetail: 'Falla al registrar salida o confirmar despacho.',
+        },
+        async () => {
         if (usarMetodoAvanzado) {
             await registroMovimiento.clickTextoRegistrarSalida();
         } else {
@@ -177,17 +226,28 @@ export const registrarSalidaYDespachar = async (
         }
         await registroMovimiento.clickRegistrarYDespachar();
         await resultadoMovimiento.irAlListado();
-    });
+        },
+    );
 };
 
 export const registrarTrasladoEIrAlListado = async (
     registroMovimiento: RegistroMovimientoPage,
     resultadoMovimiento: ResultadoMovimientoPage
 ) => {
-    await test.step('And: registrar traslado', async () => {
+    await runFunctionalStep(
+        'Registrar traslado y volver al listado',
+        undefined,
+        {
+            ...FUNCTIONAL_CATALOG.movimientos.registrarIngreso,
+            flowStep: 'Registrar traslado entre almacenes',
+            userMessage: 'No se pudo registrar el traslado entre almacenes.',
+            technicalDetail: 'Falla al confirmar el registro del traslado.',
+        },
+        async () => {
         await registroMovimiento.clickRegistrarTraslado();
         await resultadoMovimiento.irAlListado();
-    });
+        },
+    );
 };
 
 export const verificarStockPorCodigoYClick = async (
@@ -196,7 +256,7 @@ export const verificarStockPorCodigoYClick = async (
     codigoItem: string,
     accionAdicional?: () => Promise<void>
 ) => {
-    await test.step('Then: verificar stock', async () => {
+    await runFunctionalStep('Verificar stock del producto', undefined, FUNCTIONAL_CATALOG.stock.buscarProducto, async () => {
         await movimientosNav.navegarAStockProductos();
         await stockVerificacion.buscarPorCodigo(codigoItem);
         if (accionAdicional) {
@@ -216,20 +276,30 @@ export const verificarKardexTotalEstandar = async (
     patronCodigoVisible: RegExp,
     accionAdicionalBotonOpcion?: () => Promise<void>
 ) => {
-    await test.step('And: verificar kardex total', async () => {
-        await movimientosNav.navegarAKardexTotal();
-        await page.waitForTimeout(2000);
-        await kardexVerificacion.buscarPorCodigo(codigoItem);
-        if (accionAdicionalBotonOpcion) {
-            await accionAdicionalBotonOpcion();
-        } else {
-            await kardexVerificacion.clickVariosTexto();
-        }
-        await kardexVerificacion.clickKardexPorProducto();
-        await kardexVerificacion.abrirVerDetallePorAlmacen2(almacen);
-        await kardexVerificacion.expectPatronCodigoMovimientoVisible(patronCodigoVisible);
-        await kardexVerificacion.cerrarModalDetalle();
-    });
+    await runFunctionalStep(
+        'Verificar kardex total del movimiento',
+        page,
+        {
+            ...FUNCTIONAL_CATALOG.kardex.abrirDetalleAlmacen,
+            flowStep: 'Validar movimiento en kardex total',
+            userMessage: 'No se pudo verificar el movimiento esperado en kardex total.',
+            technicalDetail: 'Falla en búsqueda, selección de opción kardex o apertura de detalle por almacén.',
+        },
+        async () => {
+            await movimientosNav.navegarAKardexTotal();
+            await page.waitForTimeout(2000);
+            await kardexVerificacion.buscarPorCodigo(codigoItem);
+            if (accionAdicionalBotonOpcion) {
+                await accionAdicionalBotonOpcion();
+            } else {
+                await kardexVerificacion.clickVariosTexto();
+            }
+            await kardexVerificacion.clickKardexPorProducto();
+            await kardexVerificacion.abrirVerDetallePorAlmacen2(almacen);
+            await kardexVerificacion.expectPatronCodigoMovimientoVisible(patronCodigoVisible);
+            await kardexVerificacion.cerrarModalDetalle();
+        },
+    );
 };
 
 export const crearIngresoEstandarParaPrecondicion = async (
@@ -242,7 +312,7 @@ export const crearIngresoEstandarParaPrecondicion = async (
     cantidad: string,
     desdeMenu: boolean = false
 ) => {
-    return await test.step('Arrange: crear ingreso estandar para precondición', async () => {
+    return await runFunctionalStep('Crear ingreso estándar para precondición', page, FUNCTIONAL_CATALOG.movimientos.registrarIngreso, async () => {
         if (desdeMenu) {
             await movimientosNav.navegarAIngresosDesdeMenu();
         } else {
@@ -272,13 +342,24 @@ export const buscarItemEnListadoRapidoYAcceder = async (
     page: Page,
     codigoItem: string
 ) => {
-    await test.step('When: buscar ítem en listado rápido y acceder', async () => {
+    await runFunctionalStep(
+        'Buscar ítem en listado rápido y acceder',
+        page,
+        {
+            ...FUNCTIONAL_CATALOG.movimientos.definirAlmacenMotivo,
+            screen: 'Movimientos rápidos',
+            flowStep: 'Buscar ítem en listado rápido',
+            userMessage: 'No se pudo buscar el ítem en el listado rápido.',
+            technicalDetail: `Falla en la búsqueda o acceso al ítem ${codigoItem} en movimientos rápidos.`,
+        },
+        async () => {
         await movimientoRapido.buscarItemPorCodigo(codigoItem);
         await page
             .locator('[id="lgt_items_cmp-filtro-items:filtro:filtro_section_v-input:button_search"]')
             .click();
         await page.waitForLoadState('networkidle');
-    });
+        },
+    );
 };
 
 export const configurarYRetirarStockRapido = async (
@@ -288,13 +369,13 @@ export const configurarYRetirarStockRapido = async (
     motivoEspecifico: string,
     cantidad: string
 ) => {
-    await test.step('And: configurar movimiento y retirar stock', async () => {
+    await test.step('Configurar retiro de stock rápido', async () => {
         await movimientoRapido.seleccionarAlmacenRapido(almacen);
         await movimientoRapido.seleccionarMotivoSalidaDesdeDiv(motivoGral, motivoEspecifico);
         await movimientoRapido.llenarCantidadRapida(cantidad);
     });
 
-    await test.step('Then: confirmar retirar stock', async () => {
+    await test.step('Confirmar retiro de stock rápido', async () => {
         await movimientoRapido.clickBtnRetirarStock();
         await movimientoRapido.cerrarModalConfirmacion();
     });
@@ -306,13 +387,13 @@ export const configurarYRetirarStockRapido2 = async (
     motivoEspecifico: string,
     cantidad: string
 ) => {
-    await test.step('And: configurar movimiento y retirar stock', async () => {
+    await test.step('Configurar retiro de stock rápido (variante 2)', async () => {
         await movimientoRapido.seleccionarAlmacenRapido2(almacen);
         await movimientoRapido.seleccionarMotivoSalidaDesdeDiv(motivoGral, motivoEspecifico);
         await movimientoRapido.llenarCantidadRapida(cantidad);
     });
 
-    await test.step('Then: confirmar retirar stock', async () => {
+    await test.step('Confirmar retiro de stock rápido (variante 2)', async () => {
         await movimientoRapido.clickBtnRetirarStock();
         await movimientoRapido.cerrarModalConfirmacion();
     });
@@ -325,12 +406,12 @@ export const configurarYAumentarStockRapido = async (
     motivoEspecifico: string,
     cantidad: string
 ) => {
-    await test.step('And: configurar movimiento y aumentar stock', async () => {
+    await test.step('Configurar aumento de stock rápido', async () => {
         if (almacen) await movimientoRapido.seleccionarAlmacenRapido(almacen);
         if (motivoGral) await movimientoRapido.seleccionarMotivoIngresoRapido(motivoGral, motivoEspecifico);
         await movimientoRapido.llenarCantidadRapida(cantidad);
     });
-    await test.step('Then: confirmar aumentar stock', async () => {
+    await test.step('Confirmar aumento de stock rápido', async () => {
         await movimientoRapido.clickBtnAumentarStock();
         await movimientoRapido.cerrarModalConfirmacion();
     });
@@ -345,7 +426,16 @@ export const crearSalidaEstandarParaPrecondicion = async (
     cantidad: string,
     variante?: string
 ) => {
-    await test.step('Arrange: crear salida para precondición', async () => {
+    await runFunctionalStep(
+        'Crear salida para precondición',
+        undefined,
+        {
+            ...FUNCTIONAL_CATALOG.movimientos.registrarIngreso,
+            flowStep: 'Generar salida base para escenario',
+            userMessage: 'No se pudo crear la salida base para la precondición del caso.',
+            technicalDetail: 'Falla al crear, registrar o despachar la salida de precondición.',
+        },
+        async () => {
         await movimientosNav.navegarASalidas();
         await registroMovimiento.clickAgregarSalida();
         await registroMovimiento.buscarItem(codigoItem);
@@ -357,14 +447,24 @@ export const crearSalidaEstandarParaPrecondicion = async (
         await registroMovimiento.clickTextoRegistrarSalida();
         await registroMovimiento.clickRegistrarYDespachar();
         await resultadoMovimiento.irAlListado();
-    });
+        },
+    );
 };
 
 export const eliminarMovimientoDesdeListado = async (
     listadoMovimientos: ListadoMovimientosPage,
     usarIcono: boolean = false
 ) => {
-    await test.step('Act: eliminar el movimiento desde el listado', async () => {
+    await runFunctionalStep(
+        'Eliminar movimiento desde el listado',
+        undefined,
+        {
+            ...FUNCTIONAL_CATALOG.movimientos.editarMovimiento,
+            flowStep: 'Eliminar movimiento desde el listado',
+            userMessage: 'No se pudo eliminar el movimiento desde el listado.',
+            technicalDetail: 'Falla al abrir acciones, confirmar eliminación o cerrar modal.',
+        },
+        async () => {
         if (usarIcono) {
             await listadoMovimientos.abrirMenuAccionesIcono();
         } else {
@@ -373,14 +473,15 @@ export const eliminarMovimientoDesdeListado = async (
         await listadoMovimientos.clickEliminarMovimiento();
         await listadoMovimientos.confirmarEliminacion();
         await listadoMovimientos.cerrarModal();
-    });
+        },
+    );
 };
 
 export const verificarEventoEnBitacora = async (
     listadoMovimientos: ListadoMovimientosPage,
     evento: string
 ) => {
-    await test.step(`Assert: verificar bitácora de ${evento}`, async () => {
+    await runFunctionalStep(`Validar bitácora con evento ${evento}`, undefined, FUNCTIONAL_CATALOG.movimientos.verificarBitacora, async () => {
         await listadoMovimientos.abrirMenuAcciones();
         await listadoMovimientos.clickVerBitacora();
         await listadoMovimientos.clickEventoBitacora(evento);
@@ -392,7 +493,7 @@ export const abrirYCerrarBitacora = async (
     listadoMovimientos: ListadoMovimientosPage,
     cerrarAlternativo: boolean = false
 ) => {
-    await test.step('Then: verificar apertura de bitácora', async () => {
+    await runFunctionalStep('Verificar apertura de bitácora', undefined, FUNCTIONAL_CATALOG.movimientos.verificarBitacora, async () => {
         await listadoMovimientos.abrirMenuAcciones();
         await listadoMovimientos.clickVerBitacora();
         if (cerrarAlternativo) {
@@ -407,7 +508,7 @@ export const verificarstockmasivo = async (
     stockVerificacion: StockVerificacionPage,
     nthClicks: number[] = [0],
 ) => {
-    await test.step('And: verificar stock del producto', async () => {
+    await runFunctionalStep('Verificar stock del producto masivo', undefined, FUNCTIONAL_CATALOG.stock.buscarProducto, async () => {
         await movimientosNav.navegarAStockProductos();
         await stockVerificacion.buscarPorCodigo(ITEMS_TEST.MASIVO_PROD.codigo);
         for (const nth of nthClicks) {
@@ -422,7 +523,7 @@ export const configurarDatosOpcionalesEstandar = async (
     numDocumentoProveedor: string,
     nombreProveedor: string
 ) => {
-    await test.step('And: configurar datos opcionales con proveedor y campos adicionales', async () => {
+    await test.step('Configurar datos opcionales con proveedor y campos adicionales', async () => {
         await datosOpcionales.abrirDatosOpcionales();
         await datosOpcionales.buscarProveedor(numDocumentoProveedor);
         await datosOpcionales.seleccionarProveedor(nombreProveedor);
@@ -440,10 +541,21 @@ export const navegarATrasladosYNuevo = async (
     movimientosNav: MovimientosNavigationPage,
     registroMovimiento: RegistroMovimientoPage,
 ) => {
-    await test.step('Given: navegar a Traslados y crear nuevo', async () => {
+    await runFunctionalStep(
+        'Navegar a traslados y crear nuevo',
+        undefined,
+        {
+            ...FUNCTIONAL_CATALOG.movimientos.navegarIngresos,
+            screen: 'Movimientos > Traslados',
+            flowStep: 'Ingresar a traslados y abrir nuevo registro',
+            userMessage: 'No se pudo abrir la pantalla de traslados para crear un nuevo movimiento.',
+            technicalDetail: 'Falla en navegación hacia traslados o apertura del formulario.',
+        },
+        async () => {
         await movimientosNav.navegarATraslados();
         await registroMovimiento.clickAgregarTraslado();
-    });
+        },
+    );
 };
 
 // ─── Helpers MS-2 Salida ──────────────────────────────────────────────
@@ -454,7 +566,17 @@ export const navegarASalidasYNuevo = async (
     desdeMenu: boolean = false,
     usarAgregar: boolean = false,
 ) => {
-    await test.step('Given: navegar a Salidas y crear nueva', async () => {
+    await runFunctionalStep(
+        'Navegar a salidas y crear nueva',
+        undefined,
+        {
+            ...FUNCTIONAL_CATALOG.movimientos.navegarIngresos,
+            screen: 'Movimientos > Salidas',
+            flowStep: 'Ingresar a salidas y abrir nuevo registro',
+            userMessage: 'No se pudo abrir la pantalla de salidas para crear un nuevo movimiento.',
+            technicalDetail: 'Falla en navegación hacia salidas o apertura del formulario.',
+        },
+        async () => {
         if (desdeMenu) {
             await movimientosNav.navegarASalidasDesdeMenu();
         } else {
@@ -465,7 +587,8 @@ export const navegarASalidasYNuevo = async (
         } else {
             await registroMovimiento.clickNuevoMovimiento();
         }
-    });
+        },
+    );
 };
 
 // ─── Helpers MS-5 Edición ─────────────────────────────────────────────
@@ -475,7 +598,7 @@ export const verificarBitacoraEdicion = async (
     eventos: string[],
     cerrarAlternativo: boolean = false,
 ) => {
-    await test.step(`Assert: verificar bitácora (${eventos.join(', ')})`, async () => {
+    await runFunctionalStep(`Validar bitácora de edición (${eventos.join(', ')})`, undefined, FUNCTIONAL_CATALOG.movimientos.verificarBitacora, async () => {
         await listadoMovimientos.abrirMenuAcciones();
         await listadoMovimientos.clickVerBitacora();
         for (const evento of eventos) {
@@ -495,7 +618,11 @@ export const editarCantidadDeMovimiento = async (
     cantidad: string,
     tipo: 'ingreso' | 'salida' = 'ingreso',
 ) => {
-    await test.step(`Act: editar cantidad a ${cantidad}`, async () => {
+    await runFunctionalStep(
+        `Editar cantidad del movimiento a ${cantidad}`,
+        undefined,
+        FUNCTIONAL_CATALOG.movimientos.editarMovimiento,
+        async () => {
         await listadoMovimientos.abrirMenuAcciones();
         await listadoMovimientos.clickEditarMovimiento();
         await registroMovimiento.llenarCantidad(cantidad);
@@ -505,7 +632,8 @@ export const editarCantidadDeMovimiento = async (
             await registroMovimiento.clickActualizarSalida();
         }
         await listadoMovimientos.cerrarModal();
-    });
+        },
+    );
 };
 
 // ─── Helpers MS-6 Clonación ───────────────────────────────────────────
@@ -522,7 +650,11 @@ export const crearIngresoBaseParaClonacion = async (
         configurarDatos?: () => Promise<void>;
     }
 ) => {
-    await test.step('Arrange: crear ingreso base para clonación', async () => {
+    await runFunctionalStep(
+        'Crear ingreso base para clonación',
+        undefined,
+        FUNCTIONAL_CATALOG.movimientos.clonarMovimiento,
+        async () => {
         await movimientosNav.navegarAIngresos();
         await registroMovimiento.clickAgregarIngreso();
         if (opciones?.waitAntes) {
@@ -538,7 +670,8 @@ export const crearIngresoBaseParaClonacion = async (
         }
         await registroMovimiento.clickRegistrarIngreso();
         await resultadoMovimiento.irAlListado();
-    });
+        },
+    );
 };
 
 export const clonarMovimientoDesdeListado = async (
@@ -546,7 +679,7 @@ export const clonarMovimientoDesdeListado = async (
     registroMovimiento: RegistroMovimientoPage,
     antesDeConfirmar?: () => Promise<void>,
 ) => {
-    await test.step('Act: clonar movimiento', async () => {
+    await runFunctionalStep('Clonar movimiento desde listado', undefined, FUNCTIONAL_CATALOG.movimientos.clonarMovimiento, async () => {
         await listadoMovimientos.abrirMenuAcciones();
         await listadoMovimientos.clickClonarMovimiento();
         if (antesDeConfirmar) {
@@ -564,7 +697,7 @@ export const navegarAIngresosYAbrirAccionesImpresion = async (
     listadoMovimientos: ListadoMovimientosPage,
     desdeMenu: boolean = false,
 ) => {
-    await test.step('Given: navegar a Ingresos y abrir acciones de impresión', async () => {
+    await runFunctionalStep('Abrir acciones de impresión desde ingresos', undefined, FUNCTIONAL_CATALOG.movimientos.accionesImpresion, async () => {
         if (desdeMenu) {
             await movimientosNav.navegarAIngresosDesdeMenu();
         } else {
@@ -584,7 +717,7 @@ export const cargarMovimientoMasivoDesdeExcel = async (
     page: Page,
     excelPath: string,
 ) => {
-    await test.step('When: abrir carga masiva y subir excel', async () => {
+    await runFunctionalStep('Abrir carga masiva y subir excel', page, FUNCTIONAL_CATALOG.movimientos.cargaMasiva, async () => {
         await listadoMovimientos.clickIconoOpciones();
         await listadoMovimientos.clickCrearDesdeExcel();
         await page.locator('.popup-container > .button-close > .icon').click();
@@ -594,9 +727,14 @@ export const cargarMovimientoMasivoDesdeExcel = async (
         await page.getByText('Siguiente').click();
     });
 
-    await test.step('And: procesar la carga', async () => {
+    await runFunctionalStep('Procesar carga masiva de movimientos', page, FUNCTIONAL_CATALOG.movimientos.cargaMasiva, async () => {
         await page.getByText('Procesar').click();
-        await expect(page.getByRole('button', {name: 'Ir al inicio'})).toBeVisible({timeout: 30_000});
+        await expectVisibleFunctional(page, page.getByRole('button', {name: 'Ir al inicio'}), {
+            ...FUNCTIONAL_CATALOG.movimientos.cargaMasiva,
+            flowStep: 'Validar finalización de carga masiva',
+            userMessage: 'La carga masiva no finalizó correctamente para regresar al inicio.',
+            technicalDetail: 'No apareció el botón "Ir al inicio" después de procesar el excel.',
+        });
         await page.getByRole('button', {name: 'Ir al inicio'}).click();
     });
 };

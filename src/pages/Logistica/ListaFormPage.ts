@@ -1,6 +1,6 @@
-import { type Page, type Locator } from '@playwright/test';
-import { ItemFormBasePage } from './ItemFormBasePage';
-import type { ProductoListaItem } from '../../helpers/Logistica/item-data.types';
+import { type Page, type Locator, expect } from "@playwright/test";
+import { ItemFormBasePage } from "./ItemFormBasePage";
+import type { ProductoListaItem } from "../../helpers/Logistica/item-data.types";
 
 export class ListaFormPage extends ItemFormBasePage {
   constructor(page: Page) {
@@ -8,32 +8,54 @@ export class ListaFormPage extends ItemFormBasePage {
   }
 
   protected override get inputNombre(): Locator {
-    return this.page.getByRole('textbox', { name: 'Ej. Lista de útiles primaria' });
+    return this.page.getByRole("textbox", {
+      name: "Ej. Lista de útiles primaria",
+    });
+  }
+  // En ListaFormPage agrega este método público
+  async obtenerValorNombre(): Promise<string> {
+    return await this.inputNombre.inputValue();
   }
 
   async iniciarCreacionLista(): Promise<void> {
     await this.botonCrearItems.click();
-    await this.page.getByText('LNueva lista').click();
+    await this.page.getByText("LNueva lista").click();
     // Esperar a que el formulario de lista se renderice completamente
-    await this.inputNombre.waitFor({ state: 'visible' });
+    await this.inputNombre.waitFor({ state: "visible" });
+    await this.page.waitForTimeout(2000);
   }
 
   override async llenarNombre(nombre: string): Promise<void> {
-    await this.inputNombre.waitFor({ state: 'visible' });
-    await this.inputNombre.click();
-    await this.inputNombre.fill('');
-    await this.inputNombre.pressSequentially(nombre, { delay: 30 });
+    // Forzar foco directo sin click
+    await this.inputNombre.focus();
+    await this.inputNombre.fill(""); // limpiar
+
+    // Esperar que el componente procese el foco
+    await this.page.waitForTimeout(300);
+
+    await this.inputNombre.pressSequentially(nombre, { delay: 50 });
+    await expect(this.inputNombre).toHaveValue(nombre);
+  }
+  // llenar cidgo es nuevo
+  async llenarCodigo(codigo: number): Promise<void> {
+    await this.page.getByText("Automático").first().click();
+    await this.page.getByText("Manual").first().click();
+    await this.page
+      .locator('[id="lgt_reg-item_cmp-lista-productos:informacion-basica_v-input:codigo"]')
+      .fill(codigo.toString());
   }
 
   async llenarDescripcion(descripcion: string): Promise<void> {
-    const input = this.page.getByRole('textbox', { name: 'Descripción del ítem' });
+    const input = this.page.getByRole("textbox", {
+      name: "Descripción del ítem",
+    });
     await input.click();
     await input.fill(descripcion);
   }
 
   async buscarYAgregarProducto(item: ProductoListaItem): Promise<void> {
-    const inputBuscar = this.page.getByRole('textbox', {
-      name: 'Buscar nombre del producto, c',
+    const inputBuscar = this.page.getByRole("textbox", {
+      name: "Buscar nombre del producto, c",
     });
 
     await inputBuscar.click();
@@ -59,6 +81,6 @@ export class ListaFormPage extends ItemFormBasePage {
   }
 
   async crearLista(): Promise<void> {
-    await this.clickBotonCrear('lista');
+    await this.clickBotonCrear("lista");
   }
 }

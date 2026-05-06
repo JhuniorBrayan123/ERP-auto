@@ -14,7 +14,6 @@
  *   - Reset   (\x1b[0m)  → restaurar color
  */
 import type {
-    FullConfig,
     FullResult,
     Reporter,
     Suite,
@@ -22,6 +21,8 @@ import type {
     TestResult,
     TestStep,
 } from '@playwright/test/reporter';
+import {getEnvironmentLabel} from './environment-label';
+import {parseFunctionalMeta, type FunctionalErrorMeta} from './functional-error';
 
 // ─── Códigos ANSI ────────────────────────────────────────────────────
 const RESET   = '\x1b[0m';
@@ -47,10 +48,13 @@ class MavenReporter implements Reporter {
     private startTime = 0;
     private suiteName = '';
     private startedTests = new Set<string>();
+    private readonly environmentLabel = getEnvironmentLabel();
+    private readonly printTechnical = process.env.PW_TECHNICAL_ERRORS === '1';
+    private readonly qaFailures: Array<{ caseName: string; failedStep: string; userMessage: string }> = [];
 
     // ─── Lifecycle hooks ─────────────────────────────────────────────
 
-    onBegin(config: FullConfig, suite: Suite): void {
+    onBegin(_: unknown, suite: Suite): void {
         this.startTime = Date.now();
         this.totalTests = suite.allTests().length;
         this.suiteName = this.extractSuiteName(suite);
@@ -60,6 +64,7 @@ class MavenReporter implements Reporter {
         console.log(`${CYAN} T E S T S  (${this.totalTests})${RESET}`);
         console.log(`${CYAN}${SEPARATOR}${RESET}`);
         console.log(`${CYAN}Running${RESET} ${this.suiteName}`);
+        console.log(`Entorno: ${this.environmentLabel}`);
         console.log('');
     }
 
@@ -104,12 +109,12 @@ class MavenReporter implements Reporter {
 
             case 'failed':
                 this.failed++;
-                this.printFailure(duration, result);
+                this.printFailure(test, duration, result);
                 break;
 
             case 'timedOut':
                 this.errors++;
-                this.printTimeout(duration, result);
+                this.printTimeout(test, duration, result);
                 break;
 
             case 'skipped':
@@ -128,12 +133,26 @@ class MavenReporter implements Reporter {
         const hasFailures = this.failed > 0 || this.errors > 0;
         const timeFormatted = this.formatDuration(elapsedMs);
 
-        // ─── Bloque de resultados por suite (estilo Surefire) ────────
         console.log('');
-        const statsLine = `Tests run: ${totalRun}, Failures: ${this.failed}, Errors: ${this.errors}, Skipped: ${this.skipped}, Time elapsed: ${timeFormatted} - in ${this.suiteName}`;
-        console.log(hasFailures ? `${RED}${statsLine}${RESET}` : `${GREEN}${statsLine}${RESET}`);
+        console.log(SEPARATOR);
+        console.log('RESUMEN FUNCIONAL DE FALLOS');
+        if (this.qaFailures.length === 0) {
+            console.log('- Sin fallos funcionales');
+        } else {
+            for (const item of this.qaFailures) {
+                console.log(`- ${item.caseName} -> ${item.failedStep} -> ${item.userMessage}`);
+            }
+        }
+        console.log(SEPARATOR);
 
-        // ─── Bloque BUILD SUCCESS / FAILURE ──────────────────────────
+        console.log('');
+        console.log(SEPARATOR);
+        console.log('RESUMEN DE EJECUCIÓN');
+        console.log(`Entorno: ${this.environmentLabel}`);
+        console.log(`Tests run: ${totalRun}, Failures: ${this.failed}, Errors: ${this.errors}, Skipped: ${this.skipped}`);
+        console.log(`Time elapsed: ${timeFormatted}`);
+        console.log(SEPARATOR);
+
         console.log('');
         console.log(DOUBLE_SEP);
         console.log(hasFailures
@@ -143,39 +162,21 @@ class MavenReporter implements Reporter {
         console.log(`${CYAN}[INFO]${RESET} Total time:  ${timeFormatted}`);
         console.log(`${CYAN}[INFO]${RESET} Finished at: ${this.formatDate(new Date())}`);
         console.log(DOUBLE_SEP);
-
-        // ─── Resumen de fallos (si existen) ──────────────────────────
-        if (hasFailures) {
-            console.log('');
-            console.log(`${RED}[ERROR] Tests run: ${totalRun}, Failures: ${this.failed}, Errors: ${this.errors}, Skipped: ${this.skipped}${RESET}`);
-        }
-
         console.log('');
     }
 
     // ─── Métodos de impresión por resultado ──────────────────────────
 
-    private printFailure(duration: string, result: TestResult): void {
-        const errorMessage = result.error?.message || 'Error desconocido';
-        const stackTrace = result.error?.stack || '';
-
+    private printFailure(test: TestCase, duration: string, result: TestResult): void {
         console.log(`${RED}---Resultado: El test falló${RESET} (${duration}s)`);
-        console.log(`${RED}[ERROR] AssertionError:${RESET}`);
-        console.log(`${RED}[ERROR]   ${this.cleanAnsi(errorMessage)}${RESET}`);
-
-        if (stackTrace) {
-            for (const line of this.extractRelevantStack(stackTrace)) {
-                console.log(`${RED}[ERROR]     at ${line}${RESET}`);
-            }
-        }
+        this.printQaFailure(test, result);
+        this.printTechnicalDetails(result);
     }
 
-    private printTimeout(duration: string, result: TestResult): void {
-        const errorMessage = result.error?.message || 'Timeout excedido';
-
+    private printTimeout(test: TestCase, duration: string, result: TestResult): void {
         console.log(`${RED}---Resultado: El test falló por timeout${RESET} (${duration}s)`);
-        console.log(`${RED}[ERROR] TimeoutError:${RESET}`);
-        console.log(`${RED}[ERROR]   ${this.cleanAnsi(errorMessage)}${RESET}`);
+        this.printQaFailure(test, result);
+        this.printTechnicalDetails(result);
     }
 
     // ─── Utilidades ──────────────────────────────────────────────────
@@ -232,6 +233,76 @@ class MavenReporter implements Reporter {
             .filter((line) => line.startsWith('at ') || line.includes('.spec.ts'))
             .slice(0, 5)
             .map((line) => this.cleanAnsi(line).replace(/^at /, ''));
+    }
+
+    private printQaFailure(test: TestCase, result: TestResult): void {
+        const summary = this.buildFunctionalSummary(test, result);
+        this.qaFailures.push({
+            caseName: summary.caseName,
+            failedStep: summary.failedStep,
+            userMessage: summary.userMessage,
+        });
+
+        console.log(`${RED}[FAIL][QA]${RESET}`);
+        console.log(`${RED}Caso: ${summary.caseName}${RESET}`);
+        console.log(`${RED}Paso: ${summary.failedStep}${RESET}`);
+        console.log(`${RED}Motivo: ${summary.userMessage}${RESET}`);
+    }
+
+    private printTechnicalDetails(result: TestResult): void {
+        if (!this.printTechnical) {
+            return;
+        }
+
+        const errorMessage = result.error?.message || 'Error desconocido';
+        const stackTrace = result.error?.stack || '';
+        const technicalLines = this.cleanAnsi(errorMessage)
+            .split('\n')
+            .filter((line) => line && !line.includes('__PW_FUNCTIONAL_META__='));
+
+        console.log(`${YELLOW}[TECH] Error técnico:${RESET}`);
+        for (const line of technicalLines.slice(0, 4)) {
+            console.log(`${YELLOW}[TECH]   ${line}${RESET}`);
+        }
+
+        if (stackTrace) {
+            for (const line of this.extractRelevantStack(stackTrace)) {
+                console.log(`${YELLOW}[TECH]   at ${line}${RESET}`);
+            }
+        }
+    }
+
+    private buildFunctionalSummary(test: TestCase, result: TestResult): FunctionalErrorMeta & { caseName: string } {
+        const rawMessage = result.error?.message ?? '';
+        const parsed = parseFunctionalMeta(rawMessage);
+        if (parsed) {
+            return {
+                ...parsed,
+                caseName: parsed.caseName ?? test.title,
+            };
+        }
+
+        const firstLine = this.cleanAnsi(rawMessage).split('\n')[0] || 'No se pudo completar el flujo por un error no controlado.';
+        const isTimeout = result.status === 'timedOut' || firstLine.toLowerCase().includes('timeout');
+        const userMessage = isTimeout
+            ? 'La pantalla no quedó lista para continuar el flujo.'
+            : 'Ocurrió un error durante el flujo y no se pudo completar el paso esperado.';
+
+        return {
+            caseName: test.title,
+            failedStep: this.getFailedStep(result),
+            userMessage,
+            moduleOrScreen: 'No identificado',
+            technicalError: firstLine,
+        };
+    }
+
+    private getFailedStep(result: TestResult): string {
+        const testSteps = result.steps.filter((step) => step.category === 'test.step');
+        const failed = testSteps.find((step) => step.error);
+        if (failed?.title) return failed.title;
+        const last = testSteps[testSteps.length - 1];
+        return last?.title ?? 'Paso no identificado';
     }
 }
 

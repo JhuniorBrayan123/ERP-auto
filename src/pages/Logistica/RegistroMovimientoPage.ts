@@ -1,4 +1,6 @@
 import {expect, type Locator, type Page} from '@playwright/test';
+import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
+import {runFunctionalAction} from '../../utils/functional-step';
 
 export class RegistroMovimientoPage {
     constructor(private readonly page: Page) {
@@ -129,13 +131,17 @@ export class RegistroMovimientoPage {
     }
 
     async buscarItem(codigo: string): Promise<void> {
-        await this.searchInput.click();
-        await this.searchInput.fill(codigo);
-        await this.page.waitForTimeout(1000); // Esperar respuesta de debounce/búsqueda del ERP
+        await runFunctionalAction(this.page, FUNCTIONAL_CATALOG.movimientos.definirAlmacenMotivo, async () => {
+            await this.searchInput.click();
+            await this.searchInput.fill(codigo);
+            await this.page.waitForTimeout(1000); // Esperar respuesta de debounce/búsqueda del ERP
+        });
     }
 
     async seleccionarItemEnResultados(nombre: string): Promise<void> {
-        await this.page.getByText(nombre).click();
+        await runFunctionalAction(this.page, FUNCTIONAL_CATALOG.movimientos.definirAlmacenMotivo, async () => {
+            await this.page.getByText(nombre).click();
+        });
     }
 
     async seleccionarItemTextoCompleto(textoCompleto: string): Promise<void> {
@@ -173,15 +179,31 @@ export class RegistroMovimientoPage {
     }
 
     async clickRegistrarIngreso(): Promise<void> {
-        await this.page.getByRole('button', {name: 'REGISTRAR INGRESO'}).click();
+        await runFunctionalAction(this.page, FUNCTIONAL_CATALOG.movimientos.registrarIngreso, async () => {
+            await this.page.getByRole('button', {name: 'REGISTRAR INGRESO'}).click();
+        });
     }
 
     async clickRegistrarSalida(): Promise<void> {
-        await this.page.locator('div').filter({hasText: /^REGISTRAR SALIDA$/}).first().click();
+        await runFunctionalAction(this.page, {
+            ...FUNCTIONAL_CATALOG.movimientos.registrarIngreso,
+            flowStep: 'Registrar salida de almacén',
+            userMessage: 'No se pudo registrar la salida de almacén.',
+            technicalDetail: 'Falla al ejecutar la acción de registro de salida.',
+        }, async () => {
+            await this.page.locator('div').filter({hasText: /^REGISTRAR SALIDA$/}).first().click();
+        });
     }
 
     async clickRegistrarYDespachar(): Promise<void> {
-        await this.page.getByText('Registrar y despachar').click();
+        await runFunctionalAction(this.page, {
+            ...FUNCTIONAL_CATALOG.movimientos.registrarIngreso,
+            flowStep: 'Confirmar registro y despacho',
+            userMessage: 'No se pudo completar el registro y despacho de la salida.',
+            technicalDetail: 'Falla al confirmar la operación Registrar y despachar.',
+        }, async () => {
+            await this.page.getByText('Registrar y despachar').click();
+        });
     }
 
     async clickRegistrarSoloSalida(): Promise<void> {
@@ -226,6 +248,7 @@ export class RegistroMovimientoPage {
 
     async clickLimpiarConfirmacion(): Promise<void> {
         await this.page.getByRole('button', {name: 'Limpiar', exact: true}).click();
+        await this.page.waitForTimeout(1000);
     }
 
     async clickCancelar(): Promise<void> {

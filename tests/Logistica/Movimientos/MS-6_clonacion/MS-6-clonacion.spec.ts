@@ -1,8 +1,8 @@
 import {test} from '@fixtures/Logistica/movimientos-fixture';
 import {ALMACENES, ITEMS_TEST, PATRON_CODIGO, PROVEEDOR_EXISTENTE,} from '@helpers/Logistica/movimiento-data.helper';
 import {
-    crearIngresoBaseParaClonacion,
     clonarMovimientoDesdeListado,
+    crearIngresoBaseParaClonacion,
     verificarBitacoraEdicion,
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
 
