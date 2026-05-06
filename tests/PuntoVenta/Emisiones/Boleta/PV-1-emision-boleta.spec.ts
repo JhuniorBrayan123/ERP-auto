@@ -1,5 +1,6 @@
 import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
-import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import {ClientePage} from "@pages/PuntoVenta/ClientePage";
 
 test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emisiones']}, () => {
 
@@ -108,7 +109,7 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
 
         await test.step('And: agregar producto y editar precio a 750', async () => {
             await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItemPorCodigo(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
             await emisionPage.editarPrecioItem('750.00');
         });
 
@@ -118,7 +119,7 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
 
         await test.step('Then: debe mostrar validación de monto mayor a 700', async () => {
             await expect(
-                page.getByText('Selecciona un cliente para montos mayores a S/ 700'),
+                page.getByText('Selecciona un cliente para montos mayores a S/700'),
             ).toBeVisible();
         });
 
@@ -136,7 +137,7 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
         await test.step('Given: caja abierta y producto agregado', async () => {
             await cajaPage.continuarVendiendo();
             await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItemPorCodigo(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
             await emisionPage.incrementarCantidad(7);
         });
 
@@ -180,7 +181,7 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
         await test.step('Given: caja abierta y producto con cantidad 10', async () => {
             await cajaPage.continuarVendiendo();
             await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItemPorCodigo(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
             await emisionPage.incrementarCantidad(9);
         });
 
@@ -224,7 +225,7 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
         await test.step('Given: caja abierta y producto agregado', async () => {
             await cajaPage.continuarVendiendo();
             await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItemPorCodigo(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
         });
 
         await test.step('When: aplicar descuento por ítem del 2% en porcentaje', async () => {
@@ -388,7 +389,7 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
 
     // ─── Boleta datos adicionales (Patrón C: Bitácora + Ver comprobante popup) ──
     test('Emitir boleta con datos adicionales @PV-1.10', async ({
-                                                                    cajaPage, emisionPage, busquedaComprobantes, page,
+                                                                    cajaPage, emisionPage, busquedaComprobantes,clientePage, page,
                                                                 }) => {
         await test.step('Given: caja abierta y producto agregado', async () => {
             await cajaPage.continuarVendiendo();
@@ -397,8 +398,8 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
         });
 
         await test.step('When: abrir datos opcionales y llenarlos', async () => {
-            await page.getByRole('button', {name: 'Datos'}).click();
-            // Los datos opcionales se configuran según el entorno
+            await emisionPage.abrirDatosOpcionales();
+            await emisionPage.llenarDatosOpcionales(CLIENTES.EMPRESA_RUC_AUTO.textoSelector);
         });
 
         await test.step('And: emitir con efectivo', async () => {
