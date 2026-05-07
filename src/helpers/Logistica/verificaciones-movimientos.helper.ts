@@ -1,5 +1,5 @@
 import {test} from '../../fixtures/Logistica/movimientos-fixture';
-import {expect, Page} from '@playwright/test';
+import {Page} from '@playwright/test';
 import {MovimientosNavigationPage} from '../../pages/Logistica/MovimientosNavigationPage';
 import {StockVerificacionPage} from '../../pages/Logistica/StockVerificacionPage';
 import {KardexVerificacionPage} from '../../pages/Logistica/KardexVerificacionPage';
@@ -11,6 +11,7 @@ import {ListadoMovimientosPage} from '../../pages/Logistica/ListadoMovimientosPa
 import {ITEMS_TEST} from "@helpers/Logistica/movimiento-data.helper";
 import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
 import {expectVisibleFunctional, runFunctionalStep} from '../../utils/functional-step';
+import {MovimientoApi, MovimientoCreado} from "@services/Logistica/MovimientoApi";
 
 export const verificarStockYKardex = async (
     movimientosNav: MovimientosNavigationPage,
@@ -219,13 +220,13 @@ export const registrarSalidaYDespachar = async (
             technicalDetail: 'Falla al registrar salida o confirmar despacho.',
         },
         async () => {
-        if (usarMetodoAvanzado) {
-            await registroMovimiento.clickTextoRegistrarSalida();
-        } else {
-            await registroMovimiento.clickRegistrarSalida();
-        }
-        await registroMovimiento.clickRegistrarYDespachar();
-        await resultadoMovimiento.irAlListado();
+            if (usarMetodoAvanzado) {
+                await registroMovimiento.clickTextoRegistrarSalida();
+            } else {
+                await registroMovimiento.clickRegistrarSalida();
+            }
+            await registroMovimiento.clickRegistrarYDespachar();
+            await resultadoMovimiento.irAlListado();
         },
     );
 };
@@ -244,8 +245,8 @@ export const registrarTrasladoEIrAlListado = async (
             technicalDetail: 'Falla al confirmar el registro del traslado.',
         },
         async () => {
-        await registroMovimiento.clickRegistrarTraslado();
-        await resultadoMovimiento.irAlListado();
+            await registroMovimiento.clickRegistrarTraslado();
+            await resultadoMovimiento.irAlListado();
         },
     );
 };
@@ -336,7 +337,64 @@ export const crearIngresoEstandarParaPrecondicion = async (
         await resultadoMovimiento.irAlListado();
     });
 };
+export const crearIngresoEstandarParaPrecondicion2 = async (
+    movimientosNav: MovimientosNavigationPage,
+    registroMovimiento: RegistroMovimientoPage,
+    resultadoMovimiento: ResultadoMovimientoPage,
+    page: Page,
+    codigoItem: string,
+    nombreItem: string,
+    cantidad: string,
+    desdeMenu: boolean = false
+): Promise<MovimientoCreado> => {
+    let ingresoCreado!: MovimientoCreado;
 
+    await runFunctionalStep(
+        'Crear ingreso estándar para precondición',
+        page,
+        FUNCTIONAL_CATALOG.movimientos.registrarIngreso,
+        async () => {
+            if (desdeMenu) {
+                await movimientosNav.navegarAIngresosDesdeMenu();
+            } else {
+                await movimientosNav.navegarAIngresos();
+            }
+
+            await registroMovimiento.clickAgregarIngreso();
+
+            if (codigoItem === '111111') {
+                await page.waitForTimeout(2000);
+            }
+
+            await registroMovimiento.buscarItem(codigoItem);
+
+            if (nombreItem.includes('Pproducto')) {
+                await page.getByText(nombreItem).click();
+            } else {
+                await registroMovimiento.seleccionarItemEnResultados(nombreItem);
+            }
+
+            await registroMovimiento.llenarCantidad(cantidad);
+
+            const ingresoResponsePromise = page.waitForResponse((response) =>
+                response.url().includes('/Logistica/api/v1/movimientos/ingresos') &&
+                response.request().method() === 'POST' &&
+                response.ok(),
+            );
+
+            await registroMovimiento.clickRegistrarIngreso();
+
+            const ingresoResponse = await ingresoResponsePromise;
+            const ingresoBody = await ingresoResponse.json();
+
+            ingresoCreado = MovimientoApi.parseMovimientoCreado(ingresoBody);
+
+            await resultadoMovimiento.irAlListado();
+        },
+    );
+
+    return ingresoCreado;
+};
 export const buscarItemEnListadoRapidoYAcceder = async (
     movimientoRapido: MovimientoRapidoPage,
     page: Page,
@@ -353,11 +411,11 @@ export const buscarItemEnListadoRapidoYAcceder = async (
             technicalDetail: `Falla en la búsqueda o acceso al ítem ${codigoItem} en movimientos rápidos.`,
         },
         async () => {
-        await movimientoRapido.buscarItemPorCodigo(codigoItem);
-        await page
-            .locator('[id="lgt_items_cmp-filtro-items:filtro:filtro_section_v-input:button_search"]')
-            .click();
-        await page.waitForLoadState('networkidle');
+            await movimientoRapido.buscarItemPorCodigo(codigoItem);
+            await page
+                .locator('[id="lgt_items_cmp-filtro-items:filtro:filtro_section_v-input:button_search"]')
+                .click();
+            await page.waitForLoadState('networkidle');
         },
     );
 };
@@ -436,17 +494,17 @@ export const crearSalidaEstandarParaPrecondicion = async (
             technicalDetail: 'Falla al crear, registrar o despachar la salida de precondición.',
         },
         async () => {
-        await movimientosNav.navegarASalidas();
-        await registroMovimiento.clickAgregarSalida();
-        await registroMovimiento.buscarItem(codigoItem);
-        await registroMovimiento.seleccionarItemEnResultados(nombreItem);
-        if (variante) {
-            await registroMovimiento.seleccionarVariante(variante);
-        }
-        await registroMovimiento.llenarCantidad(cantidad);
-        await registroMovimiento.clickTextoRegistrarSalida();
-        await registroMovimiento.clickRegistrarYDespachar();
-        await resultadoMovimiento.irAlListado();
+            await movimientosNav.navegarASalidas();
+            await registroMovimiento.clickAgregarSalida();
+            await registroMovimiento.buscarItem(codigoItem);
+            await registroMovimiento.seleccionarItemEnResultados(nombreItem);
+            if (variante) {
+                await registroMovimiento.seleccionarVariante(variante);
+            }
+            await registroMovimiento.llenarCantidad(cantidad);
+            await registroMovimiento.clickTextoRegistrarSalida();
+            await registroMovimiento.clickRegistrarYDespachar();
+            await resultadoMovimiento.irAlListado();
         },
     );
 };
@@ -465,14 +523,14 @@ export const eliminarMovimientoDesdeListado = async (
             technicalDetail: 'Falla al abrir acciones, confirmar eliminación o cerrar modal.',
         },
         async () => {
-        if (usarIcono) {
-            await listadoMovimientos.abrirMenuAccionesIcono();
-        } else {
-            await listadoMovimientos.abrirMenuAcciones();
-        }
-        await listadoMovimientos.clickEliminarMovimiento();
-        await listadoMovimientos.confirmarEliminacion();
-        await listadoMovimientos.cerrarModal();
+            if (usarIcono) {
+                await listadoMovimientos.abrirMenuAccionesIcono();
+            } else {
+                await listadoMovimientos.abrirMenuAcciones();
+            }
+            await listadoMovimientos.clickEliminarMovimiento();
+            await listadoMovimientos.confirmarEliminacion();
+            await listadoMovimientos.cerrarModal();
         },
     );
 };
@@ -552,8 +610,8 @@ export const navegarATrasladosYNuevo = async (
             technicalDetail: 'Falla en navegación hacia traslados o apertura del formulario.',
         },
         async () => {
-        await movimientosNav.navegarATraslados();
-        await registroMovimiento.clickAgregarTraslado();
+            await movimientosNav.navegarATraslados();
+            await registroMovimiento.clickAgregarTraslado();
         },
     );
 };
@@ -577,16 +635,16 @@ export const navegarASalidasYNuevo = async (
             technicalDetail: 'Falla en navegación hacia salidas o apertura del formulario.',
         },
         async () => {
-        if (desdeMenu) {
-            await movimientosNav.navegarASalidasDesdeMenu();
-        } else {
-            await movimientosNav.navegarASalidas();
-        }
-        if (usarAgregar) {
-            await registroMovimiento.clickAgregarSalida();
-        } else {
-            await registroMovimiento.clickNuevoMovimiento();
-        }
+            if (desdeMenu) {
+                await movimientosNav.navegarASalidasDesdeMenu();
+            } else {
+                await movimientosNav.navegarASalidas();
+            }
+            if (usarAgregar) {
+                await registroMovimiento.clickAgregarSalida();
+            } else {
+                await registroMovimiento.clickNuevoMovimiento();
+            }
         },
     );
 };
@@ -623,15 +681,15 @@ export const editarCantidadDeMovimiento = async (
         undefined,
         FUNCTIONAL_CATALOG.movimientos.editarMovimiento,
         async () => {
-        await listadoMovimientos.abrirMenuAcciones();
-        await listadoMovimientos.clickEditarMovimiento();
-        await registroMovimiento.llenarCantidad(cantidad);
-        if (tipo === 'ingreso') {
-            await registroMovimiento.clickActualizarIngreso();
-        } else {
-            await registroMovimiento.clickActualizarSalida();
-        }
-        await listadoMovimientos.cerrarModal();
+            await listadoMovimientos.abrirMenuAcciones();
+            await listadoMovimientos.clickEditarMovimiento();
+            await registroMovimiento.llenarCantidad(cantidad);
+            if (tipo === 'ingreso') {
+                await registroMovimiento.clickActualizarIngreso();
+            } else {
+                await registroMovimiento.clickActualizarSalida();
+            }
+            await listadoMovimientos.cerrarModal();
         },
     );
 };
@@ -655,21 +713,21 @@ export const crearIngresoBaseParaClonacion = async (
         undefined,
         FUNCTIONAL_CATALOG.movimientos.clonarMovimiento,
         async () => {
-        await movimientosNav.navegarAIngresos();
-        await registroMovimiento.clickAgregarIngreso();
-        if (opciones?.waitAntes) {
-            await opciones.waitAntes.waitForTimeout(2000);
-        }
-        await registroMovimiento.buscarItem(codigoItem);
-        await registroMovimiento.seleccionarItemEnResultados(nombreItem);
-        if (opciones?.seleccionarEquivalente) {
-            await registroMovimiento.seleccionarEquivalente(opciones.seleccionarEquivalente);
-        }
-        if (opciones?.configurarDatos) {
-            await opciones.configurarDatos();
-        }
-        await registroMovimiento.clickRegistrarIngreso();
-        await resultadoMovimiento.irAlListado();
+            await movimientosNav.navegarAIngresos();
+            await registroMovimiento.clickAgregarIngreso();
+            if (opciones?.waitAntes) {
+                await opciones.waitAntes.waitForTimeout(2000);
+            }
+            await registroMovimiento.buscarItem(codigoItem);
+            await registroMovimiento.seleccionarItemEnResultados(nombreItem);
+            if (opciones?.seleccionarEquivalente) {
+                await registroMovimiento.seleccionarEquivalente(opciones.seleccionarEquivalente);
+            }
+            if (opciones?.configurarDatos) {
+                await opciones.configurarDatos();
+            }
+            await registroMovimiento.clickRegistrarIngreso();
+            await resultadoMovimiento.irAlListado();
         },
     );
 };

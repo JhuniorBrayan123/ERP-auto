@@ -1,2 +1,0 @@
-Ingresando a la página del login
-Sesión guardada correctamente en playwright/.auth/user.json

@@ -6,17 +6,21 @@
   "scripts": {
     "test": "npx playwright test",
     "report:summary": "tsx scripts/summarize-results.ts",
-    "test:e2e:with-summary": "playwright test; tsx scripts/summarize-results.ts"
+    "test:e2e:with-summary": "playwright test; tsx scripts/summarize-results.ts",
+    "test:menu": "tsx scripts/test-runner.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@inquirer/prompts": "^8.4.2",
     "@playwright/test": "^1.58.2",
-    "@types/node": "^25.5.0",
+    "@types/cross-spawn": "^6.0.6",
+    "@types/node": "^25.6.0",
     "allure-commandline": "^2.38.1",
     "allure-playwright": "^3.7.2",
+    "cross-spawn": "^7.0.6",
     "exceljs": "^4.4.0",
     "tsx": "^4.21.0"
   },
