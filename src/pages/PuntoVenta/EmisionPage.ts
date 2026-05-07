@@ -14,7 +14,6 @@
  */
 import {type Locator, type Page} from '@playwright/test';
 import type {EmisionResult} from '../../helpers/PuntoVenta/emision.types';
-import {CLIENTES} from "@helpers/PuntoVenta/emision-data.helper";
 
 export class EmisionPage {
     /**
@@ -193,14 +192,15 @@ export class EmisionPage {
         await this.page.getByRole('button', {name: 'Datos'}).click();
     }
 
-    async llenarDatosOpcionales(): Promise<void> {
+    // MIRA AQUÍ: Agregamos "cliente: any" en los paréntesis
+    async llenarDatosOpcionales(cliente: any): Promise<void> {
         // Seleccionar Vendedor / Cliente
-        const cliente = CLIENTES.PERSONA_AUTO;
 
         const inputVendedor = this.page.getByRole("textbox", {name: "Nombre del vendedor"});
         await inputVendedor.click();
-        await inputVendedor.fill(cliente.documento)
 
+        // Ahora TypeScript ya sabe que "cliente" viene de arriba, de los paréntesis
+        await inputVendedor.fill(cliente.documento);
         await this.page.locator(".card-entidad-cliente").filter({hasText: cliente.nombre}).first().click();
 
         // Llenar campos de datos opcionales

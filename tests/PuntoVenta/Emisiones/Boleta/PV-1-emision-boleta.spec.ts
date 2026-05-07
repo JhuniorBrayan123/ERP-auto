@@ -1,5 +1,5 @@
 import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
-import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
 test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emisiones']}, () => {
 
@@ -398,7 +398,7 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
 
         await test.step('When: abrir datos opcionales y llenarlos', async () => {
             await emisionPage.abrirDatosOpcionales();
-            await emisionPage.llenarDatosOpcionales();
+            await emisionPage.llenarDatosOpcionales(CLIENTES.PERSONA_AUTO);
         });
 
         await test.step('And: emitir con efectivo', async () => {
