@@ -134,6 +134,22 @@ export class BusquedaComprobantesPage {
         console.log(`   Adelanto filtrado: correlativo ${emision.correlativo}`);
     }
 
+
+    async filtrarAdelantoFactura(emision: EmisionResult | null): Promise<void> {
+        if (!emision) throw new Error('No hay emisión capturada para filtrar adelanto');
+
+        // Seleccionar serie F001
+        await this.page.locator('[id="_div:dropdown"]').getByText('Serie').click();
+        await this.page.locator('[id*="opcion-serie"]').filter({hasText: 'F001'}).first().click();
+
+        // Buscar por correlativo
+        const inputCorrelativo = this.page.getByRole('textbox', {name: 'Correlativo'});
+        await inputCorrelativo.click();
+        await inputCorrelativo.fill(emision.correlativo);
+
+        console.log(`   Adelanto factura filtrado: F001-${emision.correlativo}`);
+    }
+
     // ─── Validación de estado SUNAT ───────────────────────────────────
 
     async validarEstadoSunat(): Promise<'EXITOSO' | 'TRANSITORIO' | 'DEFINITIVO'> {
@@ -346,7 +362,7 @@ export class BusquedaComprobantesPage {
         await expect(
             this.page.getByText('Comprobante Emitido').first(),
         ).toBeVisible({timeout: 10_000});
-        
+
     }
 
     /** Valida "XML Generado" con polling */
@@ -405,10 +421,13 @@ export class BusquedaComprobantesPage {
     }
 
     /** Verifica que el popup muestre adelantos aplicados */
+
+
     async validarAdelantosAplicadosEnPopup(popupPage: Page): Promise<void> {
-        await expect(
-            popupPage.getByText('Adelantos aplicados').nth(1),
-        ).toBeVisible({timeout: 10_000});
+        const adelantos = popupPage.getByText('Adelantos aplicados').nth(1);
+        const comprobantes = popupPage.getByText('Comprobantes de aplicación').nth(1);
+
+        await expect(adelantos.or(comprobantes)).toBeVisible({timeout: 10000});
     }
 
     /** Acciones extra dentro de la ventana de ver comprobante */

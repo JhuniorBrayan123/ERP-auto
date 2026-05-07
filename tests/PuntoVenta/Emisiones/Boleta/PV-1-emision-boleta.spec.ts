@@ -18,7 +18,6 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
         await test.step('Given: la caja está abierta', async () => {
             await cajaPage.asegurarCajaAbierta();
         });
-
         await test.step('And: seleccionar tipo de comprobante BOLETA', async () => {
             await comprobantePage.seleccionarBoleta();
         });
@@ -476,6 +475,33 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
         await test.step('Then: vista previa visible', async () => {
             // La vista previa abre un overlay con el comprobante
             await page.locator('.icon-close').click();
+        });
+    });
+
+    // ─── Bloquear boleta con fecha fuera de rango (NO va a búsqueda) ──
+    test('Bloquear emisión de boleta con fecha fuera del rango permitido @PV-1.13', async ({
+                                                                                               cajaPage,
+                                                                                               emisionPage,
+                                                                                               page,
+                                                                                           }) => {
+        await test.step('Given: caja abierta y producto agregado', async () => {
+            await cajaPage.continuarVendiendo();
+            await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+        });
+
+        let fechaAntes = '';
+        await test.step('And: capturar la fecha actual mostrada', async () => {
+            fechaAntes = await emisionPage.obtenerFechaMostrada();
+        });
+
+        await test.step('When: intentar seleccionar una fecha con más de 4 días de antigüedad', async () => {
+            await emisionPage.clickFechaFueraDeRango(4);
+        });
+
+        await test.step('Then: la fecha mostrada NO debe haber cambiado', async () => {
+            const fechaDespues = await emisionPage.obtenerFechaMostrada();
+            expect(fechaDespues).toBe(fechaAntes);
         });
     });
 });

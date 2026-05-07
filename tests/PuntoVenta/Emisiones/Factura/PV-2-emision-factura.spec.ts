@@ -557,4 +557,214 @@ test.describe('PV-2 | Emisión de Factura @factura', {tag: ['@punto-venta', '@em
             await expect(page.getByRole('button', {name: 'PRECUENTA'})).toBeVisible();
         });
     });
+
+    // ─── Bloquear factura con fecha fuera de rango ────────────────────
+    test('Bloquear emisión de factura con fecha fuera del rango permitido @PV-2.13', async ({
+                                                                                                cajaPage,
+                                                                                                comprobantePage,
+                                                                                                emisionPage,
+                                                                                                page,
+                                                                                            }) => {
+        await test.step('Given: caja abierta, FACTURA con cliente RUC y producto', async () => {
+            await cajaPage.continuarVendiendo();
+            await setupFacturaConClienteRUC(comprobantePage, null, page);
+            await emisionPage.buscarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
+        });
+
+        let fechaAntes = '';
+        await test.step('And: capturar la fecha actual mostrada', async () => {
+            fechaAntes = await emisionPage.obtenerFechaMostrada();
+        });
+
+        await test.step('When: intentar seleccionar una fecha con más de 3 días de antigüedad', async () => {
+            await emisionPage.clickFechaFueraDeRango(3);
+        });
+
+        await test.step('Then: la fecha mostrada NO debe haber cambiado', async () => {
+            const fechaDespues = await emisionPage.obtenerFechaMostrada();
+            expect(fechaDespues).toBe(fechaAntes);
+        });
+    });
+
+    // ─── Factura en dólares con detracción y tipo de cambio ───────────
+    test('Emitir factura en moneda distinta a soles con detracción usando tipo de cambio @PV-2.14', async ({
+                                                                                                               cajaPage,
+                                                                                                               comprobantePage,
+                                                                                                               emisionPage,
+                                                                                                               detraccionPage,
+                                                                                                               busquedaComprobantes,
+                                                                                                               page,
+                                                                                                           }) => {
+        await test.step('Given: FACTURA con cliente RUC en moneda dólares', async () => {
+            await cajaPage.continuarVendiendo();
+            await comprobantePage.seleccionarFactura();
+            await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).click();
+            await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).fill(CLIENTES.EMPRESA_RUC_AUTO.documento);
+            await page.getByText(CLIENTES.EMPRESA_RUC_AUTO.textoSelector).click();
+            await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+            await emisionPage.seleccionarMonedaDolares();
+        });
+
+        await test.step('And: editar precio a $150', async () => {
+            await emisionPage.editarPrecioItem('150');
+        });
+
+        await test.step('When: configurar detracción simple 25%', async () => {
+            await detraccionPage.activarDetraccion();
+            await detraccionPage.configurarDetraccionSimple({
+                porcentaje: '25',
+                numeroCuenta: '75-964-78517',
+            });
+        });
+
+        await test.step('And: ingresar tipo de cambio y emitir', async () => {
+            await emisionPage.llenarTipoCambio('3.7');
+            await emisionPage.emitirConEfectivoExacto();
+        });
+
+        await test.step('Then: factura emitida', async () => {
+            await emisionPage.clickNuevaVenta();
+        });
+
+        await test.step('And: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
+            await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
+        });
+
+        const estadoSunat = await test.step('And: validar estado SUNAT desde API de Consultas', async () => {
+            return await busquedaComprobantes.validarEstadoSunat();
+        });
+
+        await test.step('And: abrir bitácora y verificar emisión', async () => {
+            await busquedaComprobantes.abrirBitacoraDelPrimerComprobante();
+            await busquedaComprobantes.validarComprobanteEmitido(estadoSunat);
+            await busquedaComprobantes.cerrarBitacora();
+        });
+
+        await test.step('And: Ver comprobante muestra leyenda de detracción', async () => {
+            const popup = await busquedaComprobantes.abrirVerComprobante();
+            await busquedaComprobantes.validarDetraccionEnPopup(popup);
+        });
+    });
+
+    // ─── Bloquear factura en dólares con detracción SIN tipo de cambio ─
+    test('Bloquear factura en moneda distinta a soles con detracción sin tipo de cambio @PV-2.15', async ({
+                                                                                                              cajaPage,
+                                                                                                              comprobantePage,
+                                                                                                              emisionPage,
+                                                                                                              detraccionPage,
+                                                                                                              page,
+                                                                                                          }) => {
+        await test.step('Given: FACTURA en dólares con cliente RUC y producto', async () => {
+            await cajaPage.continuarVendiendo();
+            await comprobantePage.seleccionarFactura();
+            await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).click();
+            await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).fill(CLIENTES.EMPRESA_RUC_AUTO.documento);
+            await page.getByText(CLIENTES.EMPRESA_RUC_AUTO.textoSelector).click();
+            await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+            await emisionPage.seleccionarMonedaDolares();
+        });
+
+        await test.step('And: editar precio a $150', async () => {
+            await emisionPage.editarPrecioItem('150');
+        });
+
+        await test.step('When: configurar detracción sin ingresar tipo de cambio', async () => {
+            await detraccionPage.activarDetraccion();
+            await detraccionPage.configurarDetraccionSimple({
+                porcentaje: '25',
+                numeroCuenta: '45-284-71523',
+            });
+        });
+
+        await test.step('And: intentar pagar sin tipo de cambio', async () => {
+            await emisionPage.clickPagar();
+        });
+
+        await test.step('Then: debe mostrar validación de tipo de cambio obligatorio', async () => {
+            await expect(
+                page.getByText('Falta tipo de cambio en'),
+            ).toBeVisible();
+            await emisionPage.clickAceptarError();
+        });
+    });
+
+    // ─── Factura con adelanto aplicado ─────────────────────────────────
+    test('Emitir factura con adelanto aplicado @PV-2.16', async ({
+                                                                     cajaPage,
+                                                                     comprobantePage,
+                                                                     emisionPage,
+                                                                     busquedaComprobantes,
+                                                                     page,
+                                                                 }) => {
+        // ─── Precondición: crear factura de adelanto ───────────────
+        let emisionAdelanto: typeof emisionPage.ultimaEmision = null;
+
+        await test.step('Given: crear factura de adelanto como precondición', async () => {
+            await cajaPage.continuarVendiendo();
+            await comprobantePage.seleccionarFactura();
+            await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).click();
+            await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).fill(CLIENTES.EMPRESA_RUC_AUTO.documento);
+            await page.getByText(CLIENTES.EMPRESA_RUC_AUTO.textoSelector).click();
+            await emisionPage.buscarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
+            // Activar switch adelanto
+            await page.locator('.slider').first().click();
+            await emisionPage.emitirConEfectivoExacto();
+            emisionAdelanto = emisionPage.ultimaEmision;
+            await emisionPage.clickNuevaVenta();
+        });
+
+        // ─── Factura con adelanto aplicado ─────────────────────────
+        await test.step('And: iniciar nueva factura con cliente RUC', async () => {
+            await comprobantePage.seleccionarFactura();
+            await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).click();
+            await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).fill(CLIENTES.EMPRESA_RUC_AUTO.documento);
+            await page.getByText(CLIENTES.EMPRESA_RUC_AUTO.textoSelector).click();
+            await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+        });
+
+        await test.step('When: aplicar adelanto existente', async () => {
+            await page.getByRole('button', {name: 'Adelantos'}).click();
+            await busquedaComprobantes.filtrarAdelantoFactura(emisionAdelanto);
+            await page.locator(
+                '.v-checkbox-default-label.flex-row-align-items-center-justify-content-center > span',
+            ).first().click();
+            await page.locator('.v-modal > div').first().click();
+        });
+
+        await test.step('And: verificar total anticipos visible', async () => {
+            await expect(page.getByText('Total anticipos')).toBeVisible();
+        });
+
+        await test.step('And: emitir con efectivo', async () => {
+            await emisionPage.emitirConEfectivoExacto();
+        });
+
+        await test.step('Then: factura con adelanto emitida', async () => {
+            await emisionPage.clickNuevaVenta();
+        });
+
+        await test.step('And: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
+            await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
+        });
+
+        const estadoSunat = await test.step('And: validar estado SUNAT desde API de Consultas', async () => {
+            return await busquedaComprobantes.validarEstadoSunat();
+        });
+
+        await test.step('And: abrir bitácora y verificar emisión', async () => {
+            await busquedaComprobantes.abrirBitacoraDelPrimerComprobante();
+            await busquedaComprobantes.validarComprobanteEmitido(estadoSunat);
+            await busquedaComprobantes.cerrarBitacora();
+        });
+
+        await test.step('And: Ver comprobante muestra adelantos aplicados', async () => {
+            const popup = await busquedaComprobantes.abrirVerComprobante();
+            await busquedaComprobantes.validarAdelantosAplicadosEnPopup(popup);
+        });
+    });
 });

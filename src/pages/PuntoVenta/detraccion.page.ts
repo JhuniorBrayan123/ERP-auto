@@ -108,6 +108,33 @@ export class DetraccionPage {
         await this.page.locator('.v-modal > div').first().click();
     }
 
+    /**
+     * Configura detracción simple (sin detalle de transporte de carga).
+     * Se usa para facturas en moneda extranjera con detracción.
+     *
+     * Basado en: casos.ts líneas 1976-1993
+     */
+    async configurarDetraccionSimple(config: {
+        porcentaje: string;
+        numeroCuenta: string;
+    }): Promise<void> {
+        // Porcentaje
+        const inputPorcentaje = this.page.locator('[id$="v-input:porcentaje"]');
+        await inputPorcentaje.waitFor({state: 'visible'});
+        await inputPorcentaje.clear();
+        await inputPorcentaje.fill(config.porcentaje);
+
+        // Número de cuenta
+        const inputCuenta = this.page.locator('[id$="v-input:numero-cuenta"]');
+        await inputCuenta.waitFor({state: 'visible'});
+        await inputCuenta.clear();
+        await inputCuenta.fill(config.numeroCuenta);
+
+        // Actualizar y cerrar modal
+        await this.page.getByRole('button', {name: 'Actualizar'}).click();
+        await this.page.locator('.v-modal > div').first().click();
+    }
+
     private async _llenarUbigeo(detalle: DetalleCarga, tipo: 'origen' | 'destino'): Promise<void> {
         const inputDireccion = tipo === 'origen'
             ? 'Ingresa dirección de origen'

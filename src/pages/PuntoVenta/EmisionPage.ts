@@ -295,6 +295,21 @@ export class EmisionPage {
             .click();
     }
 
+    // ─── Moneda ────────────────────────────────────────────────────────
+
+    /** Cambia la moneda de Soles a Dólares en el selector de precios */
+    async seleccionarMonedaDolares(): Promise<void> {
+        await this.page.getByText('Precio estándar (S/)').first().click();
+        await this.page.getByText('Precio dolares ($)').click();
+    }
+
+    /** Llena el campo de tipo de cambio */
+    async llenarTipoCambio(valor: string): Promise<void> {
+        const input = this.page.getByRole('textbox', {name: 'Cambio'});
+        await input.click();
+        await input.fill(valor);
+    }
+
     // ─── Fecha ────────────────────────────────────────────────────────
 
     async abrirSelectorFecha(): Promise<void> {
@@ -305,5 +320,34 @@ export class EmisionPage {
 
     async seleccionarFecha(nombreBoton: string): Promise<void> {
         await this.page.getByRole('button', {name: nombreBoton}).click();
+    }
+
+    async obtenerFechaMostrada(): Promise<string> {
+        return (await this.page.locator(
+            '[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-header_v-input:fecha"] .v-text'
+        ).innerText()).trim();
+    }
+
+    async clickFechaFueraDeRango(diasLimite: number): Promise<string> {
+        const fecha = new Date();
+        fecha.setDate(fecha.getDate() - (diasLimite + 1));
+
+        const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+        const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+
+        const ariaLabel = `${diasSemana[fecha.getDay()]}, ${fecha.getDate()} de ${meses[fecha.getMonth()]} de ${fecha.getFullYear()}`;
+
+        await this.abrirSelectorFecha();
+
+        const botonFecha = this.page.locator(`[aria-label="${ariaLabel}"]`);
+
+        await botonFecha.waitFor({state: 'attached', timeout: 5_000});
+
+        // ✅ dispatchEvent bypasea aria-disabled y todos los checks de Playwright
+        await botonFecha.dispatchEvent('click');
+
+        console.log(`   Click disparado en fecha fuera de rango: ${ariaLabel}`);
+
+        return ariaLabel;
     }
 }
