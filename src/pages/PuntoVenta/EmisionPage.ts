@@ -185,6 +185,29 @@ export class EmisionPage {
             '[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-footer_v-icon:totales"]',
         ).click();
     }
+// ─── Datos Opcionales ─────────────────────────────────────────────
+
+    async abrirDatosOpcionales(): Promise<void> {
+        await this.page.getByRole('button', { name: 'Datos' }).click();
+    }
+
+    async llenarDatosOpcionales(vendedorTextoSelector: string): Promise<void> {
+        // Seleccionar Vendedor / Cliente
+        const inputVendedor = this.page.getByRole("textbox", { name: "Nombre del vendedor" });
+        await inputVendedor.click();
+        await inputVendedor.fill("Vendedor");
+        await this.page.getByText(vendedorTextoSelector).first().click();
+
+        // Llenar campos de datos opcionales
+        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:orden-compra"]').fill("121");
+        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:contrato"]').fill("12");
+        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:comentarios"]').fill("observacion para datos adicionales");
+        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:campo-texto-0"]').fill("texto");
+        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:campo-numero-0"]').fill("123123");
+
+        // Guardar
+        await this.page.getByRole("button", { name: "Guardar datos" }).click();
+    }
 
     // ─── Datos Opcionales ─────────────────────────────────────────────
 
