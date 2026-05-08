@@ -148,12 +148,12 @@ function formatCommand(args: string[]): string {
 }
 
 async function askRunOptions(): Promise<string[]> {
-    const skipSetups = await confirm({
-        message: 'Omitir setups automatizados? (Acelera si ya tienes los datos creados)',
+    const ejecutarSetups = await confirm({
+        message: 'Ejecutar setups automatizados (crear datos)? (Dile NO si ya corriste los tests antes)',
         default: false,
     });
 
-    if (skipSetups) {
+    if (!ejecutarSetups) {
         process.env.SKIP_PV_SETUP = '1';
         process.env.SKIP_PV_ITEMS_SETUP = '1';
         process.env.SKIP_DATOS_SETUP = '1';
@@ -470,6 +470,7 @@ async function runManualGrep(): Promise<void> {
 }
 
 async function runPlaywrightUi(): Promise<void> {
+    await askRunOptions(); // Setear variables de entorno para omitir setups si el usuario lo desea
     await runPlaywright(['--ui']);
 }
 

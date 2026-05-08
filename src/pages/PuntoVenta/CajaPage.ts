@@ -7,7 +7,7 @@
  * - Sí, aperturar: getByRole('button', { name: 'Sí, aperturar' })
  * - Continuar vendiendo: getByRole('button', { name: 'Continuar vendiendo' })
  */
-import {expect, type Page} from '@playwright/test';
+import {expect, Locator, type Page} from '@playwright/test';
 import {throwFunctionalError} from '../../utils/functional-error';
 import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
 
@@ -15,20 +15,37 @@ export class CajaPage {
     constructor(private readonly page: Page) {
     }
 
+    // ─── Locators específicos por caja ────────────────────────────────
+
+    /**
+     * Encuentra un botón específico que pertenezca a la tarjeta de una caja dada.
+     * Utiliza .last() para obtener el contenedor (div) más profundo que agrupe
+     * tanto el nombre de la caja como el botón buscado, evitando fallos de "strict mode".
+     */
+    private getBotonPorCaja(nombreCaja: string, nombreBoton: string | RegExp): Locator {
+        return this.page.locator('div')
+            .filter({has: this.page.getByText(nombreCaja, {exact: false})})
+            .filter({has: this.page.getByRole('button', {name: nombreBoton})})
+            .last()
+            .getByRole('button', {name: nombreBoton});
+    }
+
     // ─── Flujo de apertura ────────────────────────────────────────────
 
     /** Click en "Aperturar caja" cuando la caja está cerrada */
     async clickAperturarCaja(): Promise<void> {
-        await this.page.getByRole('button', {name: 'Aperturar caja'}).click();
+        await this.getBotonPorCaja('caja-auto', 'Aperturar caja').click();
     }
 
     /** Confirma apertura en el modal */
     async clickApertura(): Promise<void> {
+        // Este botón está dentro del modal, no en la tarjeta de la caja, así que el getByRole directo funciona
         await this.page.getByRole('button', {name: 'Apertura', exact: true}).click();
     }
 
     /** Confirma el "Sí, aperturar" final */
     async clickSiAperturar(): Promise<void> {
+        // También dentro del modal
         await this.page.getByRole('button', {name: 'Sí, aperturar'}).click();
     }
 
@@ -46,26 +63,22 @@ export class CajaPage {
 
     /** Click en "Continuar vendiendo" cuando la caja ya está abierta */
     async continuarVendiendo(): Promise<void> {
-        await this.page.getByRole('button', {name: 'Continuar vendiendo'}).click();
+        await this.getBotonPorCaja('caja-auto', 'Continuar vendiendo').click();
         await expect(
             this.page.locator('.v-select-header-small .v-text').first()
         ).not.toHaveText('Seleccionar', {timeout: 15_000});
     }
 
-    // ─── Detección de estado ──────────────────────────────────────────
-
-    /**
-     * Detecta si la caja necesita apertura o ya está abierta.
-     * Retorna 'cerrada' si ve "Aperturar caja", 'abierta' si ve "Continuar vendiendo".
-     */
     async detectarEstadoCaja(): Promise<'abierta' | 'cerrada' | 'desconocido'> {
+        const btnAperturar = this.getBotonPorCaja('caja-auto', 'Aperturar caja');
+        const btnContinuar = this.getBotonPorCaja('caja-auto', 'Continuar vendiendo');
+
         try {
-            await this.page.waitForSelector('button:has-text("Aperturar caja"), button:has-text("Continuar vendiendo")', {timeout: 8_000})
+            // Esperamos a que cualquiera de los dos botones de caja-auto sea visible usando .or() nativo de Playwright
+            await btnAperturar.or(btnContinuar).waitFor({ state: 'visible', timeout: 8_000 });
         } catch {
-            return 'desconocido'
+            return 'desconocido';
         }
-        const btnAperturar = this.page.getByRole('button', {name: 'Aperturar caja'});
-        const btnContinuar = this.page.getByRole('button', {name: 'Continuar vendiendo'});
 
         const [aperturarVisible, continuarVisible] = await Promise.all([
             btnAperturar.isVisible({timeout: 3_000}).catch(() => false),

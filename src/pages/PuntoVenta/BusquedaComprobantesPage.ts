@@ -105,7 +105,7 @@ export class BusquedaComprobantesPage {
                 );
             }
         } catch {
-            console.log(`  🔍 Filtrado por correlativo: ${correlativo} (sin interceptar Consultas)`);
+            console.log(`  Filtrado por correlativo: ${correlativo} (sin interceptar Consultas)`);
         }
     }
 
@@ -166,12 +166,12 @@ export class BusquedaComprobantesPage {
             const compId = `${serieDescripcion}-${correlativoDocumento}`;
 
             if (ESTADOS_EXITOSOS.includes(idEstadoSunat)) {
-                console.log(`  ✓ SUNAT: ${compId} → ACEPTADA (estado ${idEstadoSunat})`);
+                console.log(`   SUNAT: ${compId} → ACEPTADA (estado ${idEstadoSunat})`);
                 return 'EXITOSO';
             }
 
             if (ESTADOS_TRANSITORIOS.includes(idEstadoSunat)) {
-                console.log(`  ⏳ SUNAT: ${compId} → procesando (estado ${idEstadoSunat}). Esperando 8s...`);
+                console.log(`   SUNAT: ${compId} → procesando (estado ${idEstadoSunat}). Esperando 8s...`);
                 await this.page.waitForTimeout(8000);
 
                 // Re-consultar la API
@@ -195,7 +195,7 @@ export class BusquedaComprobantesPage {
                         idEstadoSunat = data[0].IdestadoSunat ?? 0;
                     }
                 } catch {
-                    console.warn(`  ⚠️ No se pudo re-interceptar Consultas para ${compId}`);
+                    console.warn(`   No se pudo re-interceptar Consultas para ${compId}`);
                 }
 
                 if (ESTADOS_EXITOSOS.includes(idEstadoSunat)) {
@@ -203,7 +203,7 @@ export class BusquedaComprobantesPage {
                     return 'EXITOSO';
                 } else {
                     console.warn(
-                        `  ⚠️ SUNAT: ${compId} → sigue sin aceptar (estado final ${EstadoSunat[idEstadoSunat] || idEstadoSunat}).` +
+                        `  ️ SUNAT: ${compId} → sigue sin aceptar (estado final ${EstadoSunat[idEstadoSunat] || idEstadoSunat}).` +
                         ` El test NO falla — SUNAT sigue demorada.`,
                     );
                     return 'TRANSITORIO';
@@ -211,7 +211,7 @@ export class BusquedaComprobantesPage {
             }
 
             console.warn(
-                `  ⚠️ SUNAT: ${compId} → estado definitivo NO aceptado (${EstadoSunat[idEstadoSunat] || idEstadoSunat}).` +
+                `   SUNAT: ${compId} → estado definitivo NO aceptado (${EstadoSunat[idEstadoSunat] || idEstadoSunat}).` +
                 ` El test NO falla — requiere revisión manual.`,
             );
             return 'DEFINITIVO';

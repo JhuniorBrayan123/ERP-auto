@@ -95,7 +95,6 @@ export class KardexApi {
         const {
             codigoProducto,
             almacenFiltro = 'AUTO',
-            // almacenFiltro = 'VENTAS',
             fechaInicio = '2020-01-01',
             tipoItem = [1, 6],
         } = params;
