@@ -8,14 +8,24 @@
  * 4. Si ya está abierta → "Continuar vendiendo"
  */
 import { expect, type Page } from '@playwright/test';
+import { throwFunctionalError } from '../../utils/functional-error';
+import { FUNCTIONAL_CATALOG } from '../../utils/functional-catalog';
 
 export class PuntoVentaNavigationPage {
     constructor(private readonly page: Page) {}
 
     /** Navega al módulo de Ventas desde el menú principal */
     async navegarAPuntoDeVenta(): Promise<void> {
-        await this.page.getByText('Ventas y compras').click();
-        await this.page.getByText('Nueva venta', { exact: true }).click();
+        try {
+            await this.page.getByText('Ventas y compras').click();
+            await this.page.getByText('Nueva venta', { exact: true }).click();
+        } catch (error) {
+            await throwFunctionalError({
+                page: this.page,
+                ...FUNCTIONAL_CATALOG.puntoVenta.navegarAPdV,
+                cause: error,
+            });
+        }
     }
 
     /** Si la caja ya está abierta, click en "Continuar vendiendo" */

@@ -30,20 +30,22 @@ export class MovimientoApi {
         };
     }
 
-    private parseMovimientoCreado(body: any): MovimientoCreado {
-        if (!body?.Id || !body?.Codigo) {
+    static parseMovimientoCreado(body: unknown): MovimientoCreado {
+        const data = body as Record<string, any>;
+
+        if (data?.Id == null || !data?.Codigo) {
             throw new Error(
-                `MovimientoApi: respuesta inválida. Body: ${JSON.stringify(body)}`
+                `MovimientoApi: respuesta inválida. Body: ${JSON.stringify(body)}`,
             );
         }
 
         return {
-            id: body.Id,
-            codigo: body.Codigo,
-            correlativo: body.Correlativo,
-            tipoMovimiento: body.TipoMovimiento,
-            estado: body.Estado,
-            estadoDescripcion: body.EstadoDescripcion,
+            id: Number(data.Id),
+            codigo: String(data.Codigo),
+            correlativo: Number(data.Correlativo),
+            tipoMovimiento: String(data.TipoMovimiento),
+            estado: Number(data.Estado),
+            estadoDescripcion: String(data.EstadoDescripcion),
         };
     }
 
@@ -53,13 +55,14 @@ export class MovimientoApi {
             data: payload,
         });
 
+        const body = await response.json().catch(() => null);
+
         if (!response.ok()) {
             throw new Error(
-                `MovimientoApi: falló crearIngreso con status ${response.status()} - ${response.statusText()}`
+                `MovimientoApi: falló crearIngreso con status ${response.status()} - ${response.statusText()} - Body: ${JSON.stringify(body)}`,
             );
         }
 
-        const body = await response.json();
-        return this.parseMovimientoCreado(body);
+        return MovimientoApi.parseMovimientoCreado(body);
     }
 }

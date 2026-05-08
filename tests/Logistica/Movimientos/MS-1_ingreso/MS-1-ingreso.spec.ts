@@ -44,7 +44,7 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@m  
         });
         await verificarStockYKardex(
             movimientosNav, stockVerificacion, kardexVerificacion, page,
-            ITEMS_TEST.PRODUCTO_ESTRICTO.codigo, ALMACENES.AUTO, PATRON_CODIGO.INGRESO 
+            ITEMS_TEST.PRODUCTO_ESTRICTO.codigo, ALMACENES.AUTO, PATRON_CODIGO.INGRESO
         );
         await test.step('Asser API: verificar kardex en DB', async () => {
             const saldoPosIngreso = await kardexApi.obtenerSaldoPorProducto({
@@ -205,7 +205,7 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@m  
             const kardexPage = await stockVerificacion.abrirKardexDesdeStock();
             const kardexPopup = new KardexVerificacionPage(kardexPage);
             await kardexPage.waitForLoadState('networkidle');
-            await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.VENTAS);//modificado en almacen de auto a VENTAS
+            await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);//modificado en almacen de auto a VENTAS
             await kardexPopup.clickCodigoMovimientoRegex(PATRON_CODIGO.INGRESO);
             await kardexPopup.clickDatosOpcionales();
             await kardexPopup.cerrarModalDetalle();

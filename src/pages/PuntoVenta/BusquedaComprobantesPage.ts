@@ -15,9 +15,11 @@
  */
 import {expect, type Page} from '@playwright/test';
 import type {EmisionResult} from '../../helpers/PuntoVenta/emision.types';
-import { EstadoSunat } from '../../helpers/PuntoVenta/sunat-estados.helper';
+import {EstadoSunat} from '../../helpers/PuntoVenta/sunat-estados.helper';
+import {throwFunctionalError} from '../../utils/functional-error';
+import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
 
-const ESTADOS_EXITOSOS     = [EstadoSunat.ACEPTADA, EstadoSunat.ACEPTADA_OBSERVADA];
+const ESTADOS_EXITOSOS = [EstadoSunat.ACEPTADA, EstadoSunat.ACEPTADA_OBSERVADA];
 const ESTADOS_TRANSITORIOS = [EstadoSunat.PENDIENTE_ENVIO, EstadoSunat.PENDIENTE_RESPUESTA, EstadoSunat.NO_DISPONIBLE];
 
 export class BusquedaComprobantesPage {
@@ -103,72 +105,123 @@ export class BusquedaComprobantesPage {
                 );
             }
         } catch {
-            console.log(`  🔍 Filtrado por correlativo: ${correlativo} (sin interceptar Consultas)`);
+            console.log(`  Filtrado por correlativo: ${correlativo} (sin interceptar Consultas)`);
         }
+    }
+
+    async filtrarAdelanto(emision: EmisionResult | null): Promise<void> {
+        if (!emision) throw new Error('No hay emisión capturada para filtrar adelanto');
+
+        // Esperar que el modal cargue las series antes de interactuar
+        const seriesPromise = this.page.waitForResponse(
+            (resp) =>
+                resp.url().includes('entidades/series') &&
+                resp.url().includes('idtipodocumento=2016') &&
+                resp.status() === 200,
+            {timeout: 15_000},
+        );
+
+        // Esperar a que el modal esté listo
+        await seriesPromise;
+
+        const input = this.page.locator(
+            '[id="pv_punto-venta_cmp_venta_pedido:modals_cmp-gestion-adelantos__v-input:busqueda-serie-correlativo"]'
+        );
+
+        await input.click();
+        await input.fill(emision.correlativo);
+        await input.press('Enter');
+        await seriesPromise;
+
+        console.log(`   Adelanto filtrado: correlativo ${emision.correlativo}`);
+    }
+
+
+    async filtrarAdelantoFactura(emision: EmisionResult | null): Promise<void> {
+        if (!emision) throw new Error('No hay emisión capturada para filtrar adelanto');
+
+        // Seleccionar serie F001
+        await this.page.locator('[id="_div:dropdown"]').getByText('Serie').click();
+        await this.page.locator('[id*="opcion-serie"]').filter({hasText: 'F001'}).first().click();
+
+        // Buscar por correlativo
+        const inputCorrelativo = this.page.getByRole('textbox', {name: 'Correlativo'});
+        await inputCorrelativo.click();
+        await inputCorrelativo.fill(emision.correlativo);
+
+        console.log(`   Adelanto factura filtrado: F001-${emision.correlativo}`);
     }
 
     // ─── Validación de estado SUNAT ───────────────────────────────────
 
     async validarEstadoSunat(): Promise<'EXITOSO' | 'TRANSITORIO' | 'DEFINITIVO'> {
-        if (!this.ultimoComprobanteConsulta) {
-            console.warn('  No hay datos de Consultas — no se puede validar SUNAT');
-            return 'TRANSITORIO';
-        }
-        
-        let {idEstadoSunat} = this.ultimoComprobanteConsulta;
-        const {serieDescripcion, correlativoDocumento} = this.ultimoComprobanteConsulta;
-        const compId = `${serieDescripcion}-${correlativoDocumento}`;
-
-        if (ESTADOS_EXITOSOS.includes(idEstadoSunat)) {
-            console.log(`  ✓ SUNAT: ${compId} → ACEPTADA (estado ${idEstadoSunat})`);
-            return 'EXITOSO';
-        }
-
-        if (ESTADOS_TRANSITORIOS.includes(idEstadoSunat)) {
-            console.log(`  ⏳ SUNAT: ${compId} → procesando (estado ${idEstadoSunat}). Esperando 8s...`);
-            await this.page.waitForTimeout(8000);
-
-            // Re-consultar la API
-            const consultaPromise = this.page.waitForResponse(
-                (resp) => resp.url().includes('DocumentosContables/Consultas') && resp.status() === 200,
-                {timeout: 15_000},
-            );
-
-            // Disparar la búsqueda nuevamente
-            const inputCorrelativo = this.page.locator(
-                '[id="pv_comprobantes_cmp-grid-comprobantes-header:header-grilla_v-input:Correlativo"]',
-            );
-            await inputCorrelativo.click();
-            await inputCorrelativo.fill(correlativoDocumento.toString());
-
-            try {
-                const response = await consultaPromise;
-                const body = await response.json();
-                const data = body.ComprobantesCollectionResponse?.Data ?? [];
-                if (data.length > 0) {
-                    idEstadoSunat = data[0].IdestadoSunat ?? 0;
-                }
-            } catch {
-                console.warn(`  ⚠️ No se pudo re-interceptar Consultas para ${compId}`);
-            }
-
-            if (ESTADOS_EXITOSOS.includes(idEstadoSunat)) {
-                console.log(`  ✓ SUNAT: ${compId} → ACEPTADA en re-consulta (estado ${idEstadoSunat})`);
-                return 'EXITOSO';
-            } else {
-                console.warn(
-                    `  ⚠️ SUNAT: ${compId} → sigue sin aceptar (estado final ${EstadoSunat[idEstadoSunat] || idEstadoSunat}).` +
-                    ` El test NO falla — SUNAT sigue demorada.`,
-                );
+        try {
+            if (!this.ultimoComprobanteConsulta) {
+                console.warn('  No hay datos de Consultas — no se puede validar SUNAT');
                 return 'TRANSITORIO';
             }
-        }
 
-        console.warn(
-            `  ⚠️ SUNAT: ${compId} → estado definitivo NO aceptado (${EstadoSunat[idEstadoSunat] || idEstadoSunat}).` +
-            ` El test NO falla — requiere revisión manual.`,
-        );
-        return 'DEFINITIVO';
+            let {idEstadoSunat} = this.ultimoComprobanteConsulta;
+            const {serieDescripcion, correlativoDocumento} = this.ultimoComprobanteConsulta;
+            const compId = `${serieDescripcion}-${correlativoDocumento}`;
+
+            if (ESTADOS_EXITOSOS.includes(idEstadoSunat)) {
+                console.log(`   SUNAT: ${compId} → ACEPTADA (estado ${idEstadoSunat})`);
+                return 'EXITOSO';
+            }
+
+            if (ESTADOS_TRANSITORIOS.includes(idEstadoSunat)) {
+                console.log(`   SUNAT: ${compId} → procesando (estado ${idEstadoSunat}). Esperando 8s...`);
+                await this.page.waitForTimeout(8000);
+
+                // Re-consultar la API
+                const consultaPromise = this.page.waitForResponse(
+                    (resp) => resp.url().includes('DocumentosContables/Consultas') && resp.status() === 200,
+                    {timeout: 15_000},
+                );
+
+                // Disparar la búsqueda nuevamente
+                const inputCorrelativo = this.page.locator(
+                    '[id="pv_comprobantes_cmp-grid-comprobantes-header:header-grilla_v-input:Correlativo"]',
+                );
+                await inputCorrelativo.click();
+                await inputCorrelativo.fill(correlativoDocumento.toString());
+
+                try {
+                    const response = await consultaPromise;
+                    const body = await response.json();
+                    const data = body.ComprobantesCollectionResponse?.Data ?? [];
+                    if (data.length > 0) {
+                        idEstadoSunat = data[0].IdestadoSunat ?? 0;
+                    }
+                } catch {
+                    console.warn(`   No se pudo re-interceptar Consultas para ${compId}`);
+                }
+
+                if (ESTADOS_EXITOSOS.includes(idEstadoSunat)) {
+                    console.log(`  ✓ SUNAT: ${compId} → ACEPTADA en re-consulta (estado ${idEstadoSunat})`);
+                    return 'EXITOSO';
+                } else {
+                    console.warn(
+                        `  ️ SUNAT: ${compId} → sigue sin aceptar (estado final ${EstadoSunat[idEstadoSunat] || idEstadoSunat}).` +
+                        ` El test NO falla — SUNAT sigue demorada.`,
+                    );
+                    return 'TRANSITORIO';
+                }
+            }
+
+            console.warn(
+                `   SUNAT: ${compId} → estado definitivo NO aceptado (${EstadoSunat[idEstadoSunat] || idEstadoSunat}).` +
+                ` El test NO falla — requiere revisión manual.`,
+            );
+            return 'DEFINITIVO';
+        } catch (error) {
+            return await throwFunctionalError({
+                page: this.page,
+                ...FUNCTIONAL_CATALOG.puntoVenta.validarSunat,
+                cause: error,
+            });
+        }
     }
 
     // ─── Dropdown del comprobante ─────────────────────────────────────
@@ -252,7 +305,7 @@ export class BusquedaComprobantesPage {
                 console.log(`  ✓ Bitácora: "${descripcion}" encontrado tras polling`);
                 return;
             }
-            console.log(`  ⏳ Bitácora: esperando "${descripcion}"...`);
+            console.log(`   Bitácora: esperando "${descripcion}"...`);
         }
 
         // Último intento con assert para generar error descriptivo
@@ -315,6 +368,13 @@ export class BusquedaComprobantesPage {
         }
     }
 
+    async validarComprobanteEmitidonota(): Promise<void> {
+        await expect(
+            this.page.getByText('Comprobante Emitido').first(),
+        ).toBeVisible({timeout: 10_000});
+
+    }
+
     /** Valida "XML Generado" con polling */
     async validarXMLGenerado(): Promise<void> {
         await this.esperarEntradaBitacora(
@@ -371,10 +431,13 @@ export class BusquedaComprobantesPage {
     }
 
     /** Verifica que el popup muestre adelantos aplicados */
+
+
     async validarAdelantosAplicadosEnPopup(popupPage: Page): Promise<void> {
-        await expect(
-            popupPage.getByText('Adelantos aplicados').nth(1),
-        ).toBeVisible({timeout: 10_000});
+        const adelantos = popupPage.getByText('Adelantos aplicados').nth(1);
+        const comprobantes = popupPage.getByText('Comprobantes de aplicación').nth(1);
+
+        await expect(adelantos.or(comprobantes)).toBeVisible({timeout: 10000});
     }
 
     /** Acciones extra dentro de la ventana de ver comprobante */

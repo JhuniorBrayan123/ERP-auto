@@ -1,7 +1,7 @@
 import {expect, test} from '@fixtures/Logistica/movimientos-fixture';
 import {ALMACENES, ITEMS_TEST, PATRON_CODIGO, VARIANTES,} from '@helpers/Logistica/movimiento-data.helper';
 import {
-    crearIngresoEstandarParaPrecondicion,
+    crearIngresoEstandarParaPrecondicion2,
     crearSalidaEstandarParaPrecondicion,
     eliminarMovimientoDesdeListado,
     verificarEventoEnBitacora,
@@ -105,7 +105,6 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
                                                                  }) => {
 
         let stockActual = 0;
-
         await test.step('Arrange: obtener stock actual del almacén AUTO', async () => {
             await movimientosNav.navegarAItemsProductos();
             await movimientoRapido.buscarItemPorCodigo(ITEMS_TEST.SIN_STOCK.codigo);
@@ -114,12 +113,13 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', {tag: ['@logist
             stockActual = await movimientoRapido.leerStockDelAlmacenEnModal(ALMACENES.AUTO);
             await movimientoRapido.cerrarModalCancelarModal();
         });
-        await crearIngresoEstandarParaPrecondicion(movimientosNav, registroMovimiento, resultadoMovimiento, page, ITEMS_TEST.SIN_STOCK.codigo, ITEMS_TEST.SIN_STOCK.nombre, '10');
+        const ingresoCreado = await crearIngresoEstandarParaPrecondicion2(movimientosNav, registroMovimiento, resultadoMovimiento, page, ITEMS_TEST.SIN_STOCK.codigo, ITEMS_TEST.SIN_STOCK.nombre, '10');
         await crearSalidaEstandarParaPrecondicion(movimientosNav, registroMovimiento, resultadoMovimiento, ITEMS_TEST.SIN_STOCK.codigo, ITEMS_TEST.SIN_STOCK.nombre, (stockActual + 8).toString());
 
         await test.step('Act: intentar eliminar el ingreso original (generaría stock negativo)', async () => {
             await listadoMovimientos.clickTabPorIndice2(1);
-            await listadoMovimientos.abrirMenuAcciones()
+            await listadoMovimientos.buscarMovimientoPorCodigo(ingresoCreado.codigo)
+            await listadoMovimientos.abrirMenuAccionesPorCodigo(ingresoCreado.codigo)
             await listadoMovimientos.clickEliminaElMovimiento();
             await listadoMovimientos.confirmarEliminacion();
         });

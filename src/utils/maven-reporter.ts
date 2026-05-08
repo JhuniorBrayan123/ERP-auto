@@ -52,11 +52,26 @@ class MavenReporter implements Reporter {
     private readonly printTechnical = process.env.PW_TECHNICAL_ERRORS === '1';
     private readonly qaFailures: Array<{ caseName: string; failedStep: string; userMessage: string }> = [];
 
+    private activeTestInfo: { title: string; attempt: number; isRetry: boolean } | null = null;
+    private currentTestPrinted = false;
+
     // ─── Lifecycle hooks ─────────────────────────────────────────────
 
     onBegin(_: unknown, suite: Suite): void {
         this.startTime = Date.now();
-        this.totalTests = suite.allTests().length;
+        
+        let effectiveTotal = suite.allTests().length;
+        for (const test of suite.allTests()) {
+            if (process.env.SKIP_PV_SETUP === '1' && test.title.includes('preparar datos base')) {
+                effectiveTotal--;
+            } else if (process.env.SKIP_PV_ITEMS_SETUP === '1' && test.title.includes('preparar ítems base')) {
+                effectiveTotal--;
+            } else if (process.env.SKIP_DATOS_SETUP === '1' && test.title.includes('preparar datos adicionales')) {
+                effectiveTotal--;
+            }
+        }
+        
+        this.totalTests = effectiveTotal;
         this.suiteName = this.extractSuiteName(suite);
 
         console.log('');
@@ -71,16 +86,31 @@ class MavenReporter implements Reporter {
     onTestBegin(test: TestCase): void {
         const isRetry = this.startedTests.has(test.id);
         if (!isRetry) {
-            this.currentTestNumber++;
             this.startedTests.add(test.id);
         }
 
-        const retryPrefix = isRetry ? `[RETRY ${test.results.length}] ` : '';
-        // Imprime el nombre con su numeración progresiva y hace salto de línea automático
-        console.log(`${MAGENTA}[${this.currentTestNumber}/${this.totalTests}] ${retryPrefix}${test.title}${RESET}`);
+        this.activeTestInfo = {
+            title: test.title,
+            attempt: test.results.length,
+            isRetry,
+        };
+        this.currentTestPrinted = false;
+    }
+
+    private ensureTestTitlePrinted(): void {
+        if (!this.currentTestPrinted && this.activeTestInfo) {
+            if (!this.activeTestInfo.isRetry) {
+                this.currentTestNumber++;
+            }
+            const retryPrefix = this.activeTestInfo.isRetry ? `[RETRY ${this.activeTestInfo.attempt}] ` : '';
+            console.log(`${MAGENTA}[${this.currentTestNumber}/${this.totalTests}] ${retryPrefix}${this.activeTestInfo.title}${RESET}`);
+            this.currentTestPrinted = true;
+        }
     }
 
     onStepBegin(test: TestCase, result: TestResult, step: TestStep): void {
+        this.ensureTestTitlePrinted();
+
         // Ignora hooks internos como "Before Hooks" o "browserContext.newPage"
         if (step.category === 'test.step') {
             // \r = volver al inicio, \x1b[K = borrar hasta el fin de la línea
@@ -90,6 +120,13 @@ class MavenReporter implements Reporter {
 
     onTestEnd(test: TestCase, result: TestResult): void {
         const duration = (result.duration / 1000).toFixed(1);
+
+        if (result.status === 'skipped') {
+            this.skipped++;
+            return;
+        }
+
+        this.ensureTestTitlePrinted();
 
         // Limpiar el último step que quedó escrito en consola antes del resultado final
         process.stdout.write(OVERWRITE_LINE);
@@ -115,11 +152,6 @@ class MavenReporter implements Reporter {
             case 'timedOut':
                 this.errors++;
                 this.printTimeout(test, duration, result);
-                break;
-
-            case 'skipped':
-                this.skipped++;
-                console.log(`${YELLOW}---Resultado: Test omitido (skipped)${RESET}`);
                 break;
 
             default:

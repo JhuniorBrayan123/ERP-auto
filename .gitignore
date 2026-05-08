@@ -7,6 +7,8 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+allure-results/
+allure-report/
 .idea/
 .github/
 tests/test-1.spec.ts

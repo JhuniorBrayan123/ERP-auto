@@ -79,13 +79,13 @@ test.describe('PS-3 | Creación de Recetas', {tag: ['@logistica', '@productos-st
         });
     });
 
-    
-    // test('crear receta con insumos estrictos para facturacion @PS-3', async ({
-    //                                                             recetaForm,
-    //                                                             itemDetail,
-    //                                                         }) => {
-    //     const nombre = buildUniqueItemName('receta', 'insumos estrictos');
 
+    // test('crear receta con insumos estrictos para facturacion @PS-3', async ({
+    //                                                                              recetaForm,
+    //                                                                              itemDetail,
+    //                                                                          }) => {
+    //     const nombre = buildUniqueItemName('receta', 'insumos estrictos');
+    //
     //     const insumos: InsumoReceta[] = [
     //         {codigoBusqueda: '464646', textoSeleccion: 'Nuevo insumo test1'},
     //         {codigoBusqueda: '444666', textoSeleccion: 'nuevo insumo con', equivalencia: 'equivalenteX2 insumo'},

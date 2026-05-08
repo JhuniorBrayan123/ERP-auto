@@ -1,6 +1,5 @@
 import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
-import {ClientePage} from "@pages/PuntoVenta/ClientePage";
 
 test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emisiones']}, () => {
 
@@ -19,7 +18,6 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
         await test.step('Given: la caja está abierta', async () => {
             await cajaPage.asegurarCajaAbierta();
         });
-
         await test.step('And: seleccionar tipo de comprobante BOLETA', async () => {
             await comprobantePage.seleccionarBoleta();
         });
@@ -233,6 +231,7 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
             await page.getByText('%', {exact: true}).click();
             await page.getByText('Porcentaje').click();
             await page.locator('[id*="v-input:descuento"]').fill('2');
+            await page.locator('[id="pv_cmp-punto-venta_cmp-venta-pedido:pedido_cmp-pedido-body:acciones_dv:btn-editar"]').click();
         });
 
         await test.step('And: aplicar descuento global del 2%', async () => {
@@ -399,7 +398,7 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
 
         await test.step('When: abrir datos opcionales y llenarlos', async () => {
             await emisionPage.abrirDatosOpcionales();
-            await emisionPage.llenarDatosOpcionales(CLIENTES.EMPRESA_RUC_AUTO.textoSelector);
+            await emisionPage.llenarDatosOpcionales(CLIENTES.PERSONA_AUTO);
         });
 
         await test.step('And: emitir con efectivo', async () => {
@@ -418,6 +417,11 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
         const estadoSunat = await test.step('And: validar estado SUNAT desde API de Consultas', async () => {
             return await busquedaComprobantes.validarEstadoSunat();
         });
+        await test.step('And: Verificar en busqueda de comprobantes', async () => {
+            await busquedaComprobantes.abrirBitacoraDelPrimerComprobante();
+            await busquedaComprobantes.validarComprobanteEmitido(estadoSunat);
+            await busquedaComprobantes.cerrarBitacora();
+        })
 
         await test.step('And: abrir Ver comprobante y verificar datos opcionales', async () => {
             const popup = await busquedaComprobantes.abrirVerComprobante();
@@ -471,6 +475,33 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
         await test.step('Then: vista previa visible', async () => {
             // La vista previa abre un overlay con el comprobante
             await page.locator('.icon-close').click();
+        });
+    });
+
+    // ─── Bloquear boleta con fecha fuera de rango (NO va a búsqueda) ──
+    test('Bloquear emisión de boleta con fecha fuera del rango permitido @PV-1.13', async ({
+                                                                                               cajaPage,
+                                                                                               emisionPage,
+                                                                                               page,
+                                                                                           }) => {
+        await test.step('Given: caja abierta y producto agregado', async () => {
+            await cajaPage.continuarVendiendo();
+            await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+        });
+
+        let fechaAntes = '';
+        await test.step('And: capturar la fecha actual mostrada', async () => {
+            fechaAntes = await emisionPage.obtenerFechaMostrada();
+        });
+
+        await test.step('When: intentar seleccionar una fecha con más de 4 días de antigüedad', async () => {
+            await emisionPage.clickFechaFueraDeRango(4);
+        });
+
+        await test.step('Then: la fecha mostrada NO debe haber cambiado', async () => {
+            const fechaDespues = await emisionPage.obtenerFechaMostrada();
+            expect(fechaDespues).toBe(fechaAntes);
         });
     });
 });

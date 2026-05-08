@@ -1,4 +1,4 @@
-import {type Download, expect, Locator, type Page} from '@playwright/test';
+import {type Download, Locator, type Page} from '@playwright/test';
 import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
 import {expectVisibleFunctional, runFunctionalAction} from '../../utils/functional-step';
 
@@ -27,16 +27,24 @@ export class ListadoMovimientosPage {
         }, async () => {
             await this.esperarSinOverlayCarga();
 
-            const buscador = this.page
-                .locator('input')
-                .filter({has: this.page.locator('xpath=..')})
-                .getByRole('textbox')
-                .first();
+            const buscador = this.page.locator(
+                'input[id="lgt_movimientos_cmp-filtro-movimientos:ver_v-input:busqueda_compuesta"]',
+            );
 
+            await expectVisibleFunctional(this.page, buscador, {
+                ...FUNCTIONAL_CATALOG.movimientos.verificarBitacora,
+                flowStep: 'Validar buscador de movimientos visible',
+                userMessage: 'No se encontró el buscador de movimientos.',
+                technicalDetail: 'El input de búsqueda por código o comprobante no está visible.',
+            });
+
+            await buscador.click();
+            await buscador.fill('');
             await buscador.fill(codigo);
             await buscador.press('Enter');
 
             await this.esperarSinOverlayCarga();
+
             await expectVisibleFunctional(this.page, this.obtenerFilaPorCodigo(codigo), {
                 ...FUNCTIONAL_CATALOG.movimientos.verificarBitacora,
                 flowStep: 'Confirmar que el movimiento aparece en el listado',
