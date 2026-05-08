@@ -388,7 +388,7 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
 
     // ─── Boleta datos adicionales (Patrón C: Bitácora + Ver comprobante popup) ──
     test('Emitir boleta con datos adicionales @PV-1.10', async ({
-                                                                    cajaPage, emisionPage, busquedaComprobantes, page,
+                                                                    cajaPage, emisionPage, busquedaComprobantes,clientePage, page,
                                                                 }) => {
         await test.step('Given: caja abierta y producto agregado', async () => {
             await cajaPage.continuarVendiendo();
