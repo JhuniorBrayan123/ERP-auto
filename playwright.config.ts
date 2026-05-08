@@ -90,13 +90,32 @@ export default defineConfig({
             dependencies: ["setup"],
         },
         {
+            name: "pv-datos-setup",
+            testMatch: "**/punto-venta-datos.setup.ts",
+            retries: 0,
+            use: {
+                ...devices["Desktop Chrome"],
+                storageState: "playwright/.auth/user.json",
+            },
+            dependencies: ["setup"],
+        },
+        {
+            name: "pv-items-setup",
+            testMatch: "**/punto-venta-items.setup.ts",
+            retries: 0,
+            use: {
+                ...devices["Desktop Chrome"],
+                storageState: "playwright/.auth/user.json",
+            },
+            dependencies: ["setup"],
+        },
+        {
             name: "chromium",
             use: {
                 ...devices["Desktop Chrome"],
                 storageState: "playwright/.auth/user.json",
             },
-            // dependencies: ['setup', 'datos-setup'],
-            dependencies: ["setup"],
+            dependencies: ["setup", "datos-setup", "pv-datos-setup", "pv-items-setup"],
         },
     ],
 });
