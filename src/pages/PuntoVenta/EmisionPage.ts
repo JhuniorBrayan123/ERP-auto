@@ -14,6 +14,8 @@
  */
 import {type Locator, type Page} from '@playwright/test';
 import type {EmisionResult} from '../../helpers/PuntoVenta/emision.types';
+import {throwFunctionalError} from '../../utils/functional-error';
+import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
 
 export class EmisionPage {
     /**
@@ -98,17 +100,44 @@ export class EmisionPage {
     // ─── Ítems ────────────────────────────────────────────────────────
 
     async buscarItem(codigo: string): Promise<void> {
-        await this.searchInput.click();
-        await this.searchInput.fill(codigo);
-        await this.page.waitForTimeout(800); // debounce del ERP
+        try {
+            await this.searchInput.click();
+            await this.searchInput.fill(codigo);
+            await this.page.waitForTimeout(800); // debounce del ERP
+        } catch (error) {
+            await throwFunctionalError({
+                page: this.page,
+                ...FUNCTIONAL_CATALOG.puntoVenta.agregarItem,
+                technicalDetail: `Error al buscar ítem. Código: ${codigo}.`,
+                cause: error,
+            });
+        }
     }
 
     async seleccionarItem(nombre: string): Promise<void> {
-        await this.page.getByText(nombre).click();
+        try {
+            await this.page.getByText(nombre).click();
+        } catch (error) {
+            await throwFunctionalError({
+                page: this.page,
+                ...FUNCTIONAL_CATALOG.puntoVenta.agregarItem,
+                technicalDetail: `Error al seleccionar ítem. Nombre: ${nombre}.`,
+                cause: error,
+            });
+        }
     }
 
     async seleccionarItemPorCodigo(codigo: string): Promise<void> {
-        await this.page.getByText(`${codigo})`).click();
+        try {
+            await this.page.getByText(`${codigo})`).click();
+        } catch (error) {
+            await throwFunctionalError({
+                page: this.page,
+                ...FUNCTIONAL_CATALOG.puntoVenta.agregarItem,
+                technicalDetail: `Error al seleccionar ítem por código. Código: ${codigo}.`,
+                cause: error,
+            });
+        }
     }
 
     /** Incrementa la cantidad del ítem con el botón + */
@@ -185,35 +214,36 @@ export class EmisionPage {
             '[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-footer_v-icon:totales"]',
         ).click();
     }
+
 // ─── Datos Opcionales ─────────────────────────────────────────────
-
-    async abrirDatosOpcionales(): Promise<void> {
-        await this.page.getByRole('button', { name: 'Datos' }).click();
-    }
-
-    async llenarDatosOpcionales(vendedorTextoSelector: string): Promise<void> {
-        // Seleccionar Vendedor / Cliente
-        const inputVendedor = this.page.getByRole("textbox", { name: "Nombre del vendedor" });
-        await inputVendedor.click();
-        await inputVendedor.fill("Vendedor");
-        await this.page.getByText(vendedorTextoSelector).first().click();
-
-        // Llenar campos de datos opcionales
-        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:orden-compra"]').fill("121");
-        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:contrato"]').fill("12");
-        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:comentarios"]').fill("observacion para datos adicionales");
-        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:campo-texto-0"]').fill("texto");
-        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:campo-numero-0"]').fill("123123");
-
-        // Guardar
-        await this.page.getByRole("button", { name: "Guardar datos" }).click();
-    }
-
-    // ─── Datos Opcionales ─────────────────────────────────────────────
 
     async abrirDatosOpcionales(): Promise<void> {
         await this.page.getByRole('button', {name: 'Datos'}).click();
     }
+
+    // async llenarDatosOpcionales(vendedorTextoSelector: string): Promise<void> {
+    //     // Seleccionar Vendedor / Cliente
+    //     const inputVendedor = this.page.getByRole("textbox", { name: "Nombre del vendedor" });
+    //     await inputVendedor.click();
+    //     await inputVendedor.fill("Vendedor");
+    //     await this.page.getByText(vendedorTextoSelector).first().click();
+    //
+    //     // Llenar campos de datos opcionales
+    //     await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:orden-compra"]').fill("121");
+    //     await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:contrato"]').fill("12");
+    //     await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:comentarios"]').fill("observacion para datos adicionales");
+    //     await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:campo-texto-0"]').fill("texto");
+    //     await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:campo-numero-0"]').fill("123123");
+    //
+    //     // Guardar
+    //     await this.page.getByRole("button", { name: "Guardar datos" }).click();
+    // }
+    //
+    // // ─── Datos Opcionales ─────────────────────────────────────────────
+    //
+    // async abrirDatosOpcionales(): Promise<void> {
+    //     await this.page.getByRole('button', {name: 'Datos'}).click();
+    // }
 
     // MIRA AQUÍ: Agregamos "cliente: any" en los paréntesis
     async llenarDatosOpcionales(cliente: any): Promise<void> {
@@ -268,9 +298,17 @@ export class EmisionPage {
      * Intercepta la API para capturar serie/correlativo del comprobante emitido.
      */
     async emitirConEfectivoExacto(): Promise<EmisionResult> {
-        await this.clickPagar();
-        await this.clickMontoExacto();
-        return this.interceptarEmision();
+        try {
+            await this.clickPagar();
+            await this.clickMontoExacto();
+            return await this.interceptarEmision();
+        } catch (error) {
+            return await throwFunctionalError({
+                page: this.page,
+                ...FUNCTIONAL_CATALOG.puntoVenta.emitirComprobante,
+                cause: error,
+            });
+        }
     }
 
     /**
@@ -278,9 +316,17 @@ export class EmisionPage {
      * Intercepta la API para capturar serie/correlativo del comprobante emitido.
      */
     async emitirConYape(): Promise<EmisionResult> {
-        await this.clickPagar();
-        await this.clickYape();
-        return this.interceptarEmision();
+        try {
+            await this.clickPagar();
+            await this.clickYape();
+            return await this.interceptarEmision();
+        } catch (error) {
+            return await throwFunctionalError({
+                page: this.page,
+                ...FUNCTIONAL_CATALOG.puntoVenta.emitirComprobante,
+                cause: error,
+            });
+        }
     }
 
     // ─── Regresar ─────────────────────────────────────────────────────
@@ -366,7 +412,7 @@ export class EmisionPage {
 
         await botonFecha.waitFor({state: 'attached', timeout: 5_000});
 
-        // ✅ dispatchEvent bypasea aria-disabled y todos los checks de Playwright
+        //  dispatchEvent bypasea aria-disabled y todos los checks de Playwright
         await botonFecha.dispatchEvent('click');
 
         console.log(`   Click disparado en fecha fuera de rango: ${ariaLabel}`);

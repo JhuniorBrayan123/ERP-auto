@@ -16,6 +16,8 @@
 import {expect, type Page} from '@playwright/test';
 import type {EmisionResult} from '../../helpers/PuntoVenta/emision.types';
 import {EstadoSunat} from '../../helpers/PuntoVenta/sunat-estados.helper';
+import {throwFunctionalError} from '../../utils/functional-error';
+import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
 
 const ESTADOS_EXITOSOS = [EstadoSunat.ACEPTADA, EstadoSunat.ACEPTADA_OBSERVADA];
 const ESTADOS_TRANSITORIOS = [EstadoSunat.PENDIENTE_ENVIO, EstadoSunat.PENDIENTE_RESPUESTA, EstadoSunat.NO_DISPONIBLE];
@@ -153,65 +155,73 @@ export class BusquedaComprobantesPage {
     // ─── Validación de estado SUNAT ───────────────────────────────────
 
     async validarEstadoSunat(): Promise<'EXITOSO' | 'TRANSITORIO' | 'DEFINITIVO'> {
-        if (!this.ultimoComprobanteConsulta) {
-            console.warn('  No hay datos de Consultas — no se puede validar SUNAT');
-            return 'TRANSITORIO';
-        }
-
-        let {idEstadoSunat} = this.ultimoComprobanteConsulta;
-        const {serieDescripcion, correlativoDocumento} = this.ultimoComprobanteConsulta;
-        const compId = `${serieDescripcion}-${correlativoDocumento}`;
-
-        if (ESTADOS_EXITOSOS.includes(idEstadoSunat)) {
-            console.log(`  ✓ SUNAT: ${compId} → ACEPTADA (estado ${idEstadoSunat})`);
-            return 'EXITOSO';
-        }
-
-        if (ESTADOS_TRANSITORIOS.includes(idEstadoSunat)) {
-            console.log(`  ⏳ SUNAT: ${compId} → procesando (estado ${idEstadoSunat}). Esperando 8s...`);
-            await this.page.waitForTimeout(8000);
-
-            // Re-consultar la API
-            const consultaPromise = this.page.waitForResponse(
-                (resp) => resp.url().includes('DocumentosContables/Consultas') && resp.status() === 200,
-                {timeout: 15_000},
-            );
-
-            // Disparar la búsqueda nuevamente
-            const inputCorrelativo = this.page.locator(
-                '[id="pv_comprobantes_cmp-grid-comprobantes-header:header-grilla_v-input:Correlativo"]',
-            );
-            await inputCorrelativo.click();
-            await inputCorrelativo.fill(correlativoDocumento.toString());
-
-            try {
-                const response = await consultaPromise;
-                const body = await response.json();
-                const data = body.ComprobantesCollectionResponse?.Data ?? [];
-                if (data.length > 0) {
-                    idEstadoSunat = data[0].IdestadoSunat ?? 0;
-                }
-            } catch {
-                console.warn(`  ⚠️ No se pudo re-interceptar Consultas para ${compId}`);
-            }
-
-            if (ESTADOS_EXITOSOS.includes(idEstadoSunat)) {
-                console.log(`  ✓ SUNAT: ${compId} → ACEPTADA en re-consulta (estado ${idEstadoSunat})`);
-                return 'EXITOSO';
-            } else {
-                console.warn(
-                    `  ⚠️ SUNAT: ${compId} → sigue sin aceptar (estado final ${EstadoSunat[idEstadoSunat] || idEstadoSunat}).` +
-                    ` El test NO falla — SUNAT sigue demorada.`,
-                );
+        try {
+            if (!this.ultimoComprobanteConsulta) {
+                console.warn('  No hay datos de Consultas — no se puede validar SUNAT');
                 return 'TRANSITORIO';
             }
-        }
 
-        console.warn(
-            `  ⚠️ SUNAT: ${compId} → estado definitivo NO aceptado (${EstadoSunat[idEstadoSunat] || idEstadoSunat}).` +
-            ` El test NO falla — requiere revisión manual.`,
-        );
-        return 'DEFINITIVO';
+            let {idEstadoSunat} = this.ultimoComprobanteConsulta;
+            const {serieDescripcion, correlativoDocumento} = this.ultimoComprobanteConsulta;
+            const compId = `${serieDescripcion}-${correlativoDocumento}`;
+
+            if (ESTADOS_EXITOSOS.includes(idEstadoSunat)) {
+                console.log(`  ✓ SUNAT: ${compId} → ACEPTADA (estado ${idEstadoSunat})`);
+                return 'EXITOSO';
+            }
+
+            if (ESTADOS_TRANSITORIOS.includes(idEstadoSunat)) {
+                console.log(`  ⏳ SUNAT: ${compId} → procesando (estado ${idEstadoSunat}). Esperando 8s...`);
+                await this.page.waitForTimeout(8000);
+
+                // Re-consultar la API
+                const consultaPromise = this.page.waitForResponse(
+                    (resp) => resp.url().includes('DocumentosContables/Consultas') && resp.status() === 200,
+                    {timeout: 15_000},
+                );
+
+                // Disparar la búsqueda nuevamente
+                const inputCorrelativo = this.page.locator(
+                    '[id="pv_comprobantes_cmp-grid-comprobantes-header:header-grilla_v-input:Correlativo"]',
+                );
+                await inputCorrelativo.click();
+                await inputCorrelativo.fill(correlativoDocumento.toString());
+
+                try {
+                    const response = await consultaPromise;
+                    const body = await response.json();
+                    const data = body.ComprobantesCollectionResponse?.Data ?? [];
+                    if (data.length > 0) {
+                        idEstadoSunat = data[0].IdestadoSunat ?? 0;
+                    }
+                } catch {
+                    console.warn(`  ⚠️ No se pudo re-interceptar Consultas para ${compId}`);
+                }
+
+                if (ESTADOS_EXITOSOS.includes(idEstadoSunat)) {
+                    console.log(`  ✓ SUNAT: ${compId} → ACEPTADA en re-consulta (estado ${idEstadoSunat})`);
+                    return 'EXITOSO';
+                } else {
+                    console.warn(
+                        `  ⚠️ SUNAT: ${compId} → sigue sin aceptar (estado final ${EstadoSunat[idEstadoSunat] || idEstadoSunat}).` +
+                        ` El test NO falla — SUNAT sigue demorada.`,
+                    );
+                    return 'TRANSITORIO';
+                }
+            }
+
+            console.warn(
+                `  ⚠️ SUNAT: ${compId} → estado definitivo NO aceptado (${EstadoSunat[idEstadoSunat] || idEstadoSunat}).` +
+                ` El test NO falla — requiere revisión manual.`,
+            );
+            return 'DEFINITIVO';
+        } catch (error) {
+            return await throwFunctionalError({
+                page: this.page,
+                ...FUNCTIONAL_CATALOG.puntoVenta.validarSunat,
+                cause: error,
+            });
+        }
     }
 
     // ─── Dropdown del comprobante ─────────────────────────────────────

@@ -8,6 +8,8 @@
  * - Continuar vendiendo: getByRole('button', { name: 'Continuar vendiendo' })
  */
 import {expect, type Page} from '@playwright/test';
+import {throwFunctionalError} from '../../utils/functional-error';
+import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
 
 export class CajaPage {
     constructor(private readonly page: Page) {
@@ -80,12 +82,20 @@ export class CajaPage {
      * si ya está abierta continúa vendiendo.
      */
     async asegurarCajaAbierta(): Promise<void> {
-        const estado = await this.detectarEstadoCaja();
-        console.log("Estado detectado")
-        if (estado === 'cerrada') {
-            await this.abrirCajaCompleta();
-        } else if (estado === 'abierta') {
-            await this.continuarVendiendo();
+        try {
+            const estado = await this.detectarEstadoCaja();
+            console.log("Estado detectado")
+            if (estado === 'cerrada') {
+                await this.abrirCajaCompleta();
+            } else if (estado === 'abierta') {
+                await this.continuarVendiendo();
+            }
+        } catch (error) {
+            await throwFunctionalError({
+                page: this.page,
+                ...FUNCTIONAL_CATALOG.puntoVenta.abrirCaja,
+                cause: error,
+            });
         }
     }
 }

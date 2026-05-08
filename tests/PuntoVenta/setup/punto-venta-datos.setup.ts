@@ -8,28 +8,6 @@ import {
     VENDEDOR_PV,
 } from '../../../src/helpers/PuntoVenta/punto-venta-setup-data.helper';
 
-/**
- * Setup idempotente de datos base para PuntoVenta / Emisiones.
- *
- * Este archivo se ejecuta como un Playwright Setup Project:
- *   auth.setup.ts → pv-datos-setup → tests de chromium
- *
- * Lógica "Find or Create":
- * - Si los datos YA existen → log + continuar (no falla, no duplica)
- * - Si NO existen → crearlos automáticamente
- *
- * Cubre:
- * 1. Vendedor (DNI 76975258) — necesario para datos opcionales de emisión
- * 2. Campos adicionales de la caja (texto, fecha, selección, número)
- * 3. Cliente DNI (76958585) — usado en boletas
- * 4. Cliente RUC (20759685854) — usado en facturas
- *
- * Ejecución:
- * - Automática: corre con `npx playwright test` (antes de los tests)
- * - Manual: `npx playwright test --project=pv-datos-setup`
- * - Skip: SKIP_PV_SETUP=1 npx playwright test
- */
-
 // ─── Skip controlado por variable de entorno ─────────────────────────
 setup.skip(!!process.env.SKIP_PV_SETUP, 'Setup de PuntoVenta omitido por SKIP_PV_SETUP');
 
@@ -44,7 +22,7 @@ setup('preparar datos base para PuntoVenta / Emisiones', async ({page}) => {
     // ══════════════════════════════════════════════════════════════════
     // 1. VENDEDOR
     // ══════════════════════════════════════════════════════════════════
-    console.log('\n📋 [PV Setup] Configurando VENDEDOR...');
+    console.log('\n [PV Setup] Configurando VENDEDOR...');
     await pvSetup.navegarAVendedores();
     await pvSetup.asegurarVendedor(VENDEDOR_PV);
 
@@ -75,14 +53,14 @@ setup('preparar datos base para PuntoVenta / Emisiones', async ({page}) => {
     // ══════════════════════════════════════════════════════════════════
     // 3. CLIENTE DNI (sin RUC — para boletas)
     // ══════════════════════════════════════════════════════════════════
-    console.log('\n📋 [PV Setup] Configurando CLIENTE DNI...');
+    console.log('\n [PV Setup] Configurando CLIENTE DNI...');
     await pvSetup.asegurarClienteDNI(CLIENTE_DNI_PV);
 
     // ══════════════════════════════════════════════════════════════════
     // 4. CLIENTE RUC (para facturas)
     // ══════════════════════════════════════════════════════════════════
-    console.log('\n📋 [PV Setup] Configurando CLIENTE RUC...');
+    console.log('\n [PV Setup] Configurando CLIENTE RUC...');
     await pvSetup.asegurarClienteRUC(CLIENTE_RUC_PV);
 
-    console.log('\n✅ [PV Setup] Datos base de PuntoVenta listos\n');
+    console.log('\n [PV Setup] Datos base de PuntoVenta listos\n');
 });

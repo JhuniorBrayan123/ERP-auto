@@ -1,32 +1,9 @@
-import {test as setup, expect} from '@playwright/test';
+import {expect, test as setup} from '@playwright/test';
 import {ProductoFormPage} from '../../../src/pages/Logistica/ProductoFormPage';
 import {RecetaFormPage} from '../../../src/pages/Logistica/RecetaFormPage';
 import {ListaFormPage} from '../../../src/pages/Logistica/ListaFormPage';
 import {ListaItemsPage} from '../../../src/pages/Logistica/ListaItemsPage';
 import type {InsumoReceta, ProductoListaItem} from '../../../src/helpers/Logistica/item-data.types';
-
-/**
- * Setup idempotente de ítems base para PuntoVenta / Emisiones.
- *
- * Se ejecuta como Playwright Setup Project al mismo nivel que pv-datos-setup:
- *   auth.setup → pv-items-setup + pv-datos-setup → chromium
- *
- * Lógica "Find or Create":
- * - Busca cada ítem por CÓDIGO en la grilla de Productos y Stock
- * - Si ya existe → skip (idempotente)
- * - Si NO existe → lo crea usando los Page Objects existentes + llenarCodigo()
- *
- * Ítems cubiertos:
- * 1. 112211 — Producto con ISC fijo (para pruebas de facturación ISC)
- * 2. 221122 — Producto con ICBPER (para pruebas de ICBPER)
- * 3. 332211 — Receta con insumos estrictos (para facturación)
- * 4. 443444 — Lista items flexibles (para Nota de Venta)
- *
- * Ejecución:
- * - Automática: corre con `npx playwright test`
- * - Manual: `npx playwright test --project=pv-items-setup`
- * - Skip: SKIP_PV_ITEMS_SETUP=1 npx playwright test
- */
 
 setup.skip(!!process.env.SKIP_PV_ITEMS_SETUP, 'Setup de ítems PV omitido por SKIP_PV_ITEMS_SETUP');
 
@@ -71,12 +48,12 @@ setup('preparar ítems base para PuntoVenta / Emisiones', async ({page}) => {
     // 1. PRODUCTO CON ISC FIJO — código 112211
     // ══════════════════════════════════════════════════════════════════
     const COD_ISC = '112211';
-    console.log(`\n📋 [PV Items] Verificando producto ISC (${COD_ISC})...`);
+    console.log(`\n [PV Items] Verificando producto ISC (${COD_ISC})...`);
 
     if (await itemExistePorCodigo(listaItems, page, COD_ISC)) {
-        console.log(`  ✅ Producto ISC "${COD_ISC}" ya existe`);
+        console.log(`   Producto ISC "${COD_ISC}" ya existe`);
     } else {
-        console.log(`  🔧 Creando producto ISC "${COD_ISC}"...`);
+        console.log(`   Creando producto ISC "${COD_ISC}"...`);
 
         await productoForm.iniciarCreacionProducto();
         await productoForm.llenarCodigo(112211);
@@ -106,12 +83,12 @@ setup('preparar ítems base para PuntoVenta / Emisiones', async ({page}) => {
     // 2. PRODUCTO CON ICBPER — código 221122
     // ══════════════════════════════════════════════════════════════════
     const COD_ICBPER = '221122';
-    console.log(`\n📋 [PV Items] Verificando producto ICBPER (${COD_ICBPER})...`);
+    console.log(`\n [PV Items] Verificando producto ICBPER (${COD_ICBPER})...`);
 
     if (await itemExistePorCodigo(listaItems, page, COD_ICBPER)) {
-        console.log(`  ✅ Producto ICBPER "${COD_ICBPER}" ya existe`);
+        console.log(`   Producto ICBPER "${COD_ICBPER}" ya existe`);
     } else {
-        console.log(`  🔧 Creando producto ICBPER "${COD_ICBPER}"...`);
+        console.log(`   Creando producto ICBPER "${COD_ICBPER}"...`);
 
         await productoForm.iniciarCreacionProducto();
         await productoForm.llenarCodigo(221122);
@@ -138,12 +115,12 @@ setup('preparar ítems base para PuntoVenta / Emisiones', async ({page}) => {
     // 3. RECETA CON INSUMOS ESTRICTOS — código 332211
     // ══════════════════════════════════════════════════════════════════
     const COD_RECETA = '332211';
-    console.log(`\n📋 [PV Items] Verificando receta (${COD_RECETA})...`);
+    console.log(`\n [PV Items] Verificando receta (${COD_RECETA})...`);
 
     if (await itemExistePorCodigo(listaItems, page, COD_RECETA)) {
-        console.log(`  ✅ Receta "${COD_RECETA}" ya existe`);
+        console.log(`   Receta "${COD_RECETA}" ya existe`);
     } else {
-        console.log(`  🔧 Creando receta "${COD_RECETA}"...`);
+        console.log(`   Creando receta "${COD_RECETA}"...`);
 
         const insumos: InsumoReceta[] = [
             {codigoBusqueda: '464646', textoSeleccion: 'Nuevo insumo test1'},
@@ -172,12 +149,12 @@ setup('preparar ítems base para PuntoVenta / Emisiones', async ({page}) => {
     // 4. LISTA ITEMS FLEXIBLES — código 443444
     // ══════════════════════════════════════════════════════════════════
     const COD_LISTA = '443444';
-    console.log(`\n📋 [PV Items] Verificando lista (${COD_LISTA})...`);
+    console.log(`\n [PV Items] Verificando lista (${COD_LISTA})...`);
 
     if (await itemExistePorCodigo(listaItems, page, COD_LISTA)) {
-        console.log(`  ✅ Lista "${COD_LISTA}" ya existe`);
+        console.log(`   Lista "${COD_LISTA}" ya existe`);
     } else {
-        console.log(`  🔧 Creando lista "${COD_LISTA}"...`);
+        console.log(`   Creando lista "${COD_LISTA}"...`);
 
         const productos: ProductoListaItem[] = [
             {codigoBusqueda: '121212', textoSeleccion: 'item para combos gravado'},
@@ -201,5 +178,5 @@ setup('preparar ítems base para PuntoVenta / Emisiones', async ({page}) => {
         console.log(`  ✓ Lista "${COD_LISTA}" creada`);
     }
 
-    console.log('\n✅ [PV Items] Todos los ítems de PuntoVenta están listos\n');
+    console.log('\n [PV Items] Todos los ítems de PuntoVenta están listos\n');
 });

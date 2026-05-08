@@ -148,49 +148,22 @@ function formatCommand(args: string[]): string {
 }
 
 async function askRunOptions(): Promise<string[]> {
-    const headed = await confirm({
-        message: 'Ejecutar con navegador visible?',
+    const skipSetups = await confirm({
+        message: 'Omitir setups automatizados? (Acelera si ya tienes los datos creados)',
         default: false,
     });
 
-    const debug = await confirm({
-        message: 'Ejecutar en modo debug?',
-        default: false,
-    });
-
-    const projectAnswer = await input({
-        message: 'Browser/proyecto opcional, ejemplo chromium/firefox/webkit. Enter para omitir:',
-        default: '',
-    });
-
-    const workersAnswer = await input({
-        message: 'Workers opcional, ejemplo 1, 2, 4. Enter para omitir:',
-        default: '',
-    });
-
-    const retriesAnswer = await input({
-        message: 'Reintentos opcional, ejemplo 1. Enter para omitir:',
-        default: '',
-    });
-
-    const args: string[] = [];
-
-    if (headed) args.push('--headed');
-    if (debug) args.push('--debug');
-
-    if (projectAnswer.trim()) {
-        args.push('--project', projectAnswer.trim());
+    if (skipSetups) {
+        process.env.SKIP_PV_SETUP = '1';
+        process.env.SKIP_PV_ITEMS_SETUP = '1';
+        process.env.SKIP_DATOS_SETUP = '1';
+    } else {
+        delete process.env.SKIP_PV_SETUP;
+        delete process.env.SKIP_PV_ITEMS_SETUP;
+        delete process.env.SKIP_DATOS_SETUP;
     }
 
-    if (workersAnswer.trim()) {
-        args.push('--workers', workersAnswer.trim());
-    }
-
-    if (retriesAnswer.trim()) {
-        args.push('--retries', retriesAnswer.trim());
-    }
-
-    return args;
+    return [];
 }
 
 function runPlaywright(args: string[]): Promise<void> {

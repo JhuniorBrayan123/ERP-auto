@@ -15,6 +15,8 @@
  */
 import { expect, type Page } from '@playwright/test';
 import type { TipoComprobante } from '../../helpers/PuntoVenta/emision.types';
+import { throwFunctionalError } from '../../utils/functional-error';
+import { FUNCTIONAL_CATALOG } from '../../utils/functional-catalog';
 
 /** Mapeo de tipo de comprobante a ID del sistema */
 const TIPO_COMPROBANTE_ID: Record<TipoComprobante, number> = {
@@ -38,15 +40,23 @@ export class ComprobantePage {
      * Selecciona un tipo de comprobante del dropdown.
      */
     async seleccionarTipoComprobante(tipo: TipoComprobante): Promise<void> {
-        const id = TIPO_COMPROBANTE_ID[tipo];
-        // El dropdown usa IDs con el patrón: v-option:opcion-{id}
-        const optionLocator = this.page.locator(
-            `[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-header_v-select:tipo-comprobante_v-option:opcion-${id}"]`,
-        );
+        try {
+            const id = TIPO_COMPROBANTE_ID[tipo];
+            // El dropdown usa IDs con el patrón: v-option:opcion-{id}
+            const optionLocator = this.page.locator(
+                `[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-header_v-select:tipo-comprobante_v-option:opcion-${id}"]`,
+            );
 
-        // Si la opción ya tiene el texto visible, puede que necesitemos abrir el dropdown primero
-        await this.abrirSelectorTipo();
-        await optionLocator.getByText(tipo === 'BOLETA' ? 'BOLETA' : tipo === 'FACTURA' ? 'FACTURA' : 'NOTA DE VENTA').click();
+            // Si la opción ya tiene el texto visible, puede que necesitemos abrir el dropdown primero
+            await this.abrirSelectorTipo();
+            await optionLocator.getByText(tipo === 'BOLETA' ? 'BOLETA' : tipo === 'FACTURA' ? 'FACTURA' : 'NOTA DE VENTA').click();
+        } catch (error) {
+            await throwFunctionalError({
+                page: this.page,
+                ...FUNCTIONAL_CATALOG.puntoVenta.seleccionarComprobante,
+                cause: error,
+            });
+        }
     }
 
     /** Seleccionar boleta directamente */
