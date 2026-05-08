@@ -122,6 +122,11 @@ class MavenReporter implements Reporter {
         const duration = (result.duration / 1000).toFixed(1);
 
         if (result.status === 'skipped') {
+            // No contar los setups omitidos por variable de entorno
+            if (process.env.SKIP_PV_SETUP === '1' && test.title.includes('preparar datos base')) return;
+            if (process.env.SKIP_PV_ITEMS_SETUP === '1' && test.title.includes('preparar ítems base')) return;
+            if (process.env.SKIP_DATOS_SETUP === '1' && test.title.includes('preparar datos adicionales')) return;
+            
             this.skipped++;
             return;
         }
