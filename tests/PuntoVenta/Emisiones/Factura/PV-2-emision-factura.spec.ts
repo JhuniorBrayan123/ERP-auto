@@ -710,6 +710,7 @@ test.describe('PV-2 | Emisión de Factura @factura', {tag: ['@punto-venta', '@em
             await page.getByText(CLIENTES.EMPRESA_RUC_AUTO.textoSelector).click();
             await emisionPage.buscarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
             await emisionPage.seleccionarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
+
             // Activar switch adelanto
             await page.locator('.slider').first().click();
             await emisionPage.emitirConEfectivoExacto();
@@ -720,11 +721,14 @@ test.describe('PV-2 | Emisión de Factura @factura', {tag: ['@punto-venta', '@em
         // ─── Factura con adelanto aplicado ─────────────────────────
         await test.step('And: iniciar nueva factura con cliente RUC', async () => {
             await comprobantePage.seleccionarFactura();
-            await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).click();
-            await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).fill(CLIENTES.EMPRESA_RUC_AUTO.documento);
+            const inputCliente = page.getByRole('textbox', {name: 'Buscar por nombre, razón'});
+            await inputCliente.click();
+            await inputCliente.fill(CLIENTES.EMPRESA_RUC_AUTO.documento);
             await page.getByText(CLIENTES.EMPRESA_RUC_AUTO.textoSelector).click();
+            await expect(page.getByText(CLIENTES.EMPRESA_RUC_AUTO.documento)).toBeVisible();
             await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
             await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+            await emisionPage.incrementarCantidad(1)
         });
 
         await test.step('When: aplicar adelanto existente', async () => {

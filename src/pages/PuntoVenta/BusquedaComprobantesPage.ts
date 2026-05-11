@@ -137,6 +137,7 @@ export class BusquedaComprobantesPage {
     }
 
 
+    // Dentro de BusquedaComprobantes (o como se llame tu Page Object)
     async filtrarAdelantoFactura(emision: EmisionResult | null): Promise<void> {
         if (!emision) throw new Error('No hay emisión capturada para filtrar adelanto');
 
@@ -148,6 +149,14 @@ export class BusquedaComprobantesPage {
         const inputCorrelativo = this.page.getByRole('textbox', {name: 'Correlativo'});
         await inputCorrelativo.click();
         await inputCorrelativo.fill(emision.correlativo);
+
+        // NUEVO: esperamos a que la grilla reaccione al filtro.
+        // No asumimos velocidad de red — esperamos el resultado real.
+        // Usamos el correlativo porque es el dato más específico que acabamos
+        // de filtrar, y la fila lo contendrá sí o sí si el filtro funcionó.
+        const referenciaUnica = `F001-${emision.correlativo}`
+        const filaEsperada = this.page.locator('tr').filter({hasText: referenciaUnica});
+        await filaEsperada.waitFor({state: 'visible', timeout: 15_000});
 
         console.log(`   Adelanto factura filtrado: F001-${emision.correlativo}`);
     }
