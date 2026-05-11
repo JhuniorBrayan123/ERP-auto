@@ -360,6 +360,7 @@ test('test', async ({ page }) => {
   await page.getByText('combo hijo exonegaro item').click();
   await page.getByText('combo hijo exonegaro item').first().dblclick();
   await page.locator('.image-default').dblclick();
+
   // Scenario: Bloquear agregado de receta cuando uno de sus componentes no tiene stock
   //   Given que el usuario se encuentra dentro de una caja
   //   When busca un ítem tipo receta
@@ -367,7 +368,7 @@ test('test', async ({ page }) => {
   //   And intenta agregarla al carrito
   //   Then el sistema debe bloquear la operación según la lógica configurada
   //   And debe mostrar una validación visible indicando que uno o más componentes no tienen stock
-
+  
   // Scenario: Bloquear agregado de lista de productos cuando uno de sus productos no tiene stock
   //   Given que el usuario se encuentra dentro de una caja
   //   When busca un ítem tipo lista de productos

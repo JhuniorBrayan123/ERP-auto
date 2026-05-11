@@ -5,14 +5,18 @@
  * IMPORTANTE: Notas de venta NO llegan a SUNAT → no se valida estado SUNAT.
  * Post-emisión: cada test exitoso navega a Búsqueda de comprobantes + Bitácora.
  */
-import { test, expect } from '@fixtures/PuntoVenta/validacion-fixture';
-import { ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
+import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
+import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('PV-3 | Emisión de Nota de Venta @nota-venta', { tag: ['@punto-venta', '@emisiones'] }, () => {
+test.describe('PV-3 | Emisión de Nota de Venta @nota-venta', {tag: ['@punto-venta', '@emisiones']}, () => {
 
     test('Emitir nota de venta con producto con control de stock @PV-3.1', async ({
-        cajaPage, comprobantePage, emisionPage, kardexApi, busquedaComprobantes, page,
-    }) => {
+                                                                                      cajaPage,
+                                                                                      comprobantePage,
+                                                                                      emisionPage,
+                                                                                      kardexApi,
+                                                                                      busquedaComprobantes,
+                                                                                  }) => {
         let saldoAntes = 0;
 
         await test.step('Given: caja abierta y tipo NOTA DE VENTA', async () => {
@@ -43,7 +47,7 @@ test.describe('PV-3 | Emisión de Nota de Venta @nota-venta', { tag: ['@punto-ve
 
         await test.step('And: abrir bitácora y verificar emisión y descargo', async () => {
             await busquedaComprobantes.abrirBitacoraDelPrimerComprobante();
-            await busquedaComprobantes.validarComprobanteEmitido();
+            await busquedaComprobantes.validarComprobanteEmitidonota();
             await busquedaComprobantes.validarDescargoInventarios();
             await busquedaComprobantes.cerrarBitacora();
         });
@@ -58,8 +62,12 @@ test.describe('PV-3 | Emisión de Nota de Venta @nota-venta', { tag: ['@punto-ve
     });
 
     test('Emitir nota de venta con descuento global por monto @PV-3.2', async ({
-        cajaPage, comprobantePage, emisionPage, busquedaComprobantes, page,
-    }) => {
+                                                                                   cajaPage,
+                                                                                   comprobantePage,
+                                                                                   emisionPage,
+                                                                                   busquedaComprobantes,
+                                                                                   page,
+                                                                               }) => {
         await test.step('Given: caja abierta y NOTA DE VENTA', async () => {
             await cajaPage.continuarVendiendo();
             await comprobantePage.seleccionarNotaVenta();
@@ -95,8 +103,12 @@ test.describe('PV-3 | Emisión de Nota de Venta @nota-venta', { tag: ['@punto-ve
     });
 
     test('Emitir nota de venta con lista de productos @PV-3.3', async ({
-        cajaPage, comprobantePage, emisionPage, busquedaComprobantes, page,
-    }) => {
+                                                                           cajaPage,
+                                                                           comprobantePage,
+                                                                           emisionPage,
+                                                                           busquedaComprobantes,
+                                                                           page,
+                                                                       }) => {
         await test.step('Given: caja abierta y NOTA DE VENTA', async () => {
             await cajaPage.continuarVendiendo();
             await comprobantePage.seleccionarNotaVenta();
@@ -106,7 +118,7 @@ test.describe('PV-3 | Emisión de Nota de Venta @nota-venta', { tag: ['@punto-ve
             await emisionPage.buscarItem(ITEMS_PV.LISTA_ITEMS.codigo);
             await page.getByText(ITEMS_PV.LISTA_ITEMS.nombre).click();
             await page.locator('[id="_div:increase"]').first().click();
-            await page.getByRole('button', { name: 'Agregar a venta' }).click();
+            await page.getByRole('button', {name: 'Agregar a venta'}).click();
         });
 
         await test.step('And: emitir', async () => {
@@ -123,14 +135,18 @@ test.describe('PV-3 | Emisión de Nota de Venta @nota-venta', { tag: ['@punto-ve
 
         await test.step('And: abrir bitácora y verificar emisión', async () => {
             await busquedaComprobantes.abrirBitacoraDelPrimerComprobante();
-            await busquedaComprobantes.validarComprobanteEmitido();
+            await busquedaComprobantes.validarComprobanteEmitidonota();
             await busquedaComprobantes.cerrarBitacora();
         });
     });
 
     test('Emitir nota de venta con equivalencia @PV-3.4', async ({
-        cajaPage, comprobantePage, emisionPage, busquedaComprobantes, page,
-    }) => {
+                                                                     cajaPage,
+                                                                     comprobantePage,
+                                                                     emisionPage,
+                                                                     busquedaComprobantes,
+                                                                     page,
+                                                                 }) => {
         await test.step('Given: caja abierta y NOTA DE VENTA', async () => {
             await cajaPage.continuarVendiendo();
             await comprobantePage.seleccionarNotaVenta();
@@ -158,14 +174,19 @@ test.describe('PV-3 | Emisión de Nota de Venta @nota-venta', { tag: ['@punto-ve
 
         await test.step('And: abrir bitácora y verificar emisión', async () => {
             await busquedaComprobantes.abrirBitacoraDelPrimerComprobante();
-            await busquedaComprobantes.validarComprobanteEmitido();
+            await busquedaComprobantes.validarComprobanteEmitidonota();
             await busquedaComprobantes.cerrarBitacora();
         });
     });
 
     test('Emitir nota de venta de adelanto @PV-3.5', async ({
-        cajaPage, comprobantePage, emisionPage, kardexApi, busquedaComprobantes, page,
-    }) => {
+                                                                cajaPage,
+                                                                comprobantePage,
+                                                                emisionPage,
+                                                                kardexApi,
+                                                                busquedaComprobantes,
+                                                                page,
+                                                            }) => {
         let saldoAntes = 0;
 
         await test.step('Given: caja abierta y NOTA DE VENTA', async () => {
@@ -204,7 +225,7 @@ test.describe('PV-3 | Emisión de Nota de Venta @nota-venta', { tag: ['@punto-ve
 
         await test.step('And: abrir bitácora y verificar emisión (sin descargo)', async () => {
             await busquedaComprobantes.abrirBitacoraDelPrimerComprobante();
-            await busquedaComprobantes.validarComprobanteEmitido();
+            await busquedaComprobantes.validarComprobanteEmitidonota();
             await busquedaComprobantes.validarSinDescargoInventarios();
             await busquedaComprobantes.cerrarBitacora();
         });
@@ -219,9 +240,12 @@ test.describe('PV-3 | Emisión de Nota de Venta @nota-venta', { tag: ['@punto-ve
     });
 
     test('Emitir nota de venta aplicando adelanto existente @PV-3.6', async ({
-        cajaPage, comprobantePage, emisionPage, busquedaComprobantes, page,
-    }) => {
-        // Precondición: crear adelanto primero
+                                                                                 cajaPage,
+                                                                                 comprobantePage,
+                                                                                 emisionPage,
+                                                                                 busquedaComprobantes,
+                                                                                 page,
+                                                                             }) => {
         await test.step('Given: crear adelanto como precondición', async () => {
             await cajaPage.continuarVendiendo();
             await comprobantePage.seleccionarNotaVenta();
@@ -241,7 +265,8 @@ test.describe('PV-3 | Emisión de Nota de Venta @nota-venta', { tag: ['@punto-ve
         });
 
         await test.step('When: aplicar adelanto existente', async () => {
-            await page.getByRole('button', { name: 'Adelantos' }).click();
+            await page.getByRole('button', {name: 'Adelantos'}).click();
+            await busquedaComprobantes.filtrarAdelanto(emisionPage.ultimaEmision); //Aplicacion de soporte: Vamos desde las 3 hasta el viernes para proponer sus ideas: La idea ganadora se va a desarrollar interesante
             await page.locator(
                 '.v-checkbox-default-label.flex-row-align-items-center-justify-content-center > span',
             ).first().click();
@@ -266,7 +291,7 @@ test.describe('PV-3 | Emisión de Nota de Venta @nota-venta', { tag: ['@punto-ve
 
         await test.step('And: abrir bitácora y verificar emisión', async () => {
             await busquedaComprobantes.abrirBitacoraDelPrimerComprobante();
-            await busquedaComprobantes.validarComprobanteEmitido();
+            await busquedaComprobantes.validarComprobanteEmitidonota();
             await busquedaComprobantes.cerrarBitacora();
         });
 

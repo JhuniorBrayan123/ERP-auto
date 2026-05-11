@@ -5,26 +5,9 @@ import {DatosAdicionalesSetupPage} from '@pages/Logistica/DatosAdicionalesSetupP
 import {PROVEEDOR_EXISTENTE, PROVEEDOR_TEST,} from '@helpers/Logistica/movimiento-data.helper';
 import {CAMPOS_AJUSTES, CAMPOS_INGRESOS, CAMPOS_TRASLADOS,} from '@helpers/Logistica/datos-adicionales-config';
 
-/**
- * Setup idempotente de datos adicionales y proveedor para Movimientos de Logística.
- *
- * Este archivo se ejecuta como un Playwright Setup Project:
- *   auth.setup.ts → datos-adicionales.setup.ts → tests de chromium
- *
- * Lógica "Find or Create":
- * - Si los campos/proveedor YA existen → log + continuar (no falla)
- * - Si NO existen → crearlos automáticamente
- *
- * Cubre:
- * 1. Proveedor global (DNI 76975258) — necesario para 7 specs
- * 2. Campos adicionales de Ingresos (texto, selección, fecha)
- * 3. Campos adicionales de Traslados (texto)
- * 4. Campos adicionales de Ajustes (texto, fecha, número, selección con defecto)
- *
- * Ejecución:
- * - Automática: corre con `npx playwright test` (antes de los tests)
- * - Manual: `npx playwright test --project=datos-setup`
- */
+
+setup.skip(!!process.env.SKIP_DATOS_SETUP, 'Setup de datos omitido por SKIP_DATOS_SETUP');
+
 setup('preparar datos adicionales y proveedor para movimientos', async ({page}) => {
     setup.setTimeout(180_000);
 

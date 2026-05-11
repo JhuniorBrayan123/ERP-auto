@@ -75,7 +75,7 @@ export class ClientePage {
         await this.page.locator(
             '[id="pv_clientes_form-registro-relacionado-entidad:form_basico:v-select:tipo-documento"]',
         ).nth(5).click();
-        await this.page.getByText(tipo).click();
+        await this.page.getByText(tipo, {exact: true}).click();
     }
 
     async consultarSunatReniec(): Promise<void> {
