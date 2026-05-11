@@ -22,6 +22,7 @@
     "allure-playwright": "^3.7.2",
     "cross-spawn": "^7.0.6",
     "exceljs": "^4.4.0",
+    "madge": "^8.0.0",
     "tsx": "^4.21.0"
   },
   "dependencies": {
