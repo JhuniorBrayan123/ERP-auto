@@ -216,15 +216,24 @@ async function selectMultipleFromDirectory(currentDir: string): Promise<void> {
         return;
     }
 
-    const selectedEntries = await checkbox<ExplorerEntry>({
+    const selections = await checkbox<ExplorerEntry | 'back'>({
         message: `Selecciona carpetas o archivos de ${toRelative(currentDir) || 'tests'}:
 Usa ESPACIO para marcar/desmarcar y ENTER para confirmar.`,
         pageSize: 20,
-        choices: entries.map((entry) => ({
-            name: entry.type === 'folder' ? `📁 ${entry.name}` : `📄 ${entry.name}`,
-            value: entry,
-        })),
+        choices: [
+            ...entries.map((entry) => ({
+                name: entry.type === 'folder' ? `📁 ${entry.name}` : `📄 ${entry.name}`,
+                value: entry as ExplorerEntry | 'back',
+            })),
+            {name: '⬅ Volver', value: 'back' as const},
+        ],
     });
+
+    if (!selections.length || selections.includes('back')) {
+        return;
+    }
+
+    const selectedEntries = selections.filter((s): s is ExplorerEntry => s !== 'back');
     await runMultiplePaths(selectedEntries.map((entry) => entry.path));
 }
 
@@ -236,14 +245,19 @@ async function runSingleTestFromFile(filePath: string): Promise<void> {
         return;
     }
 
-    const selectedTest = await select<TestCase>({
+    const selectedTest = await select<TestCase | null>({
         message: 'Selecciona el test a ejecutar:',
         pageSize: 20,
-        choices: tests.map((testCase, index) => ({
-            name: `${index + 1}. ${testCase.title}`,
-            value: testCase,
-        })),
+        choices: [
+            ...tests.map((testCase, index) => ({
+                name: `${index + 1}. ${testCase.title}`,
+                value: testCase,
+            })),
+            {name: '⬅ Volver', value: null},
+        ],
     });
+
+    if (!selectedTest) return;
 
     const extraArgs = await askRunOptions();
 
@@ -263,20 +277,24 @@ async function runMultipleTestsFromFile(filePath: string): Promise<void> {
         return;
     }
 
-    const selectedTests = await checkbox<TestCase>({
+    const selections = await checkbox<TestCase | 'back'>({
         message: `Selecciona los tests que quieres ejecutar:
 Usa ESPACIO para marcar/desmarcar y ENTER para confirmar.`,
         pageSize: 20,
-        choices: tests.map((testCase, index) => ({
-            name: `${index + 1}. ${testCase.title}`,
-            value: testCase,
-        })),
+        choices: [
+            ...tests.map((testCase, index) => ({
+                name: `${index + 1}. ${testCase.title}`,
+                value: testCase as TestCase | 'back',
+            })),
+            {name: '⬅ Volver', value: 'back' as const},
+        ],
     });
 
-    if (!selectedTests.length) {
-        console.log('\nNo seleccionaste ningun test.\n');
+    if (!selections.length || selections.includes('back')) {
         return;
     }
+
+    const selectedTests = selections.filter((s): s is TestCase => s !== 'back');
 
     const grepRegex = selectedTests.map((testCase) => escapeGrep(testCase.title)).join('|');
 
@@ -408,14 +426,19 @@ async function searchGlobalTest(): Promise<void> {
         return;
     }
 
-    const selectedTest = await select<TestCase>({
+    const selectedTest = await select<TestCase | null>({
         message: `Resultados para "${query}"`,
         pageSize: 20,
-        choices: matches.map((testCase, index) => ({
-            name: `${index + 1}. ${testCase.title} | ${toRelative(testCase.filePath)}`,
-            value: testCase,
-        })),
+        choices: [
+            ...matches.map((testCase, index) => ({
+                name: `${index + 1}. ${testCase.title} | ${toRelative(testCase.filePath)}`,
+                value: testCase,
+            })),
+            {name: '⬅ Volver al menu principal', value: null},
+        ],
     });
+
+    if (!selectedTest) return;
 
     const extraArgs = await askRunOptions();
 
@@ -445,14 +468,19 @@ async function searchGlobalFile(): Promise<void> {
         return;
     }
 
-    const selectedFile = await select<string>({
+    const selectedFile = await select<string | null>({
         message: `Archivos encontrados para "${query}"`,
         pageSize: 20,
-        choices: matches.map((filePath, index) => ({
-            name: `${index + 1}. ${toRelative(filePath)}`,
-            value: filePath,
-        })),
+        choices: [
+            ...matches.map((filePath, index) => ({
+                name: `${index + 1}. ${toRelative(filePath)}`,
+                value: filePath,
+            })),
+            {name: '⬅ Volver al menu principal', value: null},
+        ],
     });
+
+    if (!selectedFile) return;
 
     await runFile(selectedFile);
 }
