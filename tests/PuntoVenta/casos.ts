@@ -732,18 +732,6 @@ test('test', async ({ page }) => {
         .fill("76975258");
     await page
         .getByRole("textbox", { name: "Ej. Ladrillería Distribuidora" })
-        .click();
-    await page
-        .getByRole("textbox", { name: "Ej. Ladrillería Distribuidora" })
-        .press("CapsLock");
-    await page
-        .getByRole("textbox", { name: "Ej. Ladrillería Distribuidora" })
-        .fill("V");
-    await page
-        .getByRole("textbox", { name: "Ej. Ladrillería Distribuidora" })
-        .press("CapsLock");
-    await page
-        .getByRole("textbox", { name: "Ej. Ladrillería Distribuidora" })
         .fill("Vendedor auto");
     await page
         .locator(
@@ -774,30 +762,6 @@ test('test', async ({ page }) => {
     await page.getByRole("textbox", { name: "Lima sur" }).fill("Arequipa S");
     await page.getByRole("textbox", { name: "Lima sur" }).press("CapsLock");
     await page.getByRole("textbox", { name: "Lima sur" }).fill("Arequipa Sur");
-    await page
-        .getByRole("textbox", { name: "Ej. Calle Los Manzanos 120," })
-        .click();
-    await page
-        .getByRole("textbox", { name: "Ej. Calle Los Manzanos 120," })
-        .press("CapsLock");
-    await page
-        .getByRole("textbox", { name: "Ej. Calle Los Manzanos 120," })
-        .fill("A");
-    await page
-        .getByRole("textbox", { name: "Ej. Calle Los Manzanos 120," })
-        .press("CapsLock");
-    await page
-        .getByRole("textbox", { name: "Ej. Calle Los Manzanos 120," })
-        .fill("Arequipa-");
-    await page
-        .getByRole("textbox", { name: "Ej. Calle Los Manzanos 120," })
-        .press("CapsLock");
-    await page
-        .getByRole("textbox", { name: "Ej. Calle Los Manzanos 120," })
-        .fill("Arequipa-P");
-    await page
-        .getByRole("textbox", { name: "Ej. Calle Los Manzanos 120," })
-        .press("CapsLock");
     await page
         .getByRole("textbox", { name: "Ej. Calle Los Manzanos 120," })
         .fill("Arequipa-Paucarpata");
