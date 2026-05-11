@@ -401,22 +401,21 @@ export class EmisionPage {
         const fecha = new Date();
         fecha.setDate(fecha.getDate() - (diasLimite + 1));
 
-        const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-        const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+        // El calendario usa aria-labels en INGLÉS con formato: "Wednesday, May 6, 2026"
+        const diasSemana = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const meses = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-        const ariaLabel = `${diasSemana[fecha.getDay()]}, ${fecha.getDate()} de ${meses[fecha.getMonth()]} de ${fecha.getFullYear()}`;
+        // Formato exacto que usa el DOM: "Wednesday, May 6, 2026"
+        const ariaLabel = `${diasSemana[fecha.getDay()]}, ${meses[fecha.getMonth()]} ${fecha.getDate()}, ${fecha.getFullYear()}`;
 
         await this.abrirSelectorFecha();
 
         const botonFecha = this.page.locator(`[aria-label="${ariaLabel}"]`);
-
         await botonFecha.waitFor({state: 'attached', timeout: 5_000});
 
-        //  dispatchEvent bypasea aria-disabled y todos los checks de Playwright
         await botonFecha.dispatchEvent('click');
 
         console.log(`   Click disparado en fecha fuera de rango: ${ariaLabel}`);
-
         return ariaLabel;
     }
 }
