@@ -12,12 +12,30 @@
     "rootDir": ".",
     "baseUrl": ".",
     "paths": {
-      "@fixtures/*": ["src/fixtures/*"],
-      "@helpers/*": ["src/helpers/*"],
-      "@pages/*": ["src/pages/*"],
-      "@data/*": ["src/data/*"],
-      "@services/*": ["src/services/*"],
-      "@flows/*": ["src/flows/*"]
+      "@fixtures/*": [
+        "src/fixtures/*"
+      ],
+      "@helpers/*": [
+        "src/helpers/*"
+      ],
+      "@pages/*": [
+        "src/pages/*"
+      ],
+      "@data/*": [
+        "src/data/*"
+      ],
+      "@services/*": [
+        "src/services/*"
+      ],
+      "@flows/*": [
+        "src/flows/*"
+      ],
+      "@task/*": [
+        "src/task/*"
+      ],
+      "@question/*": [
+        "src/question/*"
+      ]
     }
   },
   "include": [

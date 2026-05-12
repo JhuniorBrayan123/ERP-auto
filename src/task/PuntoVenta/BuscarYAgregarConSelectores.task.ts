@@ -1,5 +1,3 @@
-// 📁 src/task/PuntoVenta/BuscarYAgregarConSelectores.task.ts
-// SC-14: Buscar item con selectores → completar obligatorio → agregar a venta
 import {Page} from '@playwright/test';
 import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
 import type {ItemVenta} from '@helpers/PuntoVenta/emision.types';

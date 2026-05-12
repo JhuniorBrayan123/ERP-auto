@@ -1,6 +1,6 @@
-// SC-19: Incrementar cantidad | SC-20: Disminuir cantidad | SC-21: Bloquear cantidad inválida
 import {expect, test} from '@playwright/test';
 import {Cajero} from '../../../../src/actors/cajero';
+import {IniciarVentaEnCaja} from '../../../../src/task/PuntoVenta/IniciarVentaEnCaja';
 import {IncrementarCantidadItem} from '../../../../src/task/PuntoVenta/IncrementarCantidadItem.task';
 import {DisminuirCantidadItem} from '../../../../src/task/PuntoVenta/DisminuirCantidadItem.task';
 import {IntentarCantidadInvalida} from '../../../../src/task/PuntoVenta/IntentarCantidadInvalida.task';
@@ -10,6 +10,11 @@ import {MensajeVisible} from '../../../../src/question/PuntoVenta/MensajeVisible
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
 test.describe('Selección, edición de ítem en caja de venta — Edición de cantidad', () => {
+    test.beforeEach(async ({page}) => {
+        const cajero = Cajero.con(page);
+        await cajero.intentaRealizar(IniciarVentaEnCaja());
+    });
+
     test('SC-19: Incrementar cantidad de un ítem desde el carrito', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(IncrementarCantidadItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL, 3));

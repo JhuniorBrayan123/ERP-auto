@@ -1,16 +1,21 @@
-// SC-22: Editar precio | SC-23: Bloquear precio inválido | SC-24: Editar nombre
 import {expect, test} from '@playwright/test';
 import {Cajero} from '../../../../src/actors/cajero';
-import {EditarPrecioDeItem} from '../../../../src/task/PuntoVenta/EditarPrecioDeItem.task';
-import {IntentarPrecioInvalido} from '../../../../src/task/PuntoVenta/IntentarPrecioInvalido.task';
-import {EditarNombreDeItem} from '../../../../src/task/PuntoVenta/EditarNombreDeItem.task';
+import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
+import {EditarPrecioDeItem} from '@task/PuntoVenta/EditarPrecioDeItem.task';
+import {IntentarPrecioInvalido} from '@task/PuntoVenta/IntentarPrecioInvalido.task';
+import {EditarNombreDeItem} from '@task/PuntoVenta/EditarNombreDeItem.task';
 import {AbrirTotales} from '../../../../src/interactions/PuntoVenta/AbrirTotales';
 import {CerrarTotales} from '../../../../src/interactions/PuntoVenta/CerrarTotales';
 import {ClickAceptarModal} from '../../../../src/interactions/PuntoVenta/ClickAceptarModal';
-import {MensajeVisible} from '../../../../src/question/PuntoVenta/MensajeVisible';
+import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
 test.describe('Selección, edición de ítem en caja de venta — Edición de ítem', () => {
+    test.beforeEach(async ({page}) => {
+        const cajero = Cajero.con(page);
+        await cajero.intentaRealizar(IniciarVentaEnCaja());
+    });
+
     test('SC-22: Editar el precio unitario de un ítem en el carrito', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(EditarPrecioDeItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL, '20'));

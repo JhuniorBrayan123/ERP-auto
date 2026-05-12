@@ -115,7 +115,8 @@ export default defineConfig({
                 ...devices["Desktop Chrome"],
                 storageState: "playwright/.auth/user.json",
             },
-            dependencies: ["setup", "datos-setup", "pv-datos-setup", "pv-items-setup"],
+            // dependencies: ["setup", "datos-setup", "pv-datos-setup", "pv-items-setup"],
+            dependencies: ["setup"],
         },
     ],
 });

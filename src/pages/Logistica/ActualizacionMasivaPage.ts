@@ -1,9 +1,9 @@
 import {type Locator, type Page} from '@playwright/test';
 import {
-  mapColumnByFileHeader as applyColumnMapping,
-  waitForColumnAssignmentStep,
+    mapColumnByFileHeader as applyColumnMapping,
+    waitForColumnAssignmentStep,
 } from '../../helpers/Logistica/column-mapping.helper';
-import type {ColumnMappingRule} from '../../helpers/Logistica/actualizacion-masiva-config.helper';
+import type {ColumnMappingRule} from '@helpers/Logistica/actualizacion-masiva-config.helper';
 
 export class ActualizacionMasivaPage {
     constructor(private readonly page: Page) {

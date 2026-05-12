@@ -1,5 +1,3 @@
-// 📁 src/task/PuntoVenta/IntentarAgregarSobrepasandoStock.task.ts
-// SC-04: Buscar item sin stock → clicks repetidos hasta bloqueo
 import {Page} from '@playwright/test';
 import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
 import type {ItemVenta} from '@helpers/PuntoVenta/emision.types';

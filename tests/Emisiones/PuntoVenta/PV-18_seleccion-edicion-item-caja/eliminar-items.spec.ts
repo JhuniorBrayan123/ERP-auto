@@ -1,13 +1,18 @@
-// SC-25: Eliminar ítem | SC-26: Eliminar ítem con selector | SC-27: Limpiar carrito
 import {expect, test} from '@playwright/test';
 import {Cajero} from '../../../../src/actors/cajero';
-import {AgregarDosItemsYEliminarUno} from '../../../../src/task/PuntoVenta/AgregarDosItemsYEliminarUno.task';
-import {AgregarItemConSelectorYEliminar} from '../../../../src/task/PuntoVenta/AgregarItemConSelectorYEliminar.task';
-import {AgregarItemsYLimpiarCarrito} from '../../../../src/task/PuntoVenta/AgregarItemsYLimpiarCarrito.task';
-import {MensajeVisible} from '../../../../src/question/PuntoVenta/MensajeVisible';
+import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
+import {AgregarDosItemsYEliminarUno} from '@task/PuntoVenta/AgregarDosItemsYEliminarUno.task';
+import {AgregarItemConSelectorYEliminar} from '@task/PuntoVenta/AgregarItemConSelectorYEliminar.task';
+import {AgregarItemsYLimpiarCarrito} from '@task/PuntoVenta/AgregarItemsYLimpiarCarrito.task';
+import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
 test.describe('Selección, edición de ítem en caja de venta — Eliminar ítems', () => {
+    test.beforeEach(async ({page}) => {
+        const cajero = Cajero.con(page);
+        await cajero.intentaRealizar(IniciarVentaEnCaja());
+    });
+
     test('SC-25: Eliminar un ítem del carrito', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
