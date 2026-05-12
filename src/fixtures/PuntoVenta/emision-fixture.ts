@@ -70,10 +70,6 @@ export const test = base.extend<EmisionFixtures>({
     }
 });
 
-/**
- * afterEach hook: Imprime PASS/FAIL en consola tras cada test.
- * Mantiene consistencia con el patrón de Logística.
- */
 test.afterEach(async ({}, testInfo) => {
     const status = testInfo.status === 'passed' ? ' PASS' : ' FAIL';
     const duracion = ((testInfo.duration ?? 0) / 1000).toFixed(1);

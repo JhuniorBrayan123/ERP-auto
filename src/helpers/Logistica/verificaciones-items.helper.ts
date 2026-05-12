@@ -121,7 +121,7 @@ export const prepararListaBase = async (
     await test.step("Preparar lista base", async () => {
         await listaForm.iniciarCreacionLista();
         await listaForm.llenarNombre(nombre);
-        //await listaForm.llenarCodigo(443444); // Este código es para crear una lista base con codigo y volver a usarlo Solo aplica una vez por cuenta
+        await listaForm.llenarCodigo(434344); // Este código es para crear una lista base con codigo y volver a usarlo Solo aplica una vez por cuenta 443444
         await listaForm.llenarDescripcion(descripcion);
         for (const prod of productos) {
             await listaForm.buscarYAgregarProducto(prod);

@@ -31,8 +31,9 @@
 112211= item con ISC AUTO 
 221122= item con ICBPER AUTO
 332211= codigo de receta con insumos estrictos
+112121 = codigo receta con item sin stock
 443444= lista de items estrictos xd se sufrio con solucionar un caso xd
-
+434344= lista con un item sin stock casos de emision
 
 
 //para la edicion de items masivos primero se tiene que importar el excel de cada uno (OJO solo para la edicion masiva)

@@ -57,15 +57,19 @@ test.describe('PS-3 | Creación de Listas', {tag: ['@logistica', '@productos-sto
             await itemDetail.verificarItemDesdeMenu({verificarBitacora: true});
         });
     });
-    // test('crear lista con items flexibles para Nota venta @PS-3', async ({listaForm, itemDetail}) => {
-    //     const nombre = buildUniqueItemName('lista', 'items flexibles');
+    // test('crear lista con items flexibles para Nota  y seleccion de items en caja @PS-3', async ({
+    //                                                                                                  listaForm,
+    //                                                                                                  itemDetail
+    //                                                                                              }) => {
+    //     const nombre = buildUniqueItemName('lista', 'con un item sin stock');
     //     const productos: ProductoListaItem[] = [
     //         {codigoBusqueda: '121212', textoSeleccion: 'item para combos gravado'},
     //         {codigoBusqueda: '313131', textoSeleccion: 'item con variante flexible', variante: 'Variante 1 flexible'},
     //         {codigoBusqueda: '202020', textoSeleccion: 'item equivalente flexible', equivalencia: 'Equivalente X2'},
     //         {codigoBusqueda: '545454', textoSeleccion: 'item selector flexible'},
+    //         {codigoBusqueda: '111222', textoSeleccion: 'Item sin stock estricto'}
     //     ];
-
+    //
     //     await prepararListaBase(listaForm, nombre, 'nueva lista auto', productos);
     //     await confirmarCreacionEIrALista(listaForm, () => listaForm.crearLista());
     //     await test.step('Verificar bitácora', async () => {

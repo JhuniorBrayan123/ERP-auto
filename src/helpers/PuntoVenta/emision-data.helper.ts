@@ -6,7 +6,7 @@
  *
  * REGLA: no hardcodear estos valores directamente en los specs.
  */
-import type {DatosCliente, ItemVenta, TipoComprobante} from './emision.types';
+import type { DatosCliente, ItemVenta, TipoComprobante } from './emision.types';
 
 // ─── Tipos de comprobante ─────────────────────────────────────────────
 
@@ -115,6 +115,55 @@ export const ITEMS_PV = {
     PRODUCTO_SIN_STOCK: {
         codigo: '111222',
         nombre: 'Item sin stock estricto',
+        cantidad: 1,
+    } as ItemVenta,
+
+    /** Combo con ítem hijo exonerado */
+    COMBO_EXONERADO: {
+        codigo: '222222',
+        nombre: 'combo hijo exonegaro item',
+        cantidad: 1,
+    } as ItemVenta,
+
+    /** Ítem con variantes (stock flexible) */
+    ITEM_VARIANTE_FLEXIBLE: {
+        codigo: '313131',
+        nombre: 'item con variante flexible',
+        cantidad: 1,
+    } as ItemVenta,
+
+    /** Ítem con variantes (stock estricto) — para prueba de bloqueo */
+    ITEM_VARIANTE_ESTRICTO: {
+        codigo: '131313',
+        nombre: 'item variante estricto gravado',
+        cantidad: 1,
+    } as ItemVenta,
+
+    /** Receta cuyo componente no tiene stock — para prueba de bloqueo */
+    RECETA_SIN_STOCK: {
+        codigo: '112121',
+        nombre: 'Receta con item sin Sotck',
+        cantidad: 1,
+    } as ItemVenta,
+
+    /** Lista de productos con un ítem sin stock — para prueba de bloqueo */
+    LISTA_SIN_STOCK: {
+        codigo: '434344',
+        nombre: 'Lista con un item sin stock',
+        cantidad: 1,
+    } as ItemVenta,
+
+    /** Ítem con selectores (stock estricto, selector obligatorio) */
+    ITEM_SELECTOR_GRAVADO: {
+        codigo: '454545',
+        nombre: 'item selector gravado',
+        cantidad: 1,
+    } as ItemVenta,
+
+    /** Ítem con selectores (stock flexible) */
+    ITEM_SELECTOR_FLEXIBLE: {
+        codigo: '545454',
+        nombre: 'item selector flexible',
         cantidad: 1,
     } as ItemVenta,
 };
