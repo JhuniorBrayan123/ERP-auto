@@ -1,8 +1,8 @@
 // 📁 src/task/PuntoVenta/BuscarYAgregarConSelectores.task.ts
 // SC-14: Buscar item con selectores → completar obligatorio → agregar a venta
-import { Page } from '@playwright/test';
-import { EmisionPage } from '../../pages/PuntoVenta/EmisionPage';
-import type { ItemVenta } from '../../helpers/PuntoVenta/emision.types';
+import {Page} from '@playwright/test';
+import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
+import type {ItemVenta} from '@helpers/PuntoVenta/emision.types';
 
 export const BuscarYAgregarConSelectores = (item: ItemVenta) =>
     async (page: Page): Promise<void> => {
@@ -12,5 +12,5 @@ export const BuscarYAgregarConSelectores = (item: ItemVenta) =>
         // Completar selector obligatorio
         await page.getByText('(Obligatorio)').click();
         await page.locator('[id="_div:increase"] > .simbolo-mas').first().click();
-        await page.getByRole('button', { name: 'Agregar a venta' }).click();
+        await page.getByRole('button', {name: 'Agregar a venta'}).click();
     };

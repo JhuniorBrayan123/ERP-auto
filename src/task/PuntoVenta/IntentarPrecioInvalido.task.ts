@@ -1,13 +1,13 @@
 // 📁 src/task/PuntoVenta/IntentarPrecioInvalido.task.ts
 // SC-23: Buscar item → agregar → editar con precio inválido → intentar pagar
-import { Page } from '@playwright/test';
-import { EmisionPage } from '../../pages/PuntoVenta/EmisionPage';
-import type { ItemVenta } from '../../helpers/PuntoVenta/emision.types';
+import {Page} from '@playwright/test';
+import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
+import type {ItemVenta} from '@helpers/PuntoVenta/emision.types';
 
 export const IntentarPrecioInvalido = (item: ItemVenta, precioInvalido: string) =>
     async (page: Page): Promise<void> => {
         const emision = new EmisionPage(page);
-        await page.getByRole('button', { name: 'Continuar vendiendo' }).click();
+        await page.getByRole('button', {name: 'Continuar vendiendo'}).click();
         await emision.buscarItem(item.codigo);
         await emision.seleccionarItem(item.nombre);
         // Editar con precio inválido

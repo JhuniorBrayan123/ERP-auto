@@ -1,5 +1,4 @@
-// 📁 src/question/PuntoVenta/MensajeVisible.ts
-import { Page } from '@playwright/test';
+import {Page} from '@playwright/test';
 
 /**
  * Question genérica: ¿el texto dado es visible en la página?

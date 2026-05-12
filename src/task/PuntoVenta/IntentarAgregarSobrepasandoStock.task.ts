@@ -1,8 +1,8 @@
 // 📁 src/task/PuntoVenta/IntentarAgregarSobrepasandoStock.task.ts
 // SC-04: Buscar item sin stock → clicks repetidos hasta bloqueo
-import { Page } from '@playwright/test';
-import { EmisionPage } from '../../pages/PuntoVenta/EmisionPage';
-import type { ItemVenta } from '../../helpers/PuntoVenta/emision.types';
+import {Page} from '@playwright/test';
+import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
+import type {ItemVenta} from '@helpers/PuntoVenta/emision.types';
 
 export const IntentarAgregarSobrepasandoStock = (item: ItemVenta, clicksExtra: number = 8) =>
     async (page: Page): Promise<void> => {

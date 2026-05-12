@@ -3,22 +3,21 @@
 // SC-08: Buscar y agregar receta
 // SC-09: Buscar y agregar combo
 // SC-10: Buscar y agregar lista de productos
-import { expect, test } from '@playwright/test';
-import { Cajero } from '../../../../src/actors/cajero';
-import { BuscarYAgregarServicio } from '../../../../src/task/PuntoVenta/BuscarYAgregarServicio.task';
-import { BuscarYAgregarReceta } from '../../../../src/task/PuntoVenta/BuscarYAgregarReceta.task';
-import { BuscarYAgregarCombo } from '../../../../src/task/PuntoVenta/BuscarYAgregarCombo.task';
-import { BuscarYAgregarListaProductos } from '../../../../src/task/PuntoVenta/BuscarYAgregarListaProductos.task';
-import { AbrirTotales } from '../../../../src/interactions/PuntoVenta/AbrirTotales';
-import { CerrarTotales } from '../../../../src/interactions/PuntoVenta/CerrarTotales';
-import { MensajeVisible } from '../../../../src/question/PuntoVenta/MensajeVisible';
-import { ITEMS_PV } from '../../../../src/helpers/PuntoVenta/emision-data.helper';
-
+import {expect, test} from '@playwright/test';
+import {Cajero} from '../../../../src/actors/cajero';
+import {BuscarYAgregarServicio} from '../../../../src/task/PuntoVenta/BuscarYAgregarServicio.task';
+import {BuscarYAgregarReceta} from '../../../../src/task/PuntoVenta/BuscarYAgregarReceta.task';
+import {BuscarYAgregarCombo} from '../../../../src/task/PuntoVenta/BuscarYAgregarCombo.task';
+import {BuscarYAgregarListaProductos} from '../../../../src/task/PuntoVenta/BuscarYAgregarListaProductos.task';
+import {AbrirTotales} from '../../../../src/interactions/PuntoVenta/AbrirTotales';
+import {CerrarTotales} from '../../../../src/interactions/PuntoVenta/CerrarTotales';
+import {MensajeVisible} from '../../../../src/question/PuntoVenta/MensajeVisible';
+import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
 
 test.describe('Selección, edición de ítem en caja de venta — Items especiales', () => {
 
-    test('SC-07: Buscar y agregar un servicio', async ({ page }) => {
+    test('SC-07: Buscar y agregar un servicio', async ({page}) => {
         const cajero = Cajero.con(page);
 
         await cajero.intentaRealizar(
@@ -28,7 +27,7 @@ test.describe('Selección, edición de ítem en caja de venta — Items especial
         expect(await cajero.pregunta(MensajeVisible('S/20.00'))).toBe(true);
     });
 
-    test('SC-08: Buscar y agregar un ítem tipo receta', async ({ page }) => {
+    test('SC-08: Buscar y agregar un ítem tipo receta', async ({page}) => {
         const cajero = Cajero.con(page);
 
         await cajero.intentaRealizar(
@@ -37,12 +36,12 @@ test.describe('Selección, edición de ítem en caja de venta — Items especial
         );
 
         // Validar que los totales se recalcularon (ya no son 0.00)
-        expect(await cajero.pregunta(MensajeVisible('0.00', { exact: true }))).toBe(false);
+        expect(await cajero.pregunta(MensajeVisible('0.00', {exact: true}))).toBe(false);
 
         await cajero.intentaRealizar(CerrarTotales());
     });
 
-    test('SC-09: Buscar y agregar un ítem tipo combo', async ({ page }) => {
+    test('SC-09: Buscar y agregar un ítem tipo combo', async ({page}) => {
         const cajero = Cajero.con(page);
 
         await cajero.intentaRealizar(
@@ -55,7 +54,7 @@ test.describe('Selección, edición de ítem en caja de venta — Items especial
         await cajero.intentaRealizar(CerrarTotales());
     });
 
-    test('SC-10: Buscar y agregar una lista de productos', async ({ page }) => {
+    test('SC-10: Buscar y agregar una lista de productos', async ({page}) => {
         const cajero = Cajero.con(page);
 
         await cajero.intentaRealizar(

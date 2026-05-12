@@ -1,15 +1,15 @@
 // 📁 src/task/PuntoVenta/IntentarAgregarListaSinStock.task.ts
 // SC-18: Cambiar almacén → buscar lista con producto sin stock
-import { Page } from '@playwright/test';
-import { EmisionPage } from '../../pages/PuntoVenta/EmisionPage';
-import { ALMACENES_PV } from '../../helpers/PuntoVenta/emision-data.helper';
-import type { ItemVenta } from '../../helpers/PuntoVenta/emision.types';
+import {Page} from '@playwright/test';
+import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
+import {ALMACENES_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import type {ItemVenta} from '@helpers/PuntoVenta/emision.types';
 
 export const IntentarAgregarListaSinStock = (item: ItemVenta) =>
     async (page: Page): Promise<void> => {
         const emision = new EmisionPage(page);
         await page.locator('[id="cmn_cmp-overload:loading"]').click();
-        await page.getByRole('button', { name: 'Continuar vendiendo' }).click();
+        await page.getByRole('button', {name: 'Continuar vendiendo'}).click();
         // Cambiar almacén
         await page.getByText(ALMACENES_PV.AUTO).first().click();
         await page.getByText(ALMACENES_PV.VENTAS).click();
