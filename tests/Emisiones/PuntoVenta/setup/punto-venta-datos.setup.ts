@@ -1,12 +1,12 @@
 import {test as setup} from '@playwright/test';
-import {PuntoVentaSetupPage} from '../../../../src/pages/PuntoVenta/PuntoVentaSetupPage';
-import {CajaPage} from '../../../../src/pages/PuntoVenta/CajaPage';
+import {PuntoVentaSetupPage} from '@pages/PuntoVenta/PuntoVentaSetupPage';
+import {CajaPage} from '@pages/PuntoVenta/CajaPage';
 import {
     CAMPOS_PV,
     CLIENTE_DNI_PV,
     CLIENTE_RUC_PV,
     VENDEDOR_PV,
-} from '../../../../src/helpers/PuntoVenta/punto-venta-setup-data.helper';
+} from '@helpers/PuntoVenta/punto-venta-setup-data.helper';
 
 // ─── Skip controlado por variable de entorno ─────────────────────────
 setup.skip(!!process.env.SKIP_PV_SETUP, 'Setup de PuntoVenta omitido por SKIP_PV_SETUP');
