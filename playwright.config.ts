@@ -54,15 +54,11 @@ export default defineConfig({
 
         // === CONFIGURACIÓN ANTERIOR (Comentada por seguridad) ===
 
+        // Trace en fallos para poder abrir con: npx playwright show-trace trace.zip
         trace: "on-first-retry",
         screenshot: "only-on-failure",
-        video: "on",
-
-        // /* ─── Artefactos de Evidencia ─── */
-        // // Guarda la evidencia visual (Trace, Screenshot, Video) ÚNICAMENTE cuando ocurre un fallo
-        // trace: 'on',
-        // screenshot: 'only-on-failure',
-        // video: 'on',
+        // Video solo en fallos para no saturar disco en ejecuciones largas
+        video: "retain-on-failure",
 
         /* ─── Timeouts ─── */
         actionTimeout: 35_000, // 15s por acción individual

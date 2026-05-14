@@ -44,7 +44,7 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@m  
         });
         await verificarStockYKardex(
             movimientosNav, stockVerificacion, kardexVerificacion, page,
-            ITEMS_TEST.PRODUCTO_ESTRICTO.codigo, ALMACENES.AUTO, PATRON_CODIGO.INGRESO
+            ITEMS_TEST.PRODUCTO_ESTRICTO.codigo, ALMACENES.VENTAS, PATRON_CODIGO.INGRESO
         );
         await test.step('Asser API: verificar kardex en DB', async () => {
             const saldoPosIngreso = await kardexApi.obtenerSaldoPorProducto({
