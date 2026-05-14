@@ -178,5 +178,34 @@ setup('preparar ítems base para PuntoVenta / Emisiones', async ({page}) => {
         console.log(`  ✓ Lista "${COD_LISTA}" creada`);
     }
 
+    const COD_ALMACEN_AUTO = '808080';
+    console.log(`\n [PV Items] Verificando producto ALMACEN-AUTO (${COD_ALMACEN_AUTO})...`);
+
+    if (await itemExistePorCodigo(listaItems, page, COD_ALMACEN_AUTO)) {
+        console.log(`   Producto ALMACEN-AUTO "${COD_ALMACEN_AUTO}" ya existe`);
+    } else {
+        console.log(`   Creando producto ALMACEN-AUTO "${COD_ALMACEN_AUTO}"...`);
+
+        await productoForm.iniciarCreacionProducto();
+        await productoForm.llenarCodigo(808080);
+        await productoForm.llenarNombre('Item solo almacen-auto');
+        await productoForm.llenarPrecios('10.55', '3.5');
+        await productoForm.expandirOpcionesAvanzadas();
+
+        // Configuración de stock estricto en almacén único
+        await productoForm.irATabStock();
+        await productoForm.seleccionarAlmacenEspecifico('ALMACEN-AUTO');
+        await productoForm.seleccionarControlStock('estricto');
+        await productoForm.llenarCantidadesStock('1');
+
+        await productoForm.llenarInfoAdicional('REGRESION', 'AUTO-TEST', 'AUTOMATIZADO');
+
+        // Crear y volver a lista
+        await productoForm.crearProducto();
+        await expect(page.getByRole('button', {name: 'Ir a lista de ítems'})).toBeVisible({timeout: 15_000});
+        await productoForm.clickIrAListaItems();
+        console.log(`  ✓ Producto ALMACEN-AUTO "${COD_ALMACEN_AUTO}" creado`);
+    }
+
     console.log('\n [PV Items] Todos los ítems de PuntoVenta están listos\n');
 });

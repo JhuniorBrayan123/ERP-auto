@@ -72,6 +72,7 @@ export const prepararComboBase = async (
     await test.step("Preparar combo base", async () => {
         await comboForm.iniciarCreacionCombo();
         await comboForm.llenarNombre(nombre);
+        // await comboForm.llenarCodigo(636363);
         await comboForm.llenarPrecios(precios.venta, precios.compra);
         await comboForm.irATabComponentes();
         for (const comp of componentes) {

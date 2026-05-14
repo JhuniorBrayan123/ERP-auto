@@ -8,6 +8,8 @@ import {ClickAceptarModal} from '../../../../src/interactions/PuntoVenta/ClickAc
 import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
+
+
 test.describe('Selección, edición de ítem en caja de venta — Bloqueos por stock', () => {
 
     test.beforeEach(async ({page}) => {
@@ -18,10 +20,10 @@ test.describe('Selección, edición de ítem en caja de venta — Bloqueos por s
     test('SC-16: Bloquear combo cuando un componente no tiene stock', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
-            IntentarAgregarComboSinStock(ITEMS_PV.COMBO_EXONERADO)
+            IntentarAgregarComboSinStock(ITEMS_PV.COMBO_STOCK_BAJO_ITEM)
         );
         expect(await cajero.pregunta(
-            MensajeVisible('No puedes agregar este ítem a tu venta sobrepasando el stock disponible')
+            MensajeVisible('No puedes agregar el item a tu venta porque no tienes stock')
         )).toBe(true);
         await cajero.intentaRealizar(ClickAceptarModal());
     });

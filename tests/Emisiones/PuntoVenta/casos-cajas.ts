@@ -593,4 +593,42 @@ await expect(page.getByText("SubtotalS/ 13.15")).toBeVisible();
   await page.getByText('Limpiar carrito').click();// Limpia todos los items del carrito
   await expect(page.getByText('0.00', { exact: true })).toBeVisible(); // Validamos que se hayan eliminado todos los items del carrito y que el total de la venta se haya reiniciado a 0.00 luego de limpiar el carrito
   
+  // Crear item con un solo almacen
+await page.getByText('Productos y servicios').click();
+await page.getByText('Productos', { exact: true }).click();
+await page.locator('[id="lgt_cmp-items_cmp-datos-items.cmp-option-button:crear-producto"]').click();
+await page.getByRole('textbox', { name: 'Ej. Gaseosa Kola R (500ml)' }).click();
+await page.getByRole('textbox', { name: 'Ej. Gaseosa Kola R (500ml)' }).press('CapsLock');
+await page.getByRole('textbox', { name: 'Ej. Gaseosa Kola R (500ml)' }).fill('I');
+await page.getByRole('textbox', { name: 'Ej. Gaseosa Kola R (500ml)' }).press('CapsLock');
+await page.getByRole('textbox', { name: 'Ej. Gaseosa Kola R (500ml)' }).fill('Item solo almacen-auto');
+await page.locator('[id="_div:dropdown"]').getByText('Automático').click();
+await page.locator('[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:informacion-basica"]').getByText('Manual').click();
+await page.locator('[id="lgt_reg-item_v-tab:informacion-basica_v-input:codigo"]').click();
+await page.locator('[id="lgt_reg-item_v-tab:informacion-basica_v-input:codigo"]').fill('808080');
+await page.getByRole('textbox', { name: 'Monto final' }).first().click();
+await page.getByRole('textbox', { name: 'Monto final' }).first().fill('10.55');
+await page.getByRole('textbox', { name: 'Monto final' }).nth(1).click();
+await page.getByRole('textbox', { name: 'Monto final' }).nth(1).fill('3.5');
+await page.getByText('Opciones avanzadas (opcional)').click();
+await page.locator('[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:tabs-1"]').nth(1).click();
+await page.locator('div').filter({ hasText: /^Todos$/ }).nth(3).click();
+await page.locator('.v-checkbox-default-label > span').first().click();
+await page.getByText('ALMACEN-AUTO').click();
+await page.locator('.vector').click();
+await page.locator('[id="lgt_reg-item_v-tab:stock-almacen_cmp-card-stock:control-estricto"]').click();
+await page.locator('[id="lgt_cmp-card-almacen_v-step:cantidad"]').click();
+await page.locator('[id="lgt_cmp-card-almacen_v-step:cantidad"]').fill('1');
+await page.locator('[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:tabs-2"]').nth(2).click();
+await page.locator('div').filter({ hasText: /^VARIOS$/ }).nth(2).click();
+await page.getByText('REGRESION').click();
+await page.locator('div').filter({ hasText: /^SIN CATEGORÍA$/ }).nth(2).click();
+await page.getByText('AUTO-TEST').click();
+await page.getByText('SIN SUBCATEGORÍA').first().click();
+await page.locator('div').filter({ hasText: /^AUTOMATIZADO$/ }).click();
+await page.getByRole('button', { name: 'Crear producto' }).click();
+await page.getByRole('button', { name: 'Ir a lista de ítems' }).click();
+await page.locator('.flex-row-align-items-center-justify-content-center > .cmp-dropdown > .cmp-dropdown-toggle').first().click();
+await page.locator('[id="lgt_movimientos_cmp-grid-options:opciones_movimiento_cmp-dropdown:options-li:ver-item"]').click();
+await page.getByRole('button', { name: 'Atrás' }).click();
 });

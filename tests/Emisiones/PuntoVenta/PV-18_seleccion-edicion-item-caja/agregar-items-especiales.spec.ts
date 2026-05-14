@@ -9,6 +9,7 @@ import {AbrirTotales} from '../../../../src/interactions/PuntoVenta/AbrirTotales
 import {CerrarTotales} from '../../../../src/interactions/PuntoVenta/CerrarTotales';
 import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import {TotalDistintoDeCero} from "@question/PuntoVenta/TotalDistintoDeCero";
 
 test.describe('Selección, edición de ítem en caja de venta — Items especiales', () => {
 
@@ -32,7 +33,7 @@ test.describe('Selección, edición de ítem en caja de venta — Items especial
             AbrirTotales()
         );
         // Validar que los totales se recalcularon (ya no son 0.00)
-        expect(await cajero.pregunta(MensajeVisible('0.00', {exact: true}))).toBe(false);
+        expect(await cajero.pregunta(TotalDistintoDeCero())).toBe(true);
         await cajero.intentaRealizar(CerrarTotales());
     });
 

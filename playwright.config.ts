@@ -4,11 +4,6 @@ import {env} from "./config/env";
 export default defineConfig({
     testDir: "./tests",
 
-    /**
-     * Estabilidad (ERP, datos compartidos, wizards):
-     * - fullyParallel: false + workers: 1 evitan choques entre escenarios masivos.
-     * Los specs de actualización masiva viven en tests/logistica/productos-stock/edicion-masiva/.
-     */
     fullyParallel: false,
     // fullyParallel: true,
     workers: 1,

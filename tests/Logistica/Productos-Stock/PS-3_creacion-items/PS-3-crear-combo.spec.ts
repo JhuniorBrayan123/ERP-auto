@@ -79,4 +79,25 @@ test.describe('PS-3 | Creación de Combos', {tag: ['@logistica', '@productos-sto
             await itemDetail.verificarItemDesdeMenu({verificarBitacora: true});
         });
     });
+    test('crear combo con un item sin stock gravados @PS-3', async ({
+                                                                      comboForm,
+                                                                      itemDetail,
+                                                                  }) => {
+        const nombre = buildUniqueItemName('combo', 'items con uno sin stock');
+
+        const componentes: ComponenteCombo[] = [
+            {codigoBusqueda: '121212', textoSeleccion: 'item para combos gravado flexible'},
+            {codigoBusqueda: '313131', textoSeleccion: 'item con variante flexible', variante: 'Variante 1 flexible'},
+            {codigoBusqueda: '202020', textoSeleccion: 'item equivalente flexible', equivalencia: 'Equivalente X2'},
+            {codigoBusqueda: '545454', textoSeleccion: 'item selector flexible'},
+            {codigoBusqueda: '111222', textoSeleccion: 'Item sin stock estricto'}
+        ];
+
+        await prepararComboBase(comboForm, nombre, {venta: '144.52', compra: '35.9'}, componentes);
+        await confirmarCreacionEIrALista(comboForm, () => comboForm.crearCombo());
+
+        await test.step('Verificar bitácora', async () => {
+            await itemDetail.verificarItemDesdeMenu({verificarBitacora: true});
+        });
+    });
 });

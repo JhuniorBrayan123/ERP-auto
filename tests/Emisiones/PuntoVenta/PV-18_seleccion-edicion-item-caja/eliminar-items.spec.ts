@@ -6,6 +6,8 @@ import {AgregarItemConSelectorYEliminar} from '@task/PuntoVenta/AgregarItemConSe
 import {AgregarItemsYLimpiarCarrito} from '@task/PuntoVenta/AgregarItemsYLimpiarCarrito.task';
 import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import { CalculosTotales } from '@question/PuntoVenta/FilaEnTotales';
+import { TotalEnCarrito } from '@question/PuntoVenta/TotalEnCarrito';
 
 test.describe('Selección, edición de ítem en caja de venta — Eliminar ítems', () => {
     test.beforeEach(async ({page}) => {
@@ -18,18 +20,22 @@ test.describe('Selección, edición de ítem en caja de venta — Eliminar ítem
         await cajero.intentaRealizar(
             AgregarDosItemsYEliminarUno(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL, ITEMS_PV.PRODUCTO_GRAVADO, 1)
         );
-        expect(await cajero.pregunta(MensajeVisible('SubtotalS/ 13.15'))).toBe(true);
+        expect(await cajero.pregunta(CalculosTotales('Subtotal','S/ 13.15'))).toBe(true);
+        expect(
+          await cajero.pregunta(CalculosTotales("IGV", "S/ 2.37")),
+        ).toBe(true);
+        expect(await cajero.pregunta(TotalEnCarrito("15.52"))).toBe(true);
     });
 
     test('SC-26: Eliminar un ítem con selector del carrito', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(AgregarItemConSelectorYEliminar(ITEMS_PV.ITEM_SELECTOR_FLEXIBLE));
-        expect(await cajero.pregunta(MensajeVisible('0.00', {exact: true}))).toBe(true);
+        expect(await cajero.pregunta(TotalEnCarrito('0.00'))).toBe(true);
     });
 
     test('SC-27: Limpiar todos los ítems del carrito', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(AgregarItemsYLimpiarCarrito(ITEMS_PV.LISTA_ITEMS));
-        expect(await cajero.pregunta(MensajeVisible('0.00', {exact: true}))).toBe(true);
+        expect(await cajero.pregunta(TotalEnCarrito("0.00"))).toBe(true);
     });
 });

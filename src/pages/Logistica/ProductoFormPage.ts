@@ -21,18 +21,27 @@ export class ProductoFormPage extends ItemFormBasePage {
         await inputPrecioCompra.click();
         await inputPrecioCompra.fill(precioCompra);
     }
-    // llenar cidgo es nuevo 
-    async llenarCodigo(codigo:number): Promise<void> {
+
+    // llenar cidgo es nuevo
+    async llenarCodigo(codigo: number): Promise<void> {
         await this.page.getByText("Automático").first().click();
         await this.page.getByText("Manual").first().click();
         await this.page.locator('[id="lgt_reg-item_v-tab:informacion-basica_v-input:codigo"]').click();
         await this.page.locator('[id="lgt_reg-item_v-tab:informacion-basica_v-input:codigo"]').fill(codigo.toString());
     }
+
     async irATabStock(): Promise<void> {
         await this.page
             .locator('[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:tabs-1"]')
             .nth(1)
             .click();
+    }
+
+    async seleccionarAlmacenEspecifico(nombreAlmacen: string): Promise<void> {
+        await this.page.locator('div').filter({ hasText: /^Todos$/ }).nth(3).click();
+        await this.page.locator('.v-checkbox-default-label > span').first().click();
+        await this.page.getByText(nombreAlmacen).click();
+        await this.page.locator('.vector').click();
     }
 
     async seleccionarControlStock(tipo: 'estricto' | 'flexible'): Promise<void> {
@@ -43,18 +52,21 @@ export class ProductoFormPage extends ItemFormBasePage {
         await this.page.locator(`[id="${id}"]`).click();
     }
 
-    async llenarCantidadesStock(cantidadMaxima: string, cantidadMinima: string): Promise<void> {
+    async llenarCantidadesStock(cantidadMaxima: string, cantidadMinima?: string): Promise<void> {
         const inputMax = this.page
             .locator('[id="lgt_cmp-card-almacen_v-step:cantidad"]')
             .first();
-        const inputMin = this.page
-            .locator('[id="lgt_cmp-card-almacen_v-step:cantidad"]')
-            .nth(1);
 
         await inputMax.click();
         await inputMax.fill(cantidadMaxima);
-        await inputMin.click();
-        await inputMin.fill(cantidadMinima);
+
+        if (cantidadMinima !== undefined) {
+            const inputMin = this.page
+                .locator('[id="lgt_cmp-card-almacen_v-step:cantidad"]')
+                .nth(1);
+            await inputMin.click();
+            await inputMin.fill(cantidadMinima);
+        }
     }
 
     async configurarStock(config: StockConfig): Promise<void> {

@@ -18,7 +18,6 @@ test.describe('Selección, edición de ítem en caja de venta — Filtros', () =
         await cajero.intentaRealizar(
             FiltrarPorAlmacen(ALMACENES_PV.AUTO, ALMACENES_PV.VENTAS)
         );
-        // El item se agrega al carrito al seleccionarlo de la grilla filtrada
         expect(await cajero.pregunta(MensajeVisible('.item'))).toBe(true);
     });
 
