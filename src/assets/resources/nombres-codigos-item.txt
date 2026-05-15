@@ -33,7 +33,7 @@
 332211= codigo de receta con insumos estrictos
 443444= lista de items estrictos xd se sufrio con solucionar un caso xd
 
-
+13131333331
 
 //para la edicion de items masivos primero se tiene que importar el excel de cada uno (OJO solo para la edicion masiva)
 

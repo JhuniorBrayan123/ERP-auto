@@ -16,7 +16,9 @@ export class DatosOpcionalesPage {
     }
 
     async seleccionarProveedor(nombre: string): Promise<void> {
-        await this.page.getByText(nombre).click();
+        const tarjeta = this.page.locator('article[id*="seleccion-entidad"]')
+            .filter({ hasText: nombre }).first();
+        await tarjeta.dispatchEvent('click');
     }
 
     async crearProveedor(datos: ProveedorData): Promise<void> {

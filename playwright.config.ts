@@ -16,7 +16,7 @@ export default defineConfig({
 
     /* ─── CI / Retries ─── */
     forbidOnly: !!process.env.CI,
-    // retries: 2,
+    retries: 2,
 
     /* ─── Timeouts para estabilidad ─── */
     timeout: 240_000, // 3 min  por test por si
@@ -115,7 +115,8 @@ export default defineConfig({
                 ...devices["Desktop Chrome"],
                 storageState: "playwright/.auth/user.json",
             },
-            dependencies: ["setup", "datos-setup", "pv-datos-setup", "pv-items-setup"],
+            // dependencies: ["setup", "datos-setup", "pv-datos-setup", "pv-items-setup"],
+            dependencies: ["setup"],
         },
     ],
 });

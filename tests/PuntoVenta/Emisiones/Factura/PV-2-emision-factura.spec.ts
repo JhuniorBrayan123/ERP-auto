@@ -229,13 +229,7 @@ test.describe('PV-2 | Emisión de Factura @factura', {tag: ['@punto-venta', '@em
         });
 
         await test.step('When: activar retención del 18%', async () => {
-            await page.locator(
-                'div:nth-child(3) > .switch-component > .v-switch > .switch-content > .switch > .slider',
-            ).click();
-            await page.getByRole('textbox').nth(3).click();
-            await page.getByRole('textbox').nth(3).fill('18');
-            await page.getByRole('button', {name: 'Guardar', exact: true}).click();
-            await page.locator('.v-modal > div').first().click();
+            await emisionPage.activarRetencion('18')
         });
 
         await test.step('And: emitir con IZY PAY', async () => {
@@ -289,7 +283,7 @@ test.describe('PV-2 | Emisión de Factura @factura', {tag: ['@punto-venta', '@em
         });
 
         await test.step('Then: bloqueo por detracción incompleta', async () => {
-            const mensajeDetraccion = page.getByText("El monto de detraccion no puede ser cero")
+            const mensajeDetraccion = page.getByText("El monto de detracción no puede ser cero")
             const mensajeAlternativo = page.getByText("Para realizar esta operación, ingresa un cliente válido")
             await expect(mensajeDetraccion.or(mensajeAlternativo)
             ).toBeVisible();
@@ -732,7 +726,7 @@ test.describe('PV-2 | Emisión de Factura @factura', {tag: ['@punto-venta', '@em
         });
 
         await test.step('When: aplicar adelanto existente', async () => {
-            await page.getByRole('button', {name: 'Adelantos'}).click();
+            await emisionPage.abrirAdelantos(CLIENTES.EMPRESA_RUC_AUTO)
             await busquedaComprobantes.filtrarAdelantoFactura(emisionAdelanto);
             await page.locator(
                 '.v-checkbox-default-label.flex-row-align-items-center-justify-content-center > span',

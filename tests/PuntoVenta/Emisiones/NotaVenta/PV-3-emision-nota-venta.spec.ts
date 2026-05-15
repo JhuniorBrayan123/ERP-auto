@@ -204,10 +204,7 @@ test.describe('PV-3 | Emisión de Nota de Venta @nota-venta', {tag: ['@punto-ven
         await test.step('When: activar adelanto y agregar producto', async () => {
             await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_SIMPLE.codigo);
             await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_SIMPLE.nombre);
-            // Activar switch adelanto
-            await page.locator(
-                'div:nth-child(2) > .switch-component > .v-switch > .switch-content > .switch > .slider',
-            ).click();
+            await emisionPage.activarDocAdelanto()
             await emisionPage.editarPrecioItem('150');
         });
 
@@ -249,9 +246,7 @@ test.describe('PV-3 | Emisión de Nota de Venta @nota-venta', {tag: ['@punto-ven
         await test.step('Given: crear adelanto como precondición', async () => {
             await cajaPage.continuarVendiendo();
             await comprobantePage.seleccionarNotaVenta();
-            await page.locator(
-                'div:nth-child(2) > .switch-component > .v-switch > .switch-content > .switch > .slider',
-            ).click();
+            await emisionPage.activarDocAdelanto()
             await emisionPage.buscarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
             await emisionPage.seleccionarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
             await emisionPage.emitirConEfectivoExacto();
@@ -262,6 +257,7 @@ test.describe('PV-3 | Emisión de Nota de Venta @nota-venta', {tag: ['@punto-ven
             await comprobantePage.seleccionarNotaVenta();
             await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
             await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+            await emisionPage.incrementarCantidad(2)
         });
 
         await test.step('When: aplicar adelanto existente', async () => {
@@ -274,6 +270,7 @@ test.describe('PV-3 | Emisión de Nota de Venta @nota-venta', {tag: ['@punto-ven
         });
 
         await test.step('And: verificar total anticipos visible', async () => {
+            await emisionPage.desplegarPanelCalculos()
             await expect(page.getByText('Total anticipos')).toBeVisible();
         });
 

@@ -353,9 +353,7 @@ test.describe('PV-1 | Emisión de Boleta @boleta', {tag: ['@punto-venta', '@emis
         });
 
         await test.step('When: activar switch adelanto', async () => {
-            await page.locator(
-                'div:nth-child(2) > .switch-component > .v-switch > .switch-content > .switch > .slider',
-            ).click();
+            await emisionPage.activarDocAdelanto()
         });
 
         await test.step('And: emitir con efectivo', async () => {

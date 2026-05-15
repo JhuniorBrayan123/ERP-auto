@@ -82,6 +82,7 @@ export class BusquedaComprobantesPage {
         );
         await inputCorrelativo.click();
         await inputCorrelativo.fill(correlativo);
+        await inputCorrelativo.press('Enter');
 
         // Capturar la respuesta de Consultas
         try {

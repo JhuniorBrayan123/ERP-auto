@@ -203,7 +203,9 @@ export class KardexVerificacionPage {
     }
 
     async clickCodigoMovimientoRegex(regex: RegExp): Promise<void> {
-        await this.page.getByText(regex).first().click();
+        const elemento = this.page.getByText(regex).first();
+        await elemento.waitFor({ state: 'visible' });
+        await elemento.click();
     }
 
     async expectPatronCodigoMovimientoVisible(patron: RegExp): Promise<void> {
