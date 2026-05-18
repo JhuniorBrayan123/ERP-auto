@@ -4,8 +4,8 @@ import type {ItemVenta} from '@helpers/PuntoVenta/emision.types';
 
 const VARIANTE_2_IMAGEN = 'div:nth-child(2) > .left > .imagen > .imagen-default';
 
-export const IntentarAgregarVarianteSinStock = (item: ItemVenta, clicksExtra: number = 25) =>
-    async (page: Page): Promise<void> => {
+export const IntentarAgregarVarianteSinStock = (item: ItemVenta, clicksExtra: number = 25) => {
+    const fn = async (page: Page): Promise<void> => {
         const emision = new EmisionPage(page);
         await emision.buscarItem(item.codigo);
         await emision.seleccionarItem(item.nombre);
@@ -27,3 +27,6 @@ export const IntentarAgregarVarianteSinStock = (item: ItemVenta, clicksExtra: nu
             await page.waitForTimeout(200);
         }
     };
+    fn.displayName = 'Intentar agregar variante sin stock';
+    return fn;
+};

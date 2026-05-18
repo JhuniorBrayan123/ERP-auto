@@ -35,6 +35,15 @@
       ],
       "@question/*": [
         "src/question/*"
+      ],
+      "@app-types/*": [
+        "src/types/*"
+      ],
+      "@factories/*": [
+        "src/factories/*"
+      ],
+      "@utils/*": [
+        "src/utils/*"
       ]
     }
   },

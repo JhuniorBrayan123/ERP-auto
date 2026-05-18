@@ -242,3 +242,39 @@ export const DETRACCION = {
             "Operación Sujeta a Detracción - Servicio de Transporte de Pasajeros",
     },
 };
+
+// ─── Sobrescritura dinámica de códigos ─────────────────────────────────
+// Si existe dynamic-items.json (generado por el setup), sobrescribe los
+// códigos hardcodeados con los códigos dinámicos de esta ejecución.
+
+try {
+    const {cargarMapaCodigos} = require('../../factories/item-factory');
+    const mapa = cargarMapaCodigos();
+    if (mapa) {
+        console.log(`[emision-data] Códigos dinámicos activos (RUN_ID: ${mapa.RUN_ID})`);
+
+        const sobrescribir = (obj: Record<string, {codigo: string}>, claves: string[]) => {
+            for (const clave of claves) {
+                if (mapa[clave] && obj[clave]) {
+                    obj[clave].codigo = mapa[clave].replace(/-/g, '');
+                }
+            }
+        };
+
+        // ITEMS_PV: todas las claves del objeto
+        sobrescribir(ITEMS_PV as Record<string, {codigo: string}>, Object.keys(ITEMS_PV));
+
+        // ITEMS_POR_ALMACEN: mapeo manual (las claves en el factory son diferentes)
+        if (mapa['SOLO_EN_AUTO'] && ITEMS_POR_ALMACEN.SOLO_EN_AUTO) {
+            ITEMS_POR_ALMACEN.SOLO_EN_AUTO.codigo = mapa['SOLO_EN_AUTO'].replace(/-/g, '');
+        }
+        if (mapa['SOLO_EN_VENTAS'] && ITEMS_POR_ALMACEN.SOLO_EN_VENTAS) {
+            ITEMS_POR_ALMACEN.SOLO_EN_VENTAS.codigo = mapa['SOLO_EN_VENTAS'].replace(/-/g, '');
+        }
+    } else {
+        console.warn('[emision-data] dynamic-items.json no encontrado. Usando códigos base estáticos.');
+        console.warn('[emision-data] Ejecuta el setup primero para crear items dinámicos.');
+    }
+} catch {
+    console.warn('[emision-data] Error al cargar dynamic-items.json. Usando códigos base estáticos.');
+}

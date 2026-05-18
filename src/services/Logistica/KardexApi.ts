@@ -1,5 +1,6 @@
 import type {APIRequestContext} from '@playwright/test';
 import {env} from '../../../config/env';
+import type {KardexVariacionRaw, KardexAlmacenRaw} from '../../types/api-responses.types';
 
 /**
  * Parámetros opcionales para la consulta de saldo por producto en Kardex.
@@ -93,11 +94,14 @@ export class KardexApi {
      */
     async obtenerSaldoPorProducto(params: ObtenerSaldoParams): Promise<number> {
         const {
-            codigoProducto,
+            codigoProducto: rawCodigo,
             almacenFiltro = 'AUTO',
             fechaInicio = '2020-01-01',
             tipoItem = [1, 6],
         } = params;
+
+        // Sanitizar: el ERP no usa guiones en códigos (ej. "111111-19013" → "11111119013")
+        const codigoProducto = rawCodigo.replace(/-/g, '');
 
         const url = this.buildUrl({codigoProducto, fechaInicio, tipoItem});
 
@@ -126,7 +130,7 @@ export class KardexApi {
 // 🔹 Caso 1: producto sin variantes
         if (dataItem.Almacenes?.length) {
             const almacenEncontrado = dataItem.Almacenes.find(
-                (a: { DescripcionAlmacen?: string }) =>
+                (a: KardexAlmacenRaw) =>
                     a.DescripcionAlmacen?.includes(almacenFiltro),
             );
 
@@ -142,7 +146,7 @@ export class KardexApi {
 // 🔹 Caso 2: producto con variantes
         if (dataItem.Variaciones?.length) {
             const variacion = dataItem.Variaciones.find(
-                (v: any) => v.CodigoItem === codigoProducto
+                (v: KardexVariacionRaw) => v.CodigoItem === codigoProducto
             );
 
             if (!variacion?.Almacenes?.length) {
@@ -150,7 +154,7 @@ export class KardexApi {
             }
 
             const almacenEncontrado = variacion.Almacenes.find(
-                (a: { DescripcionAlmacen?: string }) =>
+                (a: KardexAlmacenRaw) =>
                     a.DescripcionAlmacen?.includes(almacenFiltro),
             );
 

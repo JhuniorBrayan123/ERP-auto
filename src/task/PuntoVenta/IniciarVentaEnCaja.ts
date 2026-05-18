@@ -1,7 +1,7 @@
 import {expect, Page} from '@playwright/test';
 
-export const IniciarVentaEnCaja = () =>
-    async (page: Page): Promise<void> => {
+export const IniciarVentaEnCaja = () => {
+    const fn = async (page: Page): Promise<void> => {
         await page.goto('/');
         await page.getByText('Ventas y compras').click();
         await page.getByText('Ver cajas').click();
@@ -13,3 +13,6 @@ export const IniciarVentaEnCaja = () =>
             page.locator('.v-select-header-small .v-text').first()
         ).not.toHaveText('Seleccionar', {timeout: 15_000});
     };
+    fn.displayName = 'Iniciar venta en caja';
+    return fn;
+};

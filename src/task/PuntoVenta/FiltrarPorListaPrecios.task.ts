@@ -1,7 +1,7 @@
 import {Page} from '@playwright/test';
 
-export const FiltrarPorListaPrecios = (listaPreciosOrigen: string, listaPreciosDestino: string) =>
-    async (page: Page): Promise<void> => {
+export const FiltrarPorListaPrecios = (listaPreciosOrigen: string, listaPreciosDestino: string) => {
+    const fn = async (page: Page): Promise<void> => {
         await page.getByText(listaPreciosOrigen).first().click();
         await page.getByText(listaPreciosDestino).click();
         // Navegar por paginado
@@ -10,3 +10,6 @@ export const FiltrarPorListaPrecios = (listaPreciosOrigen: string, listaPreciosD
         // Seleccionar un item
         await page.locator('.image-default').first().click();
     };
+    fn.displayName = 'Filtrar por lista de precios';
+    return fn;
+};

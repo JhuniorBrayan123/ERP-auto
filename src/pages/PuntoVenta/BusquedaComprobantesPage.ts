@@ -13,11 +13,11 @@
  *   - Cerrar drape: .drape.is-open > .button-close > .icon
  *   - Icono base (alternativa dropdown): .v-icon-base > .icon
  */
-import {expect, type Page} from '@playwright/test';
-import type {EmisionResult} from '../../helpers/PuntoVenta/emision.types';
-import {EstadoSunat} from '../../helpers/PuntoVenta/sunat-estados.helper';
-import {throwFunctionalError} from '../../utils/functional-error';
-import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
+import { expect, type Page } from '@playwright/test';
+import type { EmisionResult } from '../../helpers/PuntoVenta/emision.types';
+import { EstadoSunat } from '../../helpers/PuntoVenta/sunat-estados.helper';
+import { throwFunctionalError } from '../../utils/functional-error';
+import { FUNCTIONAL_CATALOG } from '../../utils/functional-catalog';
 
 const ESTADOS_EXITOSOS = [EstadoSunat.ACEPTADA, EstadoSunat.ACEPTADA_OBSERVADA];
 const ESTADOS_TRANSITORIOS = [EstadoSunat.PENDIENTE_ENVIO, EstadoSunat.PENDIENTE_RESPUESTA, EstadoSunat.NO_DISPONIBLE];
@@ -73,7 +73,7 @@ export class BusquedaComprobantesPage {
         // Preparar intercepción de la API de Consultas
         const consultaPromise = this.page.waitForResponse(
             (resp) => resp.url().includes('DocumentosContables/Consultas') && resp.status() === 200,
-            {timeout: 15_000},
+            { timeout: 15_000 },
         );
 
         // Llenar el input de correlativo (dispara la búsqueda)
@@ -82,6 +82,7 @@ export class BusquedaComprobantesPage {
         );
         await inputCorrelativo.click();
         await inputCorrelativo.fill(correlativo);
+        await inputCorrelativo.press('Enter'); // Forzar disparo de búsqueda
 
         // Capturar la respuesta de Consultas
         try {
@@ -118,7 +119,7 @@ export class BusquedaComprobantesPage {
                 resp.url().includes('entidades/series') &&
                 resp.url().includes('idtipodocumento=2016') &&
                 resp.status() === 200,
-            {timeout: 15_000},
+            { timeout: 15_000 },
         );
 
         // Esperar a que el modal esté listo
@@ -141,24 +142,26 @@ export class BusquedaComprobantesPage {
     async filtrarAdelantoFactura(emision: EmisionResult | null): Promise<void> {
         if (!emision) throw new Error('No hay emisión capturada para filtrar adelanto');
 
-        // Seleccionar serie F001
         await this.page.locator('[id="_div:dropdown"]').getByText('Serie').click();
-        await this.page.locator('[id*="opcion-serie"]').filter({hasText: 'F001'}).first().click();
+        await this.page.locator('[id*="opcion-serie"]').filter({ hasText: 'F001' }).first().click();
 
         // Buscar por correlativo
-        const inputCorrelativo = this.page.getByRole('textbox', {name: 'Correlativo'});
+        const inputCorrelativo = this.page.getByRole('textbox', { name: 'Correlativo' });
         await inputCorrelativo.click();
         await inputCorrelativo.fill(emision.correlativo);
+        
+        // Presionar Enter para disparar el filtrado en la grilla del modal
+        await inputCorrelativo.press('Enter');
 
-        // NUEVO: esperamos a que la grilla reaccione al filtro.
-        // No asumimos velocidad de red — esperamos el resultado real.
-        // Usamos el correlativo porque es el dato más específico que acabamos
-        // de filtrar, y la fila lo contendrá sí o sí si el filtro funcionó.
-        const referenciaUnica = `F001-${emision.correlativo}`
-        const filaEsperada = this.page.locator('tr').filter({hasText: referenciaUnica});
-        await filaEsperada.waitFor({state: 'visible', timeout: 15_000});
+        const referenciaUnica = `F001-${emision.correlativo}`;
+        const filaEsperada = this.page.locator('tr').filter({ hasText: referenciaUnica }).first();
+        await filaEsperada.waitFor({ state: 'visible', timeout: 15_000 });
 
-        console.log(`   Adelanto factura filtrado: F001-${emision.correlativo}`);
+        // Marcar el checkbox del adelanto (al filtrar, debería ser el primero)
+        const checkbox = this.page.locator('[id="pv_punto-venta_cmp_venta_pedido:modals_cmp-gestion-adelantos_v-checkbox:agregar-adelanto-0"]');
+        await checkbox.click({ force: true });
+
+        console.log(`   Adelanto factura filtrado y seleccionado: F001-${emision.correlativo}`);
     }
 
     // ─── Validación de estado SUNAT ───────────────────────────────────
@@ -170,8 +173,8 @@ export class BusquedaComprobantesPage {
                 return 'TRANSITORIO';
             }
 
-            let {idEstadoSunat} = this.ultimoComprobanteConsulta;
-            const {serieDescripcion, correlativoDocumento} = this.ultimoComprobanteConsulta;
+            let { idEstadoSunat } = this.ultimoComprobanteConsulta;
+            const { serieDescripcion, correlativoDocumento } = this.ultimoComprobanteConsulta;
             const compId = `${serieDescripcion}-${correlativoDocumento}`;
 
             if (ESTADOS_EXITOSOS.includes(idEstadoSunat)) {
@@ -186,7 +189,7 @@ export class BusquedaComprobantesPage {
                 // Re-consultar la API
                 const consultaPromise = this.page.waitForResponse(
                     (resp) => resp.url().includes('DocumentosContables/Consultas') && resp.status() === 200,
-                    {timeout: 15_000},
+                    { timeout: 15_000 },
                 );
 
                 // Disparar la búsqueda nuevamente
@@ -288,7 +291,7 @@ export class BusquedaComprobantesPage {
         descripcion: string,
         options?: { interval?: number; timeout?: number },
     ): Promise<void> {
-        const {interval, timeout} = {
+        const { interval, timeout } = {
             ...BusquedaComprobantesPage.BITACORA_POLL,
             ...options,
         };
@@ -356,7 +359,7 @@ export class BusquedaComprobantesPage {
         await this.abrirBitacoraDelPrimerComprobante();
         await expect(
             this.page.getByText(/Se descargaron los Inventarios/i),
-        ).not.toBeVisible({timeout: 5_000});
+        ).not.toBeVisible({ timeout: 5_000 });
     }
 
     /**
@@ -366,13 +369,13 @@ export class BusquedaComprobantesPage {
     async validarComprobanteEmitido(estadoSunat: 'EXITOSO' | 'TRANSITORIO' | 'DEFINITIVO' = 'EXITOSO'): Promise<void> {
         await expect(
             this.page.getByText('Comprobante Emitido').first(),
-        ).toBeVisible({timeout: 10_000});
+        ).toBeVisible({ timeout: 10_000 });
 
         if (estadoSunat === 'EXITOSO') {
             await this.esperarEntradaBitacora(
                 /ha sido aceptada/i,
                 'CDR Aceptado (SUNAT)',
-                {timeout: 15_000},
+                { timeout: 15_000 },
             );
         }
     }
@@ -380,7 +383,7 @@ export class BusquedaComprobantesPage {
     async validarComprobanteEmitidonota(): Promise<void> {
         await expect(
             this.page.getByText('Comprobante Emitido').first(),
-        ).toBeVisible({timeout: 10_000});
+        ).toBeVisible({ timeout: 10_000 });
 
     }
 
@@ -389,7 +392,7 @@ export class BusquedaComprobantesPage {
         await this.esperarEntradaBitacora(
             'XML Generado',
             'XML Generado',
-            {timeout: 30_000},
+            { timeout: 30_000 },
         );
     }
 
@@ -398,7 +401,7 @@ export class BusquedaComprobantesPage {
         await this.esperarEntradaBitacora(
             'PDF Generado',
             'PDF Generado',
-            {timeout: 30_000},
+            { timeout: 30_000 },
         );
     }
 
@@ -412,7 +415,7 @@ export class BusquedaComprobantesPage {
     async abrirVerComprobante(): Promise<Page> {
         await this.abrirDropdownPrimerComprobante();
         const popupPromise = this.page.waitForEvent('popup');
-        await this.page.getByRole('link', {name: 'Ver comprobante'}).click();
+        await this.page.getByRole('link', { name: 'Ver comprobante' }).click();
         return popupPromise;
     }
 
@@ -422,21 +425,21 @@ export class BusquedaComprobantesPage {
     async validarRetencionEnPopup(popupPage: Page, porcentaje: string): Promise<void> {
         await expect(
             popupPage.getByText(`ESTE DOCUMENTO ESTA AFECTO A RETENCION DEL ${porcentaje}%`),
-        ).toBeVisible({timeout: 10_000});
+        ).toBeVisible({ timeout: 10_000 });
     }
 
     /** Verifica leyenda de detracción en popup del comprobante */
     async validarDetraccionEnPopup(popupPage: Page): Promise<void> {
         await expect(
             popupPage.getByText('OPERACIÓN SUJETA AL SISTEMA'),
-        ).toBeVisible({timeout: 10_000});
+        ).toBeVisible({ timeout: 10_000 });
     }
 
     /** Verifica que sea factura de adelanto en popup */
     async validarFacturaAdelantoEnPopup(popupPage: Page): Promise<void> {
         await expect(
             popupPage.getByText('Factura de adelanto'),
-        ).toBeVisible({timeout: 10_000});
+        ).toBeVisible({ timeout: 10_000 });
     }
 
     /** Verifica que el popup muestre adelantos aplicados */
@@ -446,12 +449,12 @@ export class BusquedaComprobantesPage {
         const adelantos = popupPage.getByText('Adelantos aplicados').nth(1);
         const comprobantes = popupPage.getByText('Comprobantes de aplicación').nth(1);
 
-        await expect(adelantos.or(comprobantes)).toBeVisible({timeout: 10000});
+        await expect(adelantos.or(comprobantes)).toBeVisible({ timeout: 10000 });
     }
 
     /** Acciones extra dentro de la ventana de ver comprobante */
     async clickAccionesExtra(popupPage: Page): Promise<void> {
-        await popupPage.getByRole('button', {name: 'Acciones extra'}).click();
+        await popupPage.getByRole('button', { name: 'Acciones extra' }).click();
     }
 
     /** Datos opcionales dentro del popup */

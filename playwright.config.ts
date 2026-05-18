@@ -6,7 +6,7 @@ export default defineConfig({
 
     fullyParallel: false,
     // fullyParallel: true,
-    workers: 1,
+    workers: 4,
     // workers: process.env ? 2 : 2,
 
     /* ─── CI / Retries ─── */
@@ -37,17 +37,6 @@ export default defineConfig({
             suiteTitle: false
         }]
     ],
-    // // === NUEVA CONFIGURACIÓN DINÁMICA ===
-    // reporter: process.env.CI ? [
-    //     // ️ Entorno CI (Jenkins/GitHub Actions):
-    //     ['dot'],                                              // Máxima velocidad I/O (1 puntito por test)
-    //     ['junit', { outputFile: 'test-results/results.xml' }] // Integración CI clásica
-    // ] : [
-    //     //  Entorno Local:
-    //     ['line'],                                             // Terminal limpia de una sola línea
-    //     ['html', { open: 'on-failure' }],                     // Super poder: Auto-abre el reporte solo si fallas
-    //     // ['./src/utils/maven-reporter.ts'],                 // Tu custom reporter estilo Maven
-    // ],
 
     use: {
         baseURL: env.baseUrl,
@@ -101,13 +90,24 @@ export default defineConfig({
             dependencies: ["setup"],
         },
         {
-            name: "chromium",
+            name: "PuntoVenta",
+            testMatch: "tests/Emisiones/**/*.spec.ts",
             use: {
                 ...devices["Desktop Chrome"],
                 storageState: "playwright/.auth/user.json",
             },
-            // dependencies: ["setup", "datos-setup", "pv-datos-setup", "pv-items-setup"],
-            dependencies: ["setup"],
+            dependencies: ["setup", "pv-items-setup"],
+            workers: 1,
+        },
+        {
+            name: "Logistica",
+            testMatch: "tests/Logistica/**",
+            use: {
+                ...devices["Desktop Chrome"],
+                storageState: "playwright/.auth/user.json",
+            },
+            dependencies: ["setup", "pv-items-setup"],
+            workers: 1,
         },
     ],
 });

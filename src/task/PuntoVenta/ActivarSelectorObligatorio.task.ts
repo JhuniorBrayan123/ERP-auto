@@ -4,8 +4,8 @@ import {Page} from '@playwright/test';
 import {ListaItemsPage} from '@pages/Logistica/ListaItemsPage';
 import {EdicionItemPage} from '@pages/Logistica/EdicionItemPage';
 
-export const ActivarSelectorObligatorio = (codigoItem: string) =>
-    async (page: Page): Promise<void> => {
+export const ActivarSelectorObligatorio = (codigoItem: string) => {
+    const fn = async (page: Page): Promise<void> => {
         // Navegar a Productos y servicios
         await page.goto('/')
         await page.getByText('Productos y servicios').click();
@@ -29,3 +29,6 @@ export const ActivarSelectorObligatorio = (codigoItem: string) =>
             await edicionItemPage.clickActualizarProducto();
         }
     };
+    fn.displayName = 'Activar selector obligatorio';
+    return fn;
+};

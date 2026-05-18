@@ -1,7 +1,7 @@
 import {Page} from '@playwright/test';
 
-export const FiltrarPorAlmacen = (almacenOrigen: string, almacenDestino: string) =>
-    async (page: Page): Promise<void> => {
+export const FiltrarPorAlmacen = (almacenOrigen: string, almacenDestino: string) => {
+    const fn = async (page: Page): Promise<void> => {
         await page.getByText(almacenOrigen).first().click();
         await page.getByText(almacenDestino).click();
         // Navegar por paginado para confirmar que la grilla cambió
@@ -10,3 +10,6 @@ export const FiltrarPorAlmacen = (almacenOrigen: string, almacenDestino: string)
         // Seleccionar un item de la grilla filtrada
         await page.locator('.image-default').first().click();
     };
+    fn.displayName = 'Filtrar por almacén';
+    return fn;
+};

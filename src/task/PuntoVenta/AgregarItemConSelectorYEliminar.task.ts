@@ -7,8 +7,8 @@ import type {ItemVenta} from '@helpers/PuntoVenta/emision.types';
 
 const BTN_CANCELAR = '[id="pv_cmp-punto-venta_cmp-venta-pedido:pedido_cmp-pedido-body:acciones_dv:btn-cancelar"]';
 
-export const AgregarItemConSelectorYEliminar = (item: ItemVenta) =>
-    async (page: Page): Promise<void> => {
+export const AgregarItemConSelectorYEliminar = (item: ItemVenta) => {
+    const fn = async (page: Page): Promise<void> => {
         const emision = new EmisionPage(page);
         await emision.buscarItem(item.codigo);
         await emision.seleccionarItem(item.nombre);
@@ -20,3 +20,6 @@ export const AgregarItemConSelectorYEliminar = (item: ItemVenta) =>
         // Eliminar el item
         await page.locator(BTN_CANCELAR).click();
     };
+    fn.displayName = 'Agregar item con selector y eliminar';
+    return fn;
+};

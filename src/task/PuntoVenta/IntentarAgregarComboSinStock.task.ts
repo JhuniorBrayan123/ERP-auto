@@ -2,8 +2,8 @@ import {Page} from '@playwright/test';
 import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
 import type {ItemVenta} from '@helpers/PuntoVenta/emision.types';
 
-export const IntentarAgregarComboSinStock = (item: ItemVenta) =>
-    async (page: Page): Promise<void> => {
+export const IntentarAgregarComboSinStock = (item: ItemVenta) => {
+    const fn = async (page: Page): Promise<void> => {
         const emision = new EmisionPage(page);
         await emision.buscarItem(item.codigo);
         await emision.seleccionarItem(item.nombre);
@@ -11,3 +11,6 @@ export const IntentarAgregarComboSinStock = (item: ItemVenta) =>
         await page.getByText(item.nombre).first().dblclick();
         await page.locator('.image-default').dblclick();
     };
+    fn.displayName = 'Intentar agregar combo sin stock';
+    return fn;
+};

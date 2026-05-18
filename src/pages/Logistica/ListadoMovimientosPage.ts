@@ -9,7 +9,7 @@ export class ListadoMovimientosPage {
     private readonly overloadLoading = this.page.locator('[id="cmn_cmp-overload:loading"]');
 
     private async esperarSinOverlayCarga(): Promise<void> {
-        await this.overloadLoading.waitFor({state: 'hidden', timeout: 25_000}).catch(() => {
+        await this.overloadLoading.waitFor({state: 'hidden', timeout: 35_000}).catch(() => {
         });
     }
 

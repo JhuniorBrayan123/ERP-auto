@@ -1,4 +1,4 @@
-import {type Locator, type Page} from '@playwright/test';
+import { type Locator, type Page } from '@playwright/test';
 
 export abstract class ItemFormBasePage {
 
@@ -11,7 +11,7 @@ export abstract class ItemFormBasePage {
     }
 
     protected get inputNombre(): Locator {
-        return this.page.getByRole('textbox', {name: 'Ej. Gaseosa Kola R (500ml)'});
+        return this.page.getByRole('textbox', { name: 'Ej. Gaseosa Kola R (500ml)' });
     }
 
     protected get botonCrearItems(): Locator {
@@ -19,7 +19,7 @@ export abstract class ItemFormBasePage {
     }
 
     async llenarNombre(nombre: string): Promise<void> {
-        await this.inputNombre.waitFor({state: 'visible'});
+        await this.inputNombre.waitFor({ state: 'visible' });
         await this.inputNombre.click();
         await this.inputNombre.fill(nombre);
     }
@@ -27,16 +27,16 @@ export abstract class ItemFormBasePage {
     async expandirOpcionesAvanzadas(): Promise<void> {
         await this.page
             .locator('div')
-            .filter({hasText: /^Opciones avanzadas \(opcional\)$/})
+            .filter({ hasText: /^Opciones avanzadas \(opcional\)$/ })
             .click();
     }
 
     async clickBotonCrear(tipoItem: string): Promise<void> {
-        await this.page.getByRole('button', {name: `Crear ${tipoItem}`}).click();
+        await this.page.getByRole('button', { name: `Crear ${tipoItem}` }).click();
     }
 
     async clickIrAListaItems(): Promise<void> {
-        await this.page.getByRole('button', {name: 'Ir a lista de ítems'}).click();
+        await this.page.getByRole('button', { name: 'Ir a lista de ítems' }).click();
     }
 
     async irATabInfoAdicional(): Promise<void> {
@@ -64,7 +64,7 @@ export abstract class ItemFormBasePage {
             '[id="lgt_reg-item_v-tab:campos-adicionales_grilla-campos-adicionales:campo-adicional_v-input:fecha"]',
         );
         await dateInput.click();
-        await this.page.getByRole('button', {name: buttonName}).click();
+        await this.page.getByRole('button', { name: buttonName }).click();
     }
 
     async llenarCampoAdicionalNumerico(valor: string): Promise<void> {
@@ -80,6 +80,6 @@ export abstract class ItemFormBasePage {
         opcionTexto: string,
     ): Promise<void> {
         await dropdownLocator.click();
-        await this.page.getByText(opcionTexto, {exact: true}).click();
+        await this.page.getByText(opcionTexto, { exact: true }).click();
     }
 }

@@ -95,24 +95,25 @@ export class EdicionItemPage {
 
     async goToSelectoresTab(): Promise<void> {
         await this.waitForFormLoad();
-        await this.expandirOpcionesAvanzadas();
-        await this.page.waitForTimeout(500);
 
-        // Seleccionamos el TAB correcto (el <div class="v-tab">)
-        const tabSelectores = this.page.locator('.v-tab', {
-            hasText: 'Selectores'
-        }).first();
+        // En edición, "Opciones avanzadas (opcional)" es un TAB (no un acordeón)
+        const tabOpcionesAvanzadas = this.page.getByText('Opciones avanzadas (opcional)', {exact: false});
+        if (await tabOpcionesAvanzadas.isVisible()) {
+            await tabOpcionesAvanzadas.click();
+            // Esperar a que se renderice el contenido del tab
+            await this.page.waitForTimeout(1000);
+            await this.page.locator('[id="cmn_cmp-overload:loading"]')
+                .waitFor({state: 'hidden', timeout: 10_000})
+                .catch(() => {});
+        }
 
-        await tabSelectores.scrollIntoViewIfNeeded();
-        await tabSelectores.click({force: true});
+        // Ahora buscar el sub-tab "Selectores" dentro de las opciones avanzadas
+        const tabSelectores = this.page.getByText('Selectores', {exact: false}).first();
+        await tabSelectores.waitFor({state: 'visible', timeout: 15_000});
+        await tabSelectores.click();
 
-        // Esperar a que el TAB esté marcado como activo
-        await this.page.locator('.v-tab.active, .v-tab.selected, .v-tab.v-slide-group-item--active')
-            .filter({hasText: 'Selectores'})
-            .waitFor({state: 'visible', timeout: 35000});
-
-        // Esperar que se cargue el contenido del tab
-        await this.page.locator('text=Obligatorio').waitFor({state: 'visible'});
+        // Esperar que se cargue el contenido del tab Selectores
+        await this.page.locator('text=Obligatorio').waitFor({state: 'visible', timeout: 15_000});
     }
 
     async setSelectorObligatorioSwitch(): Promise<boolean> {

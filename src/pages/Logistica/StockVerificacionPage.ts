@@ -58,10 +58,15 @@ export class StockVerificacionPage {
         await this.page.getByText(nombre).click();
     }
 
-    async abrirKardexDesdeStock(): Promise<Page> {
+    async abrirKardexDesdeStock(codigo?: string): Promise<Page> {
         try {
             const popupPromise = this.page.waitForEvent('popup');
-            await this.page.getByRole('button', {name: 'Ver Kardex'}).first().click();
+            if (codigo) {
+                await this.page.getByRole('row', { name: new RegExp(codigo, 'i') })
+                    .getByRole('button', {name: 'Ver Kardex'}).first().click();
+            } else {
+                await this.page.getByRole('button', {name: 'Ver Kardex'}).first().click();
+            }
             const kardexPage = await popupPromise;
             await kardexPage.waitForLoadState('domcontentloaded');
             await kardexPage.waitForURL(/kardex/i, {timeout: 15_000});

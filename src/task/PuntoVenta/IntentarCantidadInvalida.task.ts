@@ -7,8 +7,8 @@ import type {ItemVenta} from '@helpers/PuntoVenta/emision.types';
 
 const DECREMENT_BTN = '[id="pv_cmp-punto-venta_cmp-venta-pedido:pedido_cmp-pedido-item:item_v-step:cantidad_div:decrement"]';
 
-export const IntentarCantidadInvalida = (item: ItemVenta) =>
-    async (page: Page): Promise<void> => {
+export const IntentarCantidadInvalida = (item: ItemVenta) => {
+    const fn = async (page: Page): Promise<void> => {
         const emision = new EmisionPage(page);
         await emision.buscarItem(item.codigo);
         await emision.seleccionarItem(item.nombre);
@@ -17,3 +17,6 @@ export const IntentarCantidadInvalida = (item: ItemVenta) =>
         // Intentar pagar con cantidad inválida
         await emision.clickPagar();
     };
+    fn.displayName = 'Intentar cantidad inválida';
+    return fn;
+};

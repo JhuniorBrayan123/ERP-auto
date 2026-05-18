@@ -1,7 +1,7 @@
-import {type Page} from '@playwright/test';
-import {DatosOpcionalesPage} from './DatosOpcionalesPage';
-import type {CampoAdicionalConfig} from '../../helpers/Logistica/datos-adicionales-config';
-import type {ProveedorData} from '../../helpers/Logistica/movimiento.types';
+import { expect, type Page } from '@playwright/test';
+import { DatosOpcionalesPage } from './DatosOpcionalesPage';
+import type { CampoAdicionalConfig } from '../../helpers/Logistica/datos-adicionales-config';
+import type { ProveedorData } from '../../helpers/Logistica/movimiento.types';
 
 export class DatosAdicionalesSetupPage {
     private readonly datosOpcionales: DatosOpcionalesPage;
@@ -26,7 +26,7 @@ export class DatosAdicionalesSetupPage {
             case 'texto': {
                 const id = `lgt_reg-movimiento_v-drape:cmp-datos-opcionales_v-input:campo-texto-${indice}`;
                 try {
-                    await this.page.locator(`[id="${id}"]`).waitFor({state: 'visible', timeout});
+                    await this.page.locator(`[id="${id}"]`).waitFor({ state: 'visible', timeout });
                     return true;
                 } catch {
                     return false;
@@ -35,7 +35,7 @@ export class DatosAdicionalesSetupPage {
             case 'fecha': {
                 const id = `lgt_reg-movimiento_v-drape:cmp-datos-opcionales_v-datepicker:campo-fecha-${indice}`;
                 try {
-                    await this.page.locator(`[id="${id}"]`).waitFor({state: 'visible', timeout});
+                    await this.page.locator(`[id="${id}"]`).waitFor({ state: 'visible', timeout });
                     return true;
                 } catch {
                     return false;
@@ -44,7 +44,7 @@ export class DatosAdicionalesSetupPage {
             case 'numero': {
                 const id = `lgt_reg-movimiento_v-drape:cmp-datos-opcionales_v-input:campo-numero-${indice}`;
                 try {
-                    await this.page.locator(`[id="${id}"]`).waitFor({state: 'visible', timeout});
+                    await this.page.locator(`[id="${id}"]`).waitFor({ state: 'visible', timeout });
                     return true;
                 } catch {
                     return false;
@@ -53,7 +53,7 @@ export class DatosAdicionalesSetupPage {
             case 'seleccion': {
                 try {
                     await this.page.getByText('Campos de selección')
-                        .waitFor({state: 'visible', timeout});
+                        .waitFor({ state: 'visible', timeout });
                     return true;
                 } catch {
                     return false;
@@ -67,16 +67,16 @@ export class DatosAdicionalesSetupPage {
     async asegurarCampos(campos: CampoAdicionalConfig[]): Promise<boolean> {
         let creadoAlguno = false;
 
-        const contadores: Record<string, number> = {texto: 0, fecha: 0, numero: 0, seleccion: 0};
+        const contadores: Record<string, number> = { texto: 0, fecha: 0, numero: 0, seleccion: 0 };
 
         for (const campo of campos) {
             const indice = contadores[campo.tipo];
             const yaExiste = await this.campoExiste(campo.tipo, indice);
 
             if (yaExiste) {
-                console.log(`    ✅ Campo ${campo.tipo} "${campo.nombre}" ya existe`);
+                console.log(`     Campo ${campo.tipo} "${campo.nombre}" ya existe`);
             } else {
-                console.log(`    🔧 Creando campo ${campo.tipo} "${campo.nombre}"...`);
+                console.log(`     Creando campo ${campo.tipo} "${campo.nombre}"...`);
 
                 switch (campo.tipo) {
                     case 'texto':
@@ -106,69 +106,120 @@ export class DatosAdicionalesSetupPage {
         }
 
         if (!creadoAlguno) {
-            console.log('  ✅ Todos los campos adicionales ya existen');
+            console.log('   Todos los campos adicionales ya existen');
         }
 
         return creadoAlguno;
     }
 
-    private async proveedorExiste(numDocumento: string, nombreEsperado: string): Promise<boolean> {
+    private async esperarOverlay(): Promise<void> {
+        try {
+            const overlay = this.page.locator('[id="cmn_cmp-overscreen:block"].is-open');
+            await overlay.waitFor({ state: 'hidden', timeout: 10_000 });
+        } catch {
+            // Si no hay overlay, continuar
+        }
+    }
+
+    private async buscarYSeleccionarProveedor(numDocumento: string, nombreEsperado: string): Promise<boolean> {
         await this.datosOpcionales.buscarProveedor(numDocumento);
         await this.page.waitForTimeout(2000);
+        await this.esperarOverlay();
 
-        const resultado = this.page.getByText(nombreEsperado).first();
-        const existe = await resultado.isVisible().catch(() => false);
+        // Verificar si dice "Proveedor no encontrado"
+        const noEncontrado = this.page.getByText('Proveedor no encontrado');
+        const proveedorNoExiste = await noEncontrado.isVisible().catch(() => false);
 
-        const input = this.page.getByRole('textbox', {name: 'Buscar proveedor por nombre o'});
-        await input.clear();
+        if (proveedorNoExiste) {
+            console.log(`      Proveedor "${numDocumento}" no encontrado`);
+            const input = this.page.getByRole('textbox', { name: 'Buscar proveedor por nombre o' });
+            await input.clear();
+            return false;
+        }
 
-        return existe;
+        // Si llegamos aquí, el proveedor sí existe → click en la tarjeta del panel
+        const tarjeta = this.page.locator('article[id*="seleccion-entidad"]')
+            .filter({ hasText: nombreEsperado }).first();
+        const esVisible = await tarjeta.isVisible().catch(() => false);
+
+        if (esVisible) {
+            // dispatchEvent bypasea completamente el overlay cmp-overscreen
+            await tarjeta.dispatchEvent('click');
+            await this.page.waitForTimeout(1000);
+            console.log(`      Proveedor "${nombreEsperado}" seleccionado`);
+            return true;
+        }
+
+        return false;
     }
 
     async asegurarProveedor(datos: ProveedorData, nombreEsperado: string): Promise<boolean> {
         console.log(`  Verificando proveedor ${datos.numDocumento}...`);
 
-        const existe = await this.proveedorExiste(datos.numDocumento, nombreEsperado);
+        const existe = await this.buscarYSeleccionarProveedor(datos.numDocumento, nombreEsperado);
 
         if (existe) {
-            console.log(`  ✅ Proveedor "${nombreEsperado}" ya existe`);
+            console.log(`  ✓ Proveedor "${nombreEsperado}" ya existe — seleccionado`);
             return false;
         }
 
-        console.log(`  🔧 Creando proveedor "${datos.numDocumento}"...`);
+        // No existe → CREAR (el sistema lo selecciona automáticamente al crearlo)
+        console.log(`   Creando proveedor "${datos.numDocumento}"...`);
         await this.datosOpcionales.crearProveedor(datos);
-        await this.page.waitForTimeout(3000);
-        console.log(`  ✓ Proveedor creado exitosamente`);
+        await this.page.waitForTimeout(2000);
+        await this.esperarOverlay();
+        console.log(`  ✓ Proveedor "${nombreEsperado}" creado y auto-seleccionado`);
         return true;
     }
 
-    private async clienteExiste(numDocumento: string, nombreEsperado: string): Promise<boolean> {
+    private async buscarYSeleccionarCliente(numDocumento: string, nombreEsperado: string): Promise<boolean> {
         await this.datosOpcionales.buscarCliente(numDocumento);
         await this.page.waitForTimeout(2000);
+        await this.esperarOverlay();
 
-        const resultado = this.page.getByText(nombreEsperado).first();
-        const existe = await resultado.isVisible().catch(() => false);
+        // Verificar si dice "Cliente no encontrado"
+        const noEncontrado = this.page.getByText('Cliente no encontrado');
+        const clienteNoExiste = await noEncontrado.isVisible().catch(() => false);
 
-        const input = this.page.getByRole('textbox', {name: 'Buscar cliente por nombre o n'});
-        await input.clear();
+        if (clienteNoExiste) {
+            console.log(`      Cliente "${numDocumento}" no encontrado`);
+            const input = this.page.getByRole('textbox', { name: 'Buscar cliente por nombre o n' });
+            await input.clear();
+            return false;
+        }
 
-        return existe;
+        // Si llegamos aquí, el cliente sí existe → click en la tarjeta del panel
+        const tarjeta = this.page.locator('article[id*="seleccion-entidad"]')
+            .filter({ hasText: nombreEsperado }).first();
+        const esVisible = await tarjeta.isVisible().catch(() => false);
+
+        if (esVisible) {
+            // dispatchEvent bypasea completamente el overlay cmp-overscreen
+            await tarjeta.dispatchEvent('click');
+            await this.page.waitForTimeout(1000);
+            console.log(`      Cliente "${nombreEsperado}" seleccionado`);
+            return true;
+        }
+
+        return false;
     }
 
     async asegurarCliente(datos: ProveedorData, nombreEsperado: string): Promise<boolean> {
         console.log(`  Verificando cliente ${datos.numDocumento}...`);
 
-        const existe = await this.clienteExiste(datos.numDocumento, nombreEsperado);
+        const existe = await this.buscarYSeleccionarCliente(datos.numDocumento, nombreEsperado);
 
         if (existe) {
-            console.log(`  ✅ Cliente "${nombreEsperado}" ya existe`);
+            console.log(`  ✓ Cliente "${nombreEsperado}" ya existe — seleccionado`);
             return false;
         }
 
-        console.log(`  🔧 Creando cliente "${datos.numDocumento}"...`);
+        // No existe → CREAR (el sistema lo selecciona automáticamente al crearlo)
+        console.log(`   Creando cliente "${datos.numDocumento}"...`);
         await this.datosOpcionales.crearCliente(datos);
-        await this.page.waitForTimeout(3000);
-        console.log(`  ✓ Cliente creado exitosamente`);
+        await this.page.waitForTimeout(2000);
+        await this.esperarOverlay();
+        console.log(`  ✓ Cliente "${nombreEsperado}" creado y auto-seleccionado`);
         return true;
     }
 }

@@ -1,5 +1,5 @@
 import {test} from '@fixtures/Logistica/movimientos-fixture';
-import {ALMACENES, ITEMS_TEST, PATRON_CODIGO, PROVEEDOR_EXISTENTE,} from '@helpers/Logistica/movimiento-data.helper';
+import {ALMACENES, ITEMS_TEST, PATRON_CODIGO, PROVEEDOR_EXISTENTE, VARIANTES} from '@helpers/Logistica/movimiento-data.helper';
 import {
     clonarMovimientoDesdeListado,
     crearIngresoBaseParaClonacion,
@@ -29,7 +29,6 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
 
         await test.step('And: verificar stock antes de clonar', async () => {
             await movimientosNav.navegarAStockProductos();
-            await page.waitForTimeout(2000)
             await stockVerificacion.buscarPorCodigo(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
             await stockVerificacion.clickVariosTexto();
         });
@@ -44,7 +43,6 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
 
         await test.step('Assert: verificar nuevo movimiento en kardex', async () => {
             await movimientosNav.navegarAKardexTotal();
-            await page.waitForTimeout(2000)
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
             await kardexVerificacion.clickKardexPorProducto();
             await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
@@ -72,7 +70,7 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
         await crearIngresoBaseParaClonacion(
             movimientosNav, registroMovimiento, resultadoMovimiento,
             ITEMS_TEST.EQUIVALENTE_FLEX.codigo, ITEMS_TEST.EQUIVALENTE_FLEX.nombre,
-            {waitAntes: page, seleccionarEquivalente: 'Equivalente X2'},
+            {waitAntes: page, seleccionarEquivalente: VARIANTES.EQUIVALENTE_X2},
         );
 
         // Paso especial: ver movimiento antes de clonar
@@ -86,7 +84,6 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
 
         await test.step('Assert: verificar kardex del movimiento clonado', async () => {
             await movimientosNav.navegarAKardexTotal();
-            await page.waitForTimeout(2000)
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.EQUIVALENTE_FLEX.codigo);
             await kardexVerificacion.clickVariosTexto();
             await kardexVerificacion.clickKardexPorProducto();

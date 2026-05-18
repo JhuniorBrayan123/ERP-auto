@@ -2,8 +2,28 @@ import {expect, test as setup} from '@playwright/test';
 import {ProductoFormPage} from '@pages/Logistica/ProductoFormPage';
 import {RecetaFormPage} from '@pages/Logistica/RecetaFormPage';
 import {ListaFormPage} from '@pages/Logistica/ListaFormPage';
+import {ComboFormPage} from '@pages/Logistica/ComboFormPage';
 import {ListaItemsPage} from '@pages/Logistica/ListaItemsPage';
-import type {InsumoReceta, ProductoListaItem} from '@helpers/Logistica/item-data.types';
+import {
+    generarRunId,
+    generarMapaCodigos,
+    guardarMapaCodigos,
+    ITEM_TEMPLATES,
+} from '@factories/item-factory';
+import {
+    crearProductoDesdeTemplate,
+    crearRecetaDesdeTemplate,
+    crearListaDesdeTemplate,
+    crearComboDesdeTemplate,
+} from './crear-item-setup.helpers';
+import {ActivarSelectorObligatorio} from '@task/PuntoVenta/ActivarSelectorObligatorio.task';
+import {EdicionItemPage} from '@pages/Logistica/EdicionItemPage';
+import {
+    cargarCheckpoint,
+    iniciarCheckpoint,
+    marcarDone,
+    limpiarCheckpoint,
+} from './setup-checkpoint';
 
 setup.skip(!!process.env.SKIP_PV_ITEMS_SETUP, 'Setup de ítems PV omitido por SKIP_PV_ITEMS_SETUP');
 
@@ -27,6 +47,7 @@ async function navegarAItems(page: import('@playwright/test').Page): Promise<voi
         try {
             await page.getByText('Productos y servicios').click();
             await page.locator('[id="nvg_selects_cmp-header-selects_select:select-module-203-item-2007"]').click();
+            await expect(page.getByRole('textbox', { name: 'Buscar por nombre, código o c' })).toBeVisible({timeout: 20000});
             await page.waitForLoadState('networkidle');
         } catch (error) {
             logError('Navegar al módulo de Productos', error);
@@ -41,32 +62,90 @@ async function itemExistePorCodigo(
     page: import('@playwright/test').Page,
     codigo: string,
 ): Promise<boolean> {
-    return await setup.step(`Verificar existencia del ítem con código ${codigo}`, async () => {
+    // ERP almacena códigos sin guión (ej. "11111121726", no "111111-21726")
+    const codigoLimpio = codigo.replace(/-/g, '');
+    return await setup.step(`Verificar existencia del ítem con código ${codigoLimpio}`, async () => {
         try {
-            await listaItems.searchByCode(codigo);
-            const resultado = page.getByRole('table').getByText(codigo).first();
+            await listaItems.searchByCode(codigoLimpio);
+            const resultado = page.getByRole('table').getByText(codigoLimpio).first();
             const existe = await resultado.isVisible({timeout: 3_000}).catch(() => false);
-            await listaItems.clearSearch();
             return existe;
         } catch (error) {
-            logError(`Buscar existencia de ítem ${codigo}`, error);
+            logError(`Buscar existencia de ítem ${codigoLimpio}`, error);
             throw error;
         }
     });
 }
 
+// ─── Resolver de códigos dinámicos ────────────────────────────────────
+
+/**
+ * Resuelve un código: si es un template key O un código base conocido,
+ * retorna el código dinámico de esta ejecución.
+ * Si no coincide con nada, retorna el valor tal cual (código externo/fijo).
+ *
+ * Esto es crítico para combos/listas/recetas: cuando un componente usa
+ * codigoBusqueda '202020', el resolver lo convierte a '202020-21726' →
+ * luego .replace(/-/g,'') → '20202021726' → búsqueda exacta (1 resultado).
+ */
+function crearResolver(mapaCodigos: Record<string, string>): (key: string) => string {
+    const templateKeys = new Set(ITEM_TEMPLATES.map(t => t.key));
+
+    // Reverse map: codigoBase → template key (para resolver '202020' → 'ITEM_EQUIVALENTE')
+    const baseToKey = new Map<string, string>();
+    for (const t of ITEM_TEMPLATES) {
+        baseToKey.set(t.codigoBase, t.key);
+    }
+
+    return (key: string) => {
+        // 1. Match directo por template key (ej. 'ITEM_EQUIVALENTE')
+        if (templateKeys.has(key) && mapaCodigos[key]) {
+            return mapaCodigos[key];
+        }
+        // 2. Match por código base (ej. '202020' → 'ITEM_EQUIVALENTE' → '202020-21726')
+        const templateKey = baseToKey.get(key);
+        if (templateKey && mapaCodigos[templateKey]) {
+            return mapaCodigos[templateKey];
+        }
+        return key; // código externo no registrado, usar tal cual
+    };
+}
+
 // ─── Setup principal ──────────────────────────────────────────────────
 
 setup(CASO_ACTUAL, async ({page}) => {
-    setup.setTimeout(300_000); // 5 min — crea hasta 6 ítems
+    setup.setTimeout(600_000); // 10 min — crea hasta 17 ítems (incluye combos, variantes y equivalencias)
 
+    // ── Resolver RUN_ID: reusar checkpoint o generar nuevo ─────────────
+    const checkpointPrevio = cargarCheckpoint();
+    let RUN_ID: string;
+    let itemsDone: Set<string>;
+
+    if (checkpointPrevio) {
+        RUN_ID = checkpointPrevio.RUN_ID;
+        itemsDone = new Set(checkpointPrevio.done);
+        logInfo('Checkpoint', `Reanudando RUN_ID ${RUN_ID} — ${itemsDone.size} ítems ya creados`);
+    } else {
+        RUN_ID = generarRunId();
+        itemsDone = new Set<string>();
+        iniciarCheckpoint(RUN_ID);
+        logInfo('Checkpoint', `Nuevo RUN_ID ${RUN_ID} — checkpoint creado`);
+    }
+
+    const mapaCodigos = generarMapaCodigos(RUN_ID);
+    const dc = (key: string) => mapaCodigos[key];
+    const resolverCodigo = crearResolver(mapaCodigos);
+
+    logInfo('Códigos dinámicos', `Se crearán ${ITEM_TEMPLATES.filter(t => t.fase).length} ítems con sufijo -${RUN_ID}`);
+
+    // ── Navegación ─────────────────────────────────────────────────────
     await setup.step('Navegación inicial al sistema', async () => {
         try {
             await page.goto('/');
             await navegarAItems(page);
         } catch (error) {
             logError('Navegación inicial', error);
-            throw error; // Se relanza para permitir captura de artifacts (screenshot/video)
+            throw error;
         }
     });
 
@@ -74,301 +153,89 @@ setup(CASO_ACTUAL, async ({page}) => {
     const productoForm = new ProductoFormPage(page);
     const recetaForm = new RecetaFormPage(page);
     const listaForm = new ListaFormPage(page);
+    const comboForm = new ComboFormPage(page);
 
-    // ══════════════════════════════════════════════════════════════════
-    // 1. PRODUCTO CON ISC FIJO
-    // ══════════════════════════════════════════════════════════════════
-    await setup.step('Procesar Producto con ISC fijo (112211)', async () => {
-        const COD_ISC = '112211';
-        logInfo('Validación ISC', `Verificando producto ISC (${COD_ISC})...`);
+    // ── 1. Crear ítems en orden de fases ───────────────────────────────
+    const templatesOrdenados = ITEM_TEMPLATES
+        .filter(t => t.fase)
+        .sort((a, b) => a.fase! - b.fase!);
+
+    for (const template of templatesOrdenados) {
+        const codigo = dc(template.key);
+
+        // ── Checkpoint: saltar ítems ya creados en un intento anterior ──
+        if (itemsDone.has(template.key)) {
+            logInfo('Checkpoint', `"${template.key}" (${codigo}) ya marcado done — saltando`);
+            continue;
+        }
+
+        if (await itemExistePorCodigo(listaItems, page, codigo)) {
+            logInfo('Validación', `"${template.key}" (${codigo}) ya existe en ERP — saltando`);
+            marcarDone(template.key);
+            continue;
+        }
+
+        logInfo('Creación', `Creando "${template.key}" (${codigo}) [fase ${template.fase}]...`);
 
         try {
-            if (await itemExistePorCodigo(listaItems, page, COD_ISC)) {
-                logInfo('Validación ISC', `Producto ISC "${COD_ISC}" ya existe`);
+            switch (template.tipo) {
+                case 'producto':
+                    await crearProductoDesdeTemplate(page, productoForm, codigo, template);
+                    break;
+                case 'receta':
+                    await crearRecetaDesdeTemplate(page, recetaForm, codigo, template, resolverCodigo);
+                    break;
+                case 'lista':
+                    await crearListaDesdeTemplate(page, listaForm, codigo, template, resolverCodigo);
+                    break;
+                case 'combo':
+                    await crearComboDesdeTemplate(page, comboForm, codigo, template, resolverCodigo);
+                    break;
+            }
+            marcarDone(template.key);
+            logInfo('Creación', `✓ "${template.key}" (${codigo}) creado y marcado en checkpoint`);
+        } catch (error) {
+            logError(`Crear ${template.tipo} "${template.key}"`, error);
+            throw error; // checkpoint queda intacto → próximo intento retoma desde aquí
+        }
+    }
+
+    // ── 2. Post-setup: activar selector obligatorio ───────────────────
+    await setup.step('Activar selector obligatorio en ITEM_SELECTOR_GRAVADO', async () => {
+        try {
+            logInfo('Post-setup', 'Activando switch obligatorio en ITEM_SELECTOR_GRAVADO (454545)...');
+
+            // Navegar a Productos y Stock (el setup puede haber dejado el page en otro estado)
+            await page.goto('/');
+            await navegarAItems(page);
+
+            // Buscar y editar el item 454545
+            const listaItemsEdit = new ListaItemsPage(page);
+            await listaItemsEdit.searchAndEdit('454545');
+
+            // Esperar carga del formulario de edición
+            const edicionItemPage = new EdicionItemPage(page);
+            await edicionItemPage.waitForFormLoad();
+
+            // Ir al tab Selectores y activar switch
+            await edicionItemPage.goToSelectoresTab();
+            const changed = await edicionItemPage.setSelectorObligatorioSwitch();
+
+            if (changed) {
+                await edicionItemPage.clickActualizarProducto();
+                await edicionItemPage.closeSuccessModal();
+                logInfo('Post-setup', '✓ Selector obligatorio activado y guardado');
             } else {
-                logInfo('Creación ISC', `Creando producto ISC "${COD_ISC}"...`);
-
-                await setup.step('Llenar información básica (ISC)', async () => {
-                    await productoForm.iniciarCreacionProducto();
-                    await productoForm.llenarCodigo(112211);
-                    await productoForm.llenarNombre('Producto con ISC fijo 27-4-');
-                    await productoForm.llenarPrecios('11.52', '3.5');
-                    await productoForm.expandirOpcionesAvanzadas();
-                });
-
-                await setup.step('Configurar stock flexible (ISC)', async () => {
-                    await productoForm.irATabStock();
-                    await productoForm.seleccionarControlStock('flexible');
-                    await productoForm.llenarInfoAdicional('REGRESION', 'AUTO-TEST', 'AUTOMATIZADO');
-                });
-
-                await setup.step('Configurar impuestos ISC', async () => {
-                    await productoForm.configurarISC({
-                        tipoSistema: 'Aplicación al monto fijo',
-                        monto: '1.5',
-                    });
-                });
-
-                await setup.step('Guardar producto ISC y verificar redirección', async () => {
-                    await productoForm.crearProducto();
-                    await expect(
-                        page.getByRole('button', {name: 'Ir a lista de ítems'}),
-                        `El botón 'Ir a lista de ítems' no apareció tras crear el producto ISC ${COD_ISC}.`
-                    ).toBeVisible({timeout: 15_000});
-                    await productoForm.clickIrAListaItems();
-                });
-
-                logInfo('Creación ISC', `✓ Producto ISC "${COD_ISC}" creado exitosamente`);
+                logInfo('Post-setup', '✓ Selector obligatorio ya estaba activo — sin cambios');
             }
         } catch (error) {
-            logError('Crear producto con ISC fijo', error);
+            logError('Activar selector obligatorio', error);
             throw error;
         }
     });
 
-    // ══════════════════════════════════════════════════════════════════
-    // 2. PRODUCTO CON ICBPER
-    // ══════════════════════════════════════════════════════════════════
-    await setup.step('Procesar Producto con ICBPER (221122)', async () => {
-        const COD_ICBPER = '221122';
-        logInfo('Validación ICBPER', `Verificando producto ICBPER (${COD_ICBPER})...`);
-
-        try {
-            if (await itemExistePorCodigo(listaItems, page, COD_ICBPER)) {
-                logInfo('Validación ICBPER', `Producto ICBPER "${COD_ICBPER}" ya existe`);
-            } else {
-                logInfo('Creación ICBPER', `Creando producto ICBPER "${COD_ICBPER}"...`);
-
-                await setup.step('Llenar información básica (ICBPER)', async () => {
-                    await productoForm.iniciarCreacionProducto();
-                    await productoForm.llenarCodigo(221122);
-                    await productoForm.llenarNombre('Producto con ICBPER 27-4-');
-                    await productoForm.llenarPrecios('10', '10');
-                    await productoForm.expandirOpcionesAvanzadas();
-                });
-
-                await setup.step('Configurar stock flexible (ICBPER)', async () => {
-                    await productoForm.irATabStock();
-                    await productoForm.seleccionarControlStock('flexible');
-                    await productoForm.llenarInfoAdicional('REGRESION', 'AUTO-TEST', 'AUTOMATIZADO');
-                });
-
-                await setup.step('Activar impuesto ICBPER', async () => {
-                    await productoForm.activarICBPER();
-                });
-
-                await setup.step('Guardar producto ICBPER y verificar', async () => {
-                    await productoForm.crearProducto();
-                    await expect(
-                        page.getByRole('button', {name: 'Ir a lista de ítems'}),
-                        `El botón 'Ir a lista de ítems' no apareció tras crear el producto ICBPER ${COD_ICBPER}.`
-                    ).toBeVisible({timeout: 15_000});
-                    await productoForm.clickIrAListaItems();
-                });
-
-                logInfo('Creación ICBPER', `✓ Producto ICBPER "${COD_ICBPER}" creado exitosamente`);
-            }
-        } catch (error) {
-            logError('Crear producto con ICBPER', error);
-            throw error;
-        }
-    });
-
-    // ══════════════════════════════════════════════════════════════════
-    // 3. RECETA CON INSUMOS ESTRICTOS
-    // ══════════════════════════════════════════════════════════════════
-    await setup.step('Procesar Receta con Insumos (332211)', async () => {
-        const COD_RECETA = '332211';
-        logInfo('Validación Receta', `Verificando receta (${COD_RECETA})...`);
-
-        try {
-            if (await itemExistePorCodigo(listaItems, page, COD_RECETA)) {
-                logInfo('Validación Receta', `Receta "${COD_RECETA}" ya existe`);
-            } else {
-                logInfo('Creación Receta', `Creando receta "${COD_RECETA}"...`);
-
-                const insumos: InsumoReceta[] = [
-                    {codigoBusqueda: '464646', textoSeleccion: 'Nuevo insumo test1'},
-                    {codigoBusqueda: '444666', textoSeleccion: 'nuevo insumo con', equivalencia: 'equivalenteX2 insumo'},
-                ];
-
-                await setup.step('Llenar información básica de la Receta', async () => {
-                    await recetaForm.iniciarCreacionReceta();
-                    await recetaForm.llenarCodigo(332211);
-                    await recetaForm.llenarNombre('Receta insumos estrictos 27-4');
-                    await recetaForm.llenarPrecios('50.22', '15.45');
-                });
-
-                await setup.step('Agregar insumos a la Receta', async () => {
-                    await recetaForm.irATabInsumos();
-                    for (const insumo of insumos) {
-                        await recetaForm.buscarYAgregarInsumo(insumo);
-                    }
-                });
-
-                await setup.step('Configurar opciones avanzadas de la Receta', async () => {
-                    await recetaForm.expandirOpcionesAvanzadas();
-                    await recetaForm.llenarInfoAdicional('AUTO-TEST', 'AUTOMATIZADO');
-                });
-
-                await setup.step('Guardar Receta y verificar', async () => {
-                    await recetaForm.crearReceta();
-                    await expect(
-                        page.getByRole('button', {name: 'Ir a lista de ítems'}),
-                        `El botón 'Ir a lista de ítems' no apareció tras crear la receta ${COD_RECETA}.`
-                    ).toBeVisible({timeout: 15_000});
-                    await recetaForm.clickIrAListaItems();
-                });
-
-                logInfo('Creación Receta', `✓ Receta "${COD_RECETA}" creada exitosamente`);
-            }
-        } catch (error) {
-            logError('Crear Receta con Insumos', error);
-            throw error;
-        }
-    });
-
-    // ══════════════════════════════════════════════════════════════════
-    // 4. LISTA ITEMS FLEXIBLES
-    // ══════════════════════════════════════════════════════════════════
-    await setup.step('Procesar Lista de Ítems (443444)', async () => {
-        const COD_LISTA = '443444';
-        logInfo('Validación Lista', `Verificando lista (${COD_LISTA})...`);
-
-        try {
-            if (await itemExistePorCodigo(listaItems, page, COD_LISTA)) {
-                logInfo('Validación Lista', `Lista "${COD_LISTA}" ya existe`);
-            } else {
-                logInfo('Creación Lista', `Creando lista "${COD_LISTA}"...`);
-
-                const productos: ProductoListaItem[] = [
-                    {codigoBusqueda: '121212', textoSeleccion: 'item para combos gravado'},
-                    {codigoBusqueda: '313131', textoSeleccion: 'item con variante flexible', variante: 'Variante 1 flexible'},
-                    {codigoBusqueda: '202020', textoSeleccion: 'item equivalente flexible', equivalencia: 'Equivalente X2'},
-                    {codigoBusqueda: '545454', textoSeleccion: 'item selector flexible'},
-                ];
-
-                await setup.step('Llenar información básica de la Lista', async () => {
-                    await listaForm.iniciarCreacionLista();
-                    await listaForm.llenarCodigo(443444);
-                    await listaForm.llenarNombre('Lista items flexibles 27-4-');
-                    await listaForm.llenarDescripcion('Lista para prueba Nota de Venta');
-                });
-
-                await setup.step('Agregar productos a la Lista', async () => {
-                    for (const prod of productos) {
-                        await listaForm.buscarYAgregarProducto(prod);
-                    }
-                });
-
-                await setup.step('Guardar Lista y verificar', async () => {
-                    await listaForm.crearLista();
-                    await expect(
-                        page.getByRole('button', {name: 'Ir a lista de ítems'}),
-                        `El botón 'Ir a lista de ítems' no apareció tras crear la lista ${COD_LISTA}.`
-                    ).toBeVisible({timeout: 15_000});
-                    await listaForm.clickIrAListaItems();
-                });
-
-                logInfo('Creación Lista', `✓ Lista "${COD_LISTA}" creada exitosamente`);
-            }
-        } catch (error) {
-            logError('Crear Lista de Ítems', error);
-            throw error;
-        }
-    });
-
-    // ══════════════════════════════════════════════════════════════════
-    // 5. PRODUCTO ALMACEN-AUTO
-    // ══════════════════════════════════════════════════════════════════
-    await setup.step('Procesar Producto ALMACEN-AUTO', async () => {
-        const COD_ALMACEN_AUTO = '83838383';
-        logInfo('Validación ALMACEN-AUTO', `Verificando producto ALMACEN-AUTO (${COD_ALMACEN_AUTO})...`);
-
-        try {
-            if (await itemExistePorCodigo(listaItems, page, COD_ALMACEN_AUTO)) {
-                logInfo('Validación ALMACEN-AUTO', `Producto ALMACEN-AUTO "${COD_ALMACEN_AUTO}" ya existe`);
-            } else {
-                logInfo('Creación ALMACEN-AUTO', `Creando producto ALMACEN-AUTO "${COD_ALMACEN_AUTO}"...`);
-
-                await setup.step('Llenar información básica', async () => {
-                    await productoForm.iniciarCreacionProducto();
-                    await productoForm.llenarCodigo(Number(COD_ALMACEN_AUTO));
-                    await productoForm.llenarNombre('Item solo almacen-auto X2');
-                    await productoForm.llenarPrecios('10.55', '3.5');
-                    await productoForm.expandirOpcionesAvanzadas();
-                });
-
-                await setup.step('Configurar stock estricto en almacén único', async () => {
-                    await productoForm.irATabStock();
-                    await productoForm.seleccionarAlmacenEspecifico('ALMACEN-AUTO');
-                    await productoForm.seleccionarControlStock('estricto');
-                    await productoForm.llenarCantidadesStock('1');
-                    await productoForm.llenarInfoAdicional('REGRESION', 'AUTO-TEST', 'AUTOMATIZADO');
-                });
-
-                await setup.step('Guardar producto y verificar', async () => {
-                    await productoForm.crearProducto();
-                    await expect(
-                        page.getByRole('button', {name: 'Ir a lista de ítems'}),
-                        `El botón 'Ir a lista de ítems' no apareció tras crear producto ALMACEN-AUTO ${COD_ALMACEN_AUTO}.`
-                    ).toBeVisible({timeout: 15_000});
-                    await productoForm.clickIrAListaItems();
-                });
-
-                logInfo('Creación ALMACEN-AUTO', `✓ Producto ALMACEN-AUTO "${COD_ALMACEN_AUTO}" creado exitosamente`);
-            }
-        } catch (error) {
-            logError('Crear Producto ALMACEN-AUTO', error);
-            throw error;
-        }
-    });
-
-    // ══════════════════════════════════════════════════════════════════
-    // 6. PRODUCTO ALMACEN-VENTAS
-    // ══════════════════════════════════════════════════════════════════
-    await setup.step('Procesar Producto ALMACEN-VENTAS', async () => {
-        const COD_ALMACEN_VENTAS = '38383838';
-        logInfo('Validación ALMACEN-VENTAS', `Verificando producto ALMACEN-VENTAS (${COD_ALMACEN_VENTAS})...`);
-
-        try {
-            if (await itemExistePorCodigo(listaItems, page, COD_ALMACEN_VENTAS)) {
-                logInfo('Validación ALMACEN-VENTAS', `Producto ALMACEN-VENTAS "${COD_ALMACEN_VENTAS}" ya existe`);
-            } else {
-                logInfo('Creación ALMACEN-VENTAS', `Creando producto ALMACEN-VENTAS "${COD_ALMACEN_VENTAS}"...`);
-
-                await setup.step('Llenar información básica', async () => {
-                    await productoForm.iniciarCreacionProducto();
-                    await productoForm.llenarCodigo(Number(COD_ALMACEN_VENTAS));
-                    await productoForm.llenarNombre('Item solo almacen-venta');
-                    await productoForm.llenarPrecios('10.55', '3.5');
-                    await productoForm.expandirOpcionesAvanzadas();
-                });
-
-                await setup.step('Configurar stock estricto en almacén único', async () => {
-                    await productoForm.irATabStock();
-                    await productoForm.seleccionarAlmacenEspecifico('ALMACÉN DE VENTAS');
-                    await productoForm.seleccionarControlStock('estricto');
-                    await productoForm.llenarCantidadesStock('1');
-                    await productoForm.llenarInfoAdicional('REGRESION', 'AUTO-TEST', 'AUTOMATIZADO');
-                });
-
-                await setup.step('Guardar producto y verificar', async () => {
-                    await productoForm.crearProducto();
-                    await expect(
-                        page.getByRole('button', {name: 'Ir a lista de ítems'}),
-                        `El botón 'Ir a lista de ítems' no apareció tras crear producto ALMACEN-VENTAS ${COD_ALMACEN_VENTAS}.`
-                    ).toBeVisible({timeout: 15_000});
-                    await productoForm.clickIrAListaItems();
-                });
-
-                logInfo('Creación ALMACEN-VENTAS', `✓ Producto ALMACEN-VENTAS "${COD_ALMACEN_VENTAS}" creado exitosamente`);
-            }
-        } catch (error) {
-            logError('Crear Producto ALMACEN-VENTAS', error);
-            throw error;
-        }
-    });
-
-    logInfo('Setup Completo', 'Todos los ítems de PuntoVenta están listos');
+    // ── Guardar mapa de códigos dinámicos ──────────────────────────────
+    guardarMapaCodigos(mapaCodigos);
+    limpiarCheckpoint();
+    logInfo('Setup Completo', `Todos los ítems de PuntoVenta están listos (RUN_ID: ${RUN_ID}) — checkpoint limpiado`);
 });

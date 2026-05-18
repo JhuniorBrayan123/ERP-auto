@@ -15,7 +15,7 @@ export const ITEMS_TEST = {
     PRODUCTO_GRAVADO: {codigo: '121212', nombre: 'item para combos gravado'} as ItemTest,
     VARIANTE_FLEXIBLE: {codigo: '313131', nombre: 'item con variante flexible'} as ItemTest,
     EQUIVALENTE_FLEX: {codigo: '202020', nombre: 'item equivalente flexible'} as ItemTest,
-    EQUIVALENTE_EST: {codigo: '101010', nombre: 'item equivalente estricto'} as ItemTest,
+    EQUIVALENTE_EST: {codigo: '101010', nombre: 'item equivalente estricto gravado'} as ItemTest,
     INSUMO_FLEXIBLE: {codigo: '666444', nombre: 'nuevo insumo flexible'} as ItemTest,
     INSUMO_TEST1: {codigo: '464646', nombre: 'Nuevo insumo test1'} as ItemTest,
     VARIANTE_ESTRICTO: {codigo: '131313', nombre: 'item variante estricto gravado'} as ItemTest,
@@ -92,6 +92,7 @@ export const DATOS_CONTACTO = {
 export const PROVEEDOR_TEST: ProveedorData = {
     tipoDocumento: 'DNI',
     numDocumento: '76975258',
+    razonSocial: 'JHUNIOR BRAYAN GUTIERREZ',  // Fallback si SUNAT no responde
     direccion: 'av-ejemplo-auto',
     telefono: '99999999',
     email: 'ejemploauto@gmail.com',
@@ -111,11 +112,74 @@ export const COMPROBANTE_TEST: ComprobanteData = {
     cuc: '10101010101',
 };
 
-export const COMPROABNTE_VACIO: ComprobanteData = {
+export const COMPROBANTE_VACIO: ComprobanteData = {
     tipo: '',
     serie: '',
     numero: '',
     cuc: '',
+}
+
+// ─── Sobrescritura dinámica de códigos ─────────────────────────────────
+// Si existe dynamic-items.json (generado por el setup), sobrescribe los
+// códigos hardcodeados con los códigos dinámicos de esta ejecución.
+// Las keys de ITEMS_TEST no coinciden con las de ITEM_TEMPLATES, así que
+// usamos un mapeo explícito.
+
+try {
+    const {cargarMapaCodigos} = require('../../factories/item-factory');
+    const mapa = cargarMapaCodigos();
+    if (mapa) {
+        console.log(`[movimiento-data] Códigos dinámicos activos (RUN_ID: ${mapa.RUN_ID})`);
+
+        const MAPA_CLAVES: Record<string, string> = {
+            'PRODUCTO_ESTRICTO': 'PRODUCTO_SIMPLE',
+            'PRODUCTO_GRAVADO': 'PRODUCTO_GRAVADO',
+            'VARIANTE_FLEXIBLE': 'ITEM_VARIANTE_FLEXIBLE',
+            'EQUIVALENTE_FLEX': 'ITEM_EQUIVALENTE',
+            'EQUIVALENTE_EST': 'ITEM_EQUIVALENTE_ESTRICTO',
+            'VARIANTE_ESTRICTO': 'ITEM_VARIANTE_ESTRICTO',
+        };
+
+        for (const [testKey, templateKey] of Object.entries(MAPA_CLAVES)) {
+            const dynamicCode = mapa[templateKey];
+            const itemTest = (ITEMS_TEST as Record<string, { codigo: string, nombre: string }>)[testKey];
+
+            if (dynamicCode && itemTest) {
+                // Actualizar código sin guiones para la búsqueda
+                itemTest.codigo = dynamicCode.replace(/-/g, '');
+
+                // Actualizar nombre con el sufijo (ej: " 21726") para selectores exactos
+                const runIdSuffix = dynamicCode.split('-')[1];
+                if (runIdSuffix) {
+                    itemTest.nombre = `${itemTest.nombre} ${runIdSuffix}`;
+                }
+            }
+        }
+
+        // Actualizar VARIANTES con los códigos y nombres dinámicos
+        const runId = mapa.RUN_ID as string;
+        if (runId) {
+            const codigoVarianteFlex = ITEMS_TEST.VARIANTE_FLEXIBLE.codigo; // ya actualizado arriba
+            const codigoVarianteEst = ITEMS_TEST.VARIANTE_ESTRICTO.codigo;
+
+            VARIANTES.V1_FLEXIBLE.codigo = `${codigoVarianteFlex}-V001`;
+            VARIANTES.V1_FLEXIBLE.nombre = `Variante 1 flexible ${runId}`;
+
+            VARIANTES.V2_FLEXIBLE.codigo = `${codigoVarianteFlex}-V002`;
+            VARIANTES.V2_FLEXIBLE.nombre = `Variante 2 flexible ${runId}`;
+
+            VARIANTES.V3_FLEXIBLE.codigo = `${codigoVarianteFlex}-V003`;
+            VARIANTES.V3_FLEXIBLE.nombre = `Variante 3 flexible ${runId}`;
+
+            VARIANTES.V3_ESTRICTO.codigo = `${codigoVarianteEst}-V003`;
+            VARIANTES.V3_ESTRICTO.nombre = `Variante 3 estricto ${runId}`;
+        }
+    } else {
+        console.warn('[movimiento-data] dynamic-items.json no encontrado. Usando códigos base estáticos.');
+        console.warn('[movimiento-data] Ejecuta el setup primero para crear items dinámicos.');
+    }
+} catch {
+    console.warn('[movimiento-data] Error al cargar dynamic-items.json. Usando códigos base estáticos.');
 }
 
 // ─── Archivos Excel para movimientos masivos ──────────────────────────

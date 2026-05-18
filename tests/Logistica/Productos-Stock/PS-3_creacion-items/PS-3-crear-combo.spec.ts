@@ -63,7 +63,7 @@ test.describe('PS-3 | Creación de Combos', {tag: ['@logistica', '@productos-sto
 
         const componentes: ComponenteCombo[] = [
             {codigoBusqueda: '151515', textoSeleccion: 'item gravado sin control'},
-            {codigoBusqueda: '333333', textoSeleccion: 'item variante sin control', variante: 'Variante 1'},
+            {codigoBusqueda: '333333', textoSeleccion: 'item con variante sin control gravado', variante: 'Variante 1'},
             {codigoBusqueda: '303030', textoSeleccion: 'item equivalente sin control', equivalencia: 'Equivalente X2'},
         ];
         await prepararComboBase(comboForm, nombre, {venta: '155.52', compra: '155.50'}, componentes);
@@ -80,9 +80,9 @@ test.describe('PS-3 | Creación de Combos', {tag: ['@logistica', '@productos-sto
         });
     });
     test('crear combo con un item sin stock gravados @PS-3', async ({
-                                                                      comboForm,
-                                                                      itemDetail,
-                                                                  }) => {
+                                                                        comboForm,
+                                                                        itemDetail,
+                                                                    }) => {
         const nombre = buildUniqueItemName('combo', 'items con uno sin stock');
 
         const componentes: ComponenteCombo[] = [

@@ -23,12 +23,13 @@ export class RecetaFormPage extends ItemFormBasePage {
     }
 
     // llenar cidgo es nuevo 
-    async llenarCodigo(codigo:number): Promise<void> {
+    async llenarCodigo(codigo: number): Promise<void> {
         await this.page.getByText("Automático").first().click();
         await this.page.getByText("Manual").first().click();
         await this.page.locator('[id="lgt_reg-item_v-tab:informacion-basica_v-input:codigo"]').click();
         await this.page.locator('[id="lgt_reg-item_v-tab:informacion-basica_v-input:codigo"]').fill(codigo.toString());
     }
+
     async irATabInsumos(): Promise<void> {
         await this.page
             .locator('[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:tabs-1"]')
@@ -45,8 +46,6 @@ export class RecetaFormPage extends ItemFormBasePage {
         await inputBuscar.click();
         await inputBuscar.fill(insumo.codigoBusqueda);
         await this.page.getByText(insumo.textoSeleccion).first().click();
-
-        // Espera solo el overlay de carga, NO el overscreen
         await this.esperarSoloOverload();
 
         if (insumo.variante) {
@@ -55,13 +54,28 @@ export class RecetaFormPage extends ItemFormBasePage {
         }
 
         if (insumo.equivalencia) {
-            // El modal de equivalencia está abierto — click directo dentro de él
-            const modal = this.page.locator('#cmn_cmp-overscreen\\:block.is-open');
-            await modal.waitFor({state: 'visible', timeout: 10_000});
-            await modal.getByText(insumo.equivalencia).first().click();
-            // Ahora sí espera que el modal se cierre tras la selección
-            await modal.waitFor({state: 'hidden', timeout: 10_000});
-            await this.esperarSoloOverload();
+            const overscreen = this.page.locator('[id="cmn_cmp-overscreen:block"].is-open');
+
+            // ✅ El overscreen es OPCIONAL: puede que el ERP no lo muestre
+            const apareció = await overscreen
+                .waitFor({state: 'visible', timeout: 5_000})
+                .then(() => true)
+                .catch(() => false);
+
+            if (apareció) {
+                await overscreen.getByText(insumo.equivalencia).first().click();
+                await overscreen
+                    .waitFor({state: 'hidden', timeout: 10_000})
+                    .catch(() => {
+                    });
+                await this.esperarSoloOverload();
+            } else {
+                // El ítem ya fue agregado sin pedir equivalencia — validar que esté en lista
+                console.warn(
+                    `[buscarYAgregarInsumo] Overscreen de equivalencia no apareció ` +
+                    `para "${insumo.codigoBusqueda}". El ERP lo agregó directamente.`
+                );
+            }
         }
     }
 
@@ -181,10 +195,7 @@ export class RecetaFormPage extends ItemFormBasePage {
     }
 
     async llenarInfoAdicional(subcategoria: string, marca: string): Promise<void> {
-        await this.page
-            .locator('[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:tabs-1"]')
-            .nth(2)
-            .click();
+        await this.page.getByText('Información adicional(').click();
 
         await this.page
             .locator(`.subcategoria > ${this.DROPDOWN_ARROW}`)

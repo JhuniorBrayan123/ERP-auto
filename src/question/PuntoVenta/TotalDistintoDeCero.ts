@@ -1,12 +1,11 @@
-// 📁 src/question/PuntoVenta/TotalDistintoDeCero.ts
-import {Page} from '@playwright/test';
+import {Page, expect} from '@playwright/test';
 
 export const TotalDistintoDeCero = () =>
     async (page: Page): Promise<boolean> => {
-        const textoTotal = await page
-            .locator('.monto .v-h4')  // el span con el valor numérico
-            .first()
-            .textContent();
-
-        return textoTotal?.trim() !== '0.00';
+        try {
+            await expect(page.locator('.monto .v-h4').first()).not.toHaveText('0.00', { timeout: 5000 });
+            return true;
+        } catch {
+            return false;
+        }
     };

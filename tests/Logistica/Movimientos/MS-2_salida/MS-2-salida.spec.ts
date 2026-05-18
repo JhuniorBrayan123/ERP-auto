@@ -56,7 +56,6 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
 
         await test.step('And: verificar movimiento en kardex', async () => {
             await movimientosNav.navegarAKardexTotal();
-            await page.waitForTimeout(2000);
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.INSUMO_FLEXIBLE.nombre)
             await kardexVerificacion.clickAlmacenMultiple();
             await kardexVerificacion.clickKardexPorProducto();
@@ -87,7 +86,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
         });
 
         await test.step('And: verificar kardex de la variante', async () => {
-            const kardexPage = await stockVerificacion.abrirKardexVariante('313131-V002 Variante 2');
+            const kardexPage = await stockVerificacion.abrirKardexVariante(VARIANTES.V2_FLEXIBLE.codigo);
             const kardexPopup = new KardexVerificacionPage(kardexPage);
             await kardexPage.waitForLoadState('networkidle');
             await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
@@ -159,7 +158,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
         });
 
         await test.step('And: verificar kardex de variante', async () => {
-            const kardexPage = await stockVerificacion.abrirKardexVariante('313131-V003 Variante 3');
+            const kardexPage = await stockVerificacion.abrirKardexVariante(VARIANTES.V3_FLEXIBLE.codigo);
             const kardexPopup = new KardexVerificacionPage(kardexPage);
             await kardexPage.waitForLoadState('networkidle');
             await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
@@ -195,7 +194,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
         await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
 
         await test.step('And: verificar kardex y datos opcionales', async () => {
-            const kardexPage = await stockVerificacion.abrirKardexDesdeStock();
+            const kardexPage = await stockVerificacion.abrirKardexDesdeStock(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
             const kardexPopup = new KardexVerificacionPage(kardexPage);
             await kardexPage.waitForLoadState('networkidle');
             await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);

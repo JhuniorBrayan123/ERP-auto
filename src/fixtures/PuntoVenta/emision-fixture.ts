@@ -10,6 +10,8 @@
 import {test as base} from '@playwright/test';
 import {PuntoVentaNavigationPage} from '../../pages/PuntoVenta/PuntoVentaNavigationPage';
 import {EmisionPage} from '../../pages/PuntoVenta/EmisionPage';
+import {EmisionDatosOpcionalesPage} from '../../pages/PuntoVenta/EmisionDatosOpcionalesPage';
+import {EmisionAdelantosPage} from '../../pages/PuntoVenta/EmisionAdelantosPage';
 import {CajaPage} from '../../pages/PuntoVenta/CajaPage';
 import {ClientePage} from '../../pages/PuntoVenta/ClientePage';
 import {ComprobantePage} from '../../pages/PuntoVenta/ComprobantePage';
@@ -21,6 +23,8 @@ import {DetraccionPage} from "@pages/PuntoVenta/detraccion.page";
 type EmisionFixtures = {
     pvNav: PuntoVentaNavigationPage;
     emisionPage: EmisionPage;
+    emisionDatosOpcionalesPage: EmisionDatosOpcionalesPage;
+    emisionAdelantosPage: EmisionAdelantosPage;
     cajaPage: CajaPage;
     clientePage: ClientePage;
     comprobantePage: ComprobantePage;
@@ -40,6 +44,14 @@ export const test = base.extend<EmisionFixtures>({
 
     emisionPage: async ({page}, use) => {
         await use(new EmisionPage(page));
+    },
+
+    emisionDatosOpcionalesPage: async ({page}, use) => {
+        await use(new EmisionDatosOpcionalesPage(page));
+    },
+
+    emisionAdelantosPage: async ({page}, use) => {
+        await use(new EmisionAdelantosPage(page));
     },
 
     cajaPage: async ({page}, use) => {

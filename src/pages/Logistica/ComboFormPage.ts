@@ -1,6 +1,7 @@
 import { type Page } from '@playwright/test';
 import { ItemFormBasePage } from './ItemFormBasePage';
 import type { ComponenteCombo } from '../../helpers/Logistica/item-data.types';
+import { esperarCargaOverlay, esperarDebounce } from '@utils/wait-helpers';
 
 export class ComboFormPage extends ItemFormBasePage {
   constructor(page: Page) {
@@ -23,12 +24,12 @@ export class ComboFormPage extends ItemFormBasePage {
   }
 
   // llenar cidgo es nuevo 
-    async llenarCodigo(codigo:number): Promise<void> {
-        await this.page.getByText("Automático").first().click();
-        await this.page.getByText("Manual").first().click();
-        await this.page.locator('[id="lgt_reg-item_v-tab:informacion-basica_v-input:codigo"]').click();
-        await this.page.locator('[id="lgt_reg-item_v-tab:informacion-basica_v-input:codigo"]').fill(codigo.toString());
-    }
+  async llenarCodigo(codigo: number): Promise<void> {
+    await this.page.getByText("Automático").first().click();
+    await this.page.getByText("Manual").first().click();
+    await this.page.locator('[id="lgt_reg-item_v-tab:informacion-basica_v-input:codigo"]').click();
+    await this.page.locator('[id="lgt_reg-item_v-tab:informacion-basica_v-input:codigo"]').fill(codigo.toString());
+  }
   async irATabComponentes(): Promise<void> {
     await this.page
       .locator('[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:tabs-1"]')
@@ -37,10 +38,7 @@ export class ComboFormPage extends ItemFormBasePage {
   }
 
   async buscarYAgregarComponente(componente: ComponenteCombo): Promise<void> {
-    await this.page
-      .locator('[id="cmn_cmp-overload:loading"]')
-      .waitFor({ state: 'hidden', timeout: 10_000 })
-      .catch(() => {}); // Ignorar si no aparece
+    await esperarCargaOverlay(this.page);
 
     const inputBuscar = this.page.getByRole('textbox', {
       name: 'Buscar nombre del producto, c',
@@ -48,7 +46,11 @@ export class ComboFormPage extends ItemFormBasePage {
 
     await inputBuscar.click();
     await inputBuscar.fill(componente.codigoBusqueda);
-    await this.page.getByText(componente.textoSeleccion).first().click();
+    await esperarDebounce(this.page, 500, 'Esperando resultados del combo');
+
+    const resultadoEsperado = this.page.getByText(componente.textoSeleccion);
+    await resultadoEsperado.first().waitFor({ state: 'visible', timeout: 10_000 }).catch(() => { });
+    await resultadoEsperado.first().click();
 
     if (componente.variante) {
       await this.page.getByText(componente.variante).first().click();
@@ -60,10 +62,7 @@ export class ComboFormPage extends ItemFormBasePage {
   }
 
   async llenarInfoAdicional(subcategoria: string, marca: string): Promise<void> {
-    await this.page
-      .locator('[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:tabs-1"]')
-      .nth(2)
-      .click();
+    await this.irATabInfoAdicional();
 
     await this.page
       .locator(`.subcategoria > ${this.DROPDOWN_ARROW}`)

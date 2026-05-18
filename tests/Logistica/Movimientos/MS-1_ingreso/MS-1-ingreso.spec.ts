@@ -1,10 +1,11 @@
-import {expect, test} from '@fixtures/Logistica/movimientos-fixture';
+import { expect, test } from '@fixtures/Logistica/movimientos-fixture';
 import {
     ALMACENES,
     ITEMS_TEST,
     MOTIVOS_INGRESO,
     PATRON_CODIGO,
     PROVEEDOR_EXISTENTE,
+    VARIANTES,
 } from '@helpers/Logistica/movimiento-data.helper';
 import {
     buscarYSeleccionarItem,
@@ -14,19 +15,20 @@ import {
     verificarStockPorCodigoYClick,
     verificarStockYKardex,
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
-import {KardexVerificacionPage} from '@pages/Logistica/KardexVerificacionPage';
+import { KardexVerificacionPage } from '@pages/Logistica/KardexVerificacionPage';
+import { esperarCargaOverlay } from '@utils/wait-helpers';
 
-test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@m                                                                                                                                                                                             ovimientos']}, () => {
+test.describe('MS-1 | Ingresos de Almacén @ingreso', { tag: ['@logistica', '@m                                                                                                                                                                                             ovimientos'] }, () => {
 
     test('Registrar ingreso de almacén correctamente con producto y reflejar aumento de stock @MS-1', async ({
-                                                                                                                 movimientosNav,
-                                                                                                                 registroMovimiento,
-                                                                                                                 resultadoMovimiento,
-                                                                                                                 stockVerificacion,
-                                                                                                                 kardexVerificacion,
-                                                                                                                 page,
-                                                                                                                 kardexApi,
-                                                                                                             }) => {
+        movimientosNav,
+        registroMovimiento,
+        resultadoMovimiento,
+        stockVerificacion,
+        kardexVerificacion,
+        page,
+        kardexApi,
+    }) => {
         let saldoAfectadoApi = 0;
         await navegarAIngresosYNuevo(movimientosNav, registroMovimiento);
         await definirAlmacenYMotivo(registroMovimiento, ALMACENES.AUTO, ALMACENES.AUTO, 'INGRESO A ALMACÉN', MOTIVOS_INGRESO.ABASTECIMIENTO);
@@ -40,11 +42,11 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@m  
         await definirCantidadYRegistrarIngreso(registroMovimiento, '150');
         await test.step('And: ir al listado de movimientos', async () => {
             await resultadoMovimiento.irAlListado();
-            await page.waitForTimeout(2000)
+            await esperarCargaOverlay(page);
         });
         await verificarStockYKardex(
             movimientosNav, stockVerificacion, kardexVerificacion, page,
-            ITEMS_TEST.PRODUCTO_ESTRICTO.codigo, ALMACENES.VENTAS, PATRON_CODIGO.INGRESO
+            ITEMS_TEST.PRODUCTO_ESTRICTO.codigo, ALMACENES.AUTO, PATRON_CODIGO.INGRESO
         );
         await test.step('Asser API: verificar kardex en DB', async () => {
             const saldoPosIngreso = await kardexApi.obtenerSaldoPorProducto({
@@ -59,40 +61,40 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@m  
     });
 
     test('Registrar ingreso con ítem con variante @MS-1', async ({
-                                                                     movimientosNav,
-                                                                     registroMovimiento,
-                                                                     resultadoMovimiento,
-                                                                     stockVerificacion,
-                                                                     kardexVerificacion,
-                                                                     page,
-                                                                 }) => {
+        movimientosNav,
+        registroMovimiento,
+        resultadoMovimiento,
+        stockVerificacion,
+        kardexVerificacion,
+        page,
+    }) => {
 
         await navegarAIngresosYNuevo(movimientosNav, registroMovimiento);
         await definirAlmacenYMotivo(registroMovimiento, ALMACENES.AUTO, ALMACENES.AUTO, 'INGRESO A ALMACÉN', MOTIVOS_INGRESO.COMPRAS);
         await test.step('And: buscar ítem y seleccionar variante', async () => {
             await registroMovimiento.buscarItem(ITEMS_TEST.VARIANTE_FLEXIBLE.codigo);
             await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.VARIANTE_FLEXIBLE.nombre);
-            await registroMovimiento.seleccionarVariante('Variante 1 flexible');
+            await registroMovimiento.seleccionarVariante(VARIANTES.V1_FLEXIBLE.nombre);
         });
 
         await definirCantidadYRegistrarIngreso(registroMovimiento, '10', resultadoMovimiento);
 
         await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.VARIANTE_FLEXIBLE.codigo, async () => {
-            await stockVerificacion.clickVariante('Variante 1 flexible');
+            await stockVerificacion.clickVariante(VARIANTES.V1_FLEXIBLE.nombre);
         });
 
         await test.step('And: verificar movimiento en kardex de la variante', async () => {
-            const kardexPage = await stockVerificacion.abrirKardexVariante('313131-V001 Variante 1');
+            const kardexPage = await stockVerificacion.abrirKardexVariante(VARIANTES.V1_FLEXIBLE.codigo);
             const kardexPopup = new KardexVerificacionPage(kardexPage);
         });
     });
 
     test('Registrar ingreso con ítem con equivalencia @MS-1', async ({
-                                                                         movimientosNav,
-                                                                         registroMovimiento,
-                                                                         resultadoMovimiento,
-                                                                         stockVerificacion,
-                                                                     }) => {
+        movimientosNav,
+        registroMovimiento,
+        resultadoMovimiento,
+        stockVerificacion,
+    }) => {
         test.setTimeout(180_000)
 
         await navegarAIngresosYNuevo(movimientosNav, registroMovimiento);
@@ -101,23 +103,23 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@m  
         await test.step('And: buscar ítem con equivalencia y seleccionar equivalente', async () => {
             await registroMovimiento.buscarItem(ITEMS_TEST.EQUIVALENTE_FLEX.codigo);
             await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.EQUIVALENTE_FLEX.nombre);
-            await registroMovimiento.seleccionarEquivalente('Equivalente X2');
+            await registroMovimiento.seleccionarEquivalente(VARIANTES.EQUIVALENTE_X2);
         });
         await definirCantidadYRegistrarIngreso(registroMovimiento, '10', resultadoMovimiento);
         await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.EQUIVALENTE_FLEX.codigo, async () => {
             await stockVerificacion.clickAlmacenMultiple();
         });
         await test.step('And: verificar movimiento en kardex', async () => {
-            const kardexPage = await stockVerificacion.abrirKardexDesdeStock();
+            const kardexPage = await stockVerificacion.abrirKardexDesdeStock(ITEMS_TEST.EQUIVALENTE_FLEX.codigo);
             const kardexPopup = new KardexVerificacionPage(kardexPage);
         });
     });
 
     test('Validar cantidad inválida en ingreso @MS-1', async ({
-                                                                  movimientosNav,
-                                                                  registroMovimiento,
-                                                                  page,
-                                                              }) => {
+        movimientosNav,
+        registroMovimiento,
+        page,
+    }) => {
         test.setTimeout(180_000)
 
         await navegarAIngresosYNuevo(movimientosNav, registroMovimiento, true);
@@ -149,9 +151,9 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@m  
     });
 
     test('Validar duplicidad de ítems en ingreso @MS-1', async ({
-                                                                    movimientosNav,
-                                                                    registroMovimiento,
-                                                                }) => {
+        movimientosNav,
+        registroMovimiento,
+    }) => {
 
         await navegarAIngresosYNuevo(movimientosNav, registroMovimiento, true);
         await test.step('When: agregar el mismo ítem dos veces', async () => {
@@ -172,14 +174,14 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@m  
     });
 
     test('Registrar ingreso con datos adicionales @MS-1', async ({
-                                                                     movimientosNav,
-                                                                     registroMovimiento,
-                                                                     datosOpcionales,
-                                                                     resultadoMovimiento,
-                                                                     stockVerificacion,
-                                                                     kardexVerificacion,
-                                                                     page,
-                                                                 }) => {
+        movimientosNav,
+        registroMovimiento,
+        datosOpcionales,
+        resultadoMovimiento,
+        stockVerificacion,
+        kardexVerificacion,
+        page,
+    }) => {
 
 
         await navegarAIngresosYNuevo(movimientosNav, registroMovimiento, true);
@@ -202,7 +204,7 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', {tag: ['@logistica', '@m  
             await stockVerificacion.clickAlmacenMultiple();
         });
         await test.step('And: verificar movimiento y datos opcionales en kardex', async () => {
-            const kardexPage = await stockVerificacion.abrirKardexDesdeStock();
+            const kardexPage = await stockVerificacion.abrirKardexDesdeStock(ITEMS_TEST.PRODUCTO_ESTRICTO.codigo);
             const kardexPopup = new KardexVerificacionPage(kardexPage);
             await kardexPage.waitForLoadState('networkidle');
             await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);//modificado en almacen de auto a VENTAS

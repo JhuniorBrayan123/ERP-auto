@@ -1,4 +1,4 @@
-import {type Page} from '@playwright/test';
+import {expect, type Locator, type Page} from '@playwright/test';
 
 export const FUNCTIONAL_META_PREFIX = '__PW_FUNCTIONAL_META__=';
 
@@ -131,32 +131,115 @@ export class FunctionalTestError extends Error {
     }
 }
 
-export async function detectCommonUiState(page: Page): Promise<string | undefined> {
-    const observations: string[] = [];
+// ─── Mensajes de diagnóstico de UI (centralizados, personalizables) ───
 
-    const overloadVisible = await isVisibleSafe(page.locator('.cmp-overload, [id="cmn_cmp-overload:loading"]'));
-    if (overloadVisible) {
-        observations.push('la pantalla quedó bloqueada por el loader');
-    }
+/**
+ * Mensajes por defecto para cada patrón de error en la UI.
+ * Se pueden personalizar por contexto pasando overrides a detectCommonUiState().
+ */
+export const DEFAULT_UI_MESSAGES = {
+  loading: 'el sistema está procesando (loader visible)',
+  errorModal: (texto: string) => `el sistema muestra un modal de error: "${texto.slice(0, 200)}"`,
+  toast: (texto: string) => `el sistema muestra una notificación: "${texto.slice(0, 200)}"`,
+  validation: (textos: string[]) => `el formulario muestra errores: "${textos.join(' | ')}"`,
+  pageError: 'la pantalla mostró un error del sistema',
+};
 
-    const pageErrorVisible = await isVisibleSafe(page.locator('.cmp-page-error'));
-    if (pageErrorVisible) {
-        observations.push('la pantalla mostró un error del sistema');
-    }
+/**
+ * Forma de los mensajes de UI. Permite overrides por contexto.
+ */
+export interface UiMessages {
+  loading: string;
+  errorModal: (texto: string) => string;
+  toast: (texto: string) => string;
+  validation: (textos: string[]) => string;
+  pageError: string;
+}
 
-    if (!observations.length) {
-        return undefined;
-    }
+export async function detectCommonUiState(
+  page: Page,
+  messages?: Partial<UiMessages>,
+): Promise<string | undefined> {
+  const m: UiMessages = {...DEFAULT_UI_MESSAGES, ...messages};
+  const observations: string[] = [];
 
-    return observations.join(' y luego ');
+  // 1. Loading overlay
+  const overloadVisible = await isVisibleSafe(page.locator('[id="cmn_cmp-overload:loading"]'));
+  if (overloadVisible) observations.push(m.loading);
+
+  // 2. Error modal (overscreen) — extraer texto real
+  const errorModal = page.locator('#cmn_cmp-overscreen\\:block.is-open');
+  if (await isVisibleSafe(errorModal)) {
+    const texto = (await errorModal.textContent().catch(() => ''))?.trim();
+    if (texto) observations.push(m.errorModal(texto));
+  }
+
+  // 3. Page error component
+  const pageErrorVisible = await isVisibleSafe(page.locator('.cmp-page-error'));
+  if (pageErrorVisible) observations.push(m.pageError);
+
+  // 4. Toast / notificaciones — extraer texto real
+  const toast = page.locator('.toast, .v-toast, .v-notification, .swal2-popup, .notyf');
+  if (await toast.first().isVisible({timeout: 300}).catch(() => false)) {
+    const texto = (await toast.first().textContent().catch(() => ''))?.trim();
+    if (texto) observations.push(m.toast(texto));
+  }
+
+  // 5. Errores de validación inline — extraer textos reales
+  const validaciones = page.locator('.v-messages__message, .error-text, .invalid-feedback');
+  const textos = (await validaciones.allTextContents().catch(() => []))
+    .filter(t => t.trim()).slice(0, 3);
+  if (textos.length) observations.push(m.validation(textos));
+
+  if (!observations.length) return undefined;
+  return observations.join('. además ');
+}
+
+/**
+ * Wrapper de expect(locator).toBeVisible() que en caso de fallo
+ * lee el estado real de la UI y construye un mensaje legible para QA.
+ *
+ * En vez de "expect(locator).toBeVisible() failed", el QA ve:
+ * "No se encontró 'botón Guardar' porque el sistema muestra un modal: 'El campo es obligatorio'."
+ */
+export async function verificarVisible(
+  page: Page,
+  locator: Locator,
+  options: {
+    elemento: string;
+    paso?: string;
+    caso?: string;
+    timeout?: number;
+    uiMessages?: Partial<UiMessages>;
+  },
+): Promise<void> {
+  try {
+    await expect(locator).toBeVisible({timeout: options.timeout ?? 15_000});
+  } catch (error) {
+    const observedState = await detectCommonUiState(page, options.uiMessages);
+    const diagnosis = observedState
+      ? `No se encontró "${options.elemento}" en la pantalla porque ${observedState}.`
+      : `No se encontró "${options.elemento}" en la pantalla. No se detectaron mensajes de error visibles.`;
+
+    throw new FunctionalTestError({
+      caseName: options.caso,
+      failedStep: options.paso ?? 'Verificar visibilidad en pantalla',
+      userMessage: diagnosis,
+      moduleOrScreen: 'Módulo no identificado',
+      technicalError: error instanceof Error ? error.message : String(error),
+      observedState,
+      failureCategory: 'DATOS',
+    });
+  }
 }
 
 export async function throwFunctionalError(input: Omit<FunctionalErrorInput, 'observedState'> & {
-    page?: Page;
-    observedState?: string;
+  page?: Page;
+  observedState?: string;
+  uiMessages?: Partial<UiMessages>;
 }): Promise<never> {
-    const observedState = input.observedState ?? (input.page ? await detectCommonUiState(input.page) : undefined);
-    throw new FunctionalTestError({...input, observedState});
+  const observedState = input.observedState ?? (input.page ? await detectCommonUiState(input.page, input.uiMessages) : undefined);
+  throw new FunctionalTestError({...input, observedState});
 }
 
 function buildFunctionalErrorMessage(input: ReturnType<typeof normalizeInput>): string {
