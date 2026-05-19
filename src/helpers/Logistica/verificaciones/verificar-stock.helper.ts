@@ -3,12 +3,12 @@
  * Extraído de verificaciones-movimientos.helper.ts
  */
 import {Page} from '@playwright/test';
-import {MovimientosNavigationPage} from '../../../pages/Logistica/MovimientosNavigationPage';
-import {StockVerificacionPage} from '../../../pages/Logistica/StockVerificacionPage';
-import {KardexVerificacionPage} from '../../../pages/Logistica/KardexVerificacionPage';
+import {MovimientosNavigationPage} from '@pages/Logistica/MovimientosNavigationPage';
+import {StockVerificacionPage} from '@pages/Logistica/StockVerificacionPage';
+import {KardexVerificacionPage} from '@pages/Logistica/KardexVerificacionPage';
 import {ITEMS_TEST} from '../movimiento-data.helper';
-import {FUNCTIONAL_CATALOG} from '../../../utils/functional-catalog';
-import {expectVisibleFunctional, runFunctionalStep} from '../../../utils/functional-step';
+import {FUNCTIONAL_CATALOG} from '@utils/functional-catalog';
+import {runFunctionalStep} from '@utils/functional-step';
 
 export const verificarStockYKardex = async (
     movimientosNav: MovimientosNavigationPage,

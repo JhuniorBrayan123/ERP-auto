@@ -2,13 +2,13 @@
  * Helpers de movimientos masivos y movimientos rápidos.
  * Extraído de verificaciones-movimientos.helper.ts
  */
-import {test} from '../../../fixtures/Logistica/movimientos-fixture';
+import {test} from '@fixtures/Logistica/movimientos-fixture';
 import {Page} from '@playwright/test';
-import {MovimientosNavigationPage} from '../../../pages/Logistica/MovimientosNavigationPage';
-import {ListadoMovimientosPage} from '../../../pages/Logistica/ListadoMovimientosPage';
-import {MovimientoRapidoPage} from '../../../pages/Logistica/MovimientoRapidoPage';
-import {FUNCTIONAL_CATALOG} from '../../../utils/functional-catalog';
-import {expectVisibleFunctional, runFunctionalStep} from '../../../utils/functional-step';
+import {MovimientosNavigationPage} from '@pages/Logistica/MovimientosNavigationPage';
+import {ListadoMovimientosPage} from '@pages/Logistica/ListadoMovimientosPage';
+import {MovimientoRapidoPage} from '@pages/Logistica/MovimientoRapidoPage';
+import {FUNCTIONAL_CATALOG} from '@utils/functional-catalog';
+import {expectVisibleFunctional, runFunctionalStep} from '@utils/functional-step';
 
 export const buscarItemEnListadoRapidoYAcceder = async (
     movimientoRapido: MovimientoRapidoPage,
@@ -17,7 +17,13 @@ export const buscarItemEnListadoRapidoYAcceder = async (
 ) => {
     await runFunctionalStep(
         'Buscar ítem en listado rápido y acceder', page,
-        { ...FUNCTIONAL_CATALOG.movimientos.definirAlmacenMotivo, screen: 'Movimientos rápidos', flowStep: 'Buscar ítem en listado rápido', userMessage: 'No se pudo buscar el ítem en el listado rápido.', technicalDetail: `Falla en la búsqueda o acceso al ítem ${codigoItem} en movimientos rápidos.` },
+        {
+            ...FUNCTIONAL_CATALOG.movimientos.definirAlmacenMotivo,
+            screen: 'Movimientos rápidos',
+            flowStep: 'Buscar ítem en listado rápido',
+            userMessage: 'No se pudo buscar el ítem en el listado rápido.',
+            technicalDetail: `Falla en la búsqueda o acceso al ítem ${codigoItem} en movimientos rápidos.`
+        },
         async () => {
             await movimientoRapido.buscarItemPorCodigo(codigoItem);
             await page.locator('[id="lgt_items_cmp-filtro-items:filtro:filtro_section_v-input:button_search"]').click();
@@ -86,7 +92,11 @@ export const navegarAIngresosYAbrirAccionesImpresion = async (
     desdeMenu: boolean = false,
 ) => {
     await runFunctionalStep('Abrir acciones de impresión desde ingresos', undefined, FUNCTIONAL_CATALOG.movimientos.accionesImpresion, async () => {
-        if (desdeMenu) { await movimientosNav.navegarAIngresosDesdeMenu(); } else { await movimientosNav.navegarAIngresos(); }
+        if (desdeMenu) {
+            await movimientosNav.navegarAIngresosDesdeMenu();
+        } else {
+            await movimientosNav.navegarAIngresos();
+        }
         await listadoMovimientos.clickTabPorIndice(0);
         await listadoMovimientos.abrirMenuAcciones();
         await listadoMovimientos.clickImprimirDescargarEnviar();

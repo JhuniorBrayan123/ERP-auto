@@ -7,10 +7,10 @@ import {Page} from '@playwright/test';
 import {MovimientosNavigationPage} from '@pages/Logistica/MovimientosNavigationPage';
 import {RegistroMovimientoPage} from '@pages/Logistica/RegistroMovimientoPage';
 import {ResultadoMovimientoPage} from '@pages/Logistica/ResultadoMovimientoPage';
-import {FUNCTIONAL_CATALOG} from '../../../utils/functional-catalog';
-import {runFunctionalStep} from '../../../utils/functional-step';
+import {FUNCTIONAL_CATALOG} from '@utils/functional-catalog';
+import {runFunctionalStep} from '@utils/functional-step';
 import {MovimientoApi, MovimientoCreado} from '@services/Logistica/MovimientoApi';
-import {esperarCargaOverlay} from '../../../utils/wait-helpers';
+import {esperarCargaOverlay} from '@utils/wait-helpers';
 
 export const crearAjusteConItem = async (
     registroMovimiento: RegistroMovimientoPage,

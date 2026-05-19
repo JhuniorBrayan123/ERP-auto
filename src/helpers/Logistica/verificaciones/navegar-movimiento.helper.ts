@@ -2,11 +2,11 @@
  * Helpers de navegación a secciones de movimientos.
  * Extraído de verificaciones-movimientos.helper.ts
  */
-import {test} from '../../../fixtures/Logistica/movimientos-fixture';
-import {MovimientosNavigationPage} from '../../../pages/Logistica/MovimientosNavigationPage';
-import {RegistroMovimientoPage} from '../../../pages/Logistica/RegistroMovimientoPage';
-import {FUNCTIONAL_CATALOG} from '../../../utils/functional-catalog';
-import {runFunctionalStep} from '../../../utils/functional-step';
+import {test} from '@fixtures/Logistica/movimientos-fixture';
+import {MovimientosNavigationPage} from '@pages/Logistica/MovimientosNavigationPage';
+import {RegistroMovimientoPage} from '@pages/Logistica/RegistroMovimientoPage';
+import {FUNCTIONAL_CATALOG} from '@utils/functional-catalog';
+import {runFunctionalStep} from '@utils/functional-step';
 
 export const navegarAIngresosYNuevo = async (
     movimientosNav: MovimientosNavigationPage,
