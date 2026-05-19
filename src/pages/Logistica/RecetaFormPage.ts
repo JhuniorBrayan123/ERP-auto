@@ -201,12 +201,16 @@ export class RecetaFormPage extends ItemFormBasePage {
             .locator(`.subcategoria > ${this.DROPDOWN_ARROW}`)
             .first()
             .click();
-        await this.page.getByText(subcategoria).click();
+        await this.page.getByText(subcategoria, { exact: true }).click();
+        await this.page.locator('.v-select-base-options.is-open').waitFor({ state: 'hidden' }).catch(() => {});
+        await this.esperarSoloOverload();
 
         await this.page
             .locator(`div:nth-child(2) > ${this.DROPDOWN_ARROW}`)
             .click();
-        await this.page.getByText(marca).click();
+        await this.page.getByText(marca, { exact: true }).click();
+        await this.page.locator('.v-select-base-options.is-open').waitFor({ state: 'hidden' }).catch(() => {});
+        await this.esperarSoloOverload();
     }
 
     async llenarInfoAdicionalAlternativo(subcategoria: string, marca: string): Promise<void> {
@@ -217,14 +221,18 @@ export class RecetaFormPage extends ItemFormBasePage {
             .filter({hasText: /^Ninguna$/})
             .nth(3)
             .click();
-        await this.page.getByText(subcategoria).click();
+        await this.page.getByText(subcategoria, { exact: true }).click();
+        await this.page.locator('.v-select-base-options.is-open').waitFor({ state: 'hidden' }).catch(() => {});
+        await this.esperarSoloOverload();
 
         await this.page
             .locator('div')
             .filter({hasText: /^Ninguna$/})
             .nth(3)
             .click();
-        await this.page.getByText(marca).click();
+        await this.page.getByText(marca, { exact: true }).click();
+        await this.page.locator('.v-select-base-options.is-open').waitFor({ state: 'hidden' }).catch(() => {});
+        await this.esperarSoloOverload();
     }
 
     async crearReceta(): Promise<void> {

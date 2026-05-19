@@ -47,6 +47,9 @@ export default defineConfig({
         {
             name: "setup",
             testMatch: "**/auth.setup.ts",
+            use: {
+                trace: "retain-on-failure",
+            },
         },
         {
             name: "datos-setup",
@@ -55,6 +58,7 @@ export default defineConfig({
             use: {
                 ...devices["Desktop Chrome"],
                 storageState: "playwright/.auth/user.json",
+                trace: "retain-on-failure",
             },
             dependencies: ["setup"],
         },
@@ -65,6 +69,7 @@ export default defineConfig({
             use: {
                 ...devices["Desktop Chrome"],
                 storageState: "playwright/.auth/user.json",
+                trace: "retain-on-failure",
             },
             dependencies: ["setup"],
         },
@@ -75,6 +80,7 @@ export default defineConfig({
             use: {
                 ...devices["Desktop Chrome"],
                 storageState: "playwright/.auth/user.json",
+                trace: "retain-on-failure",
             },
             dependencies: ["setup"],
         },
@@ -85,7 +91,7 @@ export default defineConfig({
                 ...devices["Desktop Chrome"],
                 storageState: "playwright/.auth/user.json",
             },
-            dependencies: ["setup"],//["setup", "pv-items-setup"],
+            dependencies: ["setup", "pv-items-setup"],//["setup"],//
             workers: 1,
         },
         {
@@ -95,7 +101,7 @@ export default defineConfig({
                 ...devices["Desktop Chrome"],
                 storageState: "playwright/.auth/user.json",
             },
-            dependencies: ["setup"],//["setup", "pv-items-setup"],
+            dependencies: ["setup", "pv-items-setup"],//["setup"],
             workers: 1,
         },
     ],
