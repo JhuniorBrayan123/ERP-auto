@@ -188,7 +188,7 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', { tag: ['@logistica', '@m 
 
         await test.step('When: abrir datos opcionales y crear proveedor nuevo', async () => {
             await datosOpcionales.abrirDatosOpcionales();
-            await datosOpcionales.buscarProveedor(PROVEEDOR_EXISTENTE.nombre);
+            await datosOpcionales.buscarProveedor(PROVEEDOR_EXISTENTE.numDocumento);
             await datosOpcionales.seleccionarProveedor(PROVEEDOR_EXISTENTE.nombre);
         });
 
