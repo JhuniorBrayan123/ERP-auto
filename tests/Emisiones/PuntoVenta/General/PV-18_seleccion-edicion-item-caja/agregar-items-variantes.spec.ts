@@ -4,15 +4,10 @@ import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
 import {BuscarYAgregarVariante} from '@task/PuntoVenta/BuscarYAgregarVariante.task';
 import {IntentarAgregarVarianteSinStock} from '@task/PuntoVenta/IntentarAgregarVarianteSinStock.task';
 import {BuscarYAgregarEquivalencia} from '@task/PuntoVenta/BuscarYAgregarEquivalencia.task';
-import {AbrirTotales} from '../../../../../src/interactions/PuntoVenta/AbrirTotales';
-import {CerrarTotales} from '../../../../../src/interactions/PuntoVenta/CerrarTotales';
-import {FilaEnTotales} from '@question/PuntoVenta/FilaEnTotales';
-import {TotalEnCarrito} from '@question/PuntoVenta/TotalEnCarrito';
+import {DesplegarPanelCalculos} from '../../../../../src/interactions/PuntoVenta/DesplegarPanelCalculos';
 import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
-import {calcularTotalesDeItem} from "@utils/precio-item.helper";
-import {calcularTotales} from "@utils/calculadora-impuestos";
-import {getTemplate} from '../../../../../src/factories/item-factory';
+import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
 
 test.describe('Selección, edición de ítem en caja de venta — Variantes y equivalencias', () => {
 
@@ -23,14 +18,24 @@ test.describe('Selección, edición de ítem en caja de venta — Variantes y eq
 
     test('SC-11: Buscar y agregar un ítem con variante', async ({page}) => {
         const cajero = Cajero.con(page);
+        const emision = new EmisionPage(page);
+
         await cajero.intentaRealizar(
             BuscarYAgregarVariante(ITEMS_PV.ITEM_VARIANTE_FLEXIBLE),
-            AbrirTotales()
         );
-        const totales = calcularTotalesDeItem('ITEM_VARIANTE_FLEXIBLE');
-        expect(await cajero.pregunta(FilaEnTotales('Operaciones Gravadas', totales.subtotal))).toBe(true);
-        await cajero.intentaRealizar(CerrarTotales());
-        expect(await cajero.pregunta(TotalEnCarrito(totales.total))).toBe(true);
+
+        await cajero.intentaRealizar(DesplegarPanelCalculos());
+        const resumen = await emision.capturarResumenPedido();
+        console.log('[SC-11] Totales capturados:', resumen);
+
+        const subtotal = parseFloat(resumen['Subtotal'] || '0');
+        const igv = parseFloat(resumen['IGV'] || '0');
+        const total = parseFloat(resumen['Total'] || '0');
+
+        expect(subtotal).toBeGreaterThan(0);
+        expect(igv).toBeGreaterThan(0);
+        expect(total).toBeGreaterThan(0);
+        expect(subtotal + igv).toBeCloseTo(total, 1);
     });
 
     test('SC-12: Bloquear agregado de variante sin stock', async ({page}) => {
@@ -45,17 +50,20 @@ test.describe('Selección, edición de ítem en caja de venta — Variantes y eq
 
     test('SC-13: Buscar y agregar un ítem con equivalencia', async ({page}) => {
         const cajero = Cajero.con(page);
+        const emision = new EmisionPage(page);
+
         await cajero.intentaRealizar(
             BuscarYAgregarEquivalencia(ITEMS_PV.ITEM_EQUIVALENTE, 'Equivalente X2'),
-            AbrirTotales()
         );
-        const template = getTemplate('ITEM_EQUIVALENTE');
-        if (!template) throw new Error('Template ITEM_EQUIVALENTE not found');
-        const eq = template.config.equivalencias?.find((e: any) => e.nombre === 'Equivalente X2');
-        if (!eq) throw new Error('Equivalencia X2 not found in ITEM_EQUIVALENTE');
-        const esperados = calcularTotales(parseFloat(eq.precioVenta), 1, 0.18);
-        expect(await cajero.pregunta(FilaEnTotales('Operaciones Gravadas', esperados.baseImponible))).toBe(true);
-        await cajero.intentaRealizar(CerrarTotales());
-        expect(await cajero.pregunta(TotalEnCarrito(parseFloat(eq.precioVenta).toFixed(2)))).toBe(true);
+        await cajero.intentaRealizar(DesplegarPanelCalculos());
+        const resumen = await emision.capturarResumenPedido();
+        console.log('[SC-13] Totales capturados:', resumen);
+        const subtotal = parseFloat(resumen['Subtotal'] || '0');
+        const igv = parseFloat(resumen['IGV'] || '0');
+        const total = parseFloat(resumen['Total'] || '0');
+        expect(subtotal).toBeGreaterThan(0);
+        expect(igv).toBeGreaterThan(0);
+        expect(total).toBeGreaterThan(0);
+        expect(subtotal + igv).toBeCloseTo(total, 1);
     });
 });

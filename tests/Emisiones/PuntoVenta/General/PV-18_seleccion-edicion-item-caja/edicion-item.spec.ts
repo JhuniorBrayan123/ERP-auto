@@ -3,8 +3,8 @@ import {Cajero} from "../../../../../src/actors/cajero";
 import {IniciarVentaEnCaja} from "@task/PuntoVenta/IniciarVentaEnCaja";
 import {EditarPrecioDeItem} from "@task/PuntoVenta/EditarPrecioDeItem.task";
 import {IntentarPrecioInvalido} from "@task/PuntoVenta/IntentarPrecioInvalido.task";
-import {EditarNombreDeItem} from "@task/PuntoVenta/EditarNombreDeItem.task";
 import {AbrirTotales} from "../../../../../src/interactions/PuntoVenta/AbrirTotales";
+import {DesplegarPanelCalculos} from "../../../../../src/interactions/PuntoVenta/DesplegarPanelCalculos";
 import {CerrarTotales} from "../../../../../src/interactions/PuntoVenta/CerrarTotales";
 import {ClickAceptarModal} from "../../../../../src/interactions/PuntoVenta/ClickAceptarModal";
 import {MensajeVisible} from "@question/PuntoVenta/MensajeVisible";
@@ -66,33 +66,22 @@ test.describe("Selección, edición de ítem en caja de venta — Edición de í
                                                                         }) => {
         const cajero = Cajero.con(page);
         const emision = new EmisionPage(page);
-        // Primero agregar item al carrito
         await emision.buscarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
         await emision.seleccionarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
-        // Leer precio real desde la UI del ERP (item ya en carrito)
-        const precioOriginal = await emision.obtenerPrecioItem();
 
-        // Ahora editar el nombre
-        await cajero.intentaRealizar(
-            EditarNombreDeItem(
-                ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL,
-                "Nombre de item editado",
-            ),
-        );
+        await cajero.intentaRealizar(DesplegarPanelCalculos());
+        const totalesAntes = await emision.capturarResumenPedido();
+        console.log('[SC-24] Totales antes de editar nombre:', totalesAntes);
+        await emision.abrirEdicionItem();
+        const inputDescripcion = page.locator('[id="pv_cmp-punto-venta_cmp-venta-pedido:pedido_cmp-pedido-item:item_v-input:descripcion"]');
+        await inputDescripcion.fill("Nombre de item editado");
+        await emision.cerrarEdicionItem();
 
-        // Calcular totales esperados desde el precio real del ERP
-        const esperados = calcularTotales(precioOriginal);
+        const totalesDespues = await emision.capturarResumenPedido();
+        console.log('[SC-24] Totales después de editar nombre:', totalesDespues);
 
-        // Validar popup de totales
-        await cajero.intentaRealizar(AbrirTotales());
-        const popupTotales = await emision.capturarTotalesPopup();
-        validarCamposEspecificos(popupTotales, [
-            {label: "Operaciones Gravadas", esperado: esperados.baseImponible},
-        ]);
-        await cajero.intentaRealizar(CerrarTotales());
-
-        // Validar resumen inferior con auto-detección
-        const resumen = await emision.capturarResumenPedido();
-        validarTotales(resumen, esperados);
+        expect(totalesDespues['Subtotal']).toBe(totalesAntes['Subtotal']);
+        expect(totalesDespues['IGV']).toBe(totalesAntes['IGV']);
+        expect(totalesDespues['Total']).toBe(totalesAntes['Total']);
     });
 });

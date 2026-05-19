@@ -7,6 +7,10 @@ export const BuscarYAgregarListaProductos = (item: ItemVenta) => {
         const emision = new EmisionPage(page);
         await emision.buscarItem(item.codigo);
         await emision.seleccionarItem(item.nombre);
+        // Completar selector obligatorio para el ítem de la lista
+        await page.getByText('(Obligatorio)').click();
+        await page.locator('[id="_div:increase"] > .simbolo-mas').first().click();
+        await page.getByRole('button', {name: 'Agregar a venta'}).click();
     };
     fn.displayName = 'Buscar y agregar lista de productos';
     return fn;

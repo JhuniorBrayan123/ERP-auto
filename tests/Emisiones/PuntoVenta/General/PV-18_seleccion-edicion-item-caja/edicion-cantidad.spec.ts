@@ -1,15 +1,15 @@
 import {expect, test} from '@playwright/test';
 import {Cajero} from '../../../../../src/actors/cajero';
 import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
-import {IncrementarCantidadItem} from '@task/PuntoVenta/IncrementarCantidadItem.task';
 import {DisminuirCantidadItem} from '@task/PuntoVenta/DisminuirCantidadItem.task';
 import {IntentarCantidadInvalida} from '@task/PuntoVenta/IntentarCantidadInvalida.task';
 import {AbrirTotales} from '../../../../../src/interactions/PuntoVenta/AbrirTotales';
+import {DesplegarPanelCalculos} from '../../../../../src/interactions/PuntoVenta/DesplegarPanelCalculos';
 import {ClickAceptarModal} from '../../../../../src/interactions/PuntoVenta/ClickAceptarModal';
 import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {FilaEnTotales} from '@question/PuntoVenta/FilaEnTotales';
-import {calcularTotalesDeItem} from "@utils/precio-item.helper";
+import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
 
 test.describe('Selección, edición de ítem en caja de venta — Edición de cantidad', () => {
     test.beforeEach(async ({page}) => {
@@ -19,11 +19,22 @@ test.describe('Selección, edición de ítem en caja de venta — Edición de ca
 
     test('SC-19: Incrementar cantidad de un ítem desde el carrito', async ({page}) => {
         const cajero = Cajero.con(page);
-        await cajero.intentaRealizar(IncrementarCantidadItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL, 3));
-        const totales = calcularTotalesDeItem('ITEM_GRAVADO_SIN_CONTROL', 4);
-        expect(await cajero.pregunta(MensajeVisible(totales.total, {exact: true}))).toBe(true);
-        await cajero.intentaRealizar(AbrirTotales());
-        expect(await cajero.pregunta(FilaEnTotales('Operaciones Gravadas', totales.subtotal))).toBe(true);
+        const emision = new EmisionPage(page);
+
+        // Agregar item (qty=1) y capturar totales reales del ERP
+        await emision.buscarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
+        await emision.seleccionarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
+        await cajero.intentaRealizar(DesplegarPanelCalculos());
+        const totalesBase = await emision.capturarResumenPedido();
+        const subtotalBase = parseFloat(totalesBase['Subtotal'] || '0');
+        console.log('[SC-19] Totales base (qty=1):', totalesBase);
+        await emision.incrementarCantidad(3);
+        const totalesFinal = await emision.capturarResumenPedido();
+        const subtotalFinal = parseFloat(totalesFinal['Subtotal'] || '0');
+        console.log('[SC-19] Totales finales (qty=4):', totalesFinal);
+
+        expect(subtotalFinal).toBeCloseTo(subtotalBase * 4, 1);
+        expect(subtotalFinal).toBeGreaterThan(0);
     });
 
     test('SC-20: Disminuir cantidad de un ítem desde el carrito', async ({page}) => {

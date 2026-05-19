@@ -4,11 +4,11 @@ import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
 import {AgregarDosItemsYEliminarUno} from '@task/PuntoVenta/AgregarDosItemsYEliminarUno.task';
 import {AgregarItemConSelectorYEliminar} from '@task/PuntoVenta/AgregarItemConSelectorYEliminar.task';
 import {AgregarItemsYLimpiarCarrito} from '@task/PuntoVenta/AgregarItemsYLimpiarCarrito.task';
-import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
-import { CalculosTotales } from '@question/PuntoVenta/FilaEnTotales';
-import { TotalEnCarrito } from '@question/PuntoVenta/TotalEnCarrito';
-import { calcularTotalesCombinados } from '@utils/precio-item.helper';
+import {CalculosTotales} from '@question/PuntoVenta/FilaEnTotales';
+import {TotalEnCarrito} from '@question/PuntoVenta/TotalEnCarrito';
+import {calcularTotalesCombinados} from '@utils/precio-item.helper';
+import {DesplegarPanelCalculos} from '../../../../../src/interactions/PuntoVenta/DesplegarPanelCalculos';
 
 test.describe('Selección, edición de ítem en caja de venta — Eliminar ítems', () => {
     test.beforeEach(async ({page}) => {
@@ -21,17 +21,15 @@ test.describe('Selección, edición de ítem en caja de venta — Eliminar ítem
         await cajero.intentaRealizar(
             AgregarDosItemsYEliminarUno(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL, ITEMS_PV.PRODUCTO_GRAVADO, 1)
         );
-
-        // Después de eliminar el primer ítem, solo queda PRODUCTO_GRAVADO
-        // Calculamos los totales esperados dinámicamente desde la fábrica
         const totalesRestantes = calcularTotalesCombinados([
-            { key: 'ITEM_GRAVADO_SIN_CONTROL', cantidad: 1 },
-            { key: 'PRODUCTO_GRAVADO', cantidad: 1 },
+            {key: 'ITEM_GRAVADO_SIN_CONTROL', cantidad: 1},
+            {key: 'PRODUCTO_GRAVADO', cantidad: 1},
         ]);
 
+        await cajero.intentaRealizar(DesplegarPanelCalculos());
         expect(await cajero.pregunta(CalculosTotales('Subtotal', totalesRestantes.subtotalConPrefijo))).toBe(true);
         expect(
-          await cajero.pregunta(CalculosTotales("IGV", totalesRestantes.igvConPrefijo)),
+            await cajero.pregunta(CalculosTotales("IGV", totalesRestantes.igvConPrefijo)),
         ).toBe(true);
         expect(await cajero.pregunta(TotalEnCarrito(totalesRestantes.total))).toBe(true);
     });

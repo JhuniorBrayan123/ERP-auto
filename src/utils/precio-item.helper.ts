@@ -9,8 +9,8 @@
  *   const { total, subtotal, igv } = calcularTotalesDeItem('COMBO_EXONERADO');
  *   expect(await cajero.pregunta(TotalEnCarrito(total))).toBe(true);
  */
-import { getTemplate } from '../factories/item-factory';
-import { calcularTotales, calcularTotalesExonerado } from './calculadora-impuestos';
+import {getTemplate} from '@factories/item-factory';
+import {calcularTotales, calcularTotalesExonerado} from './calculadora-impuestos';
 
 export interface TotalesItem {
     /** Precio total formateado (ej. "10.25") */
@@ -140,6 +140,6 @@ export function calcularTotalesCombinados(
 
 function getKeysDisponibles(): string[] {
     // Importar dinámicamente para evitar circular reference
-    const { ITEM_TEMPLATES } = require('../factories/item-factory');
+    const {ITEM_TEMPLATES} = require('../factories/item-factory');
     return ITEM_TEMPLATES.map((t: { key: string }) => t.key);
 }

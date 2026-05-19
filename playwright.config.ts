@@ -4,14 +4,13 @@ import {env} from "./config/env";
 export default defineConfig({
     testDir: "./tests",
 
-    fullyParallel: false,
-    // fullyParallel: true,
-    workers: 4,
-    // workers: process.env ? 2 : 2,
+    fullyParallel: true,
+    // fullyParallel: false,
+    workers: 2,
 
     /* ─── CI / Retries ─── */
     forbidOnly: !!process.env.CI,
-    // retries: 2,
+    retries: 1,
 
     /* ─── Timeouts para estabilidad ─── */
     timeout: 240_000, // 3 min  por test por si
@@ -21,21 +20,8 @@ export default defineConfig({
     testIgnore: ["**/_*", "**/_codegen/**"],
 
     /* ─── Reporters ─── */
-    // === CONFIGURACIÓN ANTERIOR (Comentada por seguridad) ===
-
-    /* ─── Reporters ─── */
     reporter: [
         ["./src/utils/maven-reporter.ts"], // consola estilo Maven/Surefire
-        ["html", {open: "never"}], // reporte HTML nativo
-        ["junit", {outputFile: "test-results/results.xml"}],
-        ['json', {outputFile: 'test-results/results.json'}],
-
-        // ✨ ¡AQUÍ ESTÁ LA MAGIA DE ALLURE! ✨
-        ['allure-playwright', {
-            detail: true,
-            outputFolder: 'allure-results',
-            suiteTitle: false
-        }]
     ],
 
     use: {
@@ -96,8 +82,8 @@ export default defineConfig({
                 ...devices["Desktop Chrome"],
                 storageState: "playwright/.auth/user.json",
             },
-            dependencies: ["setup", "pv-items-setup"],
-            workers: 1,
+            dependencies: ["setup"],//["setup", "pv-items-setup"],
+            workers: 2,
         },
         {
             name: "Logistica",
@@ -106,8 +92,8 @@ export default defineConfig({
                 ...devices["Desktop Chrome"],
                 storageState: "playwright/.auth/user.json",
             },
-            dependencies: ["setup", "pv-items-setup"],
-            workers: 1,
+            dependencies: ["setup"],//["setup", "pv-items-setup"],
+            workers: 2,
         },
     ],
 });

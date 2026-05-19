@@ -7,9 +7,10 @@ import {IntentarAgregarSinSelectores} from '@task/PuntoVenta/IntentarAgregarSinS
 import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {calcularTotales} from '@utils/calculadora-impuestos';
-import {CalculosTotales} from '@question/PuntoVenta/FilaEnTotales';
+import {FilaEnTotales} from '@question/PuntoVenta/FilaEnTotales';
 import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
 import {TotalDistintoDeCero} from '@question/PuntoVenta/TotalDistintoDeCero';
+import {AbrirTotales} from '../../../../../src/interactions/PuntoVenta/AbrirTotales';
 
 test.describe('Selección, edición de ítem en caja de venta — Selectores', () => {
 
@@ -26,15 +27,13 @@ test.describe('Selección, edición de ítem en caja de venta — Selectores', (
         );
 
         await expect(await cajero.pregunta(TotalDistintoDeCero())).toBe(true);
-
-        // Capturar el resumen de totales directamente del panel de Totales (que ya está abierto)
+        await cajero.intentaRealizar(AbrirTotales());
         const emisionPage = new EmisionPage(page);
         const resumen = await emisionPage.capturarResumenPedido();
-        // El panel de totales muestra un campo "Total a Pagar" o "Total" con el monto total
         const totalCarrito = parseFloat(resumen['Total a Pagar'] || resumen['Total'] || Object.values(resumen).pop() || '0');
 
         const totales = calcularTotales(totalCarrito, 1, 0.18);
-        expect(await cajero.pregunta(CalculosTotales('Operaciones Gravadas', `S/ ${totales.baseImponible}`))).toBe(true);
+        expect(await cajero.pregunta(FilaEnTotales('Operaciones Gravadas', totales.baseImponible))).toBe(true);
     });
 
     test('SC-15: Bloquear agregado de ítem con selectores incompletos', async ({page}) => {
