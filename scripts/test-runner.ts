@@ -1,14 +1,59 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type {ChildProcess} from 'node:child_process';
-import {spawn as nodeSpawn} from 'node:child_process';
-import {checkbox, confirm, input, select} from '@inquirer/prompts';
+import type { ChildProcess } from 'node:child_process';
+import { spawn as nodeSpawn } from 'node:child_process';
+import { checkbox, confirm, input, select } from '@inquirer/prompts';
 import crossSpawn from 'cross-spawn';
 
 const ROOT_DIR = process.cwd();
 const TESTS_DIR = path.join(ROOT_DIR, 'tests');
 
-let currentChild: ChildProcess | null = null;
+type ProjectKey = 'PuntoVenta' | 'Logistica' | 'TODO';
+
+interface ProjectContext {
+    key: ProjectKey;
+    projectFlag: string | null;
+    testDir: string;
+    outputDir: string;
+    isRunAll: boolean;
+}
+
+const PROJECT_CONFIG: Record<ProjectKey, { projectFlag: string | null; testDir: string; outputDir: string }> = {
+    PuntoVenta: {
+        projectFlag: 'PuntoVenta',
+        testDir: path.join(TESTS_DIR, 'Emisiones'),
+        outputDir: 'test-results/puntoventa',
+    },
+    Logistica: {
+        projectFlag: 'Logistica',
+        testDir: path.join(TESTS_DIR, 'Logistica'),
+        outputDir: 'test-results/logistica',
+    },
+    TODO: {
+        projectFlag: null,
+        testDir: TESTS_DIR,
+        outputDir: 'test-results/todo',
+    },
+};
+
+function getProjectContext(key: ProjectKey, isRunAll = false): ProjectContext {
+    const config = PROJECT_CONFIG[key];
+    return {
+        key,
+        projectFlag: config.projectFlag,
+        testDir: config.testDir,
+        outputDir: config.outputDir,
+        isRunAll,
+    };
+}
+
+function ensureOutputDirs(outputDir: string): void {
+    if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+    }
+}
+
+let currentChildren: ChildProcess[] = [];
 
 type EntryType = 'folder' | 'file';
 
@@ -29,30 +74,34 @@ type ExplorerSelection =
     | { type: 'select-multiple'; path: string }
     | { type: 'back' };
 
-function killCurrentChild(): void {
-    if (!currentChild?.pid) return;
+function killCurrentChildren(): void {
+    if (currentChildren.length === 0) return;
 
     console.log('\nDeteniendo ejecucion de Playwright...\n');
 
-    if (process.platform === 'win32') {
-        nodeSpawn('taskkill', ['/pid', String(currentChild.pid), '/T', '/F'], {
-            stdio: 'ignore',
-            shell: false,
-        });
-    } else {
-        currentChild.kill('SIGTERM');
+    for (const child of currentChildren) {
+        if (!child?.pid) continue;
+
+        if (process.platform === 'win32') {
+            nodeSpawn('taskkill', ['/pid', String(child.pid), '/T', '/F'], {
+                stdio: 'ignore',
+                shell: false,
+            });
+        } else {
+            child.kill('SIGTERM');
+        }
     }
 
-    currentChild = null;
+    currentChildren = [];
 }
 
 process.on('SIGINT', () => {
-    killCurrentChild();
+    killCurrentChildren();
     process.exit(130);
 });
 
 process.on('SIGTERM', () => {
-    killCurrentChild();
+    killCurrentChildren();
     process.exit(143);
 });
 
@@ -73,7 +122,7 @@ function toRelative(targetPath: string): string {
 }
 
 function listEntries(currentDir: string): ExplorerEntry[] {
-    const entries = fs.readdirSync(currentDir, {withFileTypes: true});
+    const entries = fs.readdirSync(currentDir, { withFileTypes: true });
 
     const folders: ExplorerEntry[] = entries
         .filter((entry) => entry.isDirectory())
@@ -99,7 +148,7 @@ function listEntries(currentDir: string): ExplorerEntry[] {
 function walkSpecFiles(dir: string, result: string[] = []): string[] {
     if (!isDirectory(dir)) return result;
 
-    for (const entry of fs.readdirSync(dir, {withFileTypes: true})) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
         const fullPath = path.join(dir, entry.name);
 
         if (entry.isDirectory()) {
@@ -123,7 +172,7 @@ function extractTestsFromFile(filePath: string): TestCase[] {
     let match: RegExpExecArray | null;
 
     while ((match = regex.exec(content)) !== null) {
-        tests.push({title: match[1], filePath});
+        tests.push({ title: match[1], filePath });
     }
 
     return tests;
@@ -166,49 +215,79 @@ async function askRunOptions(): Promise<string[]> {
     return [];
 }
 
-function runPlaywright(args: string[]): Promise<void> {
+function buildArgs(projectContext: ProjectContext, extraArgs: string[]): string[] {
+    const args: string[] = [];
+    if (projectContext.projectFlag) {
+        args.push('--project', projectContext.projectFlag);
+    }
+    args.push('--output', projectContext.outputDir);
+    if (!projectContext.isRunAll) {
+        args.push('--workers', '1');
+    }
+    return [...args, ...extraArgs];
+}
+
+function formatCommandWithContext(args: string[], projectContext?: ProjectContext): string {
+    const prefixArgs = projectContext ? buildArgs(projectContext, []) : [];
+    return ['npx', 'playwright', 'test', ...prefixArgs, ...args].map(quoteArg).join(' ');
+}
+
+function runPlaywright(args: string[], projectContext?: ProjectContext): Promise<void> {
     return new Promise((resolve, reject) => {
+        const ctx = projectContext || getProjectContext('TODO');
+        const prefixedArgs = buildArgs(ctx, args);
+
         console.log('\nComando generado:\n');
-        console.log(formatCommand(args));
+        console.log(formatCommandWithContext(args, ctx));
         console.log('');
 
-        const child = crossSpawn('npx', ['playwright', 'test', ...args], {
+        const childEnv = {
+            ...process.env,
+            PW_REPORT_OUTPUT: `${ctx.outputDir}/results.json`,
+            PW_JUNIT_OUTPUT: `${ctx.outputDir}/junit.xml`,
+            PW_HTML_OUTPUT: `playwright-report/${ctx.key.toLowerCase()}`,
+        };
+
+        ensureOutputDirs(ctx.outputDir);
+        ensureOutputDirs(`playwright-report/${ctx.key.toLowerCase()}`);
+
+        const child = crossSpawn('npx', ['playwright', 'test', ...prefixedArgs], {
             stdio: 'inherit',
             shell: false,
-            env: process.env,
+            env: childEnv,
         });
 
-        currentChild = child;
+        currentChildren.push(child);
 
         child.on('error', (error) => {
-            currentChild = null;
+            currentChildren = currentChildren.filter(c => c !== child);
             reject(error);
         });
 
         child.on('close', (code) => {
-            currentChild = null;
+            currentChildren = currentChildren.filter(c => c !== child);
             console.log(`\nEjecucion finalizada con codigo: ${code}\n`);
             resolve();
         });
     });
 }
 
-async function runFolder(folderPath: string): Promise<void> {
+async function runFolder(folderPath: string, projectContext: ProjectContext): Promise<void> {
     const extraArgs = await askRunOptions();
-    await runPlaywright([toRelative(folderPath), ...extraArgs]);
+    await runPlaywright([toRelative(folderPath), ...extraArgs], projectContext);
 }
 
-async function runMultiplePaths(paths: string[]): Promise<void> {
+async function runMultiplePaths(paths: string[], projectContext: ProjectContext): Promise<void> {
     if (!paths.length) {
         console.log('\nNo seleccionaste ningun elemento.\n');
         return;
     }
 
     const extraArgs = await askRunOptions();
-    await runPlaywright([...paths.map(toRelative), ...extraArgs]);
+    await runPlaywright([...paths.map(toRelative), ...extraArgs], projectContext);
 }
 
-async function selectMultipleFromDirectory(currentDir: string): Promise<void> {
+async function selectMultipleFromDirectory(currentDir: string, projectContext: ProjectContext): Promise<void> {
     const entries = listEntries(currentDir);
 
     if (!entries.length) {
@@ -225,7 +304,7 @@ Usa ESPACIO para marcar/desmarcar y ENTER para confirmar.`,
                 name: entry.type === 'folder' ? `📁 ${entry.name}` : `📄 ${entry.name}`,
                 value: entry as ExplorerEntry | 'back',
             })),
-            {name: '⬅ Volver', value: 'back' as const},
+            { name: '⬅ Volver', value: 'back' as const },
         ],
     });
 
@@ -234,10 +313,10 @@ Usa ESPACIO para marcar/desmarcar y ENTER para confirmar.`,
     }
 
     const selectedEntries = selections.filter((s): s is ExplorerEntry => s !== 'back');
-    await runMultiplePaths(selectedEntries.map((entry) => entry.path));
+    await runMultiplePaths(selectedEntries.map((entry) => entry.path), projectContext);
 }
 
-async function runSingleTestFromFile(filePath: string): Promise<void> {
+async function runSingleTestFromFile(filePath: string, projectContext: ProjectContext): Promise<void> {
     const tests = extractTestsFromFile(filePath);
 
     if (!tests.length) {
@@ -253,7 +332,7 @@ async function runSingleTestFromFile(filePath: string): Promise<void> {
                 name: `${index + 1}. ${testCase.title}`,
                 value: testCase,
             })),
-            {name: '⬅ Volver', value: null},
+            { name: '⬅ Volver', value: null },
         ],
     });
 
@@ -266,10 +345,10 @@ async function runSingleTestFromFile(filePath: string): Promise<void> {
         '--grep',
         escapeGrep(selectedTest.title),
         ...extraArgs,
-    ]);
+    ], projectContext);
 }
 
-async function runMultipleTestsFromFile(filePath: string): Promise<void> {
+async function runMultipleTestsFromFile(filePath: string, projectContext: ProjectContext): Promise<void> {
     const tests = extractTestsFromFile(filePath);
 
     if (!tests.length) {
@@ -286,7 +365,7 @@ Usa ESPACIO para marcar/desmarcar y ENTER para confirmar.`,
                 name: `${index + 1}. ${testCase.title}`,
                 value: testCase as TestCase | 'back',
             })),
-            {name: '⬅ Volver', value: 'back' as const},
+            { name: '⬅ Volver', value: 'back' as const },
         ],
     });
 
@@ -305,10 +384,10 @@ Usa ESPACIO para marcar/desmarcar y ENTER para confirmar.`,
         '--grep',
         grepRegex,
         ...extraArgs,
-    ]);
+    ], projectContext);
 }
 
-async function runFile(filePath: string): Promise<void> {
+async function runFile(filePath: string, projectContext: ProjectContext): Promise<void> {
     if (!isSpecFile(filePath)) {
         console.log('\nEl archivo seleccionado no es un .spec.ts valido.\n');
         return;
@@ -320,7 +399,7 @@ async function runFile(filePath: string): Promise<void> {
         const action = await select<'run-file' | 'run-single-test' | 'run-multiple-tests' | 'back'>({
             message: `Archivo: ${toRelative(filePath)}`,
             choices: [
-                {name: 'Ejecutar todo el archivo', value: 'run-file'},
+                { name: 'Ejecutar todo el archivo', value: 'run-file' },
                 {
                     name: 'Ejecutar un test especifico',
                     value: 'run-single-test',
@@ -331,7 +410,7 @@ async function runFile(filePath: string): Promise<void> {
                     value: 'run-multiple-tests',
                     disabled: tests.length === 0 ? 'No se encontraron tests en este archivo' : false,
                 },
-                {name: 'Volver', value: 'back'},
+                { name: 'Volver', value: 'back' },
             ],
         });
 
@@ -339,20 +418,20 @@ async function runFile(filePath: string): Promise<void> {
 
         if (action === 'run-file') {
             const extraArgs = await askRunOptions();
-            await runPlaywright([toRelative(filePath), ...extraArgs]);
+            await runPlaywright([toRelative(filePath), ...extraArgs], projectContext);
         }
 
         if (action === 'run-single-test') {
-            await runSingleTestFromFile(filePath);
+            await runSingleTestFromFile(filePath, projectContext);
         }
 
         if (action === 'run-multiple-tests') {
-            await runMultipleTestsFromFile(filePath);
+            await runMultipleTestsFromFile(filePath, projectContext);
         }
     }
 }
 
-async function exploreDirectory(currentDir: string): Promise<void> {
+async function exploreDirectory(currentDir: string, projectContext: ProjectContext, projectTestDir: string): Promise<void> {
     while (true) {
         const entries = listEntries(currentDir);
         const currentRelative = toRelative(currentDir) || 'tests';
@@ -360,11 +439,11 @@ async function exploreDirectory(currentDir: string): Promise<void> {
         const choices = [
             {
                 name: 'Ejecutar todos los tests de esta carpeta',
-                value: {type: 'run-current-folder', path: currentDir} satisfies ExplorerSelection,
+                value: { type: 'run-current-folder', path: currentDir } satisfies ExplorerSelection,
             },
             {
                 name: 'Seleccionar varios de esta carpeta',
-                value: {type: 'select-multiple', path: currentDir} satisfies ExplorerSelection,
+                value: { type: 'select-multiple', path: currentDir } satisfies ExplorerSelection,
                 disabled: entries.length === 0 ? 'No hay elementos para seleccionar' : false,
             },
             ...entries.map((entry) => ({
@@ -372,8 +451,8 @@ async function exploreDirectory(currentDir: string): Promise<void> {
                 value: entry satisfies ExplorerSelection,
             })),
             {
-                name: currentDir === TESTS_DIR ? 'Volver al menu principal' : 'Subir carpeta',
-                value: {type: 'back'} satisfies ExplorerSelection,
+                name: currentDir === projectTestDir ? 'Volver al menu principal' : 'Subir carpeta',
+                value: { type: 'back' } satisfies ExplorerSelection,
             },
         ];
 
@@ -388,34 +467,34 @@ async function exploreDirectory(currentDir: string): Promise<void> {
         }
 
         if (selected.type === 'run-current-folder') {
-            await runFolder(selected.path);
+            await runFolder(selected.path, projectContext);
             continue;
         }
 
         if (selected.type === 'select-multiple') {
-            await selectMultipleFromDirectory(selected.path);
+            await selectMultipleFromDirectory(selected.path, projectContext);
             continue;
         }
 
         if (selected.type === 'folder') {
-            await exploreDirectory(selected.path);
+            await exploreDirectory(selected.path, projectContext, projectTestDir);
             continue;
         }
 
         if (selected.type === 'file') {
-            await runFile(selected.path);
+            await runFile(selected.path, projectContext);
         }
     }
 }
 
-async function searchGlobalTest(): Promise<void> {
+async function searchGlobalTest(projectContext: ProjectContext): Promise<void> {
     const query = await input({
         message: 'Buscar test por nombre o tag, ejemplo MS-1, ingreso, @PV-1.1:',
     });
 
     if (!query.trim()) return;
 
-    const allTests = walkSpecFiles(TESTS_DIR).flatMap(extractTestsFromFile);
+    const allTests = walkSpecFiles(projectContext.testDir).flatMap(extractTestsFromFile);
 
     const matches = allTests.filter((testCase) =>
         testCase.title.toLowerCase().includes(query.trim().toLowerCase()),
@@ -434,7 +513,7 @@ async function searchGlobalTest(): Promise<void> {
                 name: `${index + 1}. ${testCase.title} | ${toRelative(testCase.filePath)}`,
                 value: testCase,
             })),
-            {name: '⬅ Volver al menu principal', value: null},
+            { name: '⬅ Volver al menu principal', value: null },
         ],
     });
 
@@ -447,17 +526,17 @@ async function searchGlobalTest(): Promise<void> {
         '--grep',
         escapeGrep(selectedTest.title),
         ...extraArgs,
-    ]);
+    ], projectContext);
 }
 
-async function searchGlobalFile(): Promise<void> {
+async function searchGlobalFile(projectContext: ProjectContext): Promise<void> {
     const query = await input({
         message: 'Buscar archivo .spec.ts, ejemplo MS-1, clonacion, boleta:',
     });
 
     if (!query.trim()) return;
 
-    const files = walkSpecFiles(TESTS_DIR);
+    const files = walkSpecFiles(projectContext.testDir);
 
     const matches = files.filter((filePath) =>
         toRelative(filePath).toLowerCase().includes(query.trim().toLowerCase()),
@@ -476,16 +555,16 @@ async function searchGlobalFile(): Promise<void> {
                 name: `${index + 1}. ${toRelative(filePath)}`,
                 value: filePath,
             })),
-            {name: '⬅ Volver al menu principal', value: null},
+            { name: '⬅ Volver al menu principal', value: null },
         ],
     });
 
     if (!selectedFile) return;
 
-    await runFile(selectedFile);
+    await runFile(selectedFile, projectContext);
 }
 
-async function runManualGrep(): Promise<void> {
+async function runManualGrep(projectContext: ProjectContext): Promise<void> {
     const grep = await input({
         message: 'Ingresa tag o texto para --grep, ejemplo @logistica, @MS-1, boleta:',
     });
@@ -494,12 +573,182 @@ async function runManualGrep(): Promise<void> {
 
     const extraArgs = await askRunOptions();
 
-    await runPlaywright(['--grep', grep.trim(), ...extraArgs]);
+    const args = ['--grep', grep.trim(), ...extraArgs];
+    await runPlaywright(args, projectContext);
 }
 
-async function runPlaywrightUi(): Promise<void> {
-    await askRunOptions(); // Setear variables de entorno para omitir setups si el usuario lo desea
-    await runPlaywright(['--ui']);
+async function runPlaywrightUi(projectContext: ProjectContext): Promise<void> {
+    await askRunOptions();
+    await runPlaywright(['--ui'], projectContext);
+}
+
+async function selectProject(): Promise<'PuntoVenta' | 'Logistica' | 'TODO' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'exit'> {
+    const choice = await select<'PuntoVenta' | 'Logistica' | 'TODO' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'exit'>({
+        message: 'ERP2 AUTO - TEST RUNNER — Selecciona proyecto:',
+        choices: [
+            { name: '1. PuntoVenta', value: 'PuntoVenta' },
+            { name: '2. Logistica', value: 'Logistica' },
+            { name: '3. TODO (tests generales)', value: 'TODO' },
+            { name: '4. Run All (Secuencial: PV → LOG, output limpio)', value: 'RunAllSequential' },
+            { name: '5. Run All (Paralelo: PV + LOG, output mezclado)', value: 'RunAllParallel' },
+            { name: '6. Run All (Dos terminales: instrucciones)', value: 'RunAllDual' },
+            { name: '7. Salir', value: 'exit' },
+        ],
+    });
+    return choice;
+}
+
+async function runAllSequential(): Promise<void> {
+    await askRunOptions();
+
+    const pvOutput = PROJECT_CONFIG.PuntoVenta.outputDir;
+    const logOutput = PROJECT_CONFIG.Logistica.outputDir;
+
+    const pvArgs = ['--project', 'PuntoVenta', '--output', pvOutput];
+    const logArgs = ['--project', 'Logistica', '--output', logOutput];
+
+    const pvEnv = { ...process.env, PW_REPORT_OUTPUT: `${pvOutput}/results.json`, PW_JUNIT_OUTPUT: `${pvOutput}/junit.xml`, PW_HTML_OUTPUT: `playwright-report/puntoventa` };
+    const logEnv = { ...process.env, PW_REPORT_OUTPUT: `${logOutput}/results.json`, PW_JUNIT_OUTPUT: `${logOutput}/junit.xml`, PW_HTML_OUTPUT: `playwright-report/logistica` };
+
+    ensureOutputDirs(pvOutput);
+    ensureOutputDirs(logOutput);
+    ensureOutputDirs('playwright-report/puntoventa');
+    ensureOutputDirs('playwright-report/logistica');
+
+    // ── PuntoVenta primero ─────────────────────────────────────────
+    console.log('\n=== Ejecutando Suite: PuntoVenta ===\n');
+    const pvExitCode = await new Promise<number | null>((resolve) => {
+        const pv = crossSpawn('npx', ['playwright', 'test', ...pvArgs], {
+            stdio: 'inherit',
+            shell: false,
+            env: pvEnv,
+        });
+        currentChildren.push(pv);
+        pv.on('close', (code) => {
+            currentChildren = currentChildren.filter(c => c !== pv);
+            resolve(code);
+        });
+    });
+
+    // ── Logistica después ──────────────────────────────────────────
+    console.log('\n=== Ejecutando Suite: Logistica ===\n');
+    const logExitCode = await new Promise<number | null>((resolve) => {
+        const log = crossSpawn('npx', ['playwright', 'test', ...logArgs], {
+            stdio: 'inherit',
+            shell: false,
+            env: logEnv,
+        });
+        currentChildren.push(log);
+        log.on('close', (code) => {
+            currentChildren = currentChildren.filter(c => c !== log);
+            resolve(code);
+        });
+    });
+
+    console.log('\n=== Run All Summary ===');
+    console.log(`PuntoVenta: exit code ${pvExitCode}`);
+    console.log(`Logistica:  exit code ${logExitCode}`);
+    console.log('=======================\n');
+}
+
+async function runAllParallel(): Promise<void> {
+    await askRunOptions();
+
+    const pvOutput = PROJECT_CONFIG.PuntoVenta.outputDir;
+    const logOutput = PROJECT_CONFIG.Logistica.outputDir;
+
+    const pvArgs = ['--project', 'PuntoVenta', '--output', pvOutput];
+    const logArgs = ['--project', 'Logistica', '--output', logOutput];
+
+    console.log('\nComandos generados:\n');
+    console.log(['npx', 'playwright', 'test', ...pvArgs].map(quoteArg).join(' '));
+    console.log(['npx', 'playwright', 'test', ...logArgs].map(quoteArg).join(' '));
+    console.log('');
+
+    const pvEnv = { ...process.env, PW_REPORT_OUTPUT: `${pvOutput}/results.json`, PW_JUNIT_OUTPUT: `${pvOutput}/junit.xml`, PW_HTML_OUTPUT: `playwright-report/puntoventa` };
+    const logEnv = { ...process.env, PW_REPORT_OUTPUT: `${logOutput}/results.json`, PW_JUNIT_OUTPUT: `${logOutput}/junit.xml`, PW_HTML_OUTPUT: `playwright-report/logistica` };
+
+    ensureOutputDirs(pvOutput);
+    ensureOutputDirs(logOutput);
+    ensureOutputDirs('playwright-report/puntoventa');
+    ensureOutputDirs('playwright-report/logistica');
+
+    console.log('\n=== Ejecutando PuntoVenta + Logistica en paralelo ===\n');
+    console.log('NOTA: El output se mezclará porque ambos procesos comparten la consola.\n');
+
+    // Filter: only show Maven reporter lines
+    const isRelevantLine = (line: string): boolean => {
+        const t = line.trim();
+        if (!t) return false;
+        if (t.startsWith('-> Ejecutando:')) return false;
+        if (t.startsWith('[dotenv@')) return false;
+        if (t.includes('Códigos dinámicos activos')) return false;
+        if (t.includes('agentic secret storage')) return false;
+        if (t.includes('prevent committing')) return false;
+        if (t.startsWith('Running setup')) return false;
+        if (t.startsWith('Entorno:')) return false;
+        return true;
+    };
+
+    const prefixStream = (stream: NodeJS.ReadableStream, prefix: string) => {
+        stream.on('data', (data: Buffer | string) => {
+            const lines = data.toString().split('\n');
+            for (const line of lines) {
+                if (isRelevantLine(line)) {
+                    process.stdout.write(`${prefix} ${line}\n`);
+                }
+            }
+        });
+    };
+
+    const runSuite = (args: string[], env: NodeJS.ProcessEnv, prefix: string): Promise<number | null> => {
+        return new Promise((resolve) => {
+            const child = crossSpawn('npx', ['playwright', 'test', ...args], {
+                stdio: 'pipe',
+                shell: false,
+                env,
+            });
+            currentChildren.push(child);
+            if (child.stdout) prefixStream(child.stdout, prefix);
+            if (child.stderr) prefixStream(child.stderr, prefix);
+            child.on('close', (code) => {
+                currentChildren = currentChildren.filter(c => c !== child);
+                resolve(code);
+            });
+        });
+    };
+
+    const [pvCode, logCode] = await Promise.all([
+        runSuite(pvArgs, pvEnv, '[PV]'),
+        runSuite(logArgs, logEnv, '[LOG]'),
+    ]);
+
+    console.log('\n=== Run All Summary ===');
+    console.log(`PuntoVenta: exit code ${pvCode}`);
+    console.log(`Logistica:  exit code ${logCode}`);
+    console.log('=======================\n');
+}
+
+async function runAllDualTerminal(): Promise<void> {
+    const pvOutput = PROJECT_CONFIG.PuntoVenta.outputDir;
+    const logOutput = PROJECT_CONFIG.Logistica.outputDir;
+
+    console.log('\n═══════════════════════════════════════════════════════');
+    console.log('  Ejecutar en DOS TERMINALES separadas');
+    console.log('═══════════════════════════════════════════════════════\n');
+    console.log('Una sola consola no puede mostrar dos streams de output');
+    console.log('simultáneamente sin mezclarlos. Para ver ambos proyectos');
+    console.log('en paralelo con output limpio, abrí dos terminales:\n');
+    console.log('┌─ Terminal 1 (PuntoVenta) ──────────────────────────┐');
+    console.log(`│  npx playwright test --project PuntoVenta          │`);
+    console.log(`│    --output ${pvOutput.padEnd(38)}│`);
+    console.log('└────────────────────────────────────────────────────┘\n');
+    console.log('┌─ Terminal 2 (Logistica) ───────────────────────────┐');
+    console.log(`│  npx playwright test --project Logistica           │`);
+    console.log(`│    --output ${logOutput.padEnd(38)}│`);
+    console.log('└────────────────────────────────────────────────────┘\n');
+    console.log('Los reportes se guardarán separados automáticamente.');
+    console.log('═══════════════════════════════════════════════════════\n');
 }
 
 async function main(): Promise<void> {
@@ -510,42 +759,69 @@ async function main(): Promise<void> {
     }
 
     while (true) {
-        const option = await select<'explore' | 'search-test' | 'search-file' | 'grep' | 'ui' | 'exit'>({
-            message: 'ERP2 AUTO - TEST RUNNER',
-            choices: [
-                {name: '📁 Explorar modulos / carpetas / archivos / tests', value: 'explore'},
-                {name: '🔍 Buscar test especifico por nombre o tag', value: 'search-test'},
-                {name: '🔍 Buscar archivo .spec.ts', value: 'search-file'},
-                {name: ' ⚡Ejecutar grep manual', value: 'grep'},
-                {name: '🔓 Abrir Playwright UI', value: 'ui'},
-                {name: '⏪ Salir', value: 'exit'},
-            ],
-        });
+        const projectChoice = await selectProject();
 
-        if (option === 'explore') {
-            await exploreDirectory(TESTS_DIR);
-        }
-
-        if (option === 'search-test') {
-            await searchGlobalTest();
-        }
-
-        if (option === 'search-file') {
-            await searchGlobalFile();
-        }
-
-        if (option === 'grep') {
-            await runManualGrep();
-        }
-
-        if (option === 'ui') {
-            await runPlaywrightUi();
-        }
-
-        if (option === 'exit') {
-            killCurrentChild();
+        if (projectChoice === 'exit') {
+            killCurrentChildren();
             console.log('\nSaliendo...\n');
             process.exit(0);
+        }
+
+        if (projectChoice === 'RunAllSequential') {
+            await runAllSequential();
+            continue;
+        }
+
+        if (projectChoice === 'RunAllParallel') {
+            await runAllParallel();
+            continue;
+        }
+
+        if (projectChoice === 'RunAllDual') {
+            await runAllDualTerminal();
+            continue;
+        }
+
+        const projectContext = getProjectContext(projectChoice);
+        const projectTestDir = projectContext.testDir;
+        const projectLabel = projectChoice === 'TODO' ? 'TODO' : projectChoice;
+
+        while (true) {
+            const option = await select<'explore' | 'search-test' | 'search-file' | 'grep' | 'ui' | 'back'>({
+                message: `Submenu para ${projectLabel}:`,
+                choices: [
+                    { name: '📁 Explorar modulos / carpetas / archivos / tests', value: 'explore' },
+                    { name: '🔍 Buscar test especifico por nombre o tag', value: 'search-test' },
+                    { name: '🔍 Buscar archivo .spec.ts', value: 'search-file' },
+                    { name: '⚡ Ejecutar grep manual', value: 'grep' },
+                    { name: '🔓 Abrir Playwright UI', value: 'ui' },
+                    { name: '⏪ Volver al menu principal', value: 'back' },
+                ],
+            });
+
+            if (option === 'back') {
+                break;
+            }
+
+            if (option === 'explore') {
+                await exploreDirectory(projectTestDir, projectContext, projectTestDir);
+            }
+
+            if (option === 'search-test') {
+                await searchGlobalTest(projectContext);
+            }
+
+            if (option === 'search-file') {
+                await searchGlobalFile(projectContext);
+            }
+
+            if (option === 'grep') {
+                await runManualGrep(projectContext);
+            }
+
+            if (option === 'ui') {
+                await runPlaywrightUi(projectContext);
+            }
         }
     }
 }
@@ -562,7 +838,7 @@ function isExitPromptError(error: unknown): boolean {
 }
 
 main().catch((error: unknown) => {
-    killCurrentChild();
+    killCurrentChildren();
 
     if (isExitPromptError(error)) {
         console.log('\nMenú cancelado por el usuario.\n');

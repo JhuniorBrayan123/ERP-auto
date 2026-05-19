@@ -21,7 +21,10 @@ export default defineConfig({
 
     /* ─── Reporters ─── */
     reporter: [
-        ["./src/utils/maven-reporter.ts"], // consola estilo Maven/Surefire
+        ['./src/utils/maven-reporter.ts'], // consola estilo Maven/Surefire
+        ['json', {outputFile: process.env.PW_REPORT_OUTPUT || 'results.json'}],
+        ['junit', {outputFile: process.env.PW_JUNIT_OUTPUT || 'junit.xml'}],
+        ['html', {outputFolder: process.env.PW_HTML_OUTPUT || 'report', open: 'never'}],
     ],
 
     use: {
@@ -83,7 +86,7 @@ export default defineConfig({
                 storageState: "playwright/.auth/user.json",
             },
             dependencies: ["setup"],//["setup", "pv-items-setup"],
-            workers: 2,
+            workers: 1,
         },
         {
             name: "Logistica",
@@ -93,7 +96,7 @@ export default defineConfig({
                 storageState: "playwright/.auth/user.json",
             },
             dependencies: ["setup"],//["setup", "pv-items-setup"],
-            workers: 2,
+            workers: 1,
         },
     ],
 });
