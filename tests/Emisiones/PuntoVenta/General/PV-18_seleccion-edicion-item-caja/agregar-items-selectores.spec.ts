@@ -16,18 +16,15 @@ test.describe('Selección, edición de ítem en caja de venta — Selectores', (
     test('SC-14: Buscar y agregar un ítem con selectores obligatorios', async ({page}) => {
         const cajero = Cajero.con(page);
 
-        // Setup: activar switch Obligatorio en el item (idempotente)
         await cajero.intentaRealizar(
             ActivarSelectorObligatorio(ITEMS_PV.ITEM_SELECTOR_GRAVADO.codigo)
         );
 
-        // Navegar a caja y agregar item con selectores
         await cajero.intentaRealizar(
             IniciarVentaEnCaja(),
             BuscarYAgregarConSelectores(ITEMS_PV.ITEM_SELECTOR_GRAVADO),
         );
 
-        // Asegurarnos de que el carrito ya sumó el ítem esperando a que el texto cambie
         await expect(await cajero.pregunta(TotalDistintoDeCero())).toBe(true);
 
         // Capturar el resumen de totales directamente del panel de Totales (que ya está abierto)
@@ -43,7 +40,6 @@ test.describe('Selección, edición de ítem en caja de venta — Selectores', (
     test('SC-15: Bloquear agregado de ítem con selectores incompletos', async ({page}) => {
         const cajero = Cajero.con(page);
 
-        // Este test necesita navegar a caja primero
         await cajero.intentaRealizar(
             IniciarVentaEnCaja(),
             IntentarAgregarSinSelectores(ITEMS_PV.ITEM_SELECTOR_GRAVADO)
