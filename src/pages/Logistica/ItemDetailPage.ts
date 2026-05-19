@@ -28,8 +28,8 @@ export class ItemDetailPage {
   }
 
   private async esperarListadoCargado(): Promise<void> {
-    await this.overloadLoading.waitFor({ state: 'hidden', timeout: 20_000 }).catch(() => {});
-    await this.toggleAccionesItem.waitFor({ state: 'visible', timeout: 15_000 });
+    await this.overloadLoading.waitFor({ state: 'hidden', timeout: 35_000 }).catch(() => {});
+    await this.toggleAccionesItem.waitFor({ state: 'visible', timeout: 25_000 });
   }
 
   private async clickOpcionVerItemPorTexto(): Promise<boolean> {
@@ -89,7 +89,7 @@ export class ItemDetailPage {
   }
 
   async irATabBitacora(): Promise<void> {
-    await this.overloadLoading.waitFor({ state: 'hidden', timeout: 20_000 }).catch(() => {});
+    await this.overloadLoading.waitFor({ state: 'hidden', timeout: 35_000 }).catch(() => {});
     await this.tabBitacora.click();
   }
 

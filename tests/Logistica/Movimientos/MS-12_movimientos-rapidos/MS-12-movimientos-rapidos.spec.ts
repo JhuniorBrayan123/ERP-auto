@@ -40,7 +40,7 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
         await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.PRODUCTO_ESTRICTO.codigo);
 
         await test.step('And: verificar kardex', async () => {
-            const kardexPage = await stockVerificacion.abrirKardexDesdeStock();
+            const kardexPage = await stockVerificacion.abrirKardexDesdeStock(ITEMS_TEST.PRODUCTO_ESTRICTO.codigo);
             const kardexPopup = new KardexVerificacionPage(kardexPage);
         });
     });
@@ -94,7 +94,7 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
         await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
 
         await test.step('And: verificar kardex', async () => {
-            const kardexPage = await stockVerificacion.abrirKardexDesdeStock();
+            const kardexPage = await stockVerificacion.abrirKardexDesdeStock(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
             const kardexPopup = new KardexVerificacionPage(kardexPage);
         });
     });

@@ -7,13 +7,13 @@
  * Retorna los datos del comprobante emitido para validación posterior.
  * NO contiene assertions — eso es responsabilidad del spec.
  */
-import { test } from '@playwright/test';
-import type { EmisionPage } from '../../pages/PuntoVenta/EmisionPage';
-import type { ClientePage } from '../../pages/PuntoVenta/ClientePage';
-import type { ComprobantePage } from '../../pages/PuntoVenta/ComprobantePage';
-import type { ComprobanteDetallePage } from '../../pages/PuntoVenta/ComprobanteDetallePage';
-import type { TipoComprobante, DatosCliente, ItemVenta, EmisionResult } from '../../helpers/PuntoVenta/emision.types';
-import { SERIES } from '../../helpers/PuntoVenta/emision-data.helper';
+import {test} from '@playwright/test';
+import type {EmisionPage} from '../../pages/PuntoVenta/EmisionPage';
+import type {ClientePage} from '../../pages/PuntoVenta/ClientePage';
+import type {ComprobantePage} from '../../pages/PuntoVenta/ComprobantePage';
+import type {ComprobanteDetallePage} from '../../pages/PuntoVenta/ComprobanteDetallePage';
+import type {DatosCliente, EmisionResult, ItemVenta, TipoComprobante} from '../../helpers/PuntoVenta/emision.types';
+import {SERIES} from '../../helpers/PuntoVenta/emision-data.helper';
 
 export interface EmisionBasicaParams {
     tipoComprobante: TipoComprobante;
@@ -37,7 +37,7 @@ export async function ejecutarEmisionBasica(
     pages: EmisionBasicaPages,
     params: EmisionBasicaParams,
 ): Promise<EmisionResult> {
-    const { comprobantePage, clientePage, emisionPage, comprobanteDetalle } = pages;
+    const {comprobantePage, clientePage, emisionPage, comprobanteDetalle} = pages;
 
     await test.step(`Given: seleccionar tipo de comprobante "${params.tipoComprobante}"`, async () => {
         await comprobantePage.seleccionarTipoComprobante(params.tipoComprobante);
@@ -61,7 +61,7 @@ export async function ejecutarEmisionBasica(
         });
     }
 
-    let resultado: EmisionResult = { serie: '', correlativo: '', comprobanteId: 0 };
+    let resultado: EmisionResult = {serie: '', correlativo: '', comprobanteId: 0};
 
     await test.step('When: emitir comprobante con efectivo', async () => {
         await emisionPage.emitirConEfectivoExacto();
@@ -69,10 +69,10 @@ export async function ejecutarEmisionBasica(
         // Determinar prefijo de serie según tipo de comprobante
         const seriePrefix = params.tipoComprobante === 'BOLETA' ? SERIES.BOLETA
             : params.tipoComprobante === 'FACTURA' ? SERIES.FACTURA
-            : SERIES.NOTA_VENTA;
+                : SERIES.NOTA_VENTA;
 
         resultado = await comprobanteDetalle.capturarSerieCorrelativo(seriePrefix)
-            .catch(() => ({ serie: seriePrefix, correlativo: '', comprobanteId: 0 }));
+            .catch(() => ({serie: seriePrefix, correlativo: '', comprobanteId: 0}));
     });
 
     return resultado;

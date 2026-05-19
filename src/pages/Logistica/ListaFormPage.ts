@@ -60,14 +60,14 @@ export class ListaFormPage extends ItemFormBasePage {
 
     await inputBuscar.click();
     await inputBuscar.fill(item.codigoBusqueda);
-    await this.page.getByText(item.textoSeleccion).click();
+    await this.page.getByText(item.textoSeleccion, {exact: true}).click();
 
     if (item.variante) {
-      await this.page.getByText(item.variante).click();
+      await this.page.getByText(item.variante, {exact: true}).click();
     }
 
     if (item.equivalencia) {
-      await this.page.getByText(item.equivalencia).click();
+      await this.page.getByText(item.equivalencia, {exact: true}).click();
     }
 
     if (item.cantidadIncrementos && item.cantidadIncrementos > 0) {

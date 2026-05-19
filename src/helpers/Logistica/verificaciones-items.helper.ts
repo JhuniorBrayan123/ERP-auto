@@ -5,7 +5,9 @@ import {ProductoFormPage} from "../../pages/Logistica/ProductoFormPage";
 import {ComboFormPage} from "../../pages/Logistica/ComboFormPage";
 import {RecetaFormPage} from "../../pages/Logistica/RecetaFormPage";
 import {ListaFormPage} from "../../pages/Logistica/ListaFormPage";
+import {CargaMasivaPage} from "../../pages/Logistica/CargaMasivaPage";
 import type {ComponenteCombo, InsumoReceta, ProductoListaItem, StockConfig,} from "./item-data.types";
+import { getCodigo as resolverCodigo } from "../../factories/item-factory";
 
 // ─── Cross-type: Crear y Confirmar ───────────────────────────────────
 
@@ -72,10 +74,23 @@ export const prepararComboBase = async (
     await test.step("Preparar combo base", async () => {
         await comboForm.iniciarCreacionCombo();
         await comboForm.llenarNombre(nombre);
+        // await comboForm.llenarCodigo(636363);
         await comboForm.llenarPrecios(precios.venta, precios.compra);
         await comboForm.irATabComponentes();
         for (const comp of componentes) {
-            await comboForm.buscarYAgregarComponente(comp);
+            // Resolver código dinámico si se pasó un KEY de factory (ej. PRODUCTO_SIMPLE)
+            const codigoResuelto = resolverCodigo(comp.codigoBusqueda);
+            const sufijoId = codigoResuelto.includes("-") ? codigoResuelto.split("-")[1] : "";
+            
+            const compResuelto = {
+                ...comp,
+                codigoBusqueda: codigoResuelto.replace(/-/g, ""),
+                textoSeleccion: sufijoId ? `${comp.textoSeleccion} ${sufijoId}` : comp.textoSeleccion,
+                variante: comp.variante && sufijoId ? `${comp.variante} ${sufijoId}` : comp.variante,
+                equivalencia: comp.equivalencia // ERP NO le pone sufijo a la equivalencia
+            };
+            
+            await comboForm.buscarYAgregarComponente(compResuelto);
         }
         await comboForm.expandirOpcionesAvanzadas();
         await comboForm.llenarInfoAdicional("AUTO-TEST", "AUTOMATIZADO");
@@ -100,7 +115,18 @@ export const prepararRecetaBase = async (
         await recetaForm.llenarPrecios(precios.venta, precios.compra);
         await recetaForm.irATabInsumos();
         for (const insumo of insumos) {
-            await recetaForm.buscarYAgregarInsumo(insumo);
+            const codigoResuelto = resolverCodigo(insumo.codigoBusqueda);
+            const sufijoId = codigoResuelto.includes("-") ? codigoResuelto.split("-")[1] : "";
+            
+            const insumoResuelto = {
+                ...insumo,
+                codigoBusqueda: codigoResuelto.replace(/-/g, ""),
+                textoSeleccion: sufijoId ? `${insumo.textoSeleccion} ${sufijoId}` : insumo.textoSeleccion,
+                variante: insumo.variante && sufijoId ? `${insumo.variante} ${sufijoId}` : insumo.variante,
+                equivalencia: insumo.equivalencia // ERP NO le pone sufijo a la equivalencia
+            };
+            
+            await recetaForm.buscarYAgregarInsumo(insumoResuelto);
         }
         await recetaForm.expandirOpcionesAvanzadas();
         await recetaForm.llenarInfoAdicional("AUTO-TEST", "AUTOMATIZADO");
@@ -121,10 +147,21 @@ export const prepararListaBase = async (
     await test.step("Preparar lista base", async () => {
         await listaForm.iniciarCreacionLista();
         await listaForm.llenarNombre(nombre);
-        //await listaForm.llenarCodigo(443444); // Este código es para crear una lista base con codigo y volver a usarlo Solo aplica una vez por cuenta
+        // await listaForm.llenarCodigo(434344); // Este código es para crear una lista base con codigo y volver a usarlo Solo aplica una vez por cuenta 443444
         await listaForm.llenarDescripcion(descripcion);
         for (const prod of productos) {
-            await listaForm.buscarYAgregarProducto(prod);
+            const codigoResuelto = resolverCodigo(prod.codigoBusqueda);
+            const sufijoId = codigoResuelto.includes("-") ? codigoResuelto.split("-")[1] : "";
+            
+            const prodResuelto = {
+                ...prod,
+                codigoBusqueda: codigoResuelto.replace(/-/g, ""),
+                textoSeleccion: sufijoId ? `${prod.textoSeleccion} ${sufijoId}` : prod.textoSeleccion,
+                variante: prod.variante && sufijoId ? `${prod.variante} ${sufijoId}` : prod.variante,
+                equivalencia: prod.equivalencia // ERP NO le pone sufijo a la equivalencia
+            };
+            
+            await listaForm.buscarYAgregarProducto(prodResuelto);
         }
     });
 };
@@ -137,7 +174,7 @@ export const prepararListaBase = async (
  */
 export const ejecutarTestCargaMasiva = async (
     page: Page,
-    cargaMasiva: any,
+    cargaMasiva: CargaMasivaPage,
     tipoItem: string,
     config: { cardLabel: string },
     usarAutoRemapeo: boolean = false,

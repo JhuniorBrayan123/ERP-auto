@@ -1,5 +1,5 @@
-import {type Locator, type Page} from '@playwright/test';
-import {ItemFormBasePage} from './ItemFormBasePage';
+import { type Locator, type Page } from '@playwright/test';
+import { ItemFormBasePage } from './ItemFormBasePage';
 
 export class InsumoFormPage extends ItemFormBasePage {
     constructor(page: Page) {
@@ -17,7 +17,7 @@ export class InsumoFormPage extends ItemFormBasePage {
         await this.botonCrearItems.click();
         await this.page.getByText('INuevo insumo').click();
         // Esperar a que el formulario se renderice
-        await this.inputNombre.waitFor({state: 'visible'});
+        await this.inputNombre.waitFor({ state: 'visible' });
     }
 
     override async expandirOpcionesAvanzadas(): Promise<void> {
@@ -38,23 +38,23 @@ export class InsumoFormPage extends ItemFormBasePage {
         // Esperar explícitamente que el tab de Info Adicional sea visible y clickeable
         await this.page
             .getByText('Información adicional')
-            .waitFor({state: 'visible', timeout: 5000});
+            .waitFor({ state: 'visible', timeout: 5000 });
     }
 
     async seleccionarUnidadMedida(unidad: string): Promise<void> {
         const dropdown = this.page
             .locator('.codigo-unidad > .unidad .v-select-header-form-arrow');
 
-        await dropdown.waitFor({state: 'visible', timeout: 5000});
+        await dropdown.waitFor({ state: 'visible', timeout: 5000 });
         await dropdown.click();
 
         await this.page
             .locator('.v-select-form-option')
             .first()
-            .waitFor({state: 'visible', timeout: 5000});
+            .waitFor({ state: 'visible', timeout: 5000 });
 
         await this.page.waitForTimeout(500);
-        await this.page.getByText(unidad, {exact: true}).click({force: true});
+        await this.page.getByText(unidad, { exact: true }).click({ force: true });
     }
 
     async llenarCodigoBarras(codigo: string): Promise<void> {
@@ -113,7 +113,7 @@ export class InsumoFormPage extends ItemFormBasePage {
         // Marca (dropdown independiente)
         await dropdownArrows.nth(0).click();
         await this.page.waitForTimeout(300);
-        const marcaOption = this.page.getByText(marca, {exact: true}).first();
+        const marcaOption = this.page.getByText(marca, { exact: true }).first();
         await marcaOption.scrollIntoViewIfNeeded();
         await marcaOption.evaluate((node) => (node as HTMLElement).click());
 
@@ -122,7 +122,7 @@ export class InsumoFormPage extends ItemFormBasePage {
         // Categoría (al seleccionar, dispara carga async de subcategorías)
         await dropdownArrows.nth(1).click();
         await this.page.waitForTimeout(300);
-        const catOption = this.page.getByText(categoria, {exact: true}).first();
+        const catOption = this.page.getByText(categoria, { exact: true }).first();
         await catOption.scrollIntoViewIfNeeded();
         await catOption.evaluate((node) => (node as HTMLElement).click());
 
@@ -132,7 +132,7 @@ export class InsumoFormPage extends ItemFormBasePage {
         // Subcategoría (depende de la categoría seleccionada)
         await dropdownArrows.nth(2).click();
         await this.page.waitForTimeout(300);
-        const subOption = this.page.getByText(subcategoria, {exact: true}).first();
+        const subOption = this.page.getByText(subcategoria, { exact: true }).first();
         await subOption.scrollIntoViewIfNeeded();
         await subOption.evaluate((node) => (node as HTMLElement).click());
     }

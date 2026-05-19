@@ -33,7 +33,6 @@ test.describe('MS-7 | Movimientos Masivos @masivos', {tag: ['@logistica', '@movi
         });
         await test.step('And: verificar kardex del producto masivo', async () => {
             await movimientosNav.navegarAKardexTotal();
-            await page.waitForTimeout(2000)
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.MASIVO_PROD.codigo);
             await kardexVerificacion.clickVariosNth(0);
             await page.getByRole('row', {name: `1 P Producto ${ITEMS_TEST.MASIVO_PROD.codigo}5 Tippy`}).getByRole('button').click();
@@ -64,7 +63,6 @@ test.describe('MS-7 | Movimientos Masivos @masivos', {tag: ['@logistica', '@movi
         });
         await test.step('And: verificar kardex del insumo', async () => {
             await movimientosNav.navegarAKardexTotal();
-            await page.waitForTimeout(2000);
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.MASIVO_INSUMO.codigo);
             await kardexVerificacion.clickVariosTexto();
             await kardexVerificacion.clickKardexPorProducto();

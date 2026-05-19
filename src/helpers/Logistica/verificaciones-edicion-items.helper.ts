@@ -3,6 +3,7 @@ import {expect, Page} from '@playwright/test';
 import type {EdicionItemPage} from '../../pages/Logistica/EdicionItemPage';
 import type {ListaItemsPage} from '../../pages/Logistica/ListaItemsPage';
 import type {ItemDetailPage} from '../../pages/Logistica/ItemDetailPage';
+import type {ActualizacionMasivaPage} from '../../pages/Logistica/ActualizacionMasivaPage';
 
 // ─── PS-4 Edición de Item ────────────────────────────────────────────
 
@@ -43,7 +44,7 @@ export const buscarYVerItemDesdeListado = async (
  */
 export const verificarItemActualizadoEnDetalle = async (
     page: Page,
-    actualizacionMasiva: any,
+    actualizacionMasiva: ActualizacionMasivaPage,
     listaItems: ListaItemsPage,
     itemDetail: ItemDetailPage,
     primerCodigo: string,

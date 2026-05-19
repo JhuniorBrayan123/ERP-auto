@@ -17,9 +17,6 @@ setup('preparar datos adicionales y proveedor para movimientos', async ({page}) 
 
     await page.goto('/');
 
-    // ══════════════════════════════════════════════════════════════════
-    // 1. INGRESOS: proveedor + campos adicionales
-    // ══════════════════════════════════════════════════════════════════
     console.log('\n [Setup] Configurando INGRESOS...');
     await nav.navegarAIngresosDesdeMenu();
     await registro.clickAgregarIngreso();
@@ -33,9 +30,6 @@ setup('preparar datos adicionales y proveedor para movimientos', async ({page}) 
 
     await datosSetup.guardarDatos();
 
-    // ══════════════════════════════════════════════════════════════════
-    // 2. TRASLADOS: campos adicionales
-    // ══════════════════════════════════════════════════════════════════
     console.log('\n [Setup] Configurando TRASLADOS...');
     await nav.navegarATraslados();
     await registro.clickAgregarTraslado();
@@ -45,9 +39,6 @@ setup('preparar datos adicionales y proveedor para movimientos', async ({page}) 
 
     await datosSetup.guardarDatos();
 
-    // ══════════════════════════════════════════════════════════════════
-    // 3. AJUSTES: campos adicionales
-    // ══════════════════════════════════════════════════════════════════
     console.log('\n [Setup] Configurando AJUSTES...');
     await nav.navegarAAjustes();
     await registro.clickAgregarAjuste();
@@ -57,9 +48,6 @@ setup('preparar datos adicionales y proveedor para movimientos', async ({page}) 
 
     await datosSetup.guardarDatos();
 
-    // ══════════════════════════════════════════════════════════════════
-    // 4. SALIDAS: cliente
-    // ══════════════════════════════════════════════════════════════════
     console.log('\n [Setup] Configurando SALIDAS...');
     await nav.navegarASalidasDesdeMenu();
     await registro.clickAgregarSalida();

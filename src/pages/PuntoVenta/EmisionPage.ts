@@ -14,8 +14,11 @@
  */
 import {type Locator, type Page} from '@playwright/test';
 import type {EmisionResult} from '../../helpers/PuntoVenta/emision.types';
+import type {DatosClienteConSelector} from '../../types/cliente.types';
+import {expect} from '@playwright/test';
 import {throwFunctionalError} from '../../utils/functional-error';
 import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
+import {esperarDebounce} from '../../utils/wait-helpers';
 
 export class EmisionPage {
     /**
@@ -63,6 +66,16 @@ export class EmisionPage {
         return this.page.getByRole('button', {name: 'Aceptar'});
     }
 
+    // ─── Intercepción de respuesta de emisión ─────────────────────────
+
+    /**
+     * Intercepta la response del API de emisión para capturar serie/correlativo.
+     *
+     * Endpoint: DocumentosContables/Emisiones/v2
+     * Response: { IdComprobante, CorrelativoDocumento, FilePdf: { Nombre: "B001-00000017-..." } }
+     *
+     * Se extrae la serie del nombre del PDF: "B001-00000017-1004-PDF.pdf" → serie = "B001"
+     */
     private async interceptarEmision(): Promise<EmisionResult> {
         const responsePromise = this.page.waitForResponse(
             (resp) => resp.url().includes('DocumentosContables/Emisiones') && resp.status() === 200,
@@ -93,7 +106,7 @@ export class EmisionPage {
         try {
             await this.searchInput.click();
             await this.searchInput.fill(codigo);
-            await this.page.waitForTimeout(800); // debounce del ERP
+            await esperarDebounce(this.page, 800, 'Debounce del buscador de items en ERP');
         } catch (error) {
             await throwFunctionalError({
                 page: this.page,
@@ -106,7 +119,12 @@ export class EmisionPage {
 
     async seleccionarItem(nombre: string): Promise<void> {
         try {
-            await this.page.getByText(nombre).click();
+            // Se usa exact: false (o sin el parámetro) porque el nombre puede venir truncado en la UI
+            // (ej. "items para combos gravad...") o con sufijo RUN_ID.
+            // Como previamente se filtró por código único, el partial match es seguro.
+            const item = this.page.getByText(nombre).first();
+            await expect(item).toBeVisible({timeout: 10_000});
+            await item.click();
         } catch (error) {
             await throwFunctionalError({
                 page: this.page,
@@ -130,6 +148,28 @@ export class EmisionPage {
         }
     }
 
+    /** Lee el precio unitario del item actualmente en el carrito */
+    async obtenerPrecioItem(): Promise<number> {
+        const precioTexto = await this.page
+            .locator('[id*="item_v-text:precio"]')
+            .first()
+            .textContent({ timeout: 5000 })
+            .catch(() => 'S/ 0');
+        const limpio = precioTexto?.replace(/[S\/$\s,]/g, '') ?? '0';
+        return parseFloat(limpio);
+    }
+
+    /** Lee el subtotal del item en el carrito (precio × cantidad) */
+    async obtenerSubtotalItem(): Promise<number> {
+        const subtotalTexto = await this.page
+            .locator('[id*="item_v-text:subtotal"]')
+            .first()
+            .textContent({ timeout: 5000 })
+            .catch(() => 'S/ 0');
+        const limpio = subtotalTexto?.replace(/[S\/$\s,]/g, '') ?? '0';
+        return parseFloat(limpio);
+    }
+
     /** Incrementa la cantidad del ítem con el botón + */
     async incrementarCantidad(veces: number = 1): Promise<void> {
         const btnIncrease = this.page.locator(
@@ -149,6 +189,22 @@ export class EmisionPage {
         await inputPrecio.click();
         await inputPrecio.fill(nuevoPrecio);
         await this.btnEditar.click();
+    }
+
+    /** Activa el switch de Doc. Adelanto */
+    async activarDocAdelanto(): Promise<void> {
+        const input = this.page.locator(
+            '[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-header_v-switch:adelanto"]'
+        );
+        const slider = this.page.locator(
+            'label:has([id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-header_v-switch:adelanto"]) .slider'
+        );
+        const isChecked = await input.evaluate((el: HTMLInputElement) => el.checked);
+
+        if (!isChecked) {
+            await slider.scrollIntoViewIfNeeded();
+            await slider.click({force: true});
+        }
     }
 
     // ─── Descuentos por ítem ──────────────────────────────────────────
@@ -179,15 +235,20 @@ export class EmisionPage {
         await this.btnEditar.click();
     }
 
+    // ─── Descuento global ─────────────────────────────────────────────
+
+    /**
+     * Despliega el panel inferior de cálculos si se encuentra colapsado (nuevo componente UI).
+     */
     async desplegarPanelCalculos(): Promise<void> {
         const btnColapsable = this.page.locator('.collapse-icon').first();
         try {
-            await btnColapsable.waitFor({ state: 'attached', timeout: 5000 });
+            await btnColapsable.waitFor({state: 'attached', timeout: 5000});
             const isCerrado = await btnColapsable.locator('.icon.cerrado').isVisible();
             if (isCerrado) {
                 await btnColapsable.click();
                 // Esperar brevemente para que termine la animación de despliegue
-                await this.page.waitForTimeout(500);
+                await esperarDebounce(this.page, 500, 'Animación de colapso de panel');
             }
         } catch (e) {
             // Si el contenedor no existe, no está visible o ocurre un error, continuamos
@@ -195,7 +256,7 @@ export class EmisionPage {
     }
 
     async abrirDescuentoGlobal(): Promise<void> {
-        await this.desplegarPanelCalculos()
+        await this.desplegarPanelCalculos();
         await this.page.locator(
             '[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-footer_v-icon:detalles"]',
         ).click();
@@ -214,37 +275,70 @@ export class EmisionPage {
     }
 
     async abrirTotales(): Promise<void> {
+        await this.desplegarPanelCalculos();
         await this.page.locator(
             '[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-footer_v-icon:totales"]',
         ).click();
     }
 
-// ─── Datos Opcionales ─────────────────────────────────────────────
+    /**
+     * Captura todas las filas visibles del resumen de totales (.cmp-resumen-pedido).
+     * Auto-detecta qué conceptos están presentes (Subtotal, IGV, Total retenciones,
+     * Monto Detracción Soles, etc.) y omite los que no aparecen.
+     *
+     * @returns Record<string, string> con label → valor (ej. { "Subtotal": "8.10", "IGV": "1.46" })
+     */
+    async capturarResumenPedido(): Promise<Record<string, string>> {
+        const filas = await this.page.locator('.cmp-resumen-pedido .content .subtotal').all();
+        const resultado: Record<string, string> = {};
 
-    async abrirDatosOpcionales(): Promise<void> {
-        await this.page.getByRole('button', {name: 'Datos'}).click();
+        for (const fila of filas) {
+            const spans = await fila.locator('span.v-text').all();
+            if (spans.length < 2) continue;
+            const label = (await spans[0].textContent())?.trim() ?? '';
+            const valor = (await spans[1].textContent())?.trim() ?? '';
+            if (label && valor) {
+                const sinPrefijo = valor.replace(/^S\/\s*/, '');
+                resultado[label] = sinPrefijo;
+            }
+        }
+
+        const totalLabel = await this.page.locator('.cmp-resumen-pedido .content .total .texto-total span.v-text').first().textContent();
+        const totalValor = await this.page.locator('.cmp-resumen-pedido .content .total .monto span.v-text').last().textContent();
+        if (totalLabel && totalValor) {
+            const label = totalLabel.trim();
+            const sinPrefijo = totalValor.trim().replace(/^S\/\s*/, '');
+            resultado[label] = sinPrefijo;
+        }
+
+        return resultado;
     }
 
-    async llenarDatosOpcionales(cliente: any): Promise<void> {
-        // Seleccionar Vendedor / Cliente
+    /**
+     * Captura todas las filas visibles del popup de totales (.cmp-totales-comprobante).
+     * Se usa después de llamar a abrirTotales().
+     * Auto-detecta qué conceptos están presentes.
+     *
+     * @returns Record<string, string> con label → valor (ej. { "Operaciones Gravadas": "16.95", "IGV": "3.05" })
+     */
+    async capturarTotalesPopup(): Promise<Record<string, string>> {
+        const filas = await this.page.locator('.cmp-totales-comprobante .cuerpo div.texto').all();
+        const resultado: Record<string, string> = {};
 
-        const inputVendedor = this.page.getByRole("textbox", {name: "Nombre del vendedor"});
-        await inputVendedor.click();
+        for (const fila of filas) {
+            const spans = await fila.locator('span.v-text, span.v-p').all();
+            if (spans.length < 2) continue;
+            const label = (await spans[0].textContent())?.trim() ?? '';
+            const valor = (await spans[1].textContent())?.trim() ?? '';
+            if (label && valor) {
+                const sinPrefijo = valor.replace(/^S\/\s*/, '');
+                resultado[label] = sinPrefijo;
+            }
+        }
 
-        // Ahora TypeScript ya sabe que "cliente" viene de arriba, de los paréntesis
-        await inputVendedor.fill(cliente.documento);
-        await this.page.locator(".card-entidad-cliente").filter({hasText: cliente.nombre}).first().click();
-
-        // Llenar campos de datos opcionales
-        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:orden-compra"]').fill("121");
-        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:contrato"]').fill("12");
-        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:comentarios"]').fill("observacion para datos adicionales");
-        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:campo-texto-0"]').fill("texto");
-        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:campo-numero-0"]').fill("123123");
-
-        // Guardar
-        await this.page.getByRole("button", {name: "Guardar datos"}).click();
+        return resultado;
     }
+
 
     // ─── Emisión / Pago ───────────────────────────────────────────────
 
@@ -310,82 +404,25 @@ export class EmisionPage {
 
     // ─── Regresar ─────────────────────────────────────────────────────
 
+    async volverAlInicio(): Promise<void> {
+        await this.page.locator('.icon').first().click();
+    }
+
     // ─── Precuenta / Vista previa ─────────────────────────────────────
 
     async clickPrecuenta(): Promise<void> {
         await this.page.getByRole('button', {name: 'PRECUENTA'}).click();
     }
 
-    async activarDocAdelanto(): Promise<void> {
-        const input = this.page.locator(
-            '[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-header_v-switch:adelanto"]'
-        );
-        const slider = this.page.locator(
-            'label:has([id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-header_v-switch:adelanto"]) .slider'
-        );
-
-        // Obtenemos el estado real del input a través del DOM.
-        // (Usar .isChecked() en inputs desplazados fuera de pantalla a veces falla).
-        const isChecked = await input.evaluate((el: HTMLInputElement) => el.checked);
-
-        if (!isChecked) {
-            // Interactuamos con la parte visible del switch para evitar el error 'outside of viewport'
-            await slider.scrollIntoViewIfNeeded();
-            await slider.click({ force: true });
-        }
+    async clickVistaPrevia(): Promise<void> {
+        await this.page.getByRole('button', {name: 'VISTA PREVIA'}).click();
     }
 
-    async activarRetencion(porcentaje: string): Promise<void> {
-        const slider = this.page.locator('label:has([id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-header_v-switch:retencion"]) .slider');
-        const isChecked = await this.page.locator('[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-header_v-switch:retencion"]').isChecked().catch(() => false);
-        if (!isChecked) {
-            await slider.click();
-        }
-
-        await this.page.waitForTimeout(500);
-
-        // Selector directo al input — sin XPath preceding
-        const inputRetencion = this.page.locator('input.erp-input.part-1-4').last();
-        await inputRetencion.waitFor({ state: 'visible', timeout: 15000 });
-
-        // Triple click selecciona todo el texto aunque Vue lo bloquee
-        await inputRetencion.click({ clickCount: 3 });
-        await inputRetencion.press('Backspace');
-        await inputRetencion.fill('0');
-        await inputRetencion.press('Tab');
-        await this.page.waitForTimeout(300);
-
-        await inputRetencion.click({ clickCount: 3 });
-        await inputRetencion.press('Backspace');
-        await inputRetencion.fill(porcentaje);
-        await inputRetencion.press('Tab');
-        await this.page.waitForTimeout(300);
-
-        await this.page.locator('[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-header_v-button:guardar-datos-retencion"]').click();
-        await this.page.locator('.v-modal > div').first().click();
+    async cerrarVistaPrevia(): Promise<void> {
+        await this.page.locator('.icon-close').click();
     }
-    // ─── Moneda ────────────────────────────────────────────────────────
-    async abrirAdelantos(cliente: any): Promise<void> {
-        const btnAdelantos = this.page.getByRole('button', {name: 'Adelantos'});
 
-        try {
-            await btnAdelantos.waitFor({ state: 'visible', timeout: 5000 });
-        } catch (e) {
-            const inputCliente = this.page.getByRole('textbox', {name: 'Buscar por nombre, razón'});
 
-            await inputCliente.click();
-            await inputCliente.press('Control+A');
-            await inputCliente.press('Backspace');
-            await this.page.waitForTimeout(1000);
-
-            await inputCliente.fill(cliente.documento);
-            await this.page.getByText(cliente.textoSelector).click();
-
-            await btnAdelantos.waitFor({ state: 'visible', timeout: 5000 });
-        }
-
-        await btnAdelantos.click();
-    }
     /** Cambia la moneda de Soles a Dólares en el selector de precios */
     async seleccionarMonedaDolares(): Promise<void> {
         await this.page.getByText('Precio estándar (S/)').first().click();

@@ -4,19 +4,13 @@ import {env} from "./config/env";
 export default defineConfig({
     testDir: "./tests",
 
-    /**
-     * Estabilidad (ERP, datos compartidos, wizards):
-     * - fullyParallel: false + workers: 1 evitan choques entre escenarios masivos.
-     * Los specs de actualización masiva viven en tests/logistica/productos-stock/edicion-masiva/.
-     */
-    fullyParallel: false,
-    // fullyParallel: true,
-    workers: 1,
-    // workers: process.env ? 2 : 2,
+    fullyParallel: true,
+    // fullyParallel: false,
+    workers: 2,
 
     /* ─── CI / Retries ─── */
     forbidOnly: !!process.env.CI,
-    retries: 2,
+    retries: 1,
 
     /* ─── Timeouts para estabilidad ─── */
     timeout: 240_000, // 3 min  por test por si
@@ -26,48 +20,23 @@ export default defineConfig({
     testIgnore: ["**/_*", "**/_codegen/**"],
 
     /* ─── Reporters ─── */
-    // === CONFIGURACIÓN ANTERIOR (Comentada por seguridad) ===
-
-    /* ─── Reporters ─── */
     reporter: [
-        ["./src/utils/maven-reporter.ts"], // consola estilo Maven/Surefire
-        ["html", {open: "never"}], // reporte HTML nativo
-        ["junit", {outputFile: "test-results/results.xml"}],
-        ['json', {outputFile: 'test-results/results.json'}],
-
-        // ✨ ¡AQUÍ ESTÁ LA MAGIA DE ALLURE! ✨
-        ['allure-playwright', {
-            detail: true,
-            outputFolder: 'allure-results',
-            suiteTitle: false
-        }]
+        ['./src/utils/maven-reporter.ts'], // consola estilo Maven/Surefire
+        ['json', {outputFile: process.env.PW_REPORT_OUTPUT || 'results.json'}],
+        ['junit', {outputFile: process.env.PW_JUNIT_OUTPUT || 'junit.xml'}],
+        ['html', {outputFolder: process.env.PW_HTML_OUTPUT || 'report', open: 'never'}],
     ],
-    // // === NUEVA CONFIGURACIÓN DINÁMICA ===
-    // reporter: process.env.CI ? [
-    //     // ️ Entorno CI (Jenkins/GitHub Actions):
-    //     ['dot'],                                              // Máxima velocidad I/O (1 puntito por test)
-    //     ['junit', { outputFile: 'test-results/results.xml' }] // Integración CI clásica
-    // ] : [
-    //     //  Entorno Local:
-    //     ['line'],                                             // Terminal limpia de una sola línea
-    //     ['html', { open: 'on-failure' }],                     // Super poder: Auto-abre el reporte solo si fallas
-    //     // ['./src/utils/maven-reporter.ts'],                 // Tu custom reporter estilo Maven
-    // ],
 
     use: {
         baseURL: env.baseUrl,
 
         // === CONFIGURACIÓN ANTERIOR (Comentada por seguridad) ===
 
+        // Trace en fallos para poder abrir con: npx playwright show-trace trace.zip
         trace: "on-first-retry",
         screenshot: "only-on-failure",
-        video: "on",
-
-        // /* ─── Artefactos de Evidencia ─── */
-        // // Guarda la evidencia visual (Trace, Screenshot, Video) ÚNICAMENTE cuando ocurre un fallo
-        // trace: 'on',
-        // screenshot: 'only-on-failure',
-        // video: 'on',
+        // Video solo en fallos para no saturar disco en ejecuciones largas
+        video: "retain-on-failure",
 
         /* ─── Timeouts ─── */
         actionTimeout: 35_000, // 15s por acción individual
@@ -110,13 +79,24 @@ export default defineConfig({
             dependencies: ["setup"],
         },
         {
-            name: "chromium",
+            name: "PuntoVenta",
+            testMatch: "tests/Emisiones/**/*.spec.ts",
             use: {
                 ...devices["Desktop Chrome"],
                 storageState: "playwright/.auth/user.json",
             },
-            // dependencies: ["setup", "datos-setup", "pv-datos-setup", "pv-items-setup"],
-            dependencies: ["setup"],
+            dependencies: ["setup"],//["setup", "pv-items-setup"],
+            workers: 1,
+        },
+        {
+            name: "Logistica",
+            testMatch: "tests/Logistica/**",
+            use: {
+                ...devices["Desktop Chrome"],
+                storageState: "playwright/.auth/user.json",
+            },
+            dependencies: ["setup"],//["setup", "pv-items-setup"],
+            workers: 1,
         },
     ],
 });

@@ -94,7 +94,7 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
         });
 
         await test.step('And: verificar kardex', async () => {
-            const kardexPage = await stockVerificacion.abrirKardexVariante('313131-V001 Variante 1');
+            const kardexPage = await stockVerificacion.abrirKardexVariante(VARIANTES.V1_FLEXIBLE.codigo);
             const kardexPopup = new KardexVerificacionPage(kardexPage);
             await kardexPage.waitForLoadState('networkidle');
             await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
@@ -117,7 +117,7 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
 
         await test.step('When: buscar ítem', async () => {
             await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
-            await page.getByText('Pproducto121212item para').click();
+            await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.PRODUCTO_GRAVADO.nombre);
         });
         await test.step('And: configurar datos opcionales', async () => {
             await datosOpcionales.abrirDatosOpcionales();
@@ -136,7 +136,7 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
         });
 
         await test.step('And: verificar kardex y datos opcionales', async () => {
-            const kardexPage = await stockVerificacion.abrirKardexDesdeStock();
+            const kardexPage = await stockVerificacion.abrirKardexDesdeStock(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
             const kardexPopup = new KardexVerificacionPage(kardexPage);
             await kardexPage.waitForLoadState('networkidle');
             await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);

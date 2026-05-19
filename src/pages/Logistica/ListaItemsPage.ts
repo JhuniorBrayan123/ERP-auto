@@ -32,8 +32,6 @@ export class ListaItemsPage {
       .locator('[id="cmn_cmp-overload:loading"]')
       .waitFor({ state: 'hidden', timeout: 15_000 })
       .catch(() => {});
-
-    await this.page.waitForLoadState('networkidle');
   }
 
   async clearSearch(): Promise<void> {
@@ -105,5 +103,48 @@ export class ListaItemsPage {
     await exportarBtn.click();
 
     return downloadPromise;
+  }
+
+  /**
+   * Busca un ítem por código y lo elimina desde el menú de acciones.
+   * Retorna true si se eliminó, false si no se encontró.
+   */
+  async eliminarItemPorCodigo(codigo: string): Promise<boolean> {
+    await this.searchByCode(codigo);
+
+    const existe = await this.page
+      .getByRole('table')
+      .getByText(codigo)
+      .first()
+      .isVisible({ timeout: 3_000 })
+      .catch(() => false);
+
+    if (!existe) {
+      return false;
+    }
+
+    // Abrir menú de acciones
+    await this.openActionsMenu();
+
+    // Buscar opción de eliminar por texto
+    const eliminarBtn = this.page.getByText(/eliminar/i).first();
+    await eliminarBtn.click();
+
+    // Confirmar eliminación si aparece modal de confirmación
+    const btnConfirmar = this.page.getByRole('button', { name: /confirmar|sí|eliminar|accept/i });
+    if (await btnConfirmar.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      await btnConfirmar.click();
+    }
+
+    // Esperar a que se complete la eliminación
+    await this.page.locator('[id="cmn_cmp-overload:loading"]')
+      .waitFor({ state: 'visible', timeout: 3_000 })
+      .catch(() => {});
+
+    await this.page.locator('[id="cmn_cmp-overload:loading"]')
+      .waitFor({ state: 'hidden', timeout: 10_000 })
+      .catch(() => {});
+
+    return true;
   }
 }

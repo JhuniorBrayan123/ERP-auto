@@ -50,7 +50,12 @@ class MavenReporter implements Reporter {
     private startedTests = new Set<string>();
     private readonly environmentLabel = getEnvironmentLabel();
     private readonly printTechnical = process.env.PW_TECHNICAL_ERRORS === '1';
-    private readonly qaFailures: Array<{ caseName: string; failedStep: string; userMessage: string }> = [];
+    private readonly qaFailures: Array<{
+        caseName: string;
+        failedStep: string;
+        userMessage: string;
+        failureCategory: string;
+    }> = [];
 
     private activeTestInfo: { title: string; attempt: number; isRetry: boolean } | null = null;
     private currentTestPrinted = false;
@@ -174,10 +179,40 @@ class MavenReporter implements Reporter {
         console.log(SEPARATOR);
         console.log('RESUMEN FUNCIONAL DE FALLOS');
         if (this.qaFailures.length === 0) {
-            console.log('- Sin fallos funcionales');
+            console.log(`${GREEN}- Sin fallos funcionales${RESET}`);
         } else {
+            // Agrupar por categoría
+            const byCategory: Record<string, typeof this.qaFailures> = {};
             for (const item of this.qaFailures) {
-                console.log(`- ${item.caseName} -> ${item.failedStep} -> ${item.userMessage}`);
+                (byCategory[item.failureCategory] ??= []).push(item);
+            }
+            const order = ['AMBIENTE', 'DATOS', 'SCRIPT', 'DESCONOCIDO'];
+            for (const cat of order) {
+                const items = byCategory[cat];
+                if (!items?.length) continue;
+                const catColor = this.categoryColor(cat);
+                console.log(`${catColor}[${cat}] — ${items.length} fallo(s)${RESET}`);
+                for (const item of items) {
+                    console.log(`  - ${item.caseName}`);
+                    console.log(`    Paso:   ${item.failedStep}`);
+                    console.log(`    Motivo: ${item.userMessage}`);
+                }
+            }
+            // Conteo resumen por categoría
+            console.log('');
+            console.log('Distribución de fallos:');
+            for (const cat of order) {
+                const count = byCategory[cat]?.length ?? 0;
+                if (!count) continue;
+                const catColor = this.categoryColor(cat);
+                const guide = cat === 'AMBIENTE'
+                    ? '→ Verifica el ambiente CRT/QA (health checks)'
+                    : cat === 'DATOS'
+                    ? '→ Re-ejecuta los setup projects'
+                    : cat === 'SCRIPT'
+                    ? '→ Revisa selectores o lógica del test'
+                    : '→ Revisa el reporte HTML para más detalles';
+                console.log(`  ${catColor}${cat}: ${count}${RESET}  ${guide}`);
             }
         }
         console.log(SEPARATOR);
@@ -274,16 +309,29 @@ class MavenReporter implements Reporter {
 
     private printQaFailure(test: TestCase, result: TestResult): void {
         const summary = this.buildFunctionalSummary(test, result);
+        const category = summary.failureCategory ?? 'DESCONOCIDO';
+        const categoryColor = this.categoryColor(category);
+
         this.qaFailures.push({
-            caseName: summary.caseName,
+            caseName: summary.caseName ?? test.title,
             failedStep: summary.failedStep,
             userMessage: summary.userMessage,
+            failureCategory: category,
         });
 
-        console.log(`${RED}[FAIL][QA]${RESET}`);
+        console.log(`${RED}[FAIL][QA]${RESET} ${categoryColor}[${category}]${RESET}`);
         console.log(`${RED}Caso: ${summary.caseName}${RESET}`);
         console.log(`${RED}Paso: ${summary.failedStep}${RESET}`);
         console.log(`${RED}Motivo: ${summary.userMessage}${RESET}`);
+    }
+
+    private categoryColor(category: string): string {
+        switch (category) {
+            case 'AMBIENTE':    return '\x1b[33m'; // Amarillo
+            case 'DATOS':       return '\x1b[36m'; // Cyan
+            case 'SCRIPT':      return '\x1b[35m'; // Magenta
+            default:            return '\x1b[37m'; // Blanco
+        }
     }
 
     private printTechnicalDetails(result: TestResult): void {

@@ -6,6 +6,7 @@
  */
 import type { APIRequestContext } from '@playwright/test';
 import { env } from '../../../config/env';
+import type { CajaVentaRaw, AlmacenCajaRaw } from '../../types/api-responses.types';
 
 export interface CajaVenta {
     id: number;
@@ -58,14 +59,14 @@ export class CajasApi {
         const body = await response.json();
         const data = body.Data ?? [];
 
-        return data.map((item: any): CajaVenta => ({
+        return data.map((item: CajaVentaRaw): CajaVenta => ({
             id: item.Id,
             nombre: item.Nombre,
             codigo: item.Codigo,
             estado: item.Estado,
             idSucursal: item.IdSucursal,
             sucursalDescripcion: item.Sucursal?.Descripcion ?? '',
-            almacenes: (item.Almacenes ?? []).map((a: any) => ({
+            almacenes: (item.Almacenes ?? []).map((a: AlmacenCajaRaw) => ({
                 idAlmacen: a.IdAlmacen,
                 nombreAlmacen: a.NombreAlmacen,
                 defecto: a.Defecto,

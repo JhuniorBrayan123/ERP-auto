@@ -64,17 +64,27 @@ export class KardexVerificacionPage {
             .click();
     }
 
-    async clickVariosTexto(): Promise<void> {
-        await this.page.getByText('Varios*').first().click();
+    async clickVariosTexto(itemCodigo?: string): Promise<void> {
+        if (itemCodigo) {
+            await this.page.getByRole('row', {name: new RegExp(itemCodigo, 'i')})
+                .getByText('Varios*').first().click();
+        } else {
+            await this.page.getByText('Varios*').first().click();
+        }
     }
 
     async clickVariosNth(index: number): Promise<void> {
         await this.page.getByText('Varios*').nth(index).click();
     }
 
-    async clickKardexPorProducto(): Promise<void> {
+    async clickKardexPorProducto(itemCodigo?: string): Promise<void> {
         try {
-            await this.page.getByRole('button', {name: 'Kardex por producto'}).first().click();
+            if (itemCodigo) {
+                await this.page.getByRole('row', {name: new RegExp(itemCodigo, 'i')})
+                    .getByRole('button', {name: 'Kardex por producto'}).first().click();
+            } else {
+                await this.page.getByRole('button', {name: 'Kardex por producto'}).first().click();
+            }
             await this.esperarSinOverload();
             await expect(this.page.getByText('Información básica')).toBeVisible({timeout: 25_000});
             await this.verDetalleButtons().first().waitFor({state: 'visible', timeout: 25_000}).catch(() => {
@@ -204,7 +214,7 @@ export class KardexVerificacionPage {
 
     async clickCodigoMovimientoRegex(regex: RegExp): Promise<void> {
         const elemento = this.page.getByText(regex).first();
-        await elemento.waitFor({ state: 'visible' });
+        await elemento.waitFor({state: 'visible'});
         await elemento.click();
     }
 
