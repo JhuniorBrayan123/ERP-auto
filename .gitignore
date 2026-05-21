@@ -16,3 +16,4 @@ tests/test-1.spec.ts
 junit.xml
 results.json
 report/
+_codegen/
