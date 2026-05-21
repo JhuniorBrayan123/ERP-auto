@@ -22,7 +22,7 @@ test.describe('Selección, edición de ítem en caja de venta — Eliminar ítem
             AgregarDosItemsYEliminarUno(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL, ITEMS_PV.PRODUCTO_GRAVADO, 1)
         );
         const totalesRestantes = calcularTotalesCombinados([
-            {key: 'ITEM_GRAVADO_SIN_CONTROL', cantidad: 1},
+            // {key: 'ITEM_GRAVADO_SIN_CONTROL', cantidad: 1},
             {key: 'PRODUCTO_GRAVADO', cantidad: 1},
         ]);
 

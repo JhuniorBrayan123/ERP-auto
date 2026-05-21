@@ -4,6 +4,7 @@ import type { ChildProcess } from 'node:child_process';
 import { spawn as nodeSpawn } from 'node:child_process';
 import { checkbox, confirm, input, select } from '@inquirer/prompts';
 import crossSpawn from 'cross-spawn';
+import {getSetupStateSummary, areAllSetupsComplete} from '@utils/setup-state';
 
 const ROOT_DIR = process.cwd();
 const TESTS_DIR = path.join(ROOT_DIR, 'tests');
@@ -197,6 +198,22 @@ function formatCommand(args: string[]): string {
 }
 
 async function askRunOptions(): Promise<string[]> {
+    // Mostrar estado actual de los setups
+    const stateSummary = getSetupStateSummary();
+    console.log('\n──────────────────────────────────────');
+    console.log('Estado de setups:');
+    console.log(stateSummary);
+    console.log('──────────────────────────────────────\n');
+
+    // Si todos los setups están completados, auto-responder que no
+    if (areAllSetupsComplete()) {
+        console.log('[setup-state] Todos los setups completados — saltando ejecución de setups\n');
+        process.env.SKIP_PV_SETUP = '1';
+        process.env.SKIP_PV_ITEMS_SETUP = '1';
+        process.env.SKIP_DATOS_SETUP = '1';
+        return [];
+    }
+
     const ejecutarSetups = await confirm({
         message: 'Ejecutar setups automatizados (crear datos)? (Dile NO si ya corriste los tests antes)',
         default: false,

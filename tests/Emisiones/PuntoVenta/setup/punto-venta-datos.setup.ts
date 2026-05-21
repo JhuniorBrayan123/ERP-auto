@@ -7,11 +7,19 @@ import {
     CLIENTE_RUC_PV,
     VENDEDOR_PV,
 } from '@helpers/PuntoVenta/punto-venta-setup-data.helper';
+import {shouldSkipSetup, markSetupComplete} from '@utils/setup-state';
+
+const SETUP_NAME = 'punto-venta-datos';
 
 // ─── Skip controlado por variable de entorno ─────────────────────────
 setup.skip(!!process.env.SKIP_PV_SETUP, 'Setup de PuntoVenta omitido por SKIP_PV_SETUP');
 
 setup('preparar datos base para PuntoVenta / Emisiones', async ({page}) => {
+    // ── Auto-skip si ya completado ───────────────────────────────────
+    if (shouldSkipSetup(SETUP_NAME)) {
+        console.log(`[setup-state] ${SETUP_NAME} already completed, skipping`);
+        return;
+    }
     setup.setTimeout(180_000);
 
     const pvSetup = new PuntoVentaSetupPage(page);
@@ -63,4 +71,7 @@ setup('preparar datos base para PuntoVenta / Emisiones', async ({page}) => {
     await pvSetup.asegurarClienteRUC(CLIENTE_RUC_PV);
 
     console.log('\n [PV Setup] Datos base de PuntoVenta listos\n');
+
+    // ── Marcar completado ────────────────────────────────────────────
+    markSetupComplete(SETUP_NAME);
 });

@@ -2,11 +2,19 @@ import {expect, test as setup} from '@playwright/test';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import {env} from '../config/env';
+import {shouldSkipSetup, markSetupComplete} from '@utils/setup-state';
 
+const SETUP_NAME = 'auth';
 const authDir = path.join(__dirname, '../playwright/.auth');
 const authFile = path.join(authDir, 'user.json');
 
 setup('authenticate', async ({page}) => {
+    // ── Auto-skip si ya completado ───────────────────────────────────
+    if (shouldSkipSetup(SETUP_NAME)) {
+        console.log(`[setup-state] ${SETUP_NAME} already completed, skipping`);
+        return;
+    }
+
     // Es buena práctica asegurar que el directorio padre del storageState exista
     // para evitar errores ENOENT si la carpeta Playwright/.auth fue ignorada en git.
     if (!fs.existsSync(authDir)) {
@@ -32,4 +40,7 @@ setup('authenticate', async ({page}) => {
 
     await page.context().storageState({path: authFile});
     console.log('Sesión guardada correctamente en playwright/.auth/user.json');
+
+    // ── Marcar completado ────────────────────────────────────────────
+    markSetupComplete(SETUP_NAME);
 });

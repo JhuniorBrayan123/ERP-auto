@@ -389,6 +389,7 @@ class MavenReporter implements Reporter {
         const last = testSteps[testSteps.length - 1];
         return last?.title ?? 'Paso no identificado';
     }
+
 }
 
 export default MavenReporter;

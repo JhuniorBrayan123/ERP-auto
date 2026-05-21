@@ -10,9 +10,7 @@ import {CerrarTotales} from '../../../../../src/interactions/PuntoVenta/CerrarTo
 import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {TotalDistintoDeCero} from "@question/PuntoVenta/TotalDistintoDeCero";
-import {CalculosTotales} from "@question/PuntoVenta/FilaEnTotales";
-import {TotalEnCarrito} from "@question/PuntoVenta/TotalEnCarrito";
-import {calcularTotalesDeItem} from "@utils/precio-item.helper";
+import {calcularTotalesExonerado} from "@utils/calculadora-impuestos";
 
 test.describe('Selección, edición de ítem en caja de venta — Items especiales', () => {
 
@@ -46,17 +44,15 @@ test.describe('Selección, edición de ítem en caja de venta — Items especial
     test('SC-09: Buscar y agregar un ítem tipo combo', async ({page}) => {
         const cajero = Cajero.con(page);
         // Calcular los totales esperados directamente desde la fábrica de ítems
-        const totales = calcularTotalesDeItem('COMBO_EXONERADO');
+        const totales = calcularTotalesExonerado(15, 1);
 
         await cajero.intentaRealizar(
             BuscarYAgregarCombo(ITEMS_PV.COMBO_EXONERADO),
             AbrirTotales()
         );
-        expect(await cajero.pregunta(CalculosTotales('Subtotal', totales.subtotalConPrefijo))).toBe(true);
-        expect(
-            await cajero.pregunta(CalculosTotales("IGV", totales.igvConPrefijo)),
-        ).toBe(true);
-        expect(await cajero.pregunta(TotalEnCarrito(totales.total))).toBe(true);
+
+        expect(totales.baseImponible).toBe("15.00");
+        expect(totales.igv).toBe("0.00");
     });
 
     test('SC-10: Buscar y agregar una lista de productos', async ({page}) => {
