@@ -5,6 +5,7 @@ import { spawn as nodeSpawn } from 'node:child_process';
 import { checkbox, confirm, input, select } from '@inquirer/prompts';
 import crossSpawn from 'cross-spawn';
 import {getSetupStateSummary, areAllSetupsComplete} from '@utils/setup-state';
+import { getFailedTests, type FailedTestGroup } from './analyze-results';
 
 const ROOT_DIR = process.cwd();
 const TESTS_DIR = path.join(ROOT_DIR, 'tests');
@@ -599,8 +600,8 @@ async function runPlaywrightUi(projectContext: ProjectContext): Promise<void> {
     await runPlaywright(['--ui'], projectContext);
 }
 
-async function selectProject(): Promise<'PuntoVenta' | 'Logistica' | 'TODO' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'exit'> {
-    const choice = await select<'PuntoVenta' | 'Logistica' | 'TODO' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'exit'>({
+async function selectProject(): Promise<'PuntoVenta' | 'Logistica' | 'TODO' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'RunAllFailed' | 'exit'> {
+    const choice = await select<'PuntoVenta' | 'Logistica' | 'TODO' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'RunAllFailed' | 'exit'>({
         message: 'ERP2 AUTO - TEST RUNNER — Selecciona proyecto:',
         choices: [
             { name: '1. PuntoVenta', value: 'PuntoVenta' },
@@ -609,7 +610,8 @@ async function selectProject(): Promise<'PuntoVenta' | 'Logistica' | 'TODO' | 'R
             { name: '4. Run All (Secuencial: PV → LOG, output limpio)', value: 'RunAllSequential' },
             { name: '5. Run All (Paralelo: PV + LOG, output mezclado)', value: 'RunAllParallel' },
             { name: '6. Run All (Dos terminales: instrucciones)', value: 'RunAllDual' },
-            { name: '7. Salir', value: 'exit' },
+            { name: '7. 🔄 Re-ejecutar tests fallidos', value: 'RunAllFailed' },
+            { name: '8. Salir', value: 'exit' },
         ],
     });
     return choice;
@@ -768,6 +770,59 @@ async function runAllDualTerminal(): Promise<void> {
     console.log('═══════════════════════════════════════════════════════\n');
 }
 
+async function runFailedTests(): Promise<void> {
+    const failedGroups = getFailedTests();
+
+    if (failedGroups.length === 0) {
+        // Check if results files exist at all
+        const pvPath = path.join(PROJECT_CONFIG.PuntoVenta.outputDir, 'results.json');
+        const logPath = path.join(PROJECT_CONFIG.Logistica.outputDir, 'results.json');
+
+        if (!fs.existsSync(pvPath) && !fs.existsSync(logPath)) {
+            console.log('\nNo se encontró results.json. Ejecuta primero Run All o Run Project.\n');
+        } else {
+            console.log('\nNo se encontraron tests fallidos para re-ejecutar.\n');
+        }
+        return;
+    }
+
+    for (const group of failedGroups) {
+        const grepPattern = group.titles.map((t) => escapeGrep(t)).join('|');
+        const projectKey = group.project as ProjectKey;
+        const config = PROJECT_CONFIG[projectKey];
+        const outputDir = config.outputDir;
+
+        console.log(`\n=== Re-ejecutando ${group.titles.length} test(s) fallidos en ${group.project} ===\n`);
+
+        const args = ['--project', group.project, '--grep', grepPattern, '--output', outputDir];
+
+        const childEnv = {
+            ...process.env,
+            PW_REPORT_OUTPUT: `${outputDir}/results.json`,
+            PW_JUNIT_OUTPUT: `${outputDir}/junit.xml`,
+            PW_HTML_OUTPUT: `playwright-report/${projectKey.toLowerCase()}`,
+        };
+
+        ensureOutputDirs(outputDir);
+        ensureOutputDirs(`playwright-report/${projectKey.toLowerCase()}`);
+
+        const exitCode = await new Promise<number | null>((resolve) => {
+            const child = crossSpawn('npx', ['playwright', 'test', ...args], {
+                stdio: 'inherit',
+                shell: false,
+                env: childEnv,
+            });
+            currentChildren.push(child);
+            child.on('close', (code) => {
+                currentChildren = currentChildren.filter(c => c !== child);
+                resolve(code);
+            });
+        });
+
+        console.log(`\n${group.project} — exit code: ${exitCode}\n`);
+    }
+}
+
 async function main(): Promise<void> {
     if (!isDirectory(TESTS_DIR)) {
         console.error('\nNo se encontro la carpeta tests en la raiz del proyecto.');
@@ -796,6 +851,11 @@ async function main(): Promise<void> {
 
         if (projectChoice === 'RunAllDual') {
             await runAllDualTerminal();
+            continue;
+        }
+
+        if (projectChoice === 'RunAllFailed') {
+            await runFailedTests();
             continue;
         }
 
