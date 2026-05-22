@@ -1,4 +1,4 @@
-import {Page} from '@playwright/test';
+import {expect, Page} from '@playwright/test';
 
 export interface DetalleCarga {
     ubigeo: string;
@@ -38,20 +38,27 @@ export class DetraccionPage {
     }
 
     async configurarTransporteCarga(config: ConfigDetraccionTransporte): Promise<void> {
-        // 1. Tipo de Operación
-        const selectOperacion = this.page.locator('[id$="v-select:tipo-operacion"]').or(
-            this.page.getByText('Operación Sujeta a Detracción').first()
-        );
-        await selectOperacion.waitFor({state: 'visible', timeout: 10_000});
-        await selectOperacion.click({force: true});
+        // 1. Abrir select
+        const selectOperacion = this.page
+            .locator('.v-select-header-form')
+            .filter({hasText: 'Operación Sujeta a Detracción'});
 
-        const opcionTipoOperacion = this.page.getByText(config.tipoOperacion).last();
-        await opcionTipoOperacion.waitFor({state: 'visible', timeout: 5000}).catch(() => {
-        });
-        await opcionTipoOperacion.click({force: true});
+        await selectOperacion.click();
 
-        // Esperar brevemente a que el modal reaccione, pero no exigir hidden estricto
-        await this.page.waitForTimeout(500);
+// 2. Esperar dropdown abierto
+        const dropdown = this.page.locator('.v-select-base-options.is-open');
+        await expect(dropdown).toBeVisible();
+
+// 3. Seleccionar opción exacta
+        await dropdown
+            .locator('.v-select-form-option')
+            .filter({
+                hasText: 'Operación Sujeta a Detracción - Servicio de Transporte de Carga'
+            })
+            .click();
+
+// 4. Validar selección aplicada (opcional pero recomendado)
+        await expect(selectOperacion).toContainText('Transporte de Carga');
 
         // 2. Método de Pago
         const selectMetodoPago = this.page.locator('[id$="v-select:medio-pago"]').or(
