@@ -17,3 +17,7 @@ junit.xml
 results.json
 report/
 _codegen/
+AGENTS.md
+exploration.md
+.opencode/
+openspec/

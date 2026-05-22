@@ -4,8 +4,9 @@ import type { ChildProcess } from 'node:child_process';
 import { spawn as nodeSpawn } from 'node:child_process';
 import { checkbox, confirm, input, select } from '@inquirer/prompts';
 import crossSpawn from 'cross-spawn';
-import {getSetupStateSummary, areAllSetupsComplete} from '@utils/setup-state';
+import {getSetupStateSummary, areAllSetupsComplete, markSetupIncomplete} from '@utils/setup-state';
 import { getFailedTests, type FailedTestGroup } from './analyze-results';
+import { cargarMapaDesdeCache, guardarMapaEnCache, cargarMapaCodigos } from '../src/factories/item-factory';
 
 const ROOT_DIR = process.cwd();
 const TESTS_DIR = path.join(ROOT_DIR, 'tests');
@@ -198,6 +199,49 @@ function formatCommand(args: string[]): string {
     return ['npx', 'playwright', 'test', ...args].map(quoteArg).join(' ');
 }
 
+/**
+ * Carga el cache de items dinámicos para el entorno y cuenta actual.
+ * 
+ * REGLA: Solo CARGA, nunca guarda. Quien guarda es el setup
+ * (punto-venta-items.setup.ts) cuando completa exitosamente.
+ * 
+ * 1. Busca cache para (env_actual, cuenta_actual)
+ * 2. Si no hay cache y es PRD, seed desde dynamic-items.prd.json
+ */
+function cargarCacheActual(): void {
+    const envGroup = (process.env.APP_ENV ?? '').trim().toLowerCase() === 'prd' ? 'prd' : 'crt-group';
+    const currentAccount = (process.env.USER_EMAIL ?? '').trim().toLowerCase() || 'unknown';
+
+    // Intentar cargar desde cache para (entorno_actual, cuenta_actual)
+    const cacheMapa = cargarMapaDesdeCache(envGroup, currentAccount);
+    if (cacheMapa) {
+        console.log(`[Cache] Items cargados desde cache: ${envGroup} / ${currentAccount}`);
+        return;
+    }
+
+    // PRD: seed desde dynamic-items.prd.json si no hay cache
+    if (envGroup === 'prd') {
+        const prdItemsFile = path.join(ROOT_DIR, 'playwright', 'dynamic-items.prd.json');
+        const authItemsFile = path.join(ROOT_DIR, 'playwright', '.auth', 'dynamic-items.json');
+        try {
+            const prdContent = fs.readFileSync(prdItemsFile, 'utf-8');
+            const prdMapa = JSON.parse(prdContent);
+            if (!fs.existsSync(path.dirname(authItemsFile))) {
+                fs.mkdirSync(path.dirname(authItemsFile), { recursive: true });
+            }
+            fs.writeFileSync(authItemsFile, JSON.stringify(prdMapa, null, 2), 'utf-8');
+            guardarMapaEnCache(prdMapa, envGroup, currentAccount);
+            console.log(`[Cache] PRD seed copiado a cache: ${envGroup} / ${currentAccount}`);
+        } catch {
+            console.warn('[PRD] No se pudo cargar dynamic-items.prd.json — ¿existe el archivo?');
+        }
+        return;
+    }
+
+    // CRT sin cache
+    console.warn(`[Cache] No hay cache para ${envGroup} / ${currentAccount}. Ejecuta setups primero.`);
+}
+
 async function askRunOptions(): Promise<string[]> {
     // Mostrar estado actual de los setups
     const stateSummary = getSetupStateSummary();
@@ -209,9 +253,17 @@ async function askRunOptions(): Promise<string[]> {
     // Si todos los setups están completados, auto-responder que no
     if (areAllSetupsComplete()) {
         console.log('[setup-state] Todos los setups completados — saltando ejecución de setups\n');
-        process.env.SKIP_PV_SETUP = '1';
+        // Salteamos items (lento) y datos-adicionales.
         process.env.SKIP_PV_ITEMS_SETUP = '1';
         process.env.SKIP_DATOS_SETUP = '1';
+
+        // Forzamos auth a re-ejecutarse aunque esté completado.
+        // Auth es rápido (~10s) y permite refrescar sesión si expiró.
+        markSetupIncomplete('auth');
+
+        // Cargar cache para asegurar dynamic-items.json correcto
+        cargarCacheActual();
+
         return [];
     }
 
@@ -221,9 +273,15 @@ async function askRunOptions(): Promise<string[]> {
     });
 
     if (!ejecutarSetups) {
-        process.env.SKIP_PV_SETUP = '1';
+        // Salteamos items y datos.
         process.env.SKIP_PV_ITEMS_SETUP = '1';
         process.env.SKIP_DATOS_SETUP = '1';
+
+        // Forzamos auth a re-ejecutarse aunque esté completado.
+        // Auth es rápido (~10s) y permite refrescar sesión si expiró.
+        markSetupIncomplete('auth');
+
+        cargarCacheActual();
     } else {
         delete process.env.SKIP_PV_SETUP;
         delete process.env.SKIP_PV_ITEMS_SETUP;

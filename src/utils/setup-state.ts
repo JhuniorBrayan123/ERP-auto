@@ -196,6 +196,20 @@ export function markSetupComplete(setupName: string): void {
 }
 
 /**
+ * Marca un setup como incompleto (elimina su entrada del estado).
+ * Útil para forzar re-ejecución de setups como auth incluso cuando
+ * ya estaban completados, sin modificar el resto del estado.
+ */
+export function markSetupIncomplete(setupName: string): void {
+    const state = loadSetupState();
+    if (state.setups[setupName]) {
+        delete state.setups[setupName];
+        saveSetupState(state);
+        console.log(`[setup-state] ${setupName}: marcado como incompleto — se re-ejecutará`);
+    }
+}
+
+/**
  * Retorna un resumen legible del estado de todos los setups.
  * Útil para mostrar en el menú test-runner o en reportes.
  */

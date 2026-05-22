@@ -72,10 +72,64 @@ export interface DynamicItemsMap {
     [key: string]: string;
 }
 
-// ─── Ruta del archivo de mapeo ─────────────────────────────────────────
+// ─── Rutas de archivos de mapeo ───────────────────────────────────────
 
 const AUTH_DIR = resolve(process.cwd(), 'playwright', '.auth');
 const MAPPING_FILE = resolve(AUTH_DIR, 'dynamic-items.json');
+const CACHE_DIR = resolve(AUTH_DIR, 'cache');
+
+/**
+ * Genera un slug seguro para usar como nombre de archivo de cache.
+ * Ej: "crt-group__gutierrez_at_gmail.com"
+ */
+export function generarSlugCache(envGroup: string, account: string): string {
+    const safeAccount = account.replace(/@/g, '_at_').replace(/[<>:"/\\|?*]/g, '_');
+    return `${envGroup}__${safeAccount}`;
+}
+
+/**
+ * Retorna la ruta al archivo de cache para una combinación (env, cuenta).
+ */
+export function rutaCache(envGroup: string, account: string): string {
+    return resolve(CACHE_DIR, `${generarSlugCache(envGroup, account)}.json`);
+}
+
+/**
+ * Guarda el mapa en el cache por (envGroup, account).
+ */
+export function guardarMapaEnCache(mapa: DynamicItemsMap, envGroup: string, account: string): void {
+    if (!existsSync(CACHE_DIR)) {
+        mkdirSync(CACHE_DIR, {recursive: true});
+    }
+    const cacheFile = rutaCache(envGroup, account);
+    writeFileSync(cacheFile, JSON.stringify(mapa, null, 2), 'utf-8');
+    console.log(`[ItemFactory] Cache guardado: ${cacheFile}`);
+}
+
+/**
+ * Carga un mapa desde el cache por (envGroup, account).
+ * Si existe, también lo copia a dynamic-items.json (archivo activo).
+ * Retorna null si no existe.
+ */
+export function cargarMapaDesdeCache(envGroup: string, account: string): DynamicItemsMap | null {
+    const cacheFile = rutaCache(envGroup, account);
+    if (!existsSync(cacheFile)) {
+        return null;
+    }
+    try {
+        const contenido = readFileSync(cacheFile, 'utf-8');
+        const mapa = JSON.parse(contenido) as DynamicItemsMap;
+        // Sincronizar con dynamic-items.json (archivo activo que leen los helpers)
+        if (!existsSync(AUTH_DIR)) {
+            mkdirSync(AUTH_DIR, {recursive: true});
+        }
+        writeFileSync(MAPPING_FILE, JSON.stringify(mapa, null, 2), 'utf-8');
+        console.log(`[ItemFactory] Cache cargado: ${cacheFile}`);
+        return mapa;
+    } catch {
+        return null;
+    }
+}
 
 // ─── Templates de ítems base ───────────────────────────────────────────
 

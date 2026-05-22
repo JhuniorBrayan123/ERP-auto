@@ -8,6 +8,7 @@ import {
     generarRunId,
     generarMapaCodigos,
     guardarMapaCodigos,
+    guardarMapaEnCache,
     ITEM_TEMPLATES,
 } from '@factories/item-factory';
 import {
@@ -26,7 +27,7 @@ import {
 } from './setup-checkpoint';
 import {shouldSkipSetup, markSetupComplete} from '@utils/setup-state';
 import {resolve} from 'node:path';
-import {copyFileSync, existsSync} from 'node:fs';
+import {copyFileSync, existsSync, readFileSync} from 'node:fs';
 
 const SETUP_NAME = 'punto-venta-items';
 setup.skip(!!process.env.SKIP_PV_ITEMS_SETUP, 'Setup de ítems PV omitido por SKIP_PV_ITEMS_SETUP');
@@ -133,6 +134,16 @@ setup(CASO_ACTUAL, async ({page}) => {
         }
         copyFileSync(prdItemsFile, resolve(process.cwd(), 'playwright', '.auth', 'dynamic-items.json'));
         console.log(`[setup-state] PRD: ítems fijos copiados desde dynamic-items.prd.json`);
+        // Guardar en cache para reuso entre cambios de cuenta
+        try {
+            const prdData = readFileSync(prdItemsFile, 'utf-8');
+            const prdMapa = JSON.parse(prdData);
+            const envGroup = 'prd';
+            const account = (process.env.USER_EMAIL ?? '').trim().toLowerCase() || 'unknown';
+            guardarMapaEnCache(prdMapa, envGroup, account);
+        } catch {
+            console.warn('[setup-state] No se pudo guardar cache PRD — no crítico');
+        }
         markSetupComplete(SETUP_NAME);
         return;
     }
@@ -259,6 +270,10 @@ setup(CASO_ACTUAL, async ({page}) => {
 
     // ── Guardar mapa de códigos dinámicos ──────────────────────────────
     guardarMapaCodigos(mapaCodigos);
+    // Guardar en cache para reuso entre cambios de cuenta
+    const envGroup = (process.env.APP_ENV ?? '').trim().toLowerCase() === 'prd' ? 'prd' : 'crt-group';
+    const account = (process.env.USER_EMAIL ?? '').trim().toLowerCase() || 'unknown';
+    guardarMapaEnCache(mapaCodigos, envGroup, account);
     limpiarCheckpoint();
     markSetupComplete(SETUP_NAME);
     logInfo('Setup Completo', `Todos los ítems de PuntoVenta están listos (RUN_ID: ${RUN_ID}) — checkpoint limpiado`);
