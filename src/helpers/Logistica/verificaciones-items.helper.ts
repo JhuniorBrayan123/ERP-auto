@@ -8,6 +8,7 @@ import {ListaFormPage} from "../../pages/Logistica/ListaFormPage";
 import {CargaMasivaPage} from "../../pages/Logistica/CargaMasivaPage";
 import type {ComponenteCombo, InsumoReceta, ProductoListaItem, StockConfig,} from "./item-data.types";
 import { getCodigo as resolverCodigo } from "../../factories/item-factory";
+import { buildMassiveExcel, cleanupTempFile } from "./masivo-excel.helper";
 
 // ─── Cross-type: Crear y Confirmar ───────────────────────────────────
 
@@ -179,8 +180,6 @@ export const ejecutarTestCargaMasiva = async (
     config: { cardLabel: string },
     usarAutoRemapeo: boolean = false,
 ) => {
-    const {buildMassiveExcel, cleanupTempFile} =
-        await import("./masivo-excel.helper");
 
     let tempFilePath = "";
     let textoBusqueda = "";

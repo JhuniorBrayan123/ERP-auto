@@ -5,10 +5,10 @@ test.describe('PV-00 | Validaciones generales de emisión — Boleta @PV-00', {t
 
     // ─── Bloquear boleta sin cliente >= 700 (NO va a búsqueda) ────────
     test('Bloquear emisión de boleta sin cliente para montos >= 700 @PV-00.1', async ({
-                                                                                         cajaPage, emisionPage, page,
-                                                                                     }) => {
+                                                                                          cajaPage, emisionPage, page,
+                                                                                      }) => {
         await test.step('Given: la caja está abierta', async () => {
-            await cajaPage.asegurarCajaAbierta();
+            await cajaPage.continuarVendiendo();
         });
 
         await test.step('And: agregar producto y editar precio a 750', async () => {

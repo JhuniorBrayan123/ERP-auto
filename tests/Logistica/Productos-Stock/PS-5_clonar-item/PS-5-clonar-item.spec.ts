@@ -17,10 +17,10 @@ test.describe('PS-5 | Clonado de item', {tag: ['@logistica', '@productos-stock']
      * se reutiliza tanto en el llenado como en la validación posterior.
      */
     test('clonar producto existente con nombre único @PS-5', async ({
-                                                                  page,
-                                                                  listaItems,
-                                                                  edicionItem,
-                                                              }) => {
+                                                                        page,
+                                                                        listaItems,
+                                                                        edicionItem,
+                                                                    }) => {
         const codigoItemOrigen = '888888';
         const nombreClonado = buildUniqueClonedItemName('item para clonacion');
 
@@ -41,9 +41,7 @@ test.describe('PS-5 | Clonado de item', {tag: ['@logistica', '@productos-stock']
         });
 
         await test.step('Verificar item clonado visible en lista', async () => {
-            // El nombre puede estar truncado por CSS (elipsis-line) en la columna Nombre.
-            // Usamos toBeAttached() para confirmar que el DOM contiene el nombre completo,
-            // y verificamos en la tabla que existe una fila con el texto del clonado.
+            await page.getByText('Estamos cargando tus ítems...').waitFor({state: 'hidden', timeout: 25000});
             await expect(page.getByRole('table').getByText(nombreClonado).first()).toBeAttached();
         });
     });

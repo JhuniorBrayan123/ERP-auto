@@ -1,14 +1,14 @@
-import {test, Page} from '@playwright/test';
+import {Page, test} from '@playwright/test';
 import {UsarNavegador} from '../abilities/usarnavegador';
 
-// Definimos un tipo que acepta tanto el Actor (Cajero) como Page (legacy)
 type TaskType = ((actor: Cajero) => Promise<void>) | ((page: Page) => Promise<void>);
 type QuestionType<T> = ((actor: Cajero) => Promise<T>) | ((page: Page) => Promise<T>);
 
 export class Cajero {
     private abilities: Map<string, any> = new Map();
 
-    private constructor(public readonly nombre: string) {}
+    private constructor(public readonly nombre: string) {
+    }
 
     static llamado(nombre: string): Cajero {
         return new Cajero(nombre);

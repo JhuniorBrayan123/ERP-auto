@@ -11,7 +11,7 @@ export const IntentarAgregarVarianteSinStock = (item: ItemVenta, clicksExtra: nu
         await emision.seleccionarItem(item.nombre);
 
         const VARIANTE_LOCATOR = page.locator(
-            '[id="pv_punto-venta_cmp-item-variante_cmp-item-variante-grid_v-card:variante-2"] > .v-card-content > .card-wrapper > .card > .left > .imagen > .imagen-default'
+            '[id="pv_punto-venta_cmp-item-variante_cmp-item-variante-grid_v-card:variante-1"] > .v-card-content > .card-wrapper > .card > .left > .imagen > .imagen-default'
         );
 
         const errorModal = page.getByText(

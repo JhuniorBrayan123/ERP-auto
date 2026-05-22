@@ -10,16 +10,16 @@ import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 test.describe('PV-01 | Emisión de nota de venta con control de stock @PV-01', {tag: ['@punto-venta', '@nota-venta', '@stock']}, () => {
 
     test('Emitir nota de venta con producto con control de stock @PV-01.12', async ({
-                                                                                      cajaPage,
-                                                                                      comprobantePage,
-                                                                                      emisionPage,
-                                                                                      kardexApi,
-                                                                                      busquedaComprobantes,
-                                                                                  }) => {
+                                                                                        cajaPage,
+                                                                                        comprobantePage,
+                                                                                        emisionPage,
+                                                                                        kardexApi,
+                                                                                        busquedaComprobantes,
+                                                                                    }) => {
         let saldoAntes = 0;
 
         await test.step('Given: caja abierta y tipo NOTA DE VENTA', async () => {
-            await cajaPage.asegurarCajaAbierta();
+            await cajaPage.continuarVendiendo()
             await comprobantePage.seleccionarNotaVenta();
         });
 

@@ -5,18 +5,18 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
 
     // ─── Boleta con stock (Patrón B: Bitácora + Stock + Kardex) ───────
     test('Emitir boleta con producto con control de stock y validar SUNAT @PV-01.1', async ({
-                                                                                               cajaPage,
-                                                                                               comprobantePage,
-                                                                                               emisionPage,
-                                                                                               busquedaComprobantes,
-                                                                                               sunatApi,
-                                                                                               kardexApi,
-                                                                                               page,
-                                                                                           }) => {
+                                                                                                cajaPage,
+                                                                                                comprobantePage,
+                                                                                                emisionPage,
+                                                                                                busquedaComprobantes,
+                                                                                                sunatApi,
+                                                                                                kardexApi,
+                                                                                                page,
+                                                                                            }) => {
         let saldoAntes = 0;
 
         await test.step('Given: la caja está abierta', async () => {
-            await cajaPage.asegurarCajaAbierta();
+            await cajaPage.continuarVendiendo();
         });
         await test.step('And: seleccionar tipo de comprobante BOLETA', async () => {
             await comprobantePage.seleccionarBoleta();
@@ -62,10 +62,10 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
 
     // ─── Boleta sin cliente < 700 (Patrón A: solo Bitácora) ──────────
     test('Emitir boleta sin cliente con monto menor a 700 @PV-01.2', async ({
-                                                                               cajaPage,
-                                                                               emisionPage,
-                                                                               busquedaComprobantes,
-                                                                           }) => {
+                                                                                cajaPage,
+                                                                                emisionPage,
+                                                                                busquedaComprobantes,
+                                                                            }) => {
         await test.step('Given: caja abierta', async () => {
             await cajaPage.continuarVendiendo();
         });
@@ -99,8 +99,10 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
 
     // ─── Boleta con combo (Patrón A: Bitácora) ────────────────────────
     test('Emitir boleta con combo con control de stock @PV-01.4', async ({
-                                                                            cajaPage, emisionPage, busquedaComprobantes,
-                                                                        }) => {
+                                                                             cajaPage,
+                                                                             emisionPage,
+                                                                             busquedaComprobantes,
+                                                                         }) => {
         await test.step('Given: caja abierta', async () => {
             await cajaPage.continuarVendiendo();
         });
@@ -134,7 +136,12 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
 
     // ─── Boleta datos adicionales (Patrón C: Bitácora + Ver comprobante popup) ──
     test('Emitir boleta con datos adicionales @PV-01.5', async ({
-                                                                    cajaPage, emisionPage, emisionDatosOpcionalesPage, busquedaComprobantes,clientePage, page,
+                                                                    cajaPage,
+                                                                    emisionPage,
+                                                                    emisionDatosOpcionalesPage,
+                                                                    busquedaComprobantes,
+                                                                    clientePage,
+                                                                    page,
                                                                 }) => {
         await test.step('Given: caja abierta y producto agregado', async () => {
             await cajaPage.continuarVendiendo();

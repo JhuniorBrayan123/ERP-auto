@@ -4,6 +4,9 @@ import type { ChildProcess } from 'node:child_process';
 import { spawn as nodeSpawn } from 'node:child_process';
 import { checkbox, confirm, input, select } from '@inquirer/prompts';
 import crossSpawn from 'cross-spawn';
+import {getSetupStateSummary, areAllSetupsComplete, markSetupIncomplete} from '@utils/setup-state';
+import { getFailedTests, type FailedTestGroup } from './analyze-results';
+import { cargarMapaDesdeCache, guardarMapaEnCache, cargarMapaCodigos } from '../src/factories/item-factory';
 
 const ROOT_DIR = process.cwd();
 const TESTS_DIR = path.join(ROOT_DIR, 'tests');
@@ -196,16 +199,89 @@ function formatCommand(args: string[]): string {
     return ['npx', 'playwright', 'test', ...args].map(quoteArg).join(' ');
 }
 
+/**
+ * Carga el cache de items dinámicos para el entorno y cuenta actual.
+ * 
+ * REGLA: Solo CARGA, nunca guarda. Quien guarda es el setup
+ * (punto-venta-items.setup.ts) cuando completa exitosamente.
+ * 
+ * 1. Busca cache para (env_actual, cuenta_actual)
+ * 2. Si no hay cache y es PRD, seed desde dynamic-items.prd.json
+ */
+function cargarCacheActual(): void {
+    const envGroup = (process.env.APP_ENV ?? '').trim().toLowerCase() === 'prd' ? 'prd' : 'crt-group';
+    const currentAccount = (process.env.USER_EMAIL ?? '').trim().toLowerCase() || 'unknown';
+
+    // Intentar cargar desde cache para (entorno_actual, cuenta_actual)
+    const cacheMapa = cargarMapaDesdeCache(envGroup, currentAccount);
+    if (cacheMapa) {
+        console.log(`[Cache] Items cargados desde cache: ${envGroup} / ${currentAccount}`);
+        return;
+    }
+
+    // PRD: seed desde dynamic-items.prd.json si no hay cache
+    if (envGroup === 'prd') {
+        const prdItemsFile = path.join(ROOT_DIR, 'playwright', 'dynamic-items.prd.json');
+        const authItemsFile = path.join(ROOT_DIR, 'playwright', '.auth', 'dynamic-items.json');
+        try {
+            const prdContent = fs.readFileSync(prdItemsFile, 'utf-8');
+            const prdMapa = JSON.parse(prdContent);
+            if (!fs.existsSync(path.dirname(authItemsFile))) {
+                fs.mkdirSync(path.dirname(authItemsFile), { recursive: true });
+            }
+            fs.writeFileSync(authItemsFile, JSON.stringify(prdMapa, null, 2), 'utf-8');
+            guardarMapaEnCache(prdMapa, envGroup, currentAccount);
+            console.log(`[Cache] PRD seed copiado a cache: ${envGroup} / ${currentAccount}`);
+        } catch {
+            console.warn('[PRD] No se pudo cargar dynamic-items.prd.json — ¿existe el archivo?');
+        }
+        return;
+    }
+
+    // CRT sin cache
+    console.warn(`[Cache] No hay cache para ${envGroup} / ${currentAccount}. Ejecuta setups primero.`);
+}
+
 async function askRunOptions(): Promise<string[]> {
+    // Mostrar estado actual de los setups
+    const stateSummary = getSetupStateSummary();
+    console.log('\n──────────────────────────────────────');
+    console.log('Estado de setups:');
+    console.log(stateSummary);
+    console.log('──────────────────────────────────────\n');
+
+    // Si todos los setups están completados, auto-responder que no
+    if (areAllSetupsComplete()) {
+        console.log('[setup-state] Todos los setups completados — saltando ejecución de setups\n');
+        // Salteamos items (lento) y datos-adicionales.
+        process.env.SKIP_PV_ITEMS_SETUP = '1';
+        process.env.SKIP_DATOS_SETUP = '1';
+
+        // Forzamos auth a re-ejecutarse aunque esté completado.
+        // Auth es rápido (~10s) y permite refrescar sesión si expiró.
+        markSetupIncomplete('auth');
+
+        // Cargar cache para asegurar dynamic-items.json correcto
+        cargarCacheActual();
+
+        return [];
+    }
+
     const ejecutarSetups = await confirm({
         message: 'Ejecutar setups automatizados (crear datos)? (Dile NO si ya corriste los tests antes)',
         default: false,
     });
 
     if (!ejecutarSetups) {
-        process.env.SKIP_PV_SETUP = '1';
+        // Salteamos items y datos.
         process.env.SKIP_PV_ITEMS_SETUP = '1';
         process.env.SKIP_DATOS_SETUP = '1';
+
+        // Forzamos auth a re-ejecutarse aunque esté completado.
+        // Auth es rápido (~10s) y permite refrescar sesión si expiró.
+        markSetupIncomplete('auth');
+
+        cargarCacheActual();
     } else {
         delete process.env.SKIP_PV_SETUP;
         delete process.env.SKIP_PV_ITEMS_SETUP;
@@ -582,8 +658,8 @@ async function runPlaywrightUi(projectContext: ProjectContext): Promise<void> {
     await runPlaywright(['--ui'], projectContext);
 }
 
-async function selectProject(): Promise<'PuntoVenta' | 'Logistica' | 'TODO' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'exit'> {
-    const choice = await select<'PuntoVenta' | 'Logistica' | 'TODO' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'exit'>({
+async function selectProject(): Promise<'PuntoVenta' | 'Logistica' | 'TODO' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'RunAllFailed' | 'exit'> {
+    const choice = await select<'PuntoVenta' | 'Logistica' | 'TODO' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'RunAllFailed' | 'exit'>({
         message: 'ERP2 AUTO - TEST RUNNER — Selecciona proyecto:',
         choices: [
             { name: '1. PuntoVenta', value: 'PuntoVenta' },
@@ -592,7 +668,8 @@ async function selectProject(): Promise<'PuntoVenta' | 'Logistica' | 'TODO' | 'R
             { name: '4. Run All (Secuencial: PV → LOG, output limpio)', value: 'RunAllSequential' },
             { name: '5. Run All (Paralelo: PV + LOG, output mezclado)', value: 'RunAllParallel' },
             { name: '6. Run All (Dos terminales: instrucciones)', value: 'RunAllDual' },
-            { name: '7. Salir', value: 'exit' },
+            { name: '7. 🔄 Re-ejecutar tests fallidos', value: 'RunAllFailed' },
+            { name: '8. Salir', value: 'exit' },
         ],
     });
     return choice;
@@ -751,6 +828,59 @@ async function runAllDualTerminal(): Promise<void> {
     console.log('═══════════════════════════════════════════════════════\n');
 }
 
+async function runFailedTests(): Promise<void> {
+    const failedGroups = getFailedTests();
+
+    if (failedGroups.length === 0) {
+        // Check if results files exist at all
+        const pvPath = path.join(PROJECT_CONFIG.PuntoVenta.outputDir, 'results.json');
+        const logPath = path.join(PROJECT_CONFIG.Logistica.outputDir, 'results.json');
+
+        if (!fs.existsSync(pvPath) && !fs.existsSync(logPath)) {
+            console.log('\nNo se encontró results.json. Ejecuta primero Run All o Run Project.\n');
+        } else {
+            console.log('\nNo se encontraron tests fallidos para re-ejecutar.\n');
+        }
+        return;
+    }
+
+    for (const group of failedGroups) {
+        const grepPattern = group.titles.map((t) => escapeGrep(t)).join('|');
+        const projectKey = group.project as ProjectKey;
+        const config = PROJECT_CONFIG[projectKey];
+        const outputDir = config.outputDir;
+
+        console.log(`\n=== Re-ejecutando ${group.titles.length} test(s) fallidos en ${group.project} ===\n`);
+
+        const args = ['--project', group.project, '--grep', grepPattern, '--output', outputDir];
+
+        const childEnv = {
+            ...process.env,
+            PW_REPORT_OUTPUT: `${outputDir}/results.json`,
+            PW_JUNIT_OUTPUT: `${outputDir}/junit.xml`,
+            PW_HTML_OUTPUT: `playwright-report/${projectKey.toLowerCase()}`,
+        };
+
+        ensureOutputDirs(outputDir);
+        ensureOutputDirs(`playwright-report/${projectKey.toLowerCase()}`);
+
+        const exitCode = await new Promise<number | null>((resolve) => {
+            const child = crossSpawn('npx', ['playwright', 'test', ...args], {
+                stdio: 'inherit',
+                shell: false,
+                env: childEnv,
+            });
+            currentChildren.push(child);
+            child.on('close', (code) => {
+                currentChildren = currentChildren.filter(c => c !== child);
+                resolve(code);
+            });
+        });
+
+        console.log(`\n${group.project} — exit code: ${exitCode}\n`);
+    }
+}
+
 async function main(): Promise<void> {
     if (!isDirectory(TESTS_DIR)) {
         console.error('\nNo se encontro la carpeta tests en la raiz del proyecto.');
@@ -779,6 +909,11 @@ async function main(): Promise<void> {
 
         if (projectChoice === 'RunAllDual') {
             await runAllDualTerminal();
+            continue;
+        }
+
+        if (projectChoice === 'RunAllFailed') {
+            await runFailedTests();
             continue;
         }
 

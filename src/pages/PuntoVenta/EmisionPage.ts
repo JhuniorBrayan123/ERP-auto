@@ -125,6 +125,14 @@ export class EmisionPage {
             const item = this.page.getByText(nombre).first();
             await expect(item).toBeVisible({timeout: 10_000});
             await item.click();
+            
+            // Esperar a que el spinner desaparezca, crucial para ítems compuestos (recetas/combos)
+            // que hacen validaciones de stock en el backend al agregarse
+            const overload = this.page.locator('[id="cmn_cmp-overload:loading"]');
+            await overload.waitFor({ state: 'visible', timeout: 2_000 }).catch(() => {});
+            await overload.waitFor({ state: 'hidden', timeout: 15_000 }).catch(() => {});
+            
+            await esperarDebounce(this.page, 800, 'Debounce al agregar ítem al carrito');
         } catch (error) {
             await throwFunctionalError({
                 page: this.page,

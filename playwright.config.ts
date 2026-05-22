@@ -91,7 +91,7 @@ export default defineConfig({
                 ...devices["Desktop Chrome"],
                 storageState: "playwright/.auth/user.json",
             },
-            dependencies: ["setup", "pv-items-setup"],//["setup"],//
+            dependencies: ["setup"],// ["setup", "pv-items-setup"],//["setup"],//
             workers: 1,
         },
         {
@@ -101,8 +101,12 @@ export default defineConfig({
                 ...devices["Desktop Chrome"],
                 storageState: "playwright/.auth/user.json",
             },
-            dependencies: ["setup", "pv-items-setup"],//["setup"],
+            dependencies: ["setup"],//["setup", "pv-items-setup"],//["setup"],
             workers: 1,
+        },
+        {
+            name: "scripts-tests",
+            testMatch: "tests/utility-analyze-results.spec.ts",
         },
     ],
 });

@@ -9,13 +9,13 @@ import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-venta', '@nota-venta', '@adelanto']}, () => {
 
     test('Emitir nota de venta de adelanto @PV-15.4', async ({
-                                                                cajaPage,
-                                                                comprobantePage,
-                                                                emisionPage,
-                                                                kardexApi,
-                                                                busquedaComprobantes,
-                                                                page,
-                                                            }) => {
+                                                                 cajaPage,
+                                                                 comprobantePage,
+                                                                 emisionPage,
+                                                                 kardexApi,
+                                                                 busquedaComprobantes,
+                                                                 page,
+                                                             }) => {
         let saldoAntes = 0;
 
         await test.step('Given: caja abierta y NOTA DE VENTA', async () => {
@@ -66,12 +66,12 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
     });
 
     test('Emitir nota de venta aplicando adelanto existente @PV-15.5', async ({
-                                                                                 cajaPage,
-                                                                                 comprobantePage,
-                                                                                 emisionPage,
-                                                                                 busquedaComprobantes,
-                                                                                 page,
-                                                                             }) => {
+                                                                                  cajaPage,
+                                                                                  comprobantePage,
+                                                                                  emisionPage,
+                                                                                  busquedaComprobantes,
+                                                                                  page,
+                                                                              }) => {
         await test.step('Given: crear adelanto como precondición', async () => {
             await cajaPage.continuarVendiendo();
             await comprobantePage.seleccionarNotaVenta();
@@ -86,6 +86,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
             await comprobantePage.seleccionarNotaVenta();
             await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
             await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+            await emisionPage.incrementarCantidad(1)
         });
 
         await test.step('When: aplicar adelanto existente', async () => {
@@ -98,6 +99,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
         });
 
         await test.step('And: verificar total anticipos visible', async () => {
+            await emisionPage.desplegarPanelCalculos()
             await expect(page.getByText('Total anticipos')).toBeVisible();
         });
 

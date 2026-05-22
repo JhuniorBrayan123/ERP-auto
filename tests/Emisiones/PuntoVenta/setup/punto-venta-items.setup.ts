@@ -8,6 +8,7 @@ import {
     generarRunId,
     generarMapaCodigos,
     guardarMapaCodigos,
+    guardarMapaEnCache,
     ITEM_TEMPLATES,
 } from '@factories/item-factory';
 import {
@@ -24,7 +25,11 @@ import {
     marcarDone,
     limpiarCheckpoint,
 } from './setup-checkpoint';
+import {shouldSkipSetup, markSetupComplete} from '@utils/setup-state';
+import {resolve} from 'node:path';
+import {copyFileSync, existsSync, readFileSync} from 'node:fs';
 
+const SETUP_NAME = 'punto-venta-items';
 setup.skip(!!process.env.SKIP_PV_ITEMS_SETUP, 'Setup de ítems PV omitido por SKIP_PV_ITEMS_SETUP');
 
 // ─── Helpers de Logging Estructurado ──────────────────────────────────
@@ -114,6 +119,35 @@ function crearResolver(mapaCodigos: Record<string, string>): (key: string) => st
 // ─── Setup principal ──────────────────────────────────────────────────
 
 setup(CASO_ACTUAL, async ({page}) => {
+    // ── Auto-skip si ya completado ───────────────────────────────────
+    if (shouldSkipSetup(SETUP_NAME)) {
+        console.log(`[setup-state] ${SETUP_NAME} already completed, skipping`);
+        return;
+    }
+
+    // ── PRD: usar JSON fijo (no crear items nuevos) ──────────────────
+    const isPrd = (process.env.APP_ENV ?? '').trim().toLowerCase() === 'prd';
+    if (isPrd) {
+        const prdItemsFile = resolve(process.cwd(), 'playwright', 'dynamic-items.prd.json');
+        if (!existsSync(prdItemsFile)) {
+            throw new Error(`[setup-state] PRD: archivo de ítems fijo no encontrado: ${prdItemsFile}. Ejecutar setup en CRT o copiar dynamic-items.prd.json`);
+        }
+        copyFileSync(prdItemsFile, resolve(process.cwd(), 'playwright', '.auth', 'dynamic-items.json'));
+        console.log(`[setup-state] PRD: ítems fijos copiados desde dynamic-items.prd.json`);
+        // Guardar en cache para reuso entre cambios de cuenta
+        try {
+            const prdData = readFileSync(prdItemsFile, 'utf-8');
+            const prdMapa = JSON.parse(prdData);
+            const envGroup = 'prd';
+            const account = (process.env.USER_EMAIL ?? '').trim().toLowerCase() || 'unknown';
+            guardarMapaEnCache(prdMapa, envGroup, account);
+        } catch {
+            console.warn('[setup-state] No se pudo guardar cache PRD — no crítico');
+        }
+        markSetupComplete(SETUP_NAME);
+        return;
+    }
+
     setup.setTimeout(600_000); // 10 min — crea hasta 17 ítems (incluye combos, variantes y equivalencias)
 
     // ── Resolver RUN_ID: reusar checkpoint o generar nuevo ─────────────
@@ -236,6 +270,11 @@ setup(CASO_ACTUAL, async ({page}) => {
 
     // ── Guardar mapa de códigos dinámicos ──────────────────────────────
     guardarMapaCodigos(mapaCodigos);
+    // Guardar en cache para reuso entre cambios de cuenta
+    const envGroup = (process.env.APP_ENV ?? '').trim().toLowerCase() === 'prd' ? 'prd' : 'crt-group';
+    const account = (process.env.USER_EMAIL ?? '').trim().toLowerCase() || 'unknown';
+    guardarMapaEnCache(mapaCodigos, envGroup, account);
     limpiarCheckpoint();
+    markSetupComplete(SETUP_NAME);
     logInfo('Setup Completo', `Todos los ítems de PuntoVenta están listos (RUN_ID: ${RUN_ID}) — checkpoint limpiado`);
 });

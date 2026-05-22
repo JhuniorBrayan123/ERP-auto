@@ -31,11 +31,6 @@ export class RegistroMovimientoPage {
         await this.page.getByText('Agregar ingreso').click();
     }
 
-    async clickNuevoIngreso(): Promise<void> {
-        await this.page
-            .locator('[id="lgt_movimientos_content_cmp-header-movimientos.li:nuevo-ingreo"]')
-            .click();
-    }
 
     async clickAgregarSalida(): Promise<void> {
         await this.page.getByText('Agregar salida').click();

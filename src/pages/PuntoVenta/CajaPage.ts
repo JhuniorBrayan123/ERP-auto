@@ -70,6 +70,11 @@ export class CajaPage {
     }
 
     async detectarEstadoCaja(): Promise<'abierta' | 'cerrada' | 'desconocido'> {
+        // Esperar a que el overload/spinner desaparezca antes de buscar botones
+        const overload = this.page.locator('[id="cmn_cmp-overload:loading"]');
+        await overload.waitFor({ state: 'visible', timeout: 3_000 }).catch(() => {});
+        await overload.waitFor({ state: 'hidden', timeout: 15_000 }).catch(() => {});
+
         const btnAperturar = this.getBotonPorCaja('caja-auto', 'Aperturar caja');
         const btnContinuar = this.getBotonPorCaja('caja-auto', 'Continuar vendiendo');
 
@@ -97,11 +102,13 @@ export class CajaPage {
     async asegurarCajaAbierta(): Promise<void> {
         try {
             const estado = await this.detectarEstadoCaja();
-            console.log("Estado detectado")
+            console.log(`[CajaPage] Estado detectado: ${estado}`);
             if (estado === 'cerrada') {
                 await this.abrirCajaCompleta();
             } else if (estado === 'abierta') {
                 await this.continuarVendiendo();
+            } else {
+                throw new Error('No se pudo determinar el estado de la caja (spinner no terminó o botones no encontrados)');
             }
         } catch (error) {
             await throwFunctionalError({

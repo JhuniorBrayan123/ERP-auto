@@ -14,18 +14,18 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
     }
 
     test('Emitir factura con producto con control de stock @PV-01.7', async ({
-                                                                                cajaPage,
-                                                                                comprobantePage,
-                                                                                emisionPage,
-                                                                                clientePage,
-                                                                                kardexApi,
-                                                                                busquedaComprobantes,
-                                                                                page,
-                                                                            }) => {
+                                                                                 cajaPage,
+                                                                                 comprobantePage,
+                                                                                 emisionPage,
+                                                                                 clientePage,
+                                                                                 kardexApi,
+                                                                                 busquedaComprobantes,
+                                                                                 page,
+                                                                             }) => {
         let saldoAntes = 0;
 
         await test.step('Given: caja abierta y tipo FACTURA con cliente RUC', async () => {
-            await cajaPage.asegurarCajaAbierta();
+            await cajaPage.continuarVendiendo();
             await setupFacturaConClienteRUC(comprobantePage, clientePage, page);
         });
 
@@ -76,12 +76,12 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
     });
 
     test('Emitir factura con ítem afecto a ISC @PV-01.9', async ({
-                                                                    cajaPage,
-                                                                    comprobantePage,
-                                                                    emisionPage,
-                                                                    busquedaComprobantes,
-                                                                    page,
-                                                                }) => {
+                                                                     cajaPage,
+                                                                     comprobantePage,
+                                                                     emisionPage,
+                                                                     busquedaComprobantes,
+                                                                     page,
+                                                                 }) => {
         await test.step('Given: FACTURA con cliente RUC e ítem ISC', async () => {
             await cajaPage.continuarVendiendo();
             await comprobantePage.seleccionarFactura();
@@ -118,12 +118,12 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
     });
 
     test('Emitir factura con ítem afecto a ICBPER @PV-01.10', async ({
-                                                                       cajaPage,
-                                                                       comprobantePage,
-                                                                       emisionPage,
-                                                                       busquedaComprobantes,
-                                                                       page,
-                                                                   }) => {
+                                                                         cajaPage,
+                                                                         comprobantePage,
+                                                                         emisionPage,
+                                                                         busquedaComprobantes,
+                                                                         page,
+                                                                     }) => {
         await test.step('Given: FACTURA con cliente RUC e ítem ICBPER', async () => {
             await cajaPage.continuarVendiendo();
             await comprobantePage.seleccionarFactura();

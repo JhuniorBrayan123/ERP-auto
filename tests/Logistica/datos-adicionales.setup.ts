@@ -4,11 +4,18 @@ import {RegistroMovimientoPage} from '@pages/Logistica/RegistroMovimientoPage';
 import {DatosAdicionalesSetupPage} from '@pages/Logistica/DatosAdicionalesSetupPage';
 import {PROVEEDOR_EXISTENTE, PROVEEDOR_TEST,} from '@helpers/Logistica/movimiento-data.helper';
 import {CAMPOS_AJUSTES, CAMPOS_INGRESOS, CAMPOS_TRASLADOS,} from '@helpers/Logistica/datos-adicionales-config';
+import {shouldSkipSetup, markSetupComplete} from '@utils/setup-state';
 
+const SETUP_NAME = 'datos-adicionales';
 
 setup.skip(!!process.env.SKIP_DATOS_SETUP, 'Setup de datos omitido por SKIP_DATOS_SETUP');
 
 setup('preparar datos adicionales y proveedor para movimientos', async ({page}) => {
+    // ── Auto-skip si ya completado ───────────────────────────────────
+    if (shouldSkipSetup(SETUP_NAME)) {
+        console.log(`[setup-state] ${SETUP_NAME} already completed, skipping`);
+        return;
+    }
     setup.setTimeout(180_000);
 
     const nav = new MovimientosNavigationPage(page);
@@ -58,4 +65,7 @@ setup('preparar datos adicionales y proveedor para movimientos', async ({page}) 
     await datosSetup.guardarDatos();
 
     console.log('\n [Setup] Datos adicionales, proveedor y cliente listos\n');
+
+    // ── Marcar completado ────────────────────────────────────────────
+    markSetupComplete(SETUP_NAME);
 });

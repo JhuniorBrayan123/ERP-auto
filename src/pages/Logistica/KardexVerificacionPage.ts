@@ -44,6 +44,9 @@ export class KardexVerificacionPage {
             await searchInput.fill(codigo);
             await searchInput.press('Enter');
 
+            const { esperarDebounce } = require('../../utils/wait-helpers');
+            await esperarDebounce(this.page, 1000, 'Debounce búsqueda kardex');
+            
             await this.esperarSinOverload(25_000);
             await expect(this.page.getByRole('table').getByText(codigo).first()).toBeVisible({timeout: 15_000});
         } catch (error) {
