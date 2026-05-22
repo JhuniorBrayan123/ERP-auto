@@ -1,6 +1,7 @@
 import {expect, type Page} from '@playwright/test';
 import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
 import {throwFunctionalError} from '../../utils/functional-error';
+import {esperarDebounce, esperarCargaOverlay} from '../../utils/wait-helpers';
 
 export class StockVerificacionPage {
     constructor(private readonly page: Page) {
@@ -11,6 +12,12 @@ export class StockVerificacionPage {
             const searchInput = this.page.getByRole('textbox', {name: 'Buscar por nombre, código o c'});
             await searchInput.click();
             await searchInput.fill(codigo);
+            
+            // Esperar el debounce del input de búsqueda en el ERP
+            await esperarDebounce(this.page, 1000, 'Debounce al buscar en tabla de stock');
+            // Esperar a que la tabla termine de cargar los resultados filtrados
+            await esperarCargaOverlay(this.page);
+            
             await expect(this.page.getByRole('table').getByText(codigo).first()).toBeVisible({timeout: 15000});
         } catch (error) {
             await throwFunctionalError({

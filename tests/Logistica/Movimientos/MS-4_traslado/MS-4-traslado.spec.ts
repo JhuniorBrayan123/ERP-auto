@@ -9,13 +9,14 @@ import {
 } from '@helpers/Logistica/movimiento-data.helper';
 import {KardexVerificacionPage} from '@pages/Logistica/KardexVerificacionPage';
 import {
+    buscarYSeleccionarItem,
     navegarATrasladosYNuevo,
     registrarTrasladoEIrAlListado,
-    buscarYSeleccionarItem,
+    verificarBitacoraEdicion,
     verificarKardexDesdeStock,
     verificarStockPorCodigoYClick,
-    verificarBitacoraEdicion,
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
+import {SucursalesPage} from "@pages/Logistica/SucursalesPage";
 
 test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@movimientos']}, () => {
 
@@ -152,17 +153,15 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
                                                                               registroMovimiento,
                                                                               resultadoMovimiento,
                                                                               listadoMovimientos,
+
                                                                               page,
                                                                           }) => {
+        const sucursalesPage = new SucursalesPage(page);
 
         await test.step('Given: activar preferencia avanzada de traslado por confirmar', async () => {
             await movimientosNav.navegarAConfiguracionSucursales();
-            await page.locator('[id="cfg_cmp-menu-configuracion.v-button:menu-2-4"]').click();
-            await page.getByText('Preferencias avanzadas').nth(2).click();
-            await page.locator('.cmp-items-preferencias-avanzadas > div:nth-child(4) > .icon').click();
-            await page.locator('div:nth-child(4) > .switch.flex-row > .v-switch > .switch-content > .switch > .slider').click();
-            await page.getByRole('button', {name: 'Guardar'}).click();
-            await page.locator('.v-modal > div').first().click();
+            await sucursalesPage.activarPreferenciaTraslado()
+
         });
 
         await test.step('When: registrar traslado', async () => {

@@ -289,7 +289,7 @@ export const ITEM_TEMPLATES: ItemTemplate[] = [
                 ],
                 items: [
                     {nombre: 'Variante 1 estricto', stock: {cantidadMaxima: '1001', cantidadMinima: '100'}},
-                    {nombre: 'Variante 2 estricto', stock: {cantidadMaxima: '1001', cantidadMinima: '100'}},
+                    {nombre: 'Variante 2 estricto'},
                     {nombre: 'Variante 3 estricto', stock: {cantidadMaxima: '2', cantidadMinima: '2'}},
                 ],
             },

@@ -19,6 +19,11 @@ export class PuntoVentaNavigationPage {
         try {
             await this.page.getByText('Ventas y compras').click();
             await this.page.getByText('Nueva venta', { exact: true }).click();
+            
+            // Esperar a que el spinner general de la aplicación desaparezca al cargar la vista
+            const overload = this.page.locator('[id="cmn_cmp-overload:loading"]');
+            await overload.waitFor({ state: 'visible', timeout: 3_000 }).catch(() => {});
+            await overload.waitFor({ state: 'hidden', timeout: 15_000 }).catch(() => {});
         } catch (error) {
             await throwFunctionalError({
                 page: this.page,

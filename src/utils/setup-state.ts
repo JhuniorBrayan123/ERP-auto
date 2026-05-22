@@ -201,9 +201,17 @@ export function markSetupComplete(setupName: string): void {
  */
 export function getSetupStateSummary(): string {
     const state = loadSetupState();
+    const currentEnv = detectEnvironmentGroup();
+    const currentAccount = detectAccount();
     const lines: string[] = [];
-    lines.push(`Ambiente: ${state.environment}`);
-    lines.push(`Cuenta: ${state.account ?? '(no registrada)'}`);
+    lines.push(`Ambiente: ${currentEnv}`);
+    lines.push(`Cuenta: ${currentAccount}`);
+    if (state.environment && state.environment !== currentEnv) {
+        lines.push(`  ⚠️ ambiente cambió de "${state.environment}" a "${currentEnv}" — setups deben re-ejecutarse`);
+    }
+    if (state.account && state.account !== currentAccount) {
+        lines.push(`  ⚠️ cuenta cambió de "${state.account}" a "${currentAccount}" — setups deben re-ejecutarse`);
+    }
 
     const allNames = [...SETUP_NAMES];
     for (const name of allNames) {
