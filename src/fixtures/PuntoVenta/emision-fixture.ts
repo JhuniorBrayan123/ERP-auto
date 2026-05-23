@@ -19,6 +19,9 @@ import {ComprobanteDetallePage} from '../../pages/PuntoVenta/ComprobanteDetalleP
 import {BusquedaComprobantesPage} from '../../pages/PuntoVenta/BusquedaComprobantesPage';
 import {PrecuentaPage} from '../../pages/PuntoVenta/PrecuentaPage';
 import {DetraccionPage} from "@pages/PuntoVenta/detraccion.page";
+import {PostEmisionPage} from '../../pages/PuntoVenta/PostEmisionPage';
+import {PedidoListaPage} from '../../pages/PuntoVenta/PedidoListaPage';
+import {CotizacionOpcionesPage} from '../../pages/PuntoVenta/CotizacionOpcionesPage';
 
 type EmisionFixtures = {
     pvNav: PuntoVentaNavigationPage;
@@ -32,6 +35,9 @@ type EmisionFixtures = {
     busquedaComprobantes: BusquedaComprobantesPage;
     precuentaPage: PrecuentaPage;
     detraccionPage: DetraccionPage;
+    postEmisionPage: PostEmisionPage;
+    pedidoListaPage: PedidoListaPage;
+    cotizacionOpcionesPage: CotizacionOpcionesPage;
 };
 
 export const test = base.extend<EmisionFixtures>({
@@ -79,6 +85,15 @@ export const test = base.extend<EmisionFixtures>({
     },
     detraccionPage: async ({page}, use) => {
         await use(new DetraccionPage(page));
+    },
+    postEmisionPage: async ({page}, use) => {
+        await use(new PostEmisionPage(page));
+    },
+    pedidoListaPage: async ({page}, use) => {
+        await use(new PedidoListaPage(page));
+    },
+    cotizacionOpcionesPage: async ({page}, use) => {
+        await use(new CotizacionOpcionesPage(page));
     }
 });
 

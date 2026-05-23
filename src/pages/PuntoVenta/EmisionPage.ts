@@ -48,6 +48,14 @@ export class EmisionPage {
         return this.page.getByRole('button', {name: 'Realizar Pago'});
     }
 
+    private get btnGuardarPedido(): Locator {
+        return this.page.getByRole('button', {name: 'GUARDAR PEDIDO'});
+    }
+
+    private get btnActualizarPedido(): Locator {
+        return this.page.getByRole('button', {name: 'ACTUALIZAR PEDIDO'});
+    }
+
     private get btnNuevaVenta(): Locator {
         return this.page.getByRole('button', {name: 'Nueva Venta'});
     }
@@ -354,6 +362,14 @@ export class EmisionPage {
         await this.btnRealizarPago.click();
     }
 
+    async clickGuardarPedido(): Promise<void> {
+        await this.btnGuardarPedido.click();
+    }
+
+    async clickActualizarPedido(): Promise<void> {
+        await this.btnActualizarPedido.click();
+    }
+
     async clickNuevaVenta(): Promise<void> {
         await this.btnNuevaVenta.click();
     }
@@ -393,6 +409,41 @@ export class EmisionPage {
             await this.clickPagar();
             await this.clickYape();
             return await this.interceptarEmision();
+        } catch (error) {
+            return await throwFunctionalError({
+                page: this.page,
+                ...FUNCTIONAL_CATALOG.puntoVenta.emitirComprobante,
+                cause: error,
+            });
+        }
+    }
+
+    /**
+     * Flujo para guardar un pedido (Intercepta la API de Emisiones).
+     */
+    async guardarPedido(): Promise<EmisionResult> {
+        try {
+            const responsePromise = this.page.waitForResponse(
+                (resp) => resp.url().includes('DocumentosContables/Emisiones') && resp.status() === 200,
+                {timeout: 30_000},
+            );
+
+            await this.clickGuardarPedido();
+
+            const response = await responsePromise;
+            const body = await response.json();
+
+            // En Pedidos, el nombre del PDF o el correlativo se devuelve similar a emisiones
+            const nombrePdf: string = body.FilePdf?.Nombre ?? '';
+            const serie = nombrePdf.split('-')[0] || '';
+            const correlativo = String(body.CorrelativoDocumento ?? '');
+            const comprobanteId = body.IdComprobante ?? 0;
+
+            const result: EmisionResult = {serie, correlativo, comprobanteId};
+
+            console.log(`   Pedido guardado capturado: ${serie}-${correlativo} (ID: ${comprobanteId})`);
+            this.ultimaEmision = result;
+            return result;
         } catch (error) {
             return await throwFunctionalError({
                 page: this.page,

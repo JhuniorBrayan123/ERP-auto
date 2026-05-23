@@ -14,6 +14,8 @@ export const TIPOS_COMPROBANTE: Record<string, TipoComprobante> = {
     BOLETA: "BOLETA",
     FACTURA: "FACTURA",
     NOTA_VENTA: "NOTA DE VENTA",
+    COTIZACION: "COTIZACIÓN",
+    PEDIDO: "PEDIDO",
 };
 
 // ─── Clientes de prueba ───────────────────────────────────────────────

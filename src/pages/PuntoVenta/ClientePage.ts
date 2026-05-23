@@ -23,6 +23,10 @@ export class ClientePage {
         return this.page.getByRole('button', { name: 'Agregar cliente' });
     }
 
+    private get sliderSinDocumento(): Locator {
+        return this.page.locator('.slider').first();
+    }
+
     // ─── Búsqueda y selección ─────────────────────────────────────────
 
     /** Busca un cliente por documento (DNI o RUC) */
@@ -54,6 +58,21 @@ export class ClientePage {
     /** Limpia la selección de cliente */
     async limpiarCliente(): Promise<void> {
         await this.page.locator('#undefined_delete').click();
+    }
+
+    /** Activa la opción de cliente sin documento y llena sus datos */
+    async llenarDatosClienteSinDocumento(nombre: string, direccion: string): Promise<void> {
+        await this.sliderSinDocumento.click();
+        
+        const inputNombre = this.page.getByRole('textbox', { name: 'Ingresa el nombre de tu cliente' });
+        await inputNombre.click();
+        await inputNombre.fill(nombre);
+
+        const inputDireccion = this.page.getByRole('textbox', { name: 'Ej. Calle Los Manzanos 120,' });
+        await inputDireccion.click();
+        await inputDireccion.fill(direccion);
+
+        await this.page.getByRole('button', { name: 'Aceptar' }).click();
     }
 
     // ─── Creación de cliente ──────────────────────────────────────────
