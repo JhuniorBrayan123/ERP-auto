@@ -20,7 +20,7 @@ test.describe('PV-19: Emisión de Cotización Básica', () => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             SeleccionarTipoComprobante(TIPOS_COMPROBANTE.COTIZACION),
-            SeleccionarCliente(CLIENTES.EMPRESA_RUC),
+            SeleccionarCliente(CLIENTES.EMPRESA_RUC_AUTO),
             AgregarItemAlCarrito(ITEMS_PV.PRODUCTO_SIMPLE),
             EmitirCotizacion()
         );
