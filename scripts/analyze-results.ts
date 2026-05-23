@@ -70,10 +70,12 @@ function isFailedOrTimedOut(spec: any): boolean {
         return false;
     }
 
+    // Playwright JSON reporter usa "unexpected" para tests fallidos,
+    // no "failed". "timedOut" también es válido a nivel test.status.
     return spec.tests.some(
         (t: any) =>
             t &&
-            (t.status === "failed" || t.status === "timedOut"),
+            (t.status === "unexpected" || t.status === "timedOut"),
     );
 }
 

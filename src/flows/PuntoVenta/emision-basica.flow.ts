@@ -8,12 +8,12 @@
  * NO contiene assertions — eso es responsabilidad del spec.
  */
 import {test} from '@playwright/test';
-import type {EmisionPage} from '../../pages/PuntoVenta/EmisionPage';
-import type {ClientePage} from '../../pages/PuntoVenta/ClientePage';
-import type {ComprobantePage} from '../../pages/PuntoVenta/ComprobantePage';
-import type {ComprobanteDetallePage} from '../../pages/PuntoVenta/ComprobanteDetallePage';
-import type {DatosCliente, EmisionResult, ItemVenta, TipoComprobante} from '../../helpers/PuntoVenta/emision.types';
-import {SERIES} from '../../helpers/PuntoVenta/emision-data.helper';
+import type {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
+import type {ClientePage} from '@pages/PuntoVenta/ClientePage';
+import type {ComprobantePage} from '@pages/PuntoVenta/ComprobantePage';
+import type {ComprobanteDetallePage} from '@pages/PuntoVenta/ComprobanteDetallePage';
+import type {DatosCliente, EmisionResult, ItemVenta, TipoComprobante} from '@app-types/emision.types';
+import {SERIES} from '@helpers/PuntoVenta/emision-data.helper';
 
 export interface EmisionBasicaParams {
     tipoComprobante: TipoComprobante;

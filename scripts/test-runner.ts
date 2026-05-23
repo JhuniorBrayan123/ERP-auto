@@ -7,11 +7,12 @@ import crossSpawn from 'cross-spawn';
 import {getSetupStateSummary, areAllSetupsComplete, markSetupIncomplete} from '@utils/setup-state';
 import { getFailedTests, type FailedTestGroup } from './analyze-results';
 import { cargarMapaDesdeCache, guardarMapaEnCache, cargarMapaCodigos } from '../src/factories/item-factory';
+import Fuse from 'fuse.js';
 
 const ROOT_DIR = process.cwd();
 const TESTS_DIR = path.join(ROOT_DIR, 'tests');
 
-type ProjectKey = 'PuntoVenta' | 'Logistica' | 'TODO';
+type ProjectKey = 'PuntoVenta' | 'Logistica';
 
 interface ProjectContext {
     key: ProjectKey;
@@ -31,11 +32,6 @@ const PROJECT_CONFIG: Record<ProjectKey, { projectFlag: string | null; testDir: 
         projectFlag: 'Logistica',
         testDir: path.join(TESTS_DIR, 'Logistica'),
         outputDir: 'test-results/logistica',
-    },
-    TODO: {
-        projectFlag: null,
-        testDir: TESTS_DIR,
-        outputDir: 'test-results/todo',
     },
 };
 
@@ -69,6 +65,8 @@ interface ExplorerEntry {
 interface TestCase {
     title: string;
     filePath: string;
+    /** Tags extraídos inline del título (ej: @MS-1, @logistica) */
+    tags?: string[];
 }
 
 type ExplorerSelection =
@@ -171,11 +169,16 @@ function extractTestsFromFile(filePath: string): TestCase[] {
 
     const regex = /(?:^|\n)\s*test(?:\.(?:only|skip|fixme))?\s*\(\s*['"`]([^'"`]+)['"`]/g;
 
+    // Extrae tags inline del título: @MS-1, @logistica, @PV-1.1
+    const tagRegex = /@[\w.-]+/g;
+
     const tests: TestCase[] = [];
     let match: RegExpExecArray | null;
 
     while ((match = regex.exec(content)) !== null) {
-        tests.push({ title: match[1], filePath });
+        const title = match[1];
+        const tags = title.match(tagRegex) ?? undefined;
+        tests.push({ title, filePath, tags });
     }
 
     return tests;
@@ -193,6 +196,50 @@ function quoteArg(arg: string): string {
     }
 
     return arg;
+}
+
+// ─── Búsqueda helpers ─────────────────────────────────────────────────
+
+/**
+ * Normaliza texto: lowercase + elimina acentos (NFD).
+ * Útil para búsquedas por token donde "almacén" == "almacen".
+ */
+function normalizeText(text: string): string {
+    return text.toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+}
+
+/**
+ * Token matching: divide query en palabras y verifica que TODAS
+ * aparezcan en el target (orden irrelevante).
+ * 
+ * Ej: query "ingreso almac" → target "Registrar ingreso de almacén..." → ✅ match
+ *     query "almac ingreso" → mismo target → ✅ match
+ */
+function tokenMatch(query: string, target: string): boolean {
+    const tokens = query.trim().toLowerCase().split(/\s+/);
+    const normalized = normalizeText(target);
+    return tokens.every(token => normalized.includes(token));
+}
+
+// ─── Fuse.js (fuzzy search) ───────────────────────────────────────────
+
+let _fuseInstance: Fuse<TestCase> | null = null;
+
+/**
+ * Retorna una instancia singleton de Fuse para fuzzy search.
+ * Se crea bajo demanda (lazy) para no pagar el overhead si no se usa.
+ */
+function getFuseInstance(tests: TestCase[]): Fuse<TestCase> {
+    if (!_fuseInstance) {
+        _fuseInstance = new Fuse(tests, {
+            keys: ['title'],
+            threshold: 0.4,
+            includeScore: true,
+        });
+    }
+    return _fuseInstance;
 }
 
 function formatCommand(args: string[]): string {
@@ -310,7 +357,7 @@ function formatCommandWithContext(args: string[], projectContext?: ProjectContex
 
 function runPlaywright(args: string[], projectContext?: ProjectContext): Promise<void> {
     return new Promise((resolve, reject) => {
-        const ctx = projectContext || getProjectContext('TODO');
+        const ctx = projectContext || getProjectContext('PuntoVenta');
         const prefixedArgs = buildArgs(ctx, args);
 
         console.log('\nComando generado:\n');
@@ -571,10 +618,31 @@ async function searchGlobalTest(projectContext: ProjectContext): Promise<void> {
     if (!query.trim()) return;
 
     const allTests = walkSpecFiles(projectContext.testDir).flatMap(extractTestsFromFile);
+    const trimmed = query.trim();
 
-    const matches = allTests.filter((testCase) =>
-        testCase.title.toLowerCase().includes(query.trim().toLowerCase()),
-    );
+    // ── 1. Token matching (rápido, no requiere deps externas) ────
+    // Busca que TODAS las palabras del query aparezcan en el título O en los tags
+    const tokenMatches = allTests.filter((testCase) => {
+        if (tokenMatch(trimmed, testCase.title)) return true;
+        if (testCase.tags?.length) {
+            const tagsText = testCase.tags.join(' ');
+            if (tokenMatch(trimmed, tagsText)) return true;
+        }
+        return false;
+    });
+
+    // ── 2. Fuse.js fallback (solo si token matching no encontró nada) ────
+    // Útil para búsquedas con typos o términos muy parciales
+    let matches: TestCase[];
+
+    if (tokenMatches.length > 0) {
+        matches = tokenMatches;
+    } else {
+        console.log('[Búsqueda] Sin resultados exactos — probando fuzzy search...');
+        const fuse = getFuseInstance(allTests);
+        const fuseResults = fuse.search(trimmed);
+        matches = fuseResults.map(r => r.item);
+    }
 
     if (!matches.length) {
         console.log('\nNo se encontraron tests con esa busqueda.\n');
@@ -582,11 +650,11 @@ async function searchGlobalTest(projectContext: ProjectContext): Promise<void> {
     }
 
     const selectedTest = await select<TestCase | null>({
-        message: `Resultados para "${query}"`,
+        message: `Resultados para "${query}" (${matches.length})`,
         pageSize: 20,
         choices: [
             ...matches.map((testCase, index) => ({
-                name: `${index + 1}. ${testCase.title} | ${toRelative(testCase.filePath)}`,
+                name: `${index + 1}. ${testCase.title}${testCase.tags?.length ? ` ${testCase.tags.join(' ')}` : ''} | ${toRelative(testCase.filePath)}`,
                 value: testCase,
             })),
             { name: '⬅ Volver al menu principal', value: null },
@@ -613,10 +681,24 @@ async function searchGlobalFile(projectContext: ProjectContext): Promise<void> {
     if (!query.trim()) return;
 
     const files = walkSpecFiles(projectContext.testDir);
+    const trimmed = query.trim();
 
-    const matches = files.filter((filePath) =>
-        toRelative(filePath).toLowerCase().includes(query.trim().toLowerCase()),
+    // Token matching (orden irrelevante, acentos opcionales)
+    // Fallback a fuzzy search con archivos como "titles"
+    const tokenFileMatches = files.filter((filePath) =>
+        tokenMatch(trimmed, toRelative(filePath)),
     );
+
+    let matches: string[];
+
+    if (tokenFileMatches.length > 0) {
+        matches = tokenFileMatches;
+    } else {
+        console.log('[Búsqueda] Sin resultados exactos — probando fuzzy search...');
+        const fileTestCases: TestCase[] = files.map(f => ({ title: toRelative(f), filePath: f }));
+        const fuse = getFuseInstance(fileTestCases);
+        matches = fuse.search(trimmed).map(r => r.item.filePath);
+    }
 
     if (!matches.length) {
         console.log('\nNo se encontraron archivos con esa busqueda.\n');
@@ -624,7 +706,7 @@ async function searchGlobalFile(projectContext: ProjectContext): Promise<void> {
     }
 
     const selectedFile = await select<string | null>({
-        message: `Archivos encontrados para "${query}"`,
+        message: `Archivos encontrados para "${query}" (${matches.length})`,
         pageSize: 20,
         choices: [
             ...matches.map((filePath, index) => ({
@@ -658,18 +740,17 @@ async function runPlaywrightUi(projectContext: ProjectContext): Promise<void> {
     await runPlaywright(['--ui'], projectContext);
 }
 
-async function selectProject(): Promise<'PuntoVenta' | 'Logistica' | 'TODO' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'RunAllFailed' | 'exit'> {
-    const choice = await select<'PuntoVenta' | 'Logistica' | 'TODO' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'RunAllFailed' | 'exit'>({
+async function selectProject(): Promise<'PuntoVenta' | 'Logistica' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'RunAllFailed' | 'exit'> {
+    const choice = await select<'PuntoVenta' | 'Logistica' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'RunAllFailed' | 'exit'>({
         message: 'ERP2 AUTO - TEST RUNNER — Selecciona proyecto:',
         choices: [
             { name: '1. PuntoVenta', value: 'PuntoVenta' },
             { name: '2. Logistica', value: 'Logistica' },
-            { name: '3. TODO (tests generales)', value: 'TODO' },
-            { name: '4. Run All (Secuencial: PV → LOG, output limpio)', value: 'RunAllSequential' },
-            { name: '5. Run All (Paralelo: PV + LOG, output mezclado)', value: 'RunAllParallel' },
-            { name: '6. Run All (Dos terminales: instrucciones)', value: 'RunAllDual' },
-            { name: '7. 🔄 Re-ejecutar tests fallidos', value: 'RunAllFailed' },
-            { name: '8. Salir', value: 'exit' },
+            { name: '3. Run All (Secuencial: PV → LOG, output limpio)', value: 'RunAllSequential' },
+            { name: '4. Run All (Paralelo: PV + LOG, output mezclado)', value: 'RunAllParallel' },
+            { name: '5. Run All (Dos terminales: instrucciones)', value: 'RunAllDual' },
+            { name: '6. 🔄 Re-ejecutar tests fallidos', value: 'RunAllFailed' },
+            { name: '7. Salir', value: 'exit' },
         ],
     });
     return choice;
@@ -919,7 +1000,7 @@ async function main(): Promise<void> {
 
         const projectContext = getProjectContext(projectChoice);
         const projectTestDir = projectContext.testDir;
-        const projectLabel = projectChoice === 'TODO' ? 'TODO' : projectChoice;
+        const projectLabel = projectChoice;
 
         while (true) {
             const option = await select<'explore' | 'search-test' | 'search-file' | 'grep' | 'ui' | 'back'>({
