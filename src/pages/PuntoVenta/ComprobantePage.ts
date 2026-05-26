@@ -23,6 +23,8 @@ const TIPO_COMPROBANTE_ID: Record<TipoComprobante, number> = {
     'BOLETA': 1004,
     'FACTURA': 1003,
     'NOTA DE VENTA': 2016,
+    'COTIZACIÓN': 3007,
+    'PEDIDO': 2011,
 };
 
 export class ComprobantePage {
@@ -50,7 +52,7 @@ export class ComprobantePage {
 
             // Si la opción ya tiene el texto visible, puede que necesitemos abrir el dropdown primero
             await this.abrirSelectorTipo();
-            await optionLocator.getByText(tipo === 'BOLETA' ? 'BOLETA' : tipo === 'FACTURA' ? 'FACTURA' : 'NOTA DE VENTA').click();
+            await optionLocator.getByText(tipo).click();
         } catch (error) {
             await throwFunctionalError({
                 page: this.page,
@@ -73,5 +75,15 @@ export class ComprobantePage {
     /** Seleccionar nota de venta directamente */
     async seleccionarNotaVenta(): Promise<void> {
         await this.seleccionarTipoComprobante('NOTA DE VENTA');
+    }
+
+    /** Seleccionar cotización directamente */
+    async seleccionarCotizacion(): Promise<void> {
+        await this.seleccionarTipoComprobante('COTIZACIÓN');
+    }
+
+    /** Seleccionar pedido directamente */
+    async seleccionarPedido(): Promise<void> {
+        await this.seleccionarTipoComprobante('PEDIDO');
     }
 }

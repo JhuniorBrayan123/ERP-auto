@@ -9,7 +9,7 @@
 
 // ─── Tipos de comprobante ─────────────────────────────────────────────
 
-export type TipoComprobante = 'BOLETA' | 'FACTURA' | 'NOTA DE VENTA';
+export type TipoComprobante = 'BOLETA' | 'FACTURA' | 'NOTA DE VENTA' | 'COTIZACIÓN' | 'PEDIDO';
 
 // ─── Datos de cliente ─────────────────────────────────────────────────
 
