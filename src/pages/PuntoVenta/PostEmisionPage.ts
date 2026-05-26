@@ -10,7 +10,10 @@ export class PostEmisionPage {
     }
 
     private get btnEmail(): Locator {
-        return this.page.locator('div').filter({ hasText: 'Enviar por Email' }).first();
+        return this.page.locator('.medio', { hasText: 'Enviar por Email' }).first();
+    }
+    private get btnEnviar(): Locator {
+        return this.page.getByText('Enviar', { exact: true }).locator('..').locator('..');
     }
 
     private get btnCopiarLink(): Locator {
@@ -18,11 +21,11 @@ export class PostEmisionPage {
     }
 
     private get btnDescargarXML(): Locator {
-        return this.page.locator('div').filter({ hasText: 'Descargar XML' }).first();
+        return this.page.getByText( 'Descargar XML' ).first();
     }
 
     private get btnDescargarPDF(): Locator {
-        return this.page.locator('div').filter({ hasText: 'Descargar PDF' }).first();
+        return this.page.getByText('Descargar PDF', { exact: true }).locator('..').locator('..');
     }
 
     private get btnImprimir(): Locator {
@@ -50,6 +53,7 @@ export class PostEmisionPage {
     async clickEmail(): Promise<void> {
         await this.btnEmail.click();
     }
+
 
     async clickCopiarLink(): Promise<void> {
         await this.btnCopiarLink.click();
@@ -79,11 +83,12 @@ export class PostEmisionPage {
 
     async enviarEmail(correo: string): Promise<void> {
         await this.clickEmail();
-        const inputCorreo = this.page.getByRole('textbox', { name: 'Ingresa los correos' });
+        const inputCorreo = this.page.getByRole('textbox', { name: 'Ej. email@gmail.com, email2@outlook.com' });
         await inputCorreo.click();
         await inputCorreo.fill(correo);
-        await this.page.getByRole('button', { name: 'Enviar', exact: true }).click();
+        await this.btnEnviar.click();
     }
+
 
     async estaVisible(): Promise<boolean> {
         try {
@@ -95,11 +100,16 @@ export class PostEmisionPage {
     }
 
     async obtenerCorrelativoDinamico(): Promise<string> {
-        // Asumiendo que el texto PD01- o F001- está en el body como en el codegen:
-        // "Tu comprobante fue emitido" -> PD01-00000013
-        // Usaremos una extracción de texto aproximada ya que es un modal modal-content
-        const textoCompleto = await this.page.locator('.v-dialog--active').innerText().catch(() => '');
-        const match = textoCompleto.match(/(PD01|F001|B001|NV01|CT01)-\d+/);
+        const regex = /(PD01|F001|B001|NV01|CT01)-\d+/;
+
+        // Buscamos el texto en toda la página. Usamos .last() por si acaso
+        // el correlativo anterior se quedó renderizado en la página de fondo.
+        const locator = this.page.getByText(regex).last();
+
+        // Esto esperará a que el texto sea visible
+        const texto = await locator.innerText();
+        const match = texto.match(regex);
+
         return match ? match[0] : '';
     }
 }

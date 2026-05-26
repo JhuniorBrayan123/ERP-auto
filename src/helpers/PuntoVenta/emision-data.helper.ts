@@ -33,6 +33,20 @@ export const CLIENTES = {
         nombre: "JHUNIOR BRAYAN GUTIERREZ",
     } as DatosCliente,
 
+    PERSONA_DNI_2: {
+        tipoDocumento: 'DNI',
+        documento: '76958585',
+        nombre: 'MARCELO EDWIN SOLANO GARAY',
+        textoSelector: 'DNIDoc. Nacional de Identidad7695858599999999MARCELO EDWIN SOLANO GARAYArequipa',
+    } as DatosCliente & { textoSelector: string },
+
+    CLIENTE_SIN_DOC: {
+        tipoDocumento: '',
+        documento: '',
+        nombre: 'Automatizador qa',
+        direccion: 'Arequipa',
+    } as DatosCliente & { direccion: string },
+
     /** Cliente RUC creado por automatización — usado en facturas */
     EMPRESA_RUC_AUTO: {
         tipoDocumento: "RUC",
@@ -243,6 +257,10 @@ export const DETRACCION = {
         TRANSPORTE_PASAJEROS:
             "Operación Sujeta a Detracción - Servicio de Transporte de Pasajeros",
     },
+};
+
+export const EMAILS = {
+    QA_PRUEBAS: 'srqapruebaserp2@gmail.com',
 };
 
 // ─── Sobrescritura dinámica de códigos ─────────────────────────────────

@@ -64,15 +64,13 @@ export class ClientePage {
     async llenarDatosClienteSinDocumento(nombre: string, direccion: string): Promise<void> {
         await this.sliderSinDocumento.click();
         
-        const inputNombre = this.page.getByRole('textbox', { name: 'Ingresa el nombre de tu cliente' });
+        const inputNombre = this.page.getByRole('textbox', { name: 'Nombre/Razón social' });
         await inputNombre.click();
         await inputNombre.fill(nombre);
 
-        const inputDireccion = this.page.getByRole('textbox', { name: 'Ej. Calle Los Manzanos 120,' });
+        const inputDireccion = this.page.getByRole('textbox', { name: 'Dirección' });
         await inputDireccion.click();
         await inputDireccion.fill(direccion);
-
-        await this.page.getByRole('button', { name: 'Aceptar' }).click();
     }
 
     // ─── Creación de cliente ──────────────────────────────────────────

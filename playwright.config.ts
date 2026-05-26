@@ -92,7 +92,16 @@ export default defineConfig({
                 storageState: "playwright/.auth/user.json",
             },
             dependencies: ["setup"],//["setup", "pv-items-setup"],//
+            teardown: "pv-teardown",
             workers: 1,
+        },
+        {
+            name: "pv-teardown",
+            testMatch: "**/pv-teardown.setup.ts",
+            use: {
+                ...devices["Desktop Chrome"],
+                storageState: "playwright/.auth/user.json",
+            }
         },
         {
             name: "Logistica",
