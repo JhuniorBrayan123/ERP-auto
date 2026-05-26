@@ -12,10 +12,8 @@
  * - Descuento input: locator con id pv_cmp-punto-venta_..._v-input:descuento
  * - Descuento global: locator con id pv_punto-venta_..._cmp-descuento-pedido_v-input:valor
  */
-import {type Locator, type Page} from '@playwright/test';
+import {expect, type Locator, type Page} from '@playwright/test';
 import type {EmisionResult} from '../../helpers/PuntoVenta/emision.types';
-import type {DatosClienteConSelector} from '../../types/cliente.types';
-import {expect} from '@playwright/test';
 import {throwFunctionalError} from '../../utils/functional-error';
 import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
 import {esperarDebounce} from '../../utils/wait-helpers';
@@ -119,19 +117,21 @@ export class EmisionPage {
 
     async seleccionarItem(nombre: string): Promise<void> {
         try {
-            // Se usa exact: false (o sin el parámetro) porque el nombre puede venir truncado en la UI
-            // (ej. "items para combos gravad...") o con sufijo RUN_ID.
-            // Como previamente se filtró por código único, el partial match es seguro.
-            const item = this.page.getByText(nombre).first();
+            const item = this.page
+                .locator('.cmp-producto-img')
+                .filter({hasText: nombre})
+                .first();
+
             await expect(item).toBeVisible({timeout: 10_000});
             await item.click();
-            
-            // Esperar a que el spinner desaparezca, crucial para ítems compuestos (recetas/combos)
-            // que hacen validaciones de stock en el backend al agregarse
+
+            // 3. Esperar a que el spinner desaparezca
             const overload = this.page.locator('[id="cmn_cmp-overload:loading"]');
-            await overload.waitFor({ state: 'visible', timeout: 2_000 }).catch(() => {});
-            await overload.waitFor({ state: 'hidden', timeout: 15_000 }).catch(() => {});
-            
+            await overload.waitFor({state: 'visible', timeout: 2_000}).catch(() => {
+            });
+            await overload.waitFor({state: 'hidden', timeout: 15_000}).catch(() => {
+            });
+
             await esperarDebounce(this.page, 800, 'Debounce al agregar ítem al carrito');
         } catch (error) {
             await throwFunctionalError({
@@ -161,7 +161,7 @@ export class EmisionPage {
         const precioTexto = await this.page
             .locator('[id*="item_v-text:precio"]')
             .first()
-            .textContent({ timeout: 5000 })
+            .textContent({timeout: 5000})
             .catch(() => 'S/ 0');
         const limpio = precioTexto?.replace(/[S\/$\s,]/g, '') ?? '0';
         return parseFloat(limpio);
@@ -172,7 +172,7 @@ export class EmisionPage {
         const subtotalTexto = await this.page
             .locator('[id*="item_v-text:subtotal"]')
             .first()
-            .textContent({ timeout: 5000 })
+            .textContent({timeout: 5000})
             .catch(() => 'S/ 0');
         const limpio = subtotalTexto?.replace(/[S\/$\s,]/g, '') ?? '0';
         return parseFloat(limpio);

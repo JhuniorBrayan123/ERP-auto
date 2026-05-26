@@ -13,10 +13,10 @@
  * - 1006 = NOTA DE DÉBITO
  * - 2016 = NOTA DE VENTA
  */
-import { expect, type Page } from '@playwright/test';
-import type { TipoComprobante } from '../../helpers/PuntoVenta/emision.types';
-import { throwFunctionalError } from '../../utils/functional-error';
-import { FUNCTIONAL_CATALOG } from '../../utils/functional-catalog';
+import {type Page} from '@playwright/test';
+import type {TipoComprobante} from '../../helpers/PuntoVenta/emision.types';
+import {throwFunctionalError} from '../../utils/functional-error';
+import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
 
 /** Mapeo de tipo de comprobante a ID del sistema */
 const TIPO_COMPROBANTE_ID: Record<TipoComprobante, number> = {
@@ -26,7 +26,8 @@ const TIPO_COMPROBANTE_ID: Record<TipoComprobante, number> = {
 };
 
 export class ComprobantePage {
-    constructor(private readonly page: Page) {}
+    constructor(private readonly page: Page) {
+    }
 
     /**
      * Abre el selector de tipo de comprobante clickeando el tipo actual visible.
