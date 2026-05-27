@@ -426,9 +426,6 @@ export class EmisionPage {
         }
     }
 
-    /**
-     * Flujo para guardar un pedido (Intercepta la API de Emisiones).
-     */
     async guardarPedido(): Promise<EmisionResult> {
         try {
             const responsePromise = this.page.waitForResponse(

@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import * as fs from 'node:fs';
 import {env} from '../config/env';
 import {detectAccount, detectEnvironmentGroup, markSetupComplete, shouldSkipSetup} from '@utils/setup-state';
-import {generarSlugCache} from '../src/factories/item-factory';
+import {generarSlugCache} from '@factories/item-factory';
 
 const SETUP_NAME = 'auth';
 const authDir = path.join(__dirname, '../playwright/.auth');

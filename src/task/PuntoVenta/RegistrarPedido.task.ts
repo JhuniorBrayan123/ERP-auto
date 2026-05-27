@@ -1,6 +1,6 @@
-import { type Page } from '@playwright/test';
-import { EmisionPage } from '@pages/PuntoVenta/EmisionPage';
-import type { EmisionResult } from '../../types/emision.types';
+import {type Page} from '@playwright/test';
+import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
+import type {EmisionResult} from '@app-types/emision.types';
 
 /**
  * Parámetro opcional para recibir el resultado de la operación.
