@@ -10,13 +10,13 @@ import { EmisionPage } from '@pages/PuntoVenta/EmisionPage';
 import { TIPOS_COMPROBANTE, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 
 
-test.describe('PV-19: Opciones adicionales de Cotización', () => {
+test.describe('PV-19: Opciones adicionales de Cotización', {tag: ['@punto-venta', '@cotizacion', '@opciones']}, () => {
     test.beforeEach(async ({ page }) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(IniciarVentaEnCaja());
     });
 
-    test('C3: Cotización con imagen y descripción (Vista Previa)', async ({ page }) => {
+    test('C3: Cotización con imagen y descripción (Vista Previa) @PV-19.5', async ({ page }) => {
         const cajero = Cajero.con(page);
 
         await cajero.intentaRealizar(
@@ -33,7 +33,7 @@ test.describe('PV-19: Opciones adicionales de Cotización', () => {
         expect(await cajero.pregunta(VistaPreviaCotizacion.contieneDescripcion(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre))).toBe(true);
     });
 
-    test('C4: Cotización con vigencia de oferta configurada', async ({ page }) => {
+    test('C4: Cotización con vigencia de oferta configurada @PV-19.6', async ({ page }) => {
         const cajero = Cajero.con(page);
 
         const opcionesDisponibles = [

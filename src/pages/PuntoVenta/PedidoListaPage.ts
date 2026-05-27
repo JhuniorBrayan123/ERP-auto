@@ -54,8 +54,10 @@ export class PedidoListaPage {
         await this.dropdownOpciones.first().click();
     }
 
-    async clickVerPedido(): Promise<void> {
+    async clickVerPedido(): Promise<Page> {
+        const popupPromise = this.page.waitForEvent('popup');
         await this.btnVerPedido.click();
+        return popupPromise;
     }
 
     async clickCargarPedido(): Promise<void> {

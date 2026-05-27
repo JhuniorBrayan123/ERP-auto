@@ -10,13 +10,13 @@ import {TotalEnCarrito} from '@question/PuntoVenta/TotalEnCarrito';
 import {calcularTotalesCombinados} from '@utils/precio-item.helper';
 import {DesplegarPanelCalculos} from '../../../../../src/interactions/PuntoVenta/DesplegarPanelCalculos';
 
-test.describe('Selección, edición de ítem en caja de venta — Eliminar ítems', () => {
+test.describe('Selección, edición de ítem en caja de venta — Eliminar ítems', {tag: ['@punto-venta', '@seleccion-edicion-item', '@eliminar-items']}, () => {
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(IniciarVentaEnCaja());
     });
 
-    test('SC-25: Eliminar un ítem del carrito', async ({page}) => {
+    test('SC-25: Eliminar un ítem del carrito @PV-18.25', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             AgregarDosItemsYEliminarUno(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL, ITEMS_PV.PRODUCTO_GRAVADO, 1)
@@ -34,13 +34,13 @@ test.describe('Selección, edición de ítem en caja de venta — Eliminar ítem
         expect(await cajero.pregunta(TotalEnCarrito(totalesRestantes.total))).toBe(true);
     });
 
-    test('SC-26: Eliminar un ítem con selector del carrito', async ({page}) => {
+    test('SC-26: Eliminar un ítem con selector del carrito @PV-18.26', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(AgregarItemConSelectorYEliminar(ITEMS_PV.ITEM_SELECTOR_FLEXIBLE));
         expect(await cajero.pregunta(TotalEnCarrito('0.00'))).toBe(true);
     });
 
-    test('SC-27: Limpiar todos los ítems del carrito', async ({page}) => {
+    test('SC-27: Limpiar todos los ítems del carrito @PV-18.27', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(AgregarItemsYLimpiarCarrito(ITEMS_PV.LISTA_ITEMS));
         expect(await cajero.pregunta(TotalEnCarrito("0.00"))).toBe(true);

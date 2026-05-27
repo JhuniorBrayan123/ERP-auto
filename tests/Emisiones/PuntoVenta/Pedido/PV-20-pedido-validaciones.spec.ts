@@ -16,14 +16,14 @@ import {ModalPostEmision} from '@question/PuntoVenta/ModalPostEmision.question';
 import {AccionesPostEmisionCompletas} from '@question/PuntoVenta/AccionesPostEmisionCompletas.question';
 
 
-test.describe('PV-20 Pedido - Validaciones', () => {
+test.describe('PV-20 Pedido - Validaciones', {tag: ['@punto-venta', '@pedido', '@validaciones']}, () => {
 
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(IniciarVentaEnCaja());
     });
 
-    test('P5: Validar que pedido no genera comprobante electrónico', async ({page}) => {
+    test('P5: Validar que pedido no genera comprobante electrónico @PV-20.5', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             SeleccionarTipoComprobante(TIPOS_COMPROBANTE.PEDIDO),
@@ -52,7 +52,7 @@ test.describe('PV-20 Pedido - Validaciones', () => {
         }
     });
 
-    test('P6: Validar acciones disponibles post-registro', async ({page}) => {
+    test('P6: Validar acciones disponibles post-registro @PV-20.6', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             SeleccionarTipoComprobante(TIPOS_COMPROBANTE.PEDIDO),

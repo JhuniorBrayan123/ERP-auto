@@ -12,9 +12,9 @@ import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
 import {TotalDistintoDeCero} from '@question/PuntoVenta/TotalDistintoDeCero';
 import {AbrirTotales} from '../../../../../src/interactions/PuntoVenta/AbrirTotales';
 
-test.describe('Selección, edición de ítem en caja de venta — Selectores', () => {
+test.describe('Selección, edición de ítem en caja de venta — Selectores', {tag: ['@punto-venta', '@seleccion-edicion-item', '@selectores']}, () => {
 
-    test('SC-14: Buscar y agregar un ítem con selectores obligatorios', async ({page}) => {
+    test('SC-14: Buscar y agregar un ítem con selectores obligatorios @PV-18.14', async ({page}) => {
         const cajero = Cajero.con(page);
 
         await cajero.intentaRealizar(
@@ -36,7 +36,7 @@ test.describe('Selección, edición de ítem en caja de venta — Selectores', (
         expect(await cajero.pregunta(FilaEnTotales('Operaciones Gravadas', totales.baseImponible))).toBe(true);
     });
 
-    test('SC-15: Bloquear agregado de ítem con selectores incompletos', async ({page}) => {
+    test('SC-15: Bloquear agregado de ítem con selectores incompletos @PV-18.15', async ({page}) => {
         const cajero = Cajero.con(page);
 
         await cajero.intentaRealizar(

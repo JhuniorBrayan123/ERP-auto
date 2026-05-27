@@ -13,14 +13,14 @@ import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
 
 
-test.describe('PV-20 Pedido - Búsqueda por correlativo', () => {
+test.describe('PV-20 Pedido - Búsqueda por correlativo', {tag: ['@punto-venta', '@pedido', '@busqueda']}, () => {
 
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(IniciarVentaEnCaja());
     });
 
-    test('P10: Buscar pedido por correlativo', async ({page}) => {
+    test('P10: Buscar pedido por correlativo @PV-20.17', async ({page}) => {
         const cajero = Cajero.con(page);
         
         // 1. Create a pedido to have a valid correlativo — capturamos por API

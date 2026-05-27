@@ -13,13 +13,13 @@ import {EmisionPage} from "@pages/PuntoVenta/EmisionPage";
 import {calcularTotales} from "@utils/calculadora-impuestos";
 import {validarCamposEspecificos, validarTotales} from "@utils/validar-totales";
 
-test.describe("Selección, edición de ítem en caja de venta — Edición de ítem", () => {
+test.describe("Selección, edición de ítem en caja de venta — Edición de ítem", {tag: ['@punto-venta', '@seleccion-edicion-item', '@edicion-item']}, () => {
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(IniciarVentaEnCaja());
     });
 
-    test("SC-22: Editar el precio unitario de un ítem en el carrito", async ({
+    test("SC-22: Editar el precio unitario de un ítem en el carrito @PV-18.22", async ({
                                                                                  page,
                                                                              }) => {
         const cajero = Cajero.con(page);
@@ -46,7 +46,7 @@ test.describe("Selección, edición de ítem en caja de venta — Edición de í
         validarTotales(resumen, esperados);
     });
 
-    test("SC-23: Bloquear edición con precio inválido", async ({page}) => {
+    test("SC-23: Bloquear edición con precio inválido @PV-18.23", async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             IntentarPrecioInvalido(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL, "0.0000."),
@@ -61,7 +61,7 @@ test.describe("Selección, edición de ítem en caja de venta — Edición de í
         await cajero.intentaRealizar(ClickAceptarModal());
     });
 
-    test("SC-24: Editar el nombre de un producto en el carrito", async ({
+    test("SC-24: Editar el nombre de un producto en el carrito @PV-18.24", async ({
                                                                             page,
                                                                         }) => {
         const cajero = Cajero.con(page);
