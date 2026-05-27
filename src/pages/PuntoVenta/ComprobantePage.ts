@@ -13,20 +13,23 @@
  * - 1006 = NOTA DE DÉBITO
  * - 2016 = NOTA DE VENTA
  */
-import { expect, type Page } from '@playwright/test';
-import type { TipoComprobante } from '../../helpers/PuntoVenta/emision.types';
-import { throwFunctionalError } from '../../utils/functional-error';
-import { FUNCTIONAL_CATALOG } from '../../utils/functional-catalog';
+import {type Page} from '@playwright/test';
+import type {TipoComprobante} from '../../helpers/PuntoVenta/emision.types';
+import {throwFunctionalError} from '../../utils/functional-error';
+import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
 
 /** Mapeo de tipo de comprobante a ID del sistema */
 const TIPO_COMPROBANTE_ID: Record<TipoComprobante, number> = {
     'BOLETA': 1004,
     'FACTURA': 1003,
     'NOTA DE VENTA': 2016,
+    'COTIZACIÓN': 3007,
+    'PEDIDO': 2011,
 };
 
 export class ComprobantePage {
-    constructor(private readonly page: Page) {}
+    constructor(private readonly page: Page) {
+    }
 
     /**
      * Abre el selector de tipo de comprobante clickeando el tipo actual visible.
@@ -49,7 +52,7 @@ export class ComprobantePage {
 
             // Si la opción ya tiene el texto visible, puede que necesitemos abrir el dropdown primero
             await this.abrirSelectorTipo();
-            await optionLocator.getByText(tipo === 'BOLETA' ? 'BOLETA' : tipo === 'FACTURA' ? 'FACTURA' : 'NOTA DE VENTA').click();
+            await optionLocator.getByText(tipo).click();
         } catch (error) {
             await throwFunctionalError({
                 page: this.page,
@@ -72,5 +75,15 @@ export class ComprobantePage {
     /** Seleccionar nota de venta directamente */
     async seleccionarNotaVenta(): Promise<void> {
         await this.seleccionarTipoComprobante('NOTA DE VENTA');
+    }
+
+    /** Seleccionar cotización directamente */
+    async seleccionarCotizacion(): Promise<void> {
+        await this.seleccionarTipoComprobante('COTIZACIÓN');
+    }
+
+    /** Seleccionar pedido directamente */
+    async seleccionarPedido(): Promise<void> {
+        await this.seleccionarTipoComprobante('PEDIDO');
     }
 }

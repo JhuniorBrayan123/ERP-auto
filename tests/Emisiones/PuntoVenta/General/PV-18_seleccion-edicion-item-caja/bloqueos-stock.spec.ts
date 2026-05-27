@@ -10,14 +10,14 @@ import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
 
 
-test.describe('Selección, edición de ítem en caja de venta — Bloqueos por stock', () => {
+test.describe('Selección, edición de ítem en caja de venta — Bloqueos por stock', {tag: ['@punto-venta', '@seleccion-edicion-item', '@bloqueos-stock']}, () => {
 
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(IniciarVentaEnCaja());
     });
 
-    test('SC-16: Bloquear combo cuando un componente no tiene stock', async ({page}) => {
+    test('SC-16: Bloquear combo cuando un componente no tiene stock @PV-18.16', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             IntentarAgregarComboSinStock(ITEMS_PV.COMBO_STOCK_BAJO_ITEM)
@@ -28,7 +28,7 @@ test.describe('Selección, edición de ítem en caja de venta — Bloqueos por s
         await cajero.intentaRealizar(ClickAceptarModal());
     });
 
-    test('SC-17: Bloquear receta cuando un componente no tiene stock', async ({page}) => {
+    test('SC-17: Bloquear receta cuando un componente no tiene stock @PV-18.17', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             IntentarAgregarRecetaSinStock(ITEMS_PV.RECETA_SIN_STOCK)
@@ -39,7 +39,7 @@ test.describe('Selección, edición de ítem en caja de venta — Bloqueos por s
         await cajero.intentaRealizar(ClickAceptarModal());
     });
 
-    test('SC-18: Bloquear lista cuando un producto no tiene stock', async ({page}) => {
+    test('SC-18: Bloquear lista cuando un producto no tiene stock @PV-18.18', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             IntentarAgregarListaSinStock(ITEMS_PV.LISTA_SIN_STOCK)

@@ -23,13 +23,14 @@ import {env} from '../../config/env';
 const AUTH_DIR = resolve(process.cwd(), 'playwright', '.auth');
 const STATE_FILE = resolve(AUTH_DIR, 'setup-state.json');
 
-/** Nombres de setup conocidos (usados como lookup key en el JSON). */
-const SETUP_NAMES = [
-    'auth',
-    'punto-venta-items',
-    'punto-venta-datos',
-    'datos-adicionales',
-] as const;
+/** Nombres de setup del módulo PuntoVenta. */
+export const PV_SETUP_NAMES = ['auth', 'punto-venta-datos', 'punto-venta-items'] as const;
+
+/** Nombres de setup del módulo Logistica. */
+export const LOG_SETUP_NAMES = ['auth', 'datos-adicionales'] as const;
+
+/** Unión de todos los nombres de setup (backward compat). */
+export const SETUP_NAMES = [...PV_SETUP_NAMES, ...LOG_SETUP_NAMES] as const;
 
 type SetupName = (typeof SETUP_NAMES)[number];
 
@@ -68,7 +69,7 @@ export interface SetupState {
  * Detecta el grupo de ambiente actual.
  * Normaliza crt/crt-2/crt-3/crt-4 → "crt-group", prd → "prd".
  */
-function detectEnvironmentGroup(): string {
+export function detectEnvironmentGroup(): string {
     const env = (process.env.APP_ENV ?? '').trim().toLowerCase();
     return env === 'prd' ? 'prd' : 'crt-group';
 }
@@ -77,7 +78,7 @@ function detectEnvironmentGroup(): string {
  * Detecta la cuenta actual desde USER_EMAIL.
  * Retorna "unknown" si USER_EMAIL no está definido o está vacío.
  */
-function detectAccount(): string {
+export function detectAccount(): string {
     return (env.userEmail ?? '').trim().toLowerCase() || 'unknown';
 }
 
@@ -211,6 +212,7 @@ export function markSetupIncomplete(setupName: string): void {
 
 /**
  * Retorna un resumen legible del estado de todos los setups.
+ * Muestra el estado particionado por módulo (PuntoVenta / Logistica).
  * Útil para mostrar en el menú test-runner o en reportes.
  */
 export function getSetupStateSummary(): string {
@@ -227,14 +229,27 @@ export function getSetupStateSummary(): string {
         lines.push(`  ⚠️ cuenta cambió de "${state.account}" a "${currentAccount}" — setups deben re-ejecutarse`);
     }
 
-    const allNames = [...SETUP_NAMES];
-    for (const name of allNames) {
+    // ── Módulo PuntoVenta ───────────────────────────────────────────
+    lines.push(`  [PuntoVenta]`);
+    for (const name of PV_SETUP_NAMES) {
         const entry = state.setups[name];
         if (entry?.completed) {
             const fecha = new Date(entry.timestamp).toLocaleString('es-PE');
-            lines.push(`  ✓ ${name}: completado (${fecha})`);
+            lines.push(`    ✓ ${name}: completado (${fecha})`);
         } else {
-            lines.push(`  ○ ${name}: pendiente`);
+            lines.push(`    ○ ${name}: pendiente`);
+        }
+    }
+
+    // ── Módulo Logistica ────────────────────────────────────────────
+    lines.push(`  [Logistica]`);
+    for (const name of LOG_SETUP_NAMES) {
+        const entry = state.setups[name];
+        if (entry?.completed) {
+            const fecha = new Date(entry.timestamp).toLocaleString('es-PE');
+            lines.push(`    ✓ ${name}: completado (${fecha})`);
+        } else {
+            lines.push(`    ○ ${name}: pendiente`);
         }
     }
 
@@ -242,14 +257,23 @@ export function getSetupStateSummary(): string {
 }
 
 /**
- * Retorna true si todos los setups conocidos están completados.
+ * Retorna true si todos los setups del módulo indicado (o todos si no se especifica) están completados.
+ *
+ * @param module - Opcional: 'pv' para solo PuntoVenta, 'logistica' para solo Logistica.
  */
-export function areAllSetupsComplete(): boolean {
+export function areAllSetupsComplete(module?: 'pv' | 'logistica'): boolean {
     const state = loadSetupState();
     if (!state.environment) return false;
     const currentEnvGroup = detectEnvironmentGroup();
     if (state.environment !== currentEnvGroup) return false;
     const currentAccount = detectAccount();
     if (state.account !== currentAccount) return false;
-    return SETUP_NAMES.every(name => state.setups[name]?.completed === true);
+
+    const namesToCheck = module === 'pv'
+        ? PV_SETUP_NAMES
+        : module === 'logistica'
+            ? LOG_SETUP_NAMES
+            : SETUP_NAMES;
+
+    return namesToCheck.every(name => state.setups[name]?.completed === true);
 }

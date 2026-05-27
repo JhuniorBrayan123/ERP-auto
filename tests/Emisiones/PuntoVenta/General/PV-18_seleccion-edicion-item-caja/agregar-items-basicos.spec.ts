@@ -6,14 +6,14 @@ import {IntentarAgregarSobrepasandoStock} from '@task/PuntoVenta/IntentarAgregar
 import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Selección, edición de ítem en caja de venta — Items básicos', () => {
+test.describe('Selección, edición de ítem en caja de venta — Items básicos', {tag: ['@punto-venta', '@seleccion-edicion-item', '@items-basicos']}, () => {
 
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(IniciarVentaEnCaja());
     });
 
-    test('SC-03: Buscar y agregar un producto con control de stock', async ({page}) => {
+    test('SC-03: Buscar y agregar un producto con control de stock @PV-18.3', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             BuscarYAgregarItemSimple(ITEMS_PV.PRODUCTO_SIMPLE)
@@ -21,7 +21,7 @@ test.describe('Selección, edición de ítem en caja de venta — Items básicos
         expect(await cajero.pregunta(MensajeVisible(ITEMS_PV.PRODUCTO_SIMPLE.nombre))).toBe(true);
     });
 
-    test('SC-04: Bloquear producto sin stock disponible', async ({page}) => {
+    test('SC-04: Bloquear producto sin stock disponible @PV-18.4', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             IntentarAgregarSobrepasandoStock(ITEMS_PV.PRODUCTO_SIN_STOCK, 8)
@@ -31,7 +31,7 @@ test.describe('Selección, edición de ítem en caja de venta — Items básicos
         )).toBe(true);
     });
 
-    test('SC-05: Agregar un producto con stock flexible', async ({page}) => {
+    test('SC-05: Agregar un producto con stock flexible @PV-18.5', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             BuscarYAgregarItemSimple(ITEMS_PV.PRODUCTO_GRAVADO)
@@ -39,7 +39,7 @@ test.describe('Selección, edición de ítem en caja de venta — Items básicos
         expect(await cajero.pregunta(MensajeVisible(ITEMS_PV.PRODUCTO_GRAVADO.nombre))).toBe(true);
     });
 
-    test('SC-06: Agregar un producto sin control de stock', async ({page}) => {
+    test('SC-06: Agregar un producto sin control de stock @PV-18.6', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             BuscarYAgregarItemSimple(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL)

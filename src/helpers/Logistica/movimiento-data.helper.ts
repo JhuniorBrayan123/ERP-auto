@@ -176,7 +176,7 @@ try {
         }
     } else {
         console.warn('[movimiento-data] dynamic-items.json no encontrado. Usando códigos base estáticos.');
-        console.warn('[movimiento-data] Ejecuta el setup primero para crear items dinámicos.');
+        console.warn('[movimiento-data] Ejecuta PuntoVenta > pv-items primero para crear items dinámicos.');
     }
 } catch {
     console.warn('[movimiento-data] Error al cargar dynamic-items.json. Usando códigos base estáticos.');

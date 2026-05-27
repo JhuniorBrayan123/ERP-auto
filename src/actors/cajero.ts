@@ -14,12 +14,6 @@ export class Cajero {
         return new Cajero(nombre);
     }
 
-    /**
-     * Backward compatibility con la implementación antigua.
-     * Instancia un Cajero y le asigna la habilidad UsarNavegador.
-     *
-     * @deprecated Usar Cajero.llamado('Cajero').quienPuede(UsarNavegador.con(page))
-     */
     static con(page: Page): Cajero {
         return Cajero.llamado('Cajero').quienPuede(UsarNavegador.con(page));
     }
@@ -37,10 +31,6 @@ export class Cajero {
         return ability as T;
     }
 
-    /**
-     * Intenta realizar una serie de tareas.
-     * Mantiene compatibilidad con las tareas legacy que esperan `(page: Page)`.
-     */
     async intentaRealizar(...tasks: Array<TaskType>): Promise<void> {
         for (const task of tasks) {
             const nombre = (task as any).displayName || task.name || 'Paso';
@@ -56,11 +46,7 @@ export class Cajero {
             });
         }
     }
-
-    /**
-     * Pregunta por el estado de la aplicación.
-     * Mantiene compatibilidad con las questions legacy que esperan `(page: Page)`.
-     */
+    
     async pregunta<T>(question: QuestionType<T>): Promise<T> {
         if (question.length === 1 && question.toString().includes('actor')) {
             return (question as (actor: Cajero) => Promise<T>)(this);

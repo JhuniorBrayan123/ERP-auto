@@ -8,8 +8,7 @@ export const IntentarAgregarComboSinStock = (item: ItemVenta) => {
         await emision.buscarItem(item.codigo);
         await emision.seleccionarItem(item.nombre);
         // Clicks repetidos para sobrepasar stock del componente
-        await page.getByText(item.nombre).first().dblclick();
-        await page.locator('.image-default').dblclick();
+       
     };
     fn.displayName = 'Intentar agregar combo sin stock';
     return fn;

@@ -69,15 +69,12 @@ test.describe('PV-03 | Nota de venta con equivalencias y lista @PV-03', {tag: ['
         await test.step('And: emitir', async () => {
             await emisionPage.emitirConEfectivoExacto();
         });
-
         await test.step('Then: nota de venta emitida', async () => {
             await emisionPage.clickNuevaVenta();
         });
-
         await test.step('And: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
             await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
         });
-
         await test.step('And: abrir bitácora y verificar emisión', async () => {
             await busquedaComprobantes.abrirBitacoraDelPrimerComprobante();
             await busquedaComprobantes.validarComprobanteEmitidonota();

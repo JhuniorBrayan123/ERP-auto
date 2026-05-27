@@ -5,6 +5,7 @@
  */
 import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-venta', '@nota-venta', '@adelanto']}, () => {
 
@@ -75,6 +76,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
         await test.step('Given: crear adelanto como precondición', async () => {
             await cajaPage.continuarVendiendo();
             await comprobantePage.seleccionarNotaVenta();
+            await esperarCargaOverlay(page)
             await emisionPage.activarDocAdelanto();
             await emisionPage.buscarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
             await emisionPage.seleccionarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);

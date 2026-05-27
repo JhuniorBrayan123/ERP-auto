@@ -11,13 +11,13 @@ import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {FilaEnTotales} from '@question/PuntoVenta/FilaEnTotales';
 import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
 
-test.describe('Selección, edición de ítem en caja de venta — Edición de cantidad', () => {
+test.describe('Selección, edición de ítem en caja de venta — Edición de cantidad', {tag: ['@punto-venta', '@seleccion-edicion-item', '@edicion-cantidad']}, () => {
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(IniciarVentaEnCaja());
     });
 
-    test('SC-19: Incrementar cantidad de un ítem desde el carrito', async ({page}) => {
+    test('SC-19: Incrementar cantidad de un ítem desde el carrito @PV-18.19', async ({page}) => {
         const cajero = Cajero.con(page);
         const emision = new EmisionPage(page);
 
@@ -37,14 +37,14 @@ test.describe('Selección, edición de ítem en caja de venta — Edición de ca
         expect(subtotalFinal).toBeGreaterThan(0);
     });
 
-    test('SC-20: Disminuir cantidad de un ítem desde el carrito', async ({page}) => {
+    test('SC-20: Disminuir cantidad de un ítem desde el carrito @PV-18.20', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(DisminuirCantidadItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL, 6, 7));
         await cajero.intentaRealizar(AbrirTotales());
         expect(await cajero.pregunta(FilaEnTotales('Operaciones Gravadas', '0.00'))).toBe(true);
     });
 
-    test('SC-21: Bloquear cantidad inválida al editar un ítem del carrito', async ({page}) => {
+    test('SC-21: Bloquear cantidad inválida al editar un ítem del carrito @PV-18.21', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(IntentarCantidadInvalida(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL));
         expect(await cajero.pregunta(

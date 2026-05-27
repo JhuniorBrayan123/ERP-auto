@@ -14,6 +14,8 @@ export const TIPOS_COMPROBANTE: Record<string, TipoComprobante> = {
     BOLETA: "BOLETA",
     FACTURA: "FACTURA",
     NOTA_VENTA: "NOTA DE VENTA",
+    COTIZACION: "COTIZACIÓN",
+    PEDIDO: "PEDIDO",
 };
 
 // ─── Clientes de prueba ───────────────────────────────────────────────
@@ -31,6 +33,20 @@ export const CLIENTES = {
         nombre: "JHUNIOR BRAYAN GUTIERREZ",
     } as DatosCliente,
 
+    PERSONA_DNI_2: {
+        tipoDocumento: 'DNI',
+        documento: '76958585',
+        nombre: 'MARCELO EDWIN SOLANO GARAY',
+        textoSelector: 'DNIDoc. Nacional de Identidad7695858599999999MARCELO EDWIN SOLANO GARAYArequipa',
+    } as DatosCliente & { textoSelector: string },
+
+    CLIENTE_SIN_DOC: {
+        tipoDocumento: '',
+        documento: '',
+        nombre: 'Automatizador qa',
+        direccion: 'Arequipa',
+    } as DatosCliente & { direccion: string },
+
     /** Cliente RUC creado por automatización — usado en facturas */
     EMPRESA_RUC_AUTO: {
         tipoDocumento: "RUC",
@@ -47,11 +63,6 @@ export const CLIENTES = {
         nombre: "Vendedor auto",
     } as DatosCliente,
 
-    EMPRESA_RUC: {
-        tipoDocumento: "RUC",
-        documento: "20100070970",
-        nombre: "SOCIEDAD EJEMPLO SAC",
-    } as DatosCliente,
 };
 
 // ─── Ítems de venta pre-existentes en el sistema ──────────────────────
@@ -243,6 +254,10 @@ export const DETRACCION = {
     },
 };
 
+export const EMAILS = {
+    QA_PRUEBAS: 'srqapruebaserp2@gmail.com',
+};
+
 // ─── Sobrescritura dinámica de códigos ─────────────────────────────────
 // Si existe dynamic-items.json (generado por el setup), sobrescribe los
 // códigos hardcodeados con los códigos dinámicos de esta ejecución.
@@ -253,7 +268,7 @@ try {
     if (mapa) {
         console.log(`[emision-data] Códigos dinámicos activos (RUN_ID: ${mapa.RUN_ID})`);
 
-        const sobrescribir = (obj: Record<string, {codigo: string}>, claves: string[]) => {
+        const sobrescribir = (obj: Record<string, { codigo: string }>, claves: string[]) => {
             for (const clave of claves) {
                 if (mapa[clave] && obj[clave]) {
                     obj[clave].codigo = mapa[clave].replace(/-/g, '');
@@ -262,7 +277,7 @@ try {
         };
 
         // ITEMS_PV: todas las claves del objeto
-        sobrescribir(ITEMS_PV as Record<string, {codigo: string}>, Object.keys(ITEMS_PV));
+        sobrescribir(ITEMS_PV as Record<string, { codigo: string }>, Object.keys(ITEMS_PV));
 
         // ITEMS_POR_ALMACEN: mapeo manual (las claves en el factory son diferentes)
         if (mapa['SOLO_EN_AUTO'] && ITEMS_POR_ALMACEN.SOLO_EN_AUTO) {

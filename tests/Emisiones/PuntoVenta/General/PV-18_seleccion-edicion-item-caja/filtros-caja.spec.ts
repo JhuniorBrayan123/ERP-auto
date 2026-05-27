@@ -6,14 +6,14 @@ import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {ALMACENES_PV, ITEMS_POR_ALMACEN} from '@helpers/PuntoVenta/emision-data.helper';
 import {FiltrarBuscarYVerificarItem} from "@task/PuntoVenta/FiltrarPorAlmacenUnico";
 
-test.describe('Selección, edición de ítem en caja de venta — Filtros', () => {
+test.describe('Selección, edición de ítem en caja de venta — Filtros', {tag: ['@punto-venta', '@seleccion-edicion-item', '@filtros']}, () => {
 
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(IniciarVentaEnCaja());
     });
 
-    test('SC-01: Filtrar ítems por almacén', async ({page}) => {
+    test('SC-01: Filtrar ítems por almacén @PV-18.1', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             FiltrarBuscarYVerificarItem(ALMACENES_PV.VENTAS, ITEMS_POR_ALMACEN.SOLO_EN_VENTAS)
@@ -29,7 +29,7 @@ test.describe('Selección, edición de ítem en caja de venta — Filtros', () =
         )).toBe(false);
     });
 
-    test('SC-02: Filtrar ítems por lista de precios', async ({page}) => {
+    test('SC-02: Filtrar ítems por lista de precios @PV-18.2', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             FiltrarPorListaPrecios('Precio estándar (S/)', 'Precio dolares ($)')
