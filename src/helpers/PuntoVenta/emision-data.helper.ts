@@ -63,11 +63,6 @@ export const CLIENTES = {
         nombre: "Vendedor auto",
     } as DatosCliente,
 
-    EMPRESA_RUC: {
-        tipoDocumento: "RUC",
-        documento: "20100070970",
-        nombre: "SOCIEDAD EJEMPLO SAC",
-    } as DatosCliente,
 };
 
 // ─── Ítems de venta pre-existentes en el sistema ──────────────────────
@@ -273,7 +268,7 @@ try {
     if (mapa) {
         console.log(`[emision-data] Códigos dinámicos activos (RUN_ID: ${mapa.RUN_ID})`);
 
-        const sobrescribir = (obj: Record<string, {codigo: string}>, claves: string[]) => {
+        const sobrescribir = (obj: Record<string, { codigo: string }>, claves: string[]) => {
             for (const clave of claves) {
                 if (mapa[clave] && obj[clave]) {
                     obj[clave].codigo = mapa[clave].replace(/-/g, '');
@@ -282,7 +277,7 @@ try {
         };
 
         // ITEMS_PV: todas las claves del objeto
-        sobrescribir(ITEMS_PV as Record<string, {codigo: string}>, Object.keys(ITEMS_PV));
+        sobrescribir(ITEMS_PV as Record<string, { codigo: string }>, Object.keys(ITEMS_PV));
 
         // ITEMS_POR_ALMACEN: mapeo manual (las claves en el factory son diferentes)
         if (mapa['SOLO_EN_AUTO'] && ITEMS_POR_ALMACEN.SOLO_EN_AUTO) {

@@ -7,11 +7,11 @@
  * 3. Opcional: Validación de stock/kardex si el caso lo requiere
  */
 import {expect, test} from '@playwright/test';
-import type {ComprobanteDetallePage} from '../../pages/PuntoVenta/ComprobanteDetallePage';
-import type {SunatEstadoApi} from '../../services/PuntoVenta/SunatEstadoApi';
-import type {KardexApi} from '../../services/Logistica/KardexApi';
-import type {EmisionResult} from '../../helpers/PuntoVenta/emision.types';
-import type {WaitSunatOptions} from '../../helpers/PuntoVenta/sunat-estados.helper';
+import type {ComprobanteDetallePage} from '@pages/PuntoVenta/ComprobanteDetallePage';
+import type {SunatEstadoApi} from '@services/PuntoVenta/SunatEstadoApi';
+import type {KardexApi} from '@services/Logistica/KardexApi';
+import type {EmisionResult} from '@app-types/emision.types';
+import type {WaitSunatOptions} from '@helpers/PuntoVenta/sunat-estados.helper';
 
 export interface ValidacionPostEmisionParams {
     resultado: EmisionResult;

@@ -2,9 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { ChildProcess } from 'node:child_process';
 import { spawn as nodeSpawn } from 'node:child_process';
-import { checkbox, confirm, input, select } from '@inquirer/prompts';
+import { checkbox, input, select } from '@inquirer/prompts';
 import crossSpawn from 'cross-spawn';
-import {getSetupStateSummary, areAllSetupsComplete, markSetupIncomplete} from '@utils/setup-state';
+import {getSetupStateSummary, areAllSetupsComplete, PV_SETUP_NAMES, LOG_SETUP_NAMES} from '@utils/setup-state';
 import { getFailedTests, type FailedTestGroup } from './analyze-results';
 import { cargarMapaDesdeCache, guardarMapaEnCache, cargarMapaCodigos } from '../src/factories/item-factory';
 import Fuse from 'fuse.js';
@@ -289,7 +289,50 @@ function cargarCacheActual(): void {
     console.warn(`[Cache] No hay cache para ${envGroup} / ${currentAccount}. Ejecuta setups primero.`);
 }
 
-async function askRunOptions(): Promise<string[]> {
+/**
+ * Aplica la selección de setups configurando las variables SKIP_*.
+ *
+ * Para cada setup:
+ *   - Si está en `selected` → se elimina su SKIP_* (se ejecutará)
+ *   - Si NO está en `selected` → se setea SKIP_* = '1' (se saltará)
+ *
+ * Nota: auth y punto-venta-datos comparten SKIP_PV_SETUP porque ambos
+ * pertenecen al grupo de setup de PuntoVenta (autenticación + datos base).
+ */
+export function applySetupSelections(selected: string[]): void {
+    // SKIP_PV_SETUP: compartido por auth + punto-venta-datos
+    if (selected.includes('auth') || selected.includes('punto-venta-datos')) {
+        delete process.env.SKIP_PV_SETUP;
+    } else {
+        process.env.SKIP_PV_SETUP = '1';
+    }
+
+    // SKIP_PV_ITEMS_SETUP: punto-venta-items
+    if (selected.includes('punto-venta-items')) {
+        delete process.env.SKIP_PV_ITEMS_SETUP;
+    } else {
+        process.env.SKIP_PV_ITEMS_SETUP = '1';
+    }
+
+    // SKIP_DATOS_SETUP: datos-adicionales
+    if (selected.includes('datos-adicionales')) {
+        delete process.env.SKIP_DATOS_SETUP;
+    } else {
+        process.env.SKIP_DATOS_SETUP = '1';
+    }
+}
+
+/**
+ * Retorna los nombres de setup por defecto según el proyecto seleccionado.
+ */
+function getDefaultSetups(projectKey?: ProjectKey): string[] {
+    if (projectKey === 'PuntoVenta') return [...PV_SETUP_NAMES];
+    if (projectKey === 'Logistica') return [...LOG_SETUP_NAMES];
+    // RunAll → todos
+    return [...PV_SETUP_NAMES, ...LOG_SETUP_NAMES];
+}
+
+async function askRunOptions(projectKey?: ProjectKey): Promise<string[]> {
     // Mostrar estado actual de los setups
     const stateSummary = getSetupStateSummary();
     console.log('\n──────────────────────────────────────');
@@ -301,12 +344,10 @@ async function askRunOptions(): Promise<string[]> {
     if (areAllSetupsComplete()) {
         console.log('[setup-state] Todos los setups completados — saltando ejecución de setups\n');
         // Salteamos items (lento) y datos-adicionales.
+        // Auth se saltea también (todos completados — si se necesita refrescar,
+        // el usuario puede seleccionarlo manualmente).
         process.env.SKIP_PV_ITEMS_SETUP = '1';
         process.env.SKIP_DATOS_SETUP = '1';
-
-        // Forzamos auth a re-ejecutarse aunque esté completado.
-        // Auth es rápido (~10s) y permite refrescar sesión si expiró.
-        markSetupIncomplete('auth');
 
         // Cargar cache para asegurar dynamic-items.json correcto
         cargarCacheActual();
@@ -314,25 +355,51 @@ async function askRunOptions(): Promise<string[]> {
         return [];
     }
 
-    const ejecutarSetups = await confirm({
-        message: 'Ejecutar setups automatizados (crear datos)? (Dile NO si ya corriste los tests antes)',
-        default: false,
+    const defaults = getDefaultSetups(projectKey);
+
+    // Elegir qué setups ejecutar mediante checkboxes
+    const CONFIG_NAME = {
+        name: '─' .repeat(30),
+        value: '__SEPARATOR__',
+    } as const;
+
+    const ALL_VALUE = '__SELECT_ALL__';
+    const NONE_VALUE = '__SELECT_NONE__';
+
+    const rawSelection = await checkbox<string>({
+        message: `Selecciona los setups a ejecutar:\n` +
+            `(Usa ESPACIO para marcar/desmarcar, ENTER para confirmar)`,
+        pageSize: 10,
+        loop: false,
+        choices: [
+            {name: '🔐 auth', value: 'auth', checked: defaults.includes('auth')},
+            {name: '📦 pv-datos', value: 'punto-venta-datos', checked: defaults.includes('punto-venta-datos')},
+            {name: '📦 pv-items', value: 'punto-venta-items', checked: defaults.includes('punto-venta-items')},
+            {name: '📋 datos-adicionales', value: 'datos-adicionales', checked: defaults.includes('datos-adicionales')},
+            {name: CONFIG_NAME.name, value: CONFIG_NAME.value, disabled: true},
+            {name: '✓ Seleccionar todos', value: ALL_VALUE},
+            {name: '○ Deseleccionar todos', value: NONE_VALUE},
+        ],
     });
 
-    if (!ejecutarSetups) {
-        // Salteamos items y datos.
-        process.env.SKIP_PV_ITEMS_SETUP = '1';
-        process.env.SKIP_DATOS_SETUP = '1';
-
-        // Forzamos auth a re-ejecutarse aunque esté completado.
-        // Auth es rápido (~10s) y permite refrescar sesión si expiró.
-        markSetupIncomplete('auth');
-
-        cargarCacheActual();
+    // Procesar selección
+    let selected: string[];
+    if (rawSelection.includes(ALL_VALUE)) {
+        selected = ['auth', 'punto-venta-datos', 'punto-venta-items', 'datos-adicionales'];
+    } else if (rawSelection.includes(NONE_VALUE)) {
+        selected = [];
     } else {
-        delete process.env.SKIP_PV_SETUP;
-        delete process.env.SKIP_PV_ITEMS_SETUP;
-        delete process.env.SKIP_DATOS_SETUP;
+        selected = rawSelection.filter(v => v !== '__SEPARATOR__');
+    }
+
+    console.log(`\n[setup-selection] Setups seleccionados: ${selected.length > 0 ? selected.join(', ') : '(ninguno)'}`);
+
+    // Aplicar selección a variables de entorno
+    applySetupSelections(selected);
+
+    // Cargar cache de items si no se va a ejecutar pv-items-setup
+    if (!selected.includes('punto-venta-items')) {
+        cargarCacheActual();
     }
 
     return [];
@@ -396,7 +463,7 @@ function runPlaywright(args: string[], projectContext?: ProjectContext): Promise
 }
 
 async function runFolder(folderPath: string, projectContext: ProjectContext): Promise<void> {
-    const extraArgs = await askRunOptions();
+    const extraArgs = await askRunOptions(projectContext.key);
     await runPlaywright([toRelative(folderPath), ...extraArgs], projectContext);
 }
 
@@ -406,7 +473,7 @@ async function runMultiplePaths(paths: string[], projectContext: ProjectContext)
         return;
     }
 
-    const extraArgs = await askRunOptions();
+    const extraArgs = await askRunOptions(projectContext.key);
     await runPlaywright([...paths.map(toRelative), ...extraArgs], projectContext);
 }
 
@@ -461,7 +528,7 @@ async function runSingleTestFromFile(filePath: string, projectContext: ProjectCo
 
     if (!selectedTest) return;
 
-    const extraArgs = await askRunOptions();
+    const extraArgs = await askRunOptions(projectContext.key);
 
     await runPlaywright([
         toRelative(filePath),
@@ -500,7 +567,7 @@ Usa ESPACIO para marcar/desmarcar y ENTER para confirmar.`,
 
     const grepRegex = selectedTests.map((testCase) => escapeGrep(testCase.title)).join('|');
 
-    const extraArgs = await askRunOptions();
+    const extraArgs = await askRunOptions(projectContext.key);
 
     await runPlaywright([
         toRelative(filePath),
@@ -540,7 +607,7 @@ async function runFile(filePath: string, projectContext: ProjectContext): Promis
         if (action === 'back') return;
 
         if (action === 'run-file') {
-            const extraArgs = await askRunOptions();
+            const extraArgs = await askRunOptions(projectContext.key);
             await runPlaywright([toRelative(filePath), ...extraArgs], projectContext);
         }
 
@@ -663,7 +730,7 @@ async function searchGlobalTest(projectContext: ProjectContext): Promise<void> {
 
     if (!selectedTest) return;
 
-    const extraArgs = await askRunOptions();
+    const extraArgs = await askRunOptions(projectContext.key);
 
     await runPlaywright([
         toRelative(selectedTest.filePath),
@@ -729,14 +796,14 @@ async function runManualGrep(projectContext: ProjectContext): Promise<void> {
 
     if (!grep.trim()) return;
 
-    const extraArgs = await askRunOptions();
+    const extraArgs = await askRunOptions(projectContext.key);
 
     const args = ['--grep', grep.trim(), ...extraArgs];
     await runPlaywright(args, projectContext);
 }
 
 async function runPlaywrightUi(projectContext: ProjectContext): Promise<void> {
-    await askRunOptions();
+    await askRunOptions(projectContext.key);
     await runPlaywright(['--ui'], projectContext);
 }
 
