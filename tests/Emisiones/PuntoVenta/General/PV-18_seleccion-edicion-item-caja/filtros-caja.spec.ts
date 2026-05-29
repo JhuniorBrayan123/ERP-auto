@@ -34,7 +34,7 @@ test.describe('Selección, edición de ítem en caja de venta — Filtros', {tag
         await cajero.intentaRealizar(
             FiltrarPorListaPrecios('Precio estándar (S/)', 'Precio dolares ($)')
         );
-        // Validar que el símbolo de dólar aparece en el carrito
+        
         expect(await cajero.pregunta(MensajeVisible('$', {exact: true}))).toBe(true);
     });
 });

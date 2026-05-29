@@ -15,7 +15,6 @@ import {BitacoraContiene} from '@question/PuntoVenta/BitacoraContiene.question';
 import {ModalPostEmision} from '@question/PuntoVenta/ModalPostEmision.question';
 import {AccionesPostEmisionCompletas} from '@question/PuntoVenta/AccionesPostEmisionCompletas.question';
 
-
 test.describe('PV-20 Pedido - Validaciones', {tag: ['@punto-venta', '@pedido', '@validaciones']}, () => {
 
     test.beforeEach(async ({page}) => {

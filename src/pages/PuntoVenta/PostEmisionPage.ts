@@ -3,8 +3,6 @@ import { expect, type Locator, type Page } from '@playwright/test';
 export class PostEmisionPage {
     constructor(private readonly page: Page) {}
 
-    // ─── Locators del Modal Post-Emisión ──────────────────────────────
-
     private get btnWhatsApp(): Locator {
         return this.page.locator('div').filter({ hasText: 'Enviar por WhatsApp' }).first();
     }
@@ -44,8 +42,6 @@ export class PostEmisionPage {
         return this.page.getByText('¡Buen trabajo!');
     }
 
-    // ─── Acciones Atómicas ────────────────────────────────────────────
-
     async clickWhatsApp(): Promise<void> {
         await this.btnWhatsApp.click();
     }
@@ -53,7 +49,6 @@ export class PostEmisionPage {
     async clickEmail(): Promise<void> {
         await this.btnEmail.click();
     }
-
 
     async clickCopiarLink(): Promise<void> {
         await this.btnCopiarLink.click();
@@ -79,8 +74,6 @@ export class PostEmisionPage {
         await this.btnNuevaVenta.click();
     }
 
-    // ─── Lógica UI Específica ─────────────────────────────────────────
-
     async enviarEmail(correo: string): Promise<void> {
         await this.clickEmail();
         const inputCorreo = this.page.getByRole('textbox', { name: 'Ej. email@gmail.com, email2@outlook.com' });
@@ -88,7 +81,6 @@ export class PostEmisionPage {
         await inputCorreo.fill(correo);
         await this.btnEnviar.click();
     }
-
 
     async estaVisible(): Promise<boolean> {
         try {
@@ -102,11 +94,8 @@ export class PostEmisionPage {
     async obtenerCorrelativoDinamico(): Promise<string> {
         const regex = /(PD01|F001|B001|NV01|CT01)-\d+/;
 
-        // Buscamos el texto en toda la página. Usamos .last() por si acaso
-        // el correlativo anterior se quedó renderizado en la página de fondo.
         const locator = this.page.getByText(regex).last();
 
-        // Esto esperará a que el texto sea visible
         const texto = await locator.innerText();
         const match = texto.match(regex);
 

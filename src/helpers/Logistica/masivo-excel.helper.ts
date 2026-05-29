@@ -10,26 +10,12 @@ import {
   resolveExcelPath,
 } from './masivo-config.helper';
 
-/**
- * Resultado de preparar un Excel para carga masiva.
- *
- * - tempFilePath: ruta del archivo temporal generado (para setInputFiles)
- * - nombreGenerado: valor completo en la columna nombre (incluye #fila)
- * - textoBusqueda: marca de tiempo (Lima) compartida por fila; aparece en nombre y
- *   en columnas extra (p. ej. DESCRIPCION) para buscar en la grilla aunque la UI
- *   muestre otro campo como principal
- */
 export interface MasivoExcelResult {
   tempFilePath: string;
   nombreGenerado: string;
   textoBusqueda: string;
 }
 
-/**
- * Genera un sufijo de timestamp único (zona horaria Lima).
- *
- * @returns sufijo con fecha y hora, ej: "5-4-2026_10-15-30 a. m."
- */
 export function buildTimestampSuffix(): string {
   return new Date()
     .toLocaleString('es-PE', { timeZone: 'America/Lima' })
@@ -40,10 +26,6 @@ export function buildTimestampSuffix(): string {
     .trim();
 }
 
-/**
- * Código de barras numérico: único por fila y por ejecución (evita choque con datos
- * ya cargados en QA cuando solo se sumaba el nº de fila).
- */
 function uniquifyBarcodeValue(
   valorActual: string,
   rowNum: number,
@@ -73,22 +55,6 @@ function buildUniqueCellValue(
   return `${valorActual} ${sufijo} #${rowNum}`;
 }
 
-/**
- * Prepara un archivo Excel temporal con el nombre único inyectado.
- *
- * Flujo:
- * 1. Abre el archivo Excel base correspondiente al tipo
- * 2. Busca la hoja correcta por nombre
- * 3. Localiza por encabezado la columna de nombre del tipo y `additionalUniqueHeaders`
- *    (p. ej. DESCRIPCION cuando el ERP valida duplicados en descripción)
- * 4. En cada fila aplica fecha/hora (Lima) + #fila en esas columnas
- * 5. Guarda una copia temporal
- * 6. Devuelve la ruta temporal y el nombre generado
- *
- * @param tipoItem - tipo de item (productos, servicios, etc.)
- * @param descripcionBase - texto base para el nombre (ej: "masivo")
- * @returns ruta del archivo temporal y nombre generado
- */
 export async function buildMassiveExcel(
   tipoItem: TipoItemMasivo,
   descripcionBase: string,
@@ -96,17 +62,14 @@ export async function buildMassiveExcel(
   const config: MasivoItemConfig = MASIVO_CONFIG[tipoItem];
   const excelPath = resolveExcelPath(tipoItem);
 
-  // 1. Abrir el Excel base
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.readFile(excelPath);
 
-  // 2. Buscar la hoja por nombre
   const sheet = workbook.getWorksheet(config.sheetName);
   if (!sheet) {
     throw new Error(`Hoja "${config.sheetName}" no encontrada en ${config.excelFile}`);
   }
 
-  // 3. Columnas a unicidad: nombre del tipo + opcionales (p. ej. DESCRIPCION en insumos)
   const extra = config.additionalUniqueHeaders ?? [];
   const headersToUnique = [...new Set([config.nombreHeader, ...extra])];
 
@@ -130,7 +93,6 @@ export async function buildMassiveExcel(
     columnIndexByHeader.set(header, colIdx);
   }
 
-  // 4. Por cada fila: mismo sufijo en todas las columnas configuradas (evita duplicados ERP)
   const sufijo = buildTimestampSuffix();
   let nombreGenerado = '';
   const lastRow = sheet.lastRow?.number ?? config.dataRow;
@@ -155,12 +117,10 @@ export async function buildMassiveExcel(
     row.commit();
   }
 
-  // Fallback si no se encontró ningún dato
   if (!nombreGenerado) {
     nombreGenerado = `${descripcionBase} ${sufijo}`;
   }
 
-  // 5. Guardar copia temporal
   const tempDir = path.join(os.tmpdir(), 'erp2-masivos');
   if (!fs.existsSync(tempDir)) {
     fs.mkdirSync(tempDir, { recursive: true });
@@ -174,16 +134,12 @@ export async function buildMassiveExcel(
   return { tempFilePath, nombreGenerado, textoBusqueda: sufijo };
 }
 
-/**
- * Elimina un archivo temporal después de usarlo.
- * No lanza error si el archivo no existe.
- */
 export function cleanupTempFile(filePath: string): void {
   try {
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }
   } catch {
-    // Ignorar errores de limpieza
+    
   }
 }

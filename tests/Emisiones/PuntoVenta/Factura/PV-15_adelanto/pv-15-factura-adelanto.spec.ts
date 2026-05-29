@@ -18,7 +18,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
             await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).click();
             await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).fill(CLIENTES.EMPRESA_RUC_AUTO.documento);
             await page.getByText(CLIENTES.EMPRESA_RUC_AUTO.textoSelector).click();
-            await page.locator('.slider').first().click(); // Switch adelanto
+            await page.locator('.slider').first().click(); 
         });
 
         await test.step('When: emitir con PLIN', async () => {
@@ -52,7 +52,6 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
         });
     });
 
-    // ─── Factura con adelanto aplicado ─────────────────────────────────
     test('Emitir factura con adelanto aplicado @PV-15.3', async ({
                                                                      cajaPage,
                                                                      comprobantePage,
@@ -61,7 +60,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
                                                                      busquedaComprobantes,
                                                                      page,
                                                                  }) => {
-        // ─── Precondición: crear factura de adelanto ───────────────
+        
         let emisionAdelanto: typeof emisionPage.ultimaEmision = null;
 
         await test.step('Given: crear factura de adelanto como precondición', async () => {
@@ -73,14 +72,12 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
             await emisionPage.buscarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
             await emisionPage.seleccionarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
 
-            // Activar switch adelanto
             await page.locator('.slider').first().click();
             await emisionPage.emitirConEfectivoExacto();
             emisionAdelanto = emisionPage.ultimaEmision;
             await emisionPage.clickNuevaVenta();
         });
 
-        // ─── Factura con adelanto aplicado ─────────────────────────
         await test.step('And: iniciar nueva factura con cliente RUC', async () => {
             await comprobantePage.seleccionarFactura();
             const inputCliente = page.getByRole('textbox', {name: 'Buscar por nombre, razón'});
@@ -95,10 +92,9 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
 
         await test.step('When: aplicar adelanto existente', async () => {
             await emisionAdelantosPage.abrirAdelantos(CLIENTES.EMPRESA_RUC_AUTO);
-            // filtrarAdelantoFactura ahora incluye la presión de "Enter" y el click al checkbox
-            await busquedaComprobantes.filtrarAdelantoFactura(emisionAdelanto);
             
-            // Cerramos el modal de adelantos
+            await busquedaComprobantes.filtrarAdelantoFactura(emisionAdelanto);
+
             await page.locator('.v-modal > div').first().click();
         });
 

@@ -10,7 +10,6 @@ import {IntentarDescargarPdf} from '@task/PuntoVenta/IntentarDescargarPdf.task';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
 import {ITEMS_PV, TIPOS_COMPROBANTE} from '@helpers/PuntoVenta/emision-data.helper';
 
-
 test.describe('PV-20: Opciones post-registro de Pedido', {tag: ['@punto-venta', '@pedido', '@post-registro']}, () => {
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);

@@ -22,7 +22,6 @@ export class RecetaFormPage extends ItemFormBasePage {
         await inputPrecioCompra.fill(precioCompra);
     }
 
-    // llenar cidgo es nuevo 
     async llenarCodigo(codigo: number): Promise<void> {
         await this.page.getByText("Automático").first().click();
         await this.page.getByText("Manual").first().click();
@@ -69,7 +68,7 @@ export class RecetaFormPage extends ItemFormBasePage {
                     });
                 await this.esperarSoloOverload();
             } else {
-                // El ítem ya fue agregado sin pedir equivalencia — validar que esté en lista
+                
                 console.warn(
                     `[buscarYAgregarInsumo] Overscreen de equivalencia no apareció ` +
                     `para "${insumo.codigoBusqueda}". El ERP lo agregó directamente.`

@@ -23,7 +23,6 @@ export class ComboFormPage extends ItemFormBasePage {
     await inputPrecioCompra.fill(precioCompra);
   }
 
-  // llenar cidgo es nuevo 
   async llenarCodigo(codigo: number): Promise<void> {
     await this.page.getByText("Automático").first().click();
     await this.page.getByText("Manual").first().click();

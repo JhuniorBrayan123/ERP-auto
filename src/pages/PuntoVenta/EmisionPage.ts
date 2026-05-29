@@ -1,17 +1,3 @@
-/**
- * Page Object para la pantalla de emisión de comprobantes.
- *
- * Locators reales del codegen:
- * - Búsqueda: getByRole('textbox', { name: 'Escanea o busca por nombre, c' })
- * - Pagar: getByRole('button', { name: 'PAGAR' })
- * - Monto exacto: getByRole('button', { name: 'Monto exacto' })
- * - Realizar Pago: getByRole('button', { name: 'Realizar Pago' })
- * - Nueva Venta: getByRole('button', { name: 'Nueva Venta' })
- * - Cantidad increase: locator con id pv_cmp-punto-venta_..._div:increase
- * - Editar item: locator con id pv_cmp-punto-venta_..._dv:btn-editar
- * - Descuento input: locator con id pv_cmp-punto-venta_..._v-input:descuento
- * - Descuento global: locator con id pv_punto-venta_..._cmp-descuento-pedido_v-input:valor
- */
 import {expect, type Locator, type Page} from '@playwright/test';
 import type {EmisionResult} from '../../helpers/PuntoVenta/emision.types';
 import {throwFunctionalError} from '../../utils/functional-error';
@@ -19,16 +5,11 @@ import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
 import {esperarDebounce} from '../../utils/wait-helpers';
 
 export class EmisionPage {
-    /**
-     * Último resultado de emisión capturado del network.
-     * Se llena al usar emitirConEfectivoExacto() o emitirConYape().
-     */
+    
     public ultimaEmision: EmisionResult | null = null;
 
     constructor(private readonly page: Page) {
     }
-
-    // ─── Locators reales ──────────────────────────────────────────────
 
     private get searchInput(): Locator {
         return this.page.getByRole('textbox', {name: 'Escanea o busca por nombre, c'});
@@ -72,16 +53,6 @@ export class EmisionPage {
         return this.page.getByRole('button', {name: 'Aceptar'});
     }
 
-    // ─── Intercepción de respuesta de emisión ─────────────────────────
-
-    /**
-     * Intercepta la response del API de emisión para capturar serie/correlativo.
-     *
-     * Endpoint: DocumentosContables/Emisiones/v2
-     * Response: { IdComprobante, CorrelativoDocumento, FilePdf: { Nombre: "B001-00000017-..." } }
-     *
-     * Se extrae la serie del nombre del PDF: "B001-00000017-1004-PDF.pdf" → serie = "B001"
-     */
     private async interceptarEmision(): Promise<EmisionResult> {
         const responsePromise = this.page.waitForResponse(
             (resp) => resp.url().includes('DocumentosContables/Emisiones') && resp.status() === 200,
@@ -93,7 +64,6 @@ export class EmisionPage {
         const response = await responsePromise;
         const body = await response.json();
 
-        // Extraer serie del nombre del PDF: "B001-00000017-1004-PDF.pdf"
         const nombrePdf: string = body.FilePdf?.Nombre ?? '';
         const serie = nombrePdf.split('-')[0] || '';
         const correlativo = String(body.CorrelativoDocumento ?? '');
@@ -105,8 +75,6 @@ export class EmisionPage {
         this.ultimaEmision = result;
         return result;
     }
-
-    // ─── Ítems ────────────────────────────────────────────────────────
 
     async buscarItem(codigo: string): Promise<void> {
         try {
@@ -133,7 +101,6 @@ export class EmisionPage {
             await expect(item).toBeVisible({timeout: 10_000});
             await item.click();
 
-            // 3. Esperar a que el spinner desaparezca
             const overload = this.page.locator('[id="cmn_cmp-overload:loading"]');
             await overload.waitFor({state: 'visible', timeout: 2_000}).catch(() => {
             });
@@ -164,7 +131,6 @@ export class EmisionPage {
         }
     }
 
-    /** Lee el precio unitario del item actualmente en el carrito */
     async obtenerPrecioItem(): Promise<number> {
         const precioTexto = await this.page
             .locator('[id*="item_v-text:precio"]')
@@ -175,7 +141,6 @@ export class EmisionPage {
         return parseFloat(limpio);
     }
 
-    /** Lee el subtotal del item en el carrito (precio × cantidad) */
     async obtenerSubtotalItem(): Promise<number> {
         const subtotalTexto = await this.page
             .locator('[id*="item_v-text:subtotal"]')
@@ -186,7 +151,6 @@ export class EmisionPage {
         return parseFloat(limpio);
     }
 
-    /** Incrementa la cantidad del ítem con el botón + */
     async incrementarCantidad(veces: number = 1): Promise<void> {
         const btnIncrease = this.page.locator(
             '[id="pv_cmp-punto-venta_cmp-grilla-items:grilla_cmp-producto:item_v-step:cantidad_div:increase"]',
@@ -196,7 +160,6 @@ export class EmisionPage {
         }
     }
 
-    /** Editar precio del ítem directamente */
     async editarPrecioItem(nuevoPrecio: string): Promise<void> {
         await this.btnEditar.click();
         const inputPrecio = this.page.locator(
@@ -207,7 +170,6 @@ export class EmisionPage {
         await this.btnEditar.click();
     }
 
-    /** Activa el switch de Doc. Adelanto */
     async activarDocAdelanto(): Promise<void> {
         const input = this.page.locator(
             '[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-header_v-switch:adelanto"]'
@@ -222,8 +184,6 @@ export class EmisionPage {
             await slider.click({force: true});
         }
     }
-
-    // ─── Descuentos por ítem ──────────────────────────────────────────
 
     async abrirEdicionItem(): Promise<void> {
         await this.btnEditar.click();
@@ -251,11 +211,6 @@ export class EmisionPage {
         await this.btnEditar.click();
     }
 
-    // ─── Descuento global ─────────────────────────────────────────────
-
-    /**
-     * Despliega el panel inferior de cálculos si se encuentra colapsado (nuevo componente UI).
-     */
     async desplegarPanelCalculos(): Promise<void> {
         const btnColapsable = this.page.locator('.collapse-icon').first();
         try {
@@ -263,11 +218,11 @@ export class EmisionPage {
             const isCerrado = await btnColapsable.locator('.icon.cerrado').isVisible();
             if (isCerrado) {
                 await btnColapsable.click();
-                // Esperar brevemente para que termine la animación de despliegue
+                
                 await esperarDebounce(this.page, 500, 'Animación de colapso de panel');
             }
         } catch (e) {
-            // Si el contenedor no existe, no está visible o ocurre un error, continuamos
+            
         }
     }
 
@@ -297,13 +252,6 @@ export class EmisionPage {
         ).click();
     }
 
-    /**
-     * Captura todas las filas visibles del resumen de totales (.cmp-resumen-pedido).
-     * Auto-detecta qué conceptos están presentes (Subtotal, IGV, Total retenciones,
-     * Monto Detracción Soles, etc.) y omite los que no aparecen.
-     *
-     * @returns Record<string, string> con label → valor (ej. { "Subtotal": "8.10", "IGV": "1.46" })
-     */
     async capturarResumenPedido(): Promise<Record<string, string>> {
         const filas = await this.page.locator('.cmp-resumen-pedido .content .subtotal').all();
         const resultado: Record<string, string> = {};
@@ -330,13 +278,6 @@ export class EmisionPage {
         return resultado;
     }
 
-    /**
-     * Captura todas las filas visibles del popup de totales (.cmp-totales-comprobante).
-     * Se usa después de llamar a abrirTotales().
-     * Auto-detecta qué conceptos están presentes.
-     *
-     * @returns Record<string, string> con label → valor (ej. { "Operaciones Gravadas": "16.95", "IGV": "3.05" })
-     */
     async capturarTotalesPopup(): Promise<Record<string, string>> {
         const filas = await this.page.locator('.cmp-totales-comprobante .cuerpo div.texto').all();
         const resultado: Record<string, string> = {};
@@ -354,9 +295,6 @@ export class EmisionPage {
 
         return resultado;
     }
-
-
-    // ─── Emisión / Pago ───────────────────────────────────────────────
 
     async clickPagar(): Promise<void> {
         await this.btnPagar.click();
@@ -390,10 +328,6 @@ export class EmisionPage {
         await this.btnAceptar.click();
     }
 
-    /**
-     * Flujo completo de emisión con pago en efectivo (monto exacto).
-     * Intercepta la API para capturar serie/correlativo del comprobante emitido.
-     */
     async emitirConEfectivoExacto(): Promise<EmisionResult> {
         try {
             await this.clickPagar();
@@ -408,10 +342,6 @@ export class EmisionPage {
         }
     }
 
-    /**
-     * Flujo completo de emisión con YAPE.
-     * Intercepta la API para capturar serie/correlativo del comprobante emitido.
-     */
     async emitirConYape(): Promise<EmisionResult> {
         try {
             await this.clickPagar();
@@ -438,7 +368,6 @@ export class EmisionPage {
             const response = await responsePromise;
             const body = await response.json();
 
-            // En Pedidos, el nombre del PDF o el correlativo se devuelve similar a emisiones
             const nombrePdf: string = body.FilePdf?.Nombre ?? '';
             const serie = nombrePdf.split('-')[0] || '';
             const correlativo = String(body.CorrelativoDocumento ?? '');
@@ -458,13 +387,9 @@ export class EmisionPage {
         }
     }
 
-    // ─── Regresar ─────────────────────────────────────────────────────
-
     async volverAlInicio(): Promise<void> {
         await this.page.locator('.icon').first().click();
     }
-
-    // ─── Precuenta / Vista previa ─────────────────────────────────────
 
     async clickPrecuenta(): Promise<void> {
         await this.page.getByRole('button', {name: 'PRECUENTA'}).click();
@@ -478,21 +403,16 @@ export class EmisionPage {
         await this.page.locator('.icon-close').click();
     }
 
-
-    /** Cambia la moneda de Soles a Dólares en el selector de precios */
     async seleccionarMonedaDolares(): Promise<void> {
         await this.page.getByText('Precio estándar (S/)').first().click();
         await this.page.getByText('Precio dolares ($)').click();
     }
 
-    /** Llena el campo de tipo de cambio */
     async llenarTipoCambio(valor: string): Promise<void> {
         const input = this.page.getByRole('textbox', {name: 'Cambio'});
         await input.click();
         await input.fill(valor);
     }
-
-    // ─── Fecha ────────────────────────────────────────────────────────
 
     async abrirSelectorFecha(): Promise<void> {
         await this.page.locator(
@@ -514,11 +434,9 @@ export class EmisionPage {
         const fecha = new Date();
         fecha.setDate(fecha.getDate() - (diasLimite + 1));
 
-        // El calendario usa aria-labels en INGLÉS con formato: "Wednesday, May 6, 2026"
         const diasSemana = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const meses = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-        // Formato exacto que usa el DOM: "Wednesday, May 6, 2026"
         const ariaLabel = `${diasSemana[fecha.getDay()]}, ${meses[fecha.getMonth()]} ${fecha.getDate()}, ${fecha.getFullYear()}`;
 
         await this.abrirSelectorFecha();

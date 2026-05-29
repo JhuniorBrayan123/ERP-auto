@@ -1,4 +1,3 @@
-// src/tasks/PuntoVenta/LimpiarCarrito.ts
 import {Page} from '@playwright/test';
 
 export const LimpiarCarrito = () =>

@@ -9,7 +9,7 @@ export const IncrementarCantidadItem = (item: ItemVenta, incrementos: number) =>
         const emision = new EmisionPage(page);
         await emision.buscarItem(item.codigo);
         await emision.seleccionarItem(item.nombre);
-        // Incrementar cantidad
+        
         for (let i = 0; i < incrementos; i++) {
             await page.locator(INCREASE_BTN).click();
         }

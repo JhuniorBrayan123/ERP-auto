@@ -125,10 +125,9 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', { tag: ['@logistica', '@m 
         await navegarAIngresosYNuevo(movimientosNav, registroMovimiento, true);
 
         await test.step('When: seleccionar almacén, motivo y agregar ítem con cantidad cero', async () => {
-            // await registroMovimiento.seleccionarAlmacen(ALMACENES.AUTO, ALMACENES.AUTO);
-            // await registroMovimiento.abrirSelectorMotivo();
+
             await definirAlmacenYMotivo(registroMovimiento, ALMACENES.AUTO, ALMACENES.AUTO, 'INGRESO A ALMACÉN', MOTIVOS_INGRESO.TRASLADO);
-            // await registroMovimiento.seleccionarMotivoDirecto(MOTIVOS_INGRESO.TRASLADO);
+            
             await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_ESTRICTO.codigo);
             await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.PRODUCTO_ESTRICTO.nombre);
             await registroMovimiento.llenarCantidad('0000');
@@ -168,8 +167,7 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', { tag: ['@logistica', '@m 
         await test.step('And: limpiar y cancelar', async () => {
             await registroMovimiento.clickLimpiar();
             await registroMovimiento.clickLimpiarConfirmacion();
-            // await registroMovimiento.cerrarModal();
-            // await registroMovimiento.clickCancelar();
+
         });
     });
 
@@ -182,7 +180,6 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', { tag: ['@logistica', '@m 
         kardexVerificacion,
         page,
     }) => {
-
 
         await navegarAIngresosYNuevo(movimientosNav, registroMovimiento, true);
 
@@ -207,7 +204,7 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', { tag: ['@logistica', '@m 
             const kardexPage = await stockVerificacion.abrirKardexDesdeStock(ITEMS_TEST.PRODUCTO_ESTRICTO.codigo);
             const kardexPopup = new KardexVerificacionPage(kardexPage);
             await kardexPage.waitForLoadState('networkidle');
-            await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);//modificado en almacen de auto a VENTAS
+            await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
             await kardexPopup.clickCodigoMovimientoRegex(PATRON_CODIGO.INGRESO);
             await kardexPopup.clickDatosOpcionales();
             await kardexPopup.cerrarModalDetalle();

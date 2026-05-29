@@ -7,7 +7,7 @@ export const EditarPrecioDeItem = (item: ItemVenta, nuevoPrecio: string) => {
         const emision = new EmisionPage(page);
         await emision.buscarItem(item.codigo);
         await emision.seleccionarItem(item.nombre);
-        // Editar precio — delega a EmisionPage POM
+        
         await emision.editarPrecioItem(nuevoPrecio);
     };
     fn.displayName = 'Editar precio de item';

@@ -1,14 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
 
-// ── Types ───────────────────────────────────────────────────────────────
-
 export interface FailedTestGroup {
     project: string;
     titles: string[];
 }
-
-// ── Constants ───────────────────────────────────────────────────────────
 
 const ROOT_DIR = process.cwd();
 
@@ -17,12 +13,6 @@ const PROJECT_OUTPUT_DIRS: Record<string, string> = {
     Logistica: path.join(ROOT_DIR, "test-results", "logistica"),
 };
 
-// ── parseResultsFile ────────────────────────────────────────────────────
-
-/**
- * Parse a single results.json file and extract titles of failed / timedOut tests.
- * Returns [] if the file does not exist, is malformed, or has no failures.
- */
 export function parseResultsFile(filePath: string): string[] {
     let raw: string;
 
@@ -70,8 +60,6 @@ function isFailedOrTimedOut(spec: any): boolean {
         return false;
     }
 
-    // Playwright JSON reporter usa "unexpected" para tests fallidos,
-    // no "failed". "timedOut" también es válido a nivel test.status.
     return spec.tests.some(
         (t: any) =>
             t &&
@@ -79,13 +67,6 @@ function isFailedOrTimedOut(spec: any): boolean {
     );
 }
 
-// ── getFailedTests ──────────────────────────────────────────────────────
-
-/**
- * Scan all known output directories for results.json files,
- * parse each, and return groups of failed tests per project.
- * Returns [] if no results files exist or no failures found.
- */
 export function getFailedTests(): FailedTestGroup[] {
     const groups: FailedTestGroup[] = [];
 

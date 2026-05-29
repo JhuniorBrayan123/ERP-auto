@@ -39,7 +39,7 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', { tag: ['@logis
         });
 
         await test.step('Act: eliminar el movimiento desde el listado', async () => {
-            await page.getByText('Productos y servicios').click(); // Custom UI switch
+            await page.getByText('Productos y servicios').click(); 
             await page.getByText('Salidas').click();
             await listadoMovimientos.abrirMenuAccionesIcono();
             await listadoMovimientos.clickEliminarMovimiento();
@@ -78,7 +78,6 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', { tag: ['@logis
             await esperarCargaOverlay(page);
             await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.VENTAS);
         });
-
 
         await test.step('Act: eliminar movimiento', async () => {
             await movimientosNav.navegarASalidas();

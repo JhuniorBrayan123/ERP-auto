@@ -169,7 +169,6 @@ export class ListadoMovimientosPage {
 
         await this.esperarSinOverlayCarga();
 
-        // Espera a que exista al menos una acción visible en la grilla ya cargada
         await this.page
             .locator('.cmp-dropdown-toggle.justify-content-center')
             .first()

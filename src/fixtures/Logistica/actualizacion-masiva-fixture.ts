@@ -7,16 +7,12 @@ import { ItemDetailPage } from '../../pages/Logistica/ItemDetailPage';
 type ActualizacionMasivaFixtures = {
   navigationPage: NavigationPage;
   actualizacionMasiva: ActualizacionMasivaPage;
-  /** Lista con búsqueda y espera de carga (mismo patrón que edición de ítem). */
+  
   listaItems: ListaItemsPage;
-  /** Ver ítem / bitácora / visualizar stock (reutilizado desde specs de edición). */
+  
   itemDetail: ItemDetailPage;
 };
 
-/**
- * Navegación autenticada + menú "Actualizar masiva" abierto.
- * `BASE_URL` y credenciales vienen de `.env` / storageState (sin hardcode en specs).
- */
 export const test = base.extend<ActualizacionMasivaFixtures>({
   navigationPage: [
     async ({ page }, use) => {

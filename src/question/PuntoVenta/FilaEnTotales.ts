@@ -19,7 +19,7 @@ export const FilaEnTotales =
 export const CalculosTotales =
     (label: string, valor: string) =>
         async (page: Page): Promise<boolean> => {
-            // ── DEBUG: dump all rows in .cmp-resumen-pedido ──
+            
             console.log(`[CalculosTotales] Buscando: label="${label}", valor="${valor}"`);
             const allRows = await page.locator(".cmp-resumen-pedido .content div.subtotal").all();
             console.log(`[CalculosTotales] Filas encontradas: ${allRows.length}`);
@@ -31,7 +31,6 @@ export const CalculosTotales =
                 }
                 console.log(`[CalculosTotales]   fila[${i}]: ${JSON.stringify(texts)}`);
             }
-            // ── END DEBUG ──
 
             const fila = page
                 .locator(".cmp-resumen-pedido .content div.subtotal")

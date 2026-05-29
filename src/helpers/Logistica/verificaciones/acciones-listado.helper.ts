@@ -1,7 +1,3 @@
-/**
- * Helpers de acciones sobre listado de movimientos (eliminar, editar, clonar).
- * Extraído de verificaciones-movimientos.helper.ts
- */
 import {ListadoMovimientosPage} from '@pages/Logistica/ListadoMovimientosPage';
 import {RegistroMovimientoPage} from '@pages/Logistica/RegistroMovimientoPage';
 import {FUNCTIONAL_CATALOG} from '@utils/functional-catalog';

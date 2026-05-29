@@ -8,9 +8,6 @@ import {
 
 test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica', '@movimientos']}, () => {
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 28: Clonar movimiento correctamente
-    // ═══════════════════════════════════════════════════════════════
     test('Clonar movimiento correctamente @MS-6', async ({
                                                              movimientosNav,
                                                              registroMovimiento,
@@ -53,9 +50,6 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
         });
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 29: Clonar movimiento con equivalencia
-    // ═══════════════════════════════════════════════════════════════
     test('Clonar movimiento con equivalencia @MS-6', async ({
                                                                 movimientosNav,
                                                                 registroMovimiento,
@@ -73,7 +67,6 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
             {waitAntes: page, seleccionarEquivalente: VARIANTES.EQUIVALENTE_X2},
         );
 
-        // Paso especial: ver movimiento antes de clonar
         await test.step('Act: ver movimiento y luego clonar', async () => {
             await listadoMovimientos.abrirMenuAcciones();
             await listadoMovimientos.clickVerMovimiento();
@@ -93,9 +86,6 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
         });
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 30: Clonar movimiento con datos adicionales
-    // ═══════════════════════════════════════════════════════════════
     test('Clonar movimiento con datos adicionales @MS-6', async ({
                                                                      movimientosNav,
                                                                      registroMovimiento,

@@ -6,7 +6,7 @@ export type FunctionalPreset = {
     flowStep: string;
     userMessage: string;
     technicalDetail: string;
-    /** Categoría del fallo esperado para este paso. Se muestra en el reporte de consola. */
+    
     failureCategory: FailureCategory;
 };
 

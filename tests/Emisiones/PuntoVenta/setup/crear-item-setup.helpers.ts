@@ -6,13 +6,6 @@ import {ComboFormPage} from '@pages/Logistica/ComboFormPage';
 import type {ItemTemplate} from '@factories/item-factory';
 import {verificarVisible} from '../../../../src/utils/functional-error';
 
-// ──────────────────────────────────────────────────────────────────────
-// Helpers para ProductoFormPage — descompuestos (anti God Function)
-// ──────────────────────────────────────────────────────────────────────
-
-/**
- * Llena información básica del producto: nombre, código, precios, opciones avanzadas.
- */
 export async function llenarProductoBase(
     productoForm: ProductoFormPage,
     codigo: string,
@@ -26,9 +19,6 @@ export async function llenarProductoBase(
     await productoForm.expandirOpcionesAvanzadas();
 }
 
-/**
- * Configura stock: almacén (si aplica), control de stock, cantidades (si aplica), info adicional.
- */
 export async function configurarStockProducto(
     productoForm: ProductoFormPage,
     template: ItemTemplate,
@@ -48,10 +38,6 @@ export async function configurarStockProducto(
     await productoForm.llenarInfoAdicional('REGRESION', 'AUTO-TEST', 'AUTOMATIZADO');
 }
 
-/**
- * Aplica configuraciones opcionales: ISC, ICBPER, variantes, equivalencias.
- * Cada una se ejecuta solo si el template la tiene definida.
- */
 export async function aplicarExtrasProducto(
     productoForm: ProductoFormPage,
     template: ItemTemplate,
@@ -90,9 +76,6 @@ export async function aplicarExtrasProducto(
     }
 }
 
-/**
- * Guarda el producto, verifica la redirección y vuelve a la lista.
- */
 export async function guardarProductoYVolver(
     page: Page,
     productoForm: ProductoFormPage,
@@ -112,7 +95,6 @@ export async function guardarProductoYVolver(
 
     await productoForm.clickIrAListaItems();
 
-    // Esperar a que la grilla cargue antes de continuar con el siguiente ítem
     await verificarVisible(page, page.getByRole('textbox', {name: 'Buscar por nombre, código o c'}), {
         elemento: 'buscador de items',
         paso: `Verificar retorno a lista tras guardar ${codigo}`,
@@ -120,9 +102,6 @@ export async function guardarProductoYVolver(
     });
 }
 
-/**
- * Orquestador: crea un producto completo desde su template.
- */
 export async function crearProductoDesdeTemplate(
     page: Page,
     productoForm: ProductoFormPage,
@@ -137,15 +116,6 @@ export async function crearProductoDesdeTemplate(
     }));
 }
 
-// ──────────────────────────────────────────────────────────────────────
-// Helpers para RecetaFormPage
-// ──────────────────────────────────────────────────────────────────────
-
-/**
- * Crea una receta completa desde su template.
- * Los insumos se leen del template. Los pre-existentes usan código fijo,
- * los dinámicos se resuelven con `resolverCodigo`.
- */
 export async function crearRecetaDesdeTemplate(
     page: Page,
     recetaForm: RecetaFormPage,
@@ -161,9 +131,9 @@ export async function crearRecetaDesdeTemplate(
 
     await recetaForm.irATabInsumos();
     for (const insumo of template.config.insumos!) {
-        // Resolver código: si es un template key conocido, usar resolverCodigo(); si no, usar el código tal cual
+
         const codigoResuelto = resolverCodigo(insumo.codigoBusqueda);
-        const codigoBusqueda = codigoResuelto.replace(/-/g, ''); // ERP busca sin guión
+        const codigoBusqueda = codigoResuelto.replace(/-/g, '');
         const variantName = (insumo.variante && codigoResuelto.includes('-')) ? `${insumo.variante} ${codigoResuelto.split('-')[1]}` : insumo.variante;
 
         await recetaForm.buscarYAgregarInsumo({
@@ -207,9 +177,9 @@ export async function crearListaDesdeTemplate(
     await listaForm.llenarDescripcion('Lista para prueba Nota de Venta');
 
     for (const prod of template.config.productosLista!) {
-        // Resolver código: si es un template key, usar resolverCodigo(); si no, usar el código tal cual
+        
         const codigoResuelto = resolverCodigo(prod.codigoBusqueda);
-        const codigoBusqueda = codigoResuelto.replace(/-/g, ''); // ERP busca sin guión
+        const codigoBusqueda = codigoResuelto.replace(/-/g, '');
         const sufijoId = codigoResuelto.includes('-') ? codigoResuelto.split('-')[1] : '';
         const textoCompleto = sufijoId ? `${prod.textoSeleccion} ${sufijoId}` : prod.textoSeleccion;
         const variantName = (prod.variante && sufijoId) ? `${prod.variante} ${sufijoId}` : prod.variante;
@@ -238,10 +208,6 @@ export async function crearListaDesdeTemplate(
         timeout: 10_000,
     });
 }
-
-// ──────────────────────────────────────────────────────────────────────
-// Helpers para ComboFormPage
-// ──────────────────────────────────────────────────────────────────────
 
 export async function crearComboDesdeTemplate(
     page: Page,

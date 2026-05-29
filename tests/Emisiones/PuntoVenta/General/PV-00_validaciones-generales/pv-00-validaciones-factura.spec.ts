@@ -3,7 +3,6 @@ import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
 test.describe('PV-00 | Validaciones generales de emisión — Factura @PV-00', {tag: ['@punto-venta', '@factura', '@validaciones']}, () => {
 
-    // ─── Helper: seleccionar factura + cliente RUC ────────────────────
     async function setupFacturaConClienteRUC(
         comprobantePage: any, clientePage: any, page: any,
     ) {
@@ -38,7 +37,6 @@ test.describe('PV-00 | Validaciones generales de emisión — Factura @PV-00', {
         });
     });
 
-    // ─── Bloquear factura con fecha fuera de rango ────────────────────
     test('Bloquear emisión de factura con fecha fuera del rango permitido @PV-00.4', async ({
                                                                                                 cajaPage,
                                                                                                 comprobantePage,

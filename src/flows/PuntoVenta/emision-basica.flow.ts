@@ -1,12 +1,3 @@
-/**
- * Flow: Emisión básica de comprobante.
- *
- * Coordina la secuencia multi-página:
- * Seleccionar tipo → Seleccionar cliente → Agregar ítems → Emitir
- *
- * Retorna los datos del comprobante emitido para validación posterior.
- * NO contiene assertions — eso es responsabilidad del spec.
- */
 import {test} from '@playwright/test';
 import type {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
 import type {ClientePage} from '@pages/PuntoVenta/ClientePage';
@@ -28,11 +19,6 @@ export interface EmisionBasicaPages {
     comprobanteDetalle: ComprobanteDetallePage;
 }
 
-/**
- * Ejecuta el flujo completo de emisión básica de comprobante.
- *
- * @returns Datos del comprobante emitido (serie, correlativo, id)
- */
 export async function ejecutarEmisionBasica(
     pages: EmisionBasicaPages,
     params: EmisionBasicaParams,
@@ -66,7 +52,6 @@ export async function ejecutarEmisionBasica(
     await test.step('When: emitir comprobante con efectivo', async () => {
         await emisionPage.emitirConEfectivoExacto();
 
-        // Determinar prefijo de serie según tipo de comprobante
         const seriePrefix = params.tipoComprobante === 'BOLETA' ? SERIES.BOLETA
             : params.tipoComprobante === 'FACTURA' ? SERIES.FACTURA
                 : SERIES.NOTA_VENTA;

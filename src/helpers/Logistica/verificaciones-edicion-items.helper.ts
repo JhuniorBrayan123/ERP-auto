@@ -5,12 +5,6 @@ import type {ListaItemsPage} from '../../pages/Logistica/ListaItemsPage';
 import type {ItemDetailPage} from '../../pages/Logistica/ItemDetailPage';
 import type {ActualizacionMasivaPage} from '../../pages/Logistica/ActualizacionMasivaPage';
 
-// ─── PS-4 Edición de Item ────────────────────────────────────────────
-
-/**
- * Confirmar actualización de item: clickActualizarProducto + closeSuccessModal.
- * Repetido en 3/3 tests de PS-4.
- */
 export const confirmarActualizacionItem = async (
     edicionItem: EdicionItemPage,
 ) => {
@@ -20,10 +14,6 @@ export const confirmarActualizacionItem = async (
     });
 };
 
-/**
- * Buscar item por código en la lista y abrir Ver Ítem desde el menú de acciones.
- * Repetido en 3/3 tests de PS-4.
- */
 export const buscarYVerItemDesdeListado = async (
     listaItems: ListaItemsPage,
     itemDetail: ItemDetailPage,
@@ -36,12 +26,6 @@ export const buscarYVerItemDesdeListado = async (
     });
 };
 
-// ─── PS-6 Actualización Masiva Items ─────────────────────────────────
-
-/**
- * Verificar item actualizado en detalle: ir al inicio → buscar → ver item → verificar nombre → bitácora → atrás.
- * Repetido en 3/3 tests de PS-6.
- */
 export const verificarItemActualizadoEnDetalle = async (
     page: Page,
     actualizacionMasiva: ActualizacionMasivaPage,

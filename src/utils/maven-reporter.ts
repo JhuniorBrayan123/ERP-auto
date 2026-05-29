@@ -1,18 +1,3 @@
-/**
- * Custom Playwright Reporter — Estilo Maven/Surefire
- *
- * Transforma la salida de consola de Playwright para imitar visualmente
- * el formato de ejecución de un proyecto Java con Maven/TestNG/Surefire.
- *
- * Colores ANSI utilizados (sin dependencias externas):
- *   - Magenta (\x1b[35m) → nombre del test
- *   - Verde   (\x1b[32m) → éxito
- *   - Rojo    (\x1b[31m) → error
- *   - Cyan    (\x1b[36m) → encabezados informativos
- *   - Amarillo(\x1b[33m) → warnings / skipped
- *   - Bold    (\x1b[1m)  → énfasis
- *   - Reset   (\x1b[0m)  → restaurar color
- */
 import type {
     FullResult,
     Reporter,
@@ -24,7 +9,6 @@ import type {
 import {getEnvironmentLabel} from './environment-label';
 import {parseFunctionalMeta, type FunctionalErrorMeta} from './functional-error';
 
-// ─── Códigos ANSI ────────────────────────────────────────────────────
 const RESET   = '\x1b[0m';
 const BOLD    = '\x1b[1m';
 const RED     = '\x1b[31m';
@@ -33,7 +17,6 @@ const YELLOW  = '\x1b[33m';
 const CYAN    = '\x1b[36m';
 const MAGENTA = '\x1b[35m';
 
-// ─── Constantes visuales ─────────────────────────────────────────────
 const SEPARATOR  = '-------------------------------------------------------';
 const DOUBLE_SEP = '------------------------------------------------------------------------';
 const OVERWRITE_LINE = '\r\x1b[K';
@@ -59,8 +42,6 @@ class MavenReporter implements Reporter {
 
     private activeTestInfo: { title: string; attempt: number; isRetry: boolean } | null = null;
     private currentTestPrinted = false;
-
-    // ─── Lifecycle hooks ─────────────────────────────────────────────
 
     onBegin(_: unknown, suite: Suite): void {
         this.startTime = Date.now();
@@ -116,9 +97,8 @@ class MavenReporter implements Reporter {
     onStepBegin(test: TestCase, result: TestResult, step: TestStep): void {
         this.ensureTestTitlePrinted();
 
-        // Ignora hooks internos como "Before Hooks" o "browserContext.newPage"
         if (step.category === 'test.step') {
-            // \r = volver al inicio, \x1b[K = borrar hasta el fin de la línea
+
             process.stdout.write(`${OVERWRITE_LINE}  ${CYAN}-> Ejecutando: ${step.title}${RESET}`);
         }
     }
@@ -127,7 +107,7 @@ class MavenReporter implements Reporter {
         const duration = (result.duration / 1000).toFixed(1);
 
         if (result.status === 'skipped') {
-            // No contar los setups omitidos por variable de entorno
+
             if (process.env.SKIP_PV_SETUP === '1' && test.title.includes('preparar datos base')) return;
             if (process.env.SKIP_PV_ITEMS_SETUP === '1' && test.title.includes('preparar ítems base')) return;
             if (process.env.SKIP_DATOS_SETUP === '1' && test.title.includes('preparar datos adicionales')) return;
@@ -138,14 +118,13 @@ class MavenReporter implements Reporter {
 
         this.ensureTestTitlePrinted();
 
-        // Limpiar el último step que quedó escrito en consola antes del resultado final
         process.stdout.write(OVERWRITE_LINE);
 
         const willRetry = (result.status === 'failed' || result.status === 'timedOut') && result.retry < test.retries;
 
         if (willRetry) {
             console.log(`${YELLOW}---Resultado: Falló intento ${result.retry + 1}. Reintentando...${RESET} (${duration}s)`);
-            return; // No sumar a los contadores finales si el test se va a reintentar
+            return;
         }
 
         switch (result.status) {
@@ -181,7 +160,7 @@ class MavenReporter implements Reporter {
         if (this.qaFailures.length === 0) {
             console.log(`${GREEN}- Sin fallos funcionales${RESET}`);
         } else {
-            // Agrupar por categoría
+
             const byCategory: Record<string, typeof this.qaFailures> = {};
             for (const item of this.qaFailures) {
                 (byCategory[item.failureCategory] ??= []).push(item);
@@ -198,7 +177,7 @@ class MavenReporter implements Reporter {
                     console.log(`    Motivo: ${item.userMessage}`);
                 }
             }
-            // Conteo resumen por categoría
+
             console.log('');
             console.log('Distribución de fallos:');
             for (const cat of order) {
@@ -237,8 +216,6 @@ class MavenReporter implements Reporter {
         console.log('');
     }
 
-    // ─── Métodos de impresión por resultado ──────────────────────────
-
     private printFailure(test: TestCase, duration: string, result: TestResult): void {
         console.log(`${RED}---Resultado: El test falló${RESET} (${duration}s)`);
         this.printQaFailure(test, result);
@@ -251,9 +228,6 @@ class MavenReporter implements Reporter {
         this.printTechnicalDetails(result);
     }
 
-    // ─── Utilidades ──────────────────────────────────────────────────
-
-    /** Convierte milisegundos a formato legible: 'X min Y sec' o 'X sec'. */
     private formatDuration(ms: number): string {
         const totalSeconds = Math.floor(ms / 1000);
         const minutes = Math.floor(totalSeconds / 60);
@@ -265,7 +239,6 @@ class MavenReporter implements Reporter {
         return `${seconds} sec`;
     }
 
-    /** Formatea fecha en estilo legible local: '18 de abril de 2026, 07:25:07 p.\u00a0m.' */
     private formatDate(date: Date): string {
         return date.toLocaleString('es-PE', {
             day: 'numeric',
@@ -278,7 +251,6 @@ class MavenReporter implements Reporter {
         });
     }
 
-    /** Extrae el nombre del primer suite/describe de la jerarquía. */
     private extractSuiteName(suite: Suite): string {
         const allTests = suite.allTests();
         if (allTests.length > 0) {
@@ -291,13 +263,11 @@ class MavenReporter implements Reporter {
         return 'TestSuite';
     }
 
-    /** Limpia códigos ANSI del mensaje para evitar doble coloreo. */
     private cleanAnsi(text: string): string {
         // eslint-disable-next-line no-control-regex
         return text.replace(/\x1b\[[0-9;]*m/g, '').trim();
     }
 
-    /** Extrae las primeras líneas relevantes del stack trace. */
     private extractRelevantStack(stack: string): string[] {
         return stack
             .split('\n')
@@ -327,10 +297,10 @@ class MavenReporter implements Reporter {
 
     private categoryColor(category: string): string {
         switch (category) {
-            case 'AMBIENTE':    return '\x1b[33m'; // Amarillo
-            case 'DATOS':       return '\x1b[36m'; // Cyan
-            case 'SCRIPT':      return '\x1b[35m'; // Magenta
-            default:            return '\x1b[37m'; // Blanco
+            case 'AMBIENTE':    return '\x1b[33m'; 
+            case 'DATOS':       return '\x1b[36m'; 
+            case 'SCRIPT':      return '\x1b[35m'; 
+            default:            return '\x1b[37m'; 
         }
     }
 

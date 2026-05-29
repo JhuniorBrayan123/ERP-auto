@@ -35,11 +35,11 @@ export class Cajero {
         for (const task of tasks) {
             const nombre = (task as any).displayName || task.name || 'Paso';
             await test.step(nombre, async () => {
-                // Evaluamos si el task espera un Cajero o un Page basándonos en los parámetros
+                
                 if (task.length === 1 && task.toString().includes('actor')) {
                     await (task as (actor: Cajero) => Promise<void>)(this);
                 } else {
-                    // Fallback a legacy: asume que espera un Page
+                    
                     const navegador = this.habilidad(UsarNavegador);
                     await (task as (page: Page) => Promise<void>)(navegador.page);
                 }
@@ -51,7 +51,7 @@ export class Cajero {
         if (question.length === 1 && question.toString().includes('actor')) {
             return (question as (actor: Cajero) => Promise<T>)(this);
         } else {
-            // Fallback a legacy
+            
             const navegador = this.habilidad(UsarNavegador);
             return (question as (page: Page) => Promise<T>)(navegador.page);
         }

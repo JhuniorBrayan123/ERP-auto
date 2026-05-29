@@ -1,4 +1,3 @@
-// 📁 src/interactions/PuntoVenta/NavegarAVerCajas.ts
 import { Page } from '@playwright/test';
 
 export const NavegarAVerCajas = () => {

@@ -31,7 +31,6 @@ export class RegistroMovimientoPage {
         await this.page.getByText('Agregar ingreso').click();
     }
 
-
     async clickAgregarSalida(): Promise<void> {
         await this.page.getByText('Agregar salida').click();
     }
@@ -239,12 +238,11 @@ export class RegistroMovimientoPage {
     }
 
     async clickClonarIngreso(): Promise<void> {
-        // Esperar que el dropdown de Almacén tenga valor (no "Seleccionar")
+        
         await expect(
             this.page.locator('.v-select-header-form.form').first()
         ).not.toHaveText('Seleccionar', {timeout: 15000});
 
-        // Esperar que haya ítems en la tabla
         await this.page.locator('table tbody tr').first().waitFor({state: 'visible'});
 
         await this.page.getByRole('button', {name: 'CLONAR INGRESO'}).click();

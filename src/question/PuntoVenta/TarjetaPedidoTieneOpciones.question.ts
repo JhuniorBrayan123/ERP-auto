@@ -1,9 +1,5 @@
 import {expect, type Page} from '@playwright/test';
 
-/**
- * Verifica que la tarjeta de pedido tenga el botón de opciones
- * (desplegable con acciones como Ver pedido / Cargar pedido).
- */
 export const TarjetaPedidoTieneOpciones = (referencia: string) =>
     async (page: Page): Promise<boolean> => {
         try {

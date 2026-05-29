@@ -1,13 +1,3 @@
-/**
- * Fixture extendida para tests de PuntoVenta que requieren validación API.
- *
- * Extiende emision-fixture con:
- * - SunatEstadoApi (polling SUNAT)
- * - ComprobanteApi (consulta de comprobantes)
- * - KardexApi (verificación de stock — reutilización controlada de Logística)
- *
- * Uso: tests que necesitan Capa 2 SUNAT o validación de stock/kardex.
- */
 import { test as emisionTest } from './emision-fixture';
 import { SunatEstadoApi } from '../../services/PuntoVenta/SunatEstadoApi';
 import { ComprobanteApi } from '../../services/PuntoVenta/ComprobanteApi';

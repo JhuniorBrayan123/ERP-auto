@@ -9,7 +9,6 @@ import { VistaPreviaCotizacion } from '@question/PuntoVenta/VistaPreviaCotizacio
 import { EmisionPage } from '@pages/PuntoVenta/EmisionPage';
 import { TIPOS_COMPROBANTE, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 
-
 test.describe('PV-19: Opciones adicionales de Cotización', {tag: ['@punto-venta', '@cotizacion', '@opciones']}, () => {
     test.beforeEach(async ({ page }) => {
         const cajero = Cajero.con(page);

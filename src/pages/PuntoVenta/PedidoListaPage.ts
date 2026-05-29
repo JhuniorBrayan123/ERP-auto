@@ -4,8 +4,6 @@ import {esperarCargaOverlay} from "@utils/wait-helpers";
 export class PedidoListaPage {
     constructor(private readonly page: Page) {}
 
-    // ─── Locators ─────────────────────────────────────────────────────
-
     private get btnBuscarPedidos(): Locator {
         return this.page.getByRole('button', { name: 'Buscar pedidos' });
     }
@@ -30,8 +28,6 @@ export class PedidoListaPage {
         return this.page.getByText('Cargar pedido');
     }
 
-    // ─── Acciones de Búsqueda y Filtros ───────────────────────────────
-
     async clickBuscarPedidos(): Promise<void> {
         await this.btnBuscarPedidos.click();
     }
@@ -44,11 +40,9 @@ export class PedidoListaPage {
     async filtrarPorNroPedido(numero: string): Promise<void> {
         await this.inputNroPedido.click();
         await this.inputNroPedido.fill(numero);
-        // Esperamos un momento para que el debounce/filtro aplique
+        
         await this.page.waitForTimeout(800);
     }
-
-    // ─── Acciones sobre el Pedido ─────────────────────────────────────
 
     async abrirOpcionesPedido(): Promise<void> {
         await this.dropdownOpciones.first().click();

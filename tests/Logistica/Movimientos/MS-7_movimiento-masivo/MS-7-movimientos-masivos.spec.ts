@@ -7,12 +7,8 @@ import {
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
 import * as path from 'path';
 
-
 test.describe('MS-7 | Movimientos Masivos @masivos', {tag: ['@logistica', '@movimientos']}, () => {
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 34: Registrar movimiento masivo correctamente
-    // ═══════════════════════════════════════════════════════════════
     test('Registrar movimiento masivo correctamente @MS-7', async ({
                                                                        movimientosNav,
                                                                        listadoMovimientos,
@@ -39,9 +35,6 @@ test.describe('MS-7 | Movimientos Masivos @masivos', {tag: ['@logistica', '@movi
         });
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 35: Movimiento masivo con productos e insumos
-    // ═══════════════════════════════════════════════════════════════
     test('Movimiento masivo con productos e insumos @MS-7', async ({
                                                                        movimientosNav,
                                                                        listadoMovimientos,

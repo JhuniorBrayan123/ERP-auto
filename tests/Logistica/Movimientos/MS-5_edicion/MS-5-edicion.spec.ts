@@ -50,7 +50,6 @@ test.describe('MS-5 | Edición de Movimientos @edicion', { tag: ['@logistica', '
     }) => {
         test.setTimeout(120_000)
 
-        // Arrange especial: crear ingreso con variante (no usa crearIngresoEstandarParaPrecondicion)
         await test.step('Arrange: crear ingreso con variante', async () => {
             await movimientosNav.navegarAIngresosDesdeMenu();
             await registroMovimiento.clickAgregarIngreso();
@@ -110,7 +109,7 @@ test.describe('MS-5 | Edición de Movimientos @edicion', { tag: ['@logistica', '
         listadoMovimientos,
         page,
     }) => {
-        // Flujo completamente especial — dejar inline
+        
         await test.step('Arrange: crear salida para intentar editar', async () => {
             await movimientosNav.navegarASalidasDesdeMenu();
             await registroMovimiento.clickAgregarSalida();
@@ -132,7 +131,7 @@ test.describe('MS-5 | Edición de Movimientos @edicion', { tag: ['@logistica', '
         });
 
         await test.step('Assert: debe bloquear la actualización', async () => {
-            // El sistema no debe permitir actualizar sin ítems
+            
         });
     });
 
@@ -146,7 +145,6 @@ test.describe('MS-5 | Edición de Movimientos @edicion', { tag: ['@logistica', '
     }) => {
         test.setTimeout(120_000)
 
-        // Arrange especial: datos adicionales completos — dejar inline
         await test.step('Arrange: crear ingreso con datos adicionales completos', async () => {
             await movimientosNav.navegarAIngresosDesdeMenu();
             await registroMovimiento.clickAgregarIngreso();

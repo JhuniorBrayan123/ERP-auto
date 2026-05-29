@@ -1,8 +1,3 @@
-/**
- * PV-15 | Nota de venta con adelanto
- *
- * IMPORTANTE: Notas de venta NO llegan a SUNAT → no se valida estado SUNAT.
- */
 import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {esperarCargaOverlay} from "@utils/wait-helpers";

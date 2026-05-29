@@ -19,12 +19,11 @@ test.describe('PS-3 | Creación de Insumos', { tag: ['@logistica', '@productos-s
                 insumoForm.page.getByText('Información adicional')
             ).toBeVisible({ timeout: 5000 });
             await insumoForm.llenarInfoAdicional('REGRESION', 'AUTO-TEST', 'AUTOMATIZADO');
-            // await insumoForm.irATabStock();
+            
             await insumoForm.llenarCodigoBarras(Date.now().toString());
         });
         await confirmarCreacionEIrALista(insumoForm, () => insumoForm.crearInsumo());
     });
-
 
     test('crear insumo con stock estricto @PS-3', async ({ insumoForm, itemDetail }) => {
         const nombre = buildUniqueItemName('insumo', 'estricto kilos');
@@ -47,7 +46,7 @@ test.describe('PS-3 | Creación de Insumos', { tag: ['@logistica', '@productos-s
         await confirmarCreacionEIrALista(insumoForm, () => insumoForm.crearInsumo());
         await test.step('Verificar item completo', async () => {
             await itemDetail.verificarItemCompleto({
-                //verificarCompras: true,
+                
                 verificarBitacora: true,
             });
         });

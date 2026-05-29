@@ -3,7 +3,6 @@ import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
 test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01', {tag: ['@punto-venta', '@factura', '@stock']}, () => {
 
-    // ─── Helper: seleccionar factura + cliente RUC ────────────────────
     async function setupFacturaConClienteRUC(
         comprobantePage: any, clientePage: any, page: any,
     ) {
@@ -41,7 +40,7 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
             await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_SIMPLE.nombre);
             await emisionPage.editarPrecioItem('50');
             await emisionPage.abrirSelectorFecha();
-            // Seleccionar fecha dentro de últimos 3 días (dinámico)
+            
             await page.locator('.v-calendar .day.is-today').click().catch(() => {
             });
             await emisionPage.emitirConEfectivoExacto();

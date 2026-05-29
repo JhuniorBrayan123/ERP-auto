@@ -7,7 +7,7 @@ export const BuscarYAgregarEquivalencia = (item: ItemVenta, equivalencia: string
         const emision = new EmisionPage(page);
         await emision.buscarItem(item.codigo);
         await emision.seleccionarItem(item.nombre);
-        // Seleccionar equivalencia
+        
         await page.getByText(equivalencia).click();
         await page.locator('.cmp-informacion-item > div').first().click();
     };

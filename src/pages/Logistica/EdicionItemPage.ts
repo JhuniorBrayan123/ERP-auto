@@ -5,17 +5,15 @@ export class EdicionItemPage {
     }
 
     public async waitForFormLoad(): Promise<void> {
-        // Dar tiempo a que la petición a la API inicie y el spinner de carga se adjunte al DOM
+        
         await this.page.waitForTimeout(500);
 
-        // Esperar a que el spinner desaparezca
         await this.page.locator('[id="cmn_cmp-overload:loading"]').waitFor({
             state: 'hidden',
             timeout: 15_000
         }).catch(() => {
         });
 
-        // Dar tiempo extra para que Vue asiente los datos de la respuesta en los v-models (evita sobreescritura de los inputs)
         await this.page.waitForTimeout(2000);
     }
 
@@ -64,11 +62,9 @@ export class EdicionItemPage {
             .locator('.v-select-header-form-arrow.form.form-control')
             .click();
 
-        // Wait for the dropdown options to be visible in the DOM
         const dropdownMenu = this.page.locator('.v-select-base-options.is-open');
         await dropdownMenu.waitFor({state: 'visible', timeout: 10_000});
 
-        // Wait for the loading overlay to disappear to ensure the app processes the click
         await this.page.locator('[id="cmn_cmp-overload:loading"]').waitFor({
             state: 'hidden',
             timeout: 10_000
@@ -79,15 +75,13 @@ export class EdicionItemPage {
         await option.scrollIntoViewIfNeeded();
         await option.evaluate((node) => (node as HTMLElement).click());
 
-        // Wait for Vue's reactive state to update
         await this.page.waitForTimeout(1000);
     }
 
     async expandirOpcionesAvanzadas(): Promise<void> {
-        // Hacemos la búsqueda un poco más flexible (ignora mayúsculas y el opcional si cambió)
+        
         const expander = this.page.locator('div').filter({hasText: /Opciones avanzadas/i}).first();
 
-        // Comprobamos inmediatamente si está visible, para no causar un TimeoutError de 30s
         if (await expander.isVisible()) {
             await expander.click({force: true});
         }
@@ -96,28 +90,25 @@ export class EdicionItemPage {
     async goToSelectoresTab(): Promise<void> {
         await this.waitForFormLoad();
 
-        // En edición, "Opciones avanzadas (opcional)" es un TAB (no un acordeón)
         const tabOpcionesAvanzadas = this.page.getByText('Opciones avanzadas (opcional)', {exact: false});
         if (await tabOpcionesAvanzadas.isVisible()) {
             await tabOpcionesAvanzadas.click();
-            // Esperar a que se renderice el contenido del tab
+            
             await this.page.waitForTimeout(1000);
             await this.page.locator('[id="cmn_cmp-overload:loading"]')
                 .waitFor({state: 'hidden', timeout: 10_000})
                 .catch(() => {});
         }
 
-        // Ahora buscar el sub-tab "Selectores" dentro de las opciones avanzadas
         const tabSelectores = this.page.getByText('Selectores', {exact: false}).first();
         await tabSelectores.waitFor({state: 'visible', timeout: 15_000});
         await tabSelectores.click();
 
-        // Esperar que se cargue el contenido del tab Selectores
         await this.page.locator('text=Obligatorio').waitFor({state: 'visible', timeout: 15_000});
     }
 
     async setSelectorObligatorioSwitch(): Promise<boolean> {
-        // Seleccionar el checkbox directamente (escapando los :)
+        
         const checkbox = this.page.locator('.obligatorio > div > .v-switch > .switch-content > .switch > .slider');
 
         await checkbox.waitFor({state: 'visible', timeout: 35000});
@@ -132,7 +123,6 @@ export class EdicionItemPage {
         return false;
     }
 
-//<span data-v-5e08b722="" class="slider round"></span>
     async clickActualizarProducto(): Promise<void> {
         await this.page.getByRole('button', {name: 'Actualizar producto'}).click();
     }

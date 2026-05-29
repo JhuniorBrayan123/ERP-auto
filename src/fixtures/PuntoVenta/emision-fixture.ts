@@ -1,12 +1,3 @@
-/**
- * Fixture principal para tests de emisión en PuntoVenta.
- *
- * Inyecta page objects pre-instanciados y navega al módulo PdV.
- * Análogo a items-fixture.ts de Logística.
- *
- * Uso: tests que solo necesitan UI (sin validaciones API).
- * Para tests con SUNAT/stock, usar validacion-fixture.ts que extiende esta.
- */
 import {test as base} from '@playwright/test';
 import {PuntoVentaNavigationPage} from '../../pages/PuntoVenta/PuntoVentaNavigationPage';
 import {EmisionPage} from '../../pages/PuntoVenta/EmisionPage';

@@ -10,11 +10,11 @@ export const DisminuirCantidadItem = (item: ItemVenta, incrementos: number, decr
         const emision = new EmisionPage(page);
         await emision.buscarItem(item.codigo);
         await emision.seleccionarItem(item.nombre);
-        // Primero incrementar
+        
         for (let i = 0; i < incrementos; i++) {
             await page.locator(INCREASE_BTN).click();
         }
-        // Luego decrementar
+        
         for (let i = 0; i < decrementos; i++) {
             await page.locator(DECREMENT_BTN).click();
         }

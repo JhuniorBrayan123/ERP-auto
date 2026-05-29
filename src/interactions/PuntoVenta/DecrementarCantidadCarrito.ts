@@ -1,4 +1,3 @@
-// 📁 src/interactions/PuntoVenta/DecrementarCantidadCarrito.ts
 import { Page } from '@playwright/test';
 
 const DECREMENT_BTN = '[id="pv_cmp-punto-venta_cmp-venta-pedido:pedido_cmp-pedido-item:item_v-step:cantidad_div:decrement"]';

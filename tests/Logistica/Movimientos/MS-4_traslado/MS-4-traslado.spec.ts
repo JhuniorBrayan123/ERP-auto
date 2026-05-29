@@ -91,7 +91,7 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
         await registrarTrasladoEIrAlListado(registroMovimiento, resultadoMovimiento);
 
         await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.VARIANTE_FLEXIBLE.codigo, async () => {
-            // no click action defined in original, but it searched variante
+            
         });
 
         await test.step('And: verificar kardex', async () => {
@@ -133,7 +133,7 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
         await registrarTrasladoEIrAlListado(registroMovimiento, resultadoMovimiento);
 
         await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.PRODUCTO_GRAVADO.codigo, async () => {
-            // just search, original left it at that
+            
         });
 
         await test.step('And: verificar kardex y datos opcionales', async () => {

@@ -19,8 +19,15 @@ function tieneSesionReal(): boolean {
     const authFile = resolveStorageStatePath();
     try {
         if (!fs.existsSync(authFile)) return false;
+
+        const stats = fs.statSync(authFile);
+        const fileAgeHours = (Date.now() - stats.mtimeMs) / (1000 * 60 * 60);
+        if (fileAgeHours > 12) {
+            console.log(`[setup-state] La sesión guardada tiene más de 12 horas (${fileAgeHours.toFixed(1)}h). Se forzará un nuevo login.`);
+            return false;
+        }
+
         const content = JSON.parse(fs.readFileSync(authFile, 'utf-8'));
-        // Sesión real = tiene cookies o localStorage con datos
         if (content.cookies?.length > 0) return true;
         if (content.origins?.length > 0) return true;
         return false;
@@ -39,27 +46,19 @@ setup('authenticate', async ({page}) => {
         console.log(`[setup-state] ${SETUP_NAME}: storageState vacío o inexistente — ejecutando login real`);
     }
 
-    // Es buena práctica asegurar que el directorio padre del storageState exista
-    // para evitar errores ENOENT si la carpeta Playwright/.auth fue ignorada en git.
     if (!fs.existsSync(authDir)) {
         fs.mkdirSync(authDir, {recursive: true});
     }
 
-    // ── Limpiar estado previo antes de autenticar ────────────────────
-    // Esto evita redirect loops y sesiones cruzadas entre distintos
-    // entornos (crt-2 ↔ crt-3) o cuentas distintas en el mismo CRT.
     await page.context().clearCookies();
     console.log('Cookies limpiadas');
 
-    // Navegar al login primero para tener un origen válido,
-    // y luego limpiar localStorage (requiere estar en el mismo dominio).
     await page.goto('/auth/login');
     console.log('Ingresando a la página del login');
 
     await page.evaluate(() => localStorage.clear());
     console.log('localStorage limpiado');
 
-    // Usamos las variables seguras desde nuestro config/env.ts centralizado
     await page
         .getByRole('textbox', {name: /Coloca aquí tu correo/i})
         .fill(env.userEmail);
@@ -73,11 +72,9 @@ setup('authenticate', async ({page}) => {
 
     await expect(page).not.toHaveURL(/auth\/login/, {timeout: 15000});
 
-    // ── Guardar storageState con path dinámico ───────────────────────
     const authFile = resolveStorageStatePath();
     await page.context().storageState({path: authFile});
     console.log(`Sesión guardada correctamente en ${authFile}`);
 
-    // ── Marcar completado ────────────────────────────────────────────
     markSetupComplete(SETUP_NAME);
 });

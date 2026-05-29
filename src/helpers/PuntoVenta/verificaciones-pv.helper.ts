@@ -1,11 +1,3 @@
-/**
- * Verificaciones reutilizables para PuntoVenta.
- *
- * Encapsula steps de validación de stock/kardex post-emisión
- * usando composición controlada desde Logística (solo KardexApi).
- *
- * NO importa pages ni fixtures de Logística — solo el service de lectura.
- */
 import { expect } from '@playwright/test';
 import { test } from '../../fixtures/PuntoVenta/emision-fixture';
 import type { KardexApi } from '../../services/Logistica/KardexApi';
@@ -13,12 +5,6 @@ import type { SunatEstadoApi } from '../../services/PuntoVenta/SunatEstadoApi';
 import type { ComprobanteDetallePage } from '../../pages/PuntoVenta/ComprobanteDetallePage';
 import { getNombreEstado, type EstadoSunat } from './sunat-estados.helper';
 
-// ─── Verificación de stock post-emisión ───────────────────────────────
-
-/**
- * Valida que el stock disminuyó correctamente después de una venta.
- * Usa KardexApi de Logística por composición (read-only).
- */
 export async function verificarDescuentoStock(
     kardexApi: KardexApi,
     codigoProducto: string,
@@ -35,9 +21,6 @@ export async function verificarDescuentoStock(
     });
 }
 
-/**
- * Valida que el stock NO cambió (ej: adelanto, nota de venta sin stock).
- */
 export async function verificarStockSinCambio(
     kardexApi: KardexApi,
     codigoProducto: string,
@@ -53,12 +36,6 @@ export async function verificarStockSinCambio(
     });
 }
 
-// ─── Captura de saldo previo (para comparación post-emisión) ──────────
-
-/**
- * Captura el saldo actual del producto antes de emitir.
- * Retorna el valor para uso posterior en assertions.
- */
 export async function capturarSaldoAnterior(
     kardexApi: KardexApi,
     codigoProducto: string,
@@ -74,12 +51,6 @@ export async function capturarSaldoAnterior(
     return saldo;
 }
 
-// ─── Validación Capa 1: post-emisión inmediata ────────────────────────
-
-/**
- * Validación inmediata post-emisión (Capa 1 de estrategia SUNAT).
- * Verifica que el comprobante se generó correctamente sin esperar SUNAT.
- */
 export async function validarEmisionInmediata(
     comprobanteDetalle: ComprobanteDetallePage,
     serie: string,
@@ -92,16 +63,6 @@ export async function validarEmisionInmediata(
     });
 }
 
-// ─── Validación Capa 2: espera SUNAT ──────────────────────────────────
-
-/**
- * Espera eventual SUNAT (Capa 2 de estrategia SUNAT).
- * Polling con estados transitorios tolerados.
- *
- * NUNCA falla el test — solo loguea el resultado:
- * - ✓ si fue aceptado
- * - ⚠️ si fue rechazado, inesperado o timeout
- */
 export async function validarEstadoSunatFinal(
     sunatApi: SunatEstadoApi,
     comprobanteId: number,

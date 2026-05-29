@@ -1,10 +1,3 @@
-/**
- * Service Layer para consulta de comprobantes vía API.
- *
- * Endpoint real: PuntoVenta/api/v2/DocumentosContables/Consultas
- * El campo de estado SUNAT es: IdestadoSunat
- * El campo de estado ERP es: IdEstadoComprobante / EstadoDescripcion
- */
 import type { APIRequestContext } from '@playwright/test';
 import { env } from '../../../config/env';
 
@@ -41,10 +34,6 @@ export class ComprobanteApi {
         };
     }
 
-    /**
-     * Consulta comprobantes emitidos con filtros opcionales.
-     * Endpoint: PuntoVenta/api/v2/DocumentosContables/Consultas
-     */
     async consultarComprobantes(filtros?: {
         idCaja?: number;
         pagina?: number;
@@ -91,9 +80,6 @@ export class ComprobanteApi {
         }));
     }
 
-    /**
-     * Obtiene el último comprobante emitido (el más reciente).
-     */
     async obtenerUltimoComprobante(): Promise<ComprobanteConsulta> {
         const comprobantes = await this.consultarComprobantes({ tamanio: 1 });
         if (!comprobantes.length) {
@@ -102,9 +88,6 @@ export class ComprobanteApi {
         return comprobantes[0];
     }
 
-    /**
-     * Obtiene el estado SUNAT de un comprobante por su ID de ERP.
-     */
     async obtenerEstadoSunat(idComprobanteERP: number): Promise<number> {
         const comprobantes = await this.consultarComprobantes();
         const comprobante = comprobantes.find(c => c.idComprobanteERP === idComprobanteERP);

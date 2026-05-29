@@ -25,7 +25,7 @@ test.describe('Selección, edición de ítem en caja de venta — Items especial
             BuscarYAgregarServicio('servicio'),
             AbrirTotales()
         );
-        // El precio del servicio es variable — validar que los totales se recalcularon
+        
         expect(await cajero.pregunta(TotalDistintoDeCero())).toBe(true);
         await cajero.intentaRealizar(CerrarTotales());
     });
@@ -36,14 +36,14 @@ test.describe('Selección, edición de ítem en caja de venta — Items especial
             BuscarYAgregarReceta(ITEMS_PV.RECETA_INSUMOS),
             AbrirTotales()
         );
-        // Validar que los totales se recalcularon (ya no son 0.00)
+        
         expect(await cajero.pregunta(TotalDistintoDeCero())).toBe(true);
         await cajero.intentaRealizar(CerrarTotales());
     });
 
     test('SC-09: Buscar y agregar un ítem tipo combo @PV-18.9', async ({page}) => {
         const cajero = Cajero.con(page);
-        // Calcular los totales esperados directamente desde la fábrica de ítems
+        
         const totales = calcularTotalesExonerado(15, 1);
 
         await cajero.intentaRealizar(

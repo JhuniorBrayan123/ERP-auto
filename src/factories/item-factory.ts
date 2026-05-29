@@ -1,36 +1,21 @@
-/**
- * Fábrica de ítems dinámicos para pruebas.
- *
- * Genera códigos únicos con un RUN_ID (timestamp corto) para que cada ejecución
- * cree sus propios ítems y no sobrecargue el Kardex con datos estáticos.
- *
- * Flujo:
- *   1. Setup genera RUN_ID y crea ítems con códigos dinámicos
- *   2. Guarda el mapa de códigos en playwright/.auth/dynamic-items.json
- *   3. Helpers leen el mapa y sobrescriben los códigos en memoria
- *   4. Tests usan los códigos dinámicos transparentemente
- */
-
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'fs';
 import {resolve} from 'path';
 import type {ComponenteCombo, InsumoReceta, ISCConfig, ProductoListaItem} from '../types/item-data.types';
 
-// ─── Tipos ─────────────────────────────────────────────────────────────
-
 export interface ItemTemplate {
-    /** Nombre original del item (clave para lookup) */
+    
     key: string;
-    /** Código base original (ej. "111111") */
+    
     codigoBase: string;
-    /** Nombre del item en el ERP */
+    
     nombre: string;
-    /** Tipo de item */
+    
     tipo: 'producto' | 'receta' | 'lista' | 'combo';
-    /** Fase de creación (solo se crean templates con fase > 0). Controla orden de dependencias. */
+    
     fase?: number;
-    /** Si es true, se le añadirá el RUN_ID al código base. Si es false o no se especifica, se mantendrá estático. */
+    
     esDinamico?: boolean;
-    /** Configuración específica del item */
+    
     config: ItemConfig;
 }
 
@@ -48,7 +33,7 @@ export interface ItemConfig {
     categoria?: string;
     subcategoria?: string;
     marca?: string;
-    /** Configuración de variantes (atributos + variantes con nombres y stock) */
+    
     variantes?: {
         atributos: Array<{ titulo: string; opciones: string[] }>;
         items: Array<{
@@ -56,7 +41,7 @@ export interface ItemConfig {
             stock?: { cantidadMaxima: string; cantidadMinima: string };
         }>;
     };
-    /** Configuración de equivalencias */
+    
     equivalencias?: Array<{
         nombre: string;
         factor: number;
@@ -72,31 +57,19 @@ export interface DynamicItemsMap {
     [key: string]: string;
 }
 
-// ─── Rutas de archivos de mapeo ───────────────────────────────────────
-
 const AUTH_DIR = resolve(process.cwd(), 'playwright', '.auth');
 const MAPPING_FILE = resolve(AUTH_DIR, 'dynamic-items.json');
 const CACHE_DIR = resolve(AUTH_DIR, 'cache');
 
-/**
- * Genera un slug seguro para usar como nombre de archivo de cache.
- * Ej: "crt-group__gutierrez_at_gmail.com"
- */
 export function generarSlugCache(envGroup: string, account: string): string {
     const safeAccount = account.replace(/@/g, '_at_').replace(/[<>:"/\\|?*]/g, '_');
     return `${envGroup}__${safeAccount}`;
 }
 
-/**
- * Retorna la ruta al archivo de cache para una combinación (env, cuenta).
- */
 export function rutaCache(envGroup: string, account: string): string {
     return resolve(CACHE_DIR, `${generarSlugCache(envGroup, account)}.json`);
 }
 
-/**
- * Guarda el mapa en el cache por (envGroup, account).
- */
 export function guardarMapaEnCache(mapa: DynamicItemsMap, envGroup: string, account: string): void {
     if (!existsSync(CACHE_DIR)) {
         mkdirSync(CACHE_DIR, {recursive: true});
@@ -106,11 +79,6 @@ export function guardarMapaEnCache(mapa: DynamicItemsMap, envGroup: string, acco
     console.log(`[ItemFactory] Cache guardado: ${cacheFile}`);
 }
 
-/**
- * Carga un mapa desde el cache por (envGroup, account).
- * Si existe, también lo copia a dynamic-items.json (archivo activo).
- * Retorna null si no existe.
- */
 export function cargarMapaDesdeCache(envGroup: string, account: string): DynamicItemsMap | null {
     const cacheFile = rutaCache(envGroup, account);
     if (!existsSync(cacheFile)) {
@@ -119,7 +87,7 @@ export function cargarMapaDesdeCache(envGroup: string, account: string): Dynamic
     try {
         const contenido = readFileSync(cacheFile, 'utf-8');
         const mapa = JSON.parse(contenido) as DynamicItemsMap;
-        // Sincronizar con dynamic-items.json (archivo activo que leen los helpers)
+        
         if (!existsSync(AUTH_DIR)) {
             mkdirSync(AUTH_DIR, {recursive: true});
         }
@@ -130,8 +98,6 @@ export function cargarMapaDesdeCache(envGroup: string, account: string): Dynamic
         return null;
     }
 }
-
-// ─── Templates de ítems base ───────────────────────────────────────────
 
 export const ITEM_TEMPLATES: ItemTemplate[] = [
     {
@@ -460,7 +426,6 @@ export const ITEM_TEMPLATES: ItemTemplate[] = [
             marca: 'AUTOMATIZADO',
         },
     },
-    // ─── Templates para bloqueos por stock ────────────────────────────────
     {
         key: 'COMBO_EXONERADO',
         codigoBase: '222222',
@@ -571,12 +536,11 @@ export function generarMapaCodigos(runId: string): DynamicItemsMap {
         if (template.esDinamico) {
             mapa[template.key] = generarCodigoDinamico(template.codigoBase, runId);
         } else {
-            mapa[template.key] = template.codigoBase; // Código estático
+            mapa[template.key] = template.codigoBase;
         }
     }
     return mapa;
 }
-
 
 export function guardarMapaCodigos(mapa: DynamicItemsMap): void {
     if (!existsSync(AUTH_DIR)) {
@@ -587,7 +551,6 @@ export function guardarMapaCodigos(mapa: DynamicItemsMap): void {
     console.log(`[ItemFactory] RUN_ID: ${mapa.RUN_ID}`);
     console.log(`[ItemFactory] Items: ${Object.keys(mapa).length - 1} definidos`);
 }
-
 
 export function cargarMapaCodigos(): DynamicItemsMap | null {
     if (!existsSync(MAPPING_FILE)) {
@@ -601,7 +564,6 @@ export function cargarMapaCodigos(): DynamicItemsMap | null {
     }
 }
 
-
 export function cargarRunIdAnterior(): string | null {
     const mapa = cargarMapaCodigos();
     return mapa?.RUN_ID ?? null;
@@ -612,7 +574,6 @@ export function getCodigo(key: string): string {
     if (mapa && mapa[key]) {
         return mapa[key];
     }
-    // Fallback: buscar en templates
     const template = ITEM_TEMPLATES.find(t => t.key === key);
     return template?.codigoBase ?? key;
 }

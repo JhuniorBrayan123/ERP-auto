@@ -3,7 +3,6 @@ import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
 test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01', {tag: ['@punto-venta', '@boleta', '@stock']}, () => {
 
-    // ─── Boleta con stock (Patrón B: Bitácora + Stock + Kardex) ───────
     test('Emitir boleta con producto con control de stock y validar SUNAT @PV-01.1', async ({
                                                                                                 cajaPage,
                                                                                                 comprobantePage,
@@ -35,7 +34,7 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
         await test.step('And: click Nueva Venta', async () => {
             await emisionPage.clickNuevaVenta();
         });
-        // ─── Post-emisión: Búsqueda filtrada + SUNAT + Bitácora ───
+        
         await test.step('Then: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
             await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
         });
@@ -60,7 +59,6 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
         });
     });
 
-    // ─── Boleta sin cliente < 700 (Patrón A: solo Bitácora) ──────────
     test('Emitir boleta sin cliente con monto menor a 700 @PV-01.2', async ({
                                                                                 cajaPage,
                                                                                 emisionPage,
@@ -81,7 +79,6 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
             await emisionPage.clickNuevaVenta();
         });
 
-        // ─── Post-emisión: Búsqueda filtrada + SUNAT + Bitácora ───
         await test.step('Then: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
             await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
         });
@@ -97,7 +94,6 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
         });
     });
 
-    // ─── Boleta con combo (Patrón A: Bitácora) ────────────────────────
     test('Emitir boleta con combo con control de stock @PV-01.4', async ({
                                                                              cajaPage,
                                                                              emisionPage,
@@ -117,7 +113,6 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
             await emisionPage.clickNuevaVenta();
         });
 
-        // ─── Post-emisión: Búsqueda filtrada + SUNAT + Bitácora ───
         await test.step('Then: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
             await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
         });
@@ -134,7 +129,6 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
         });
     });
 
-    // ─── Boleta datos adicionales (Patrón C: Bitácora + Ver comprobante popup) ──
     test('Emitir boleta con datos adicionales @PV-01.5', async ({
                                                                     cajaPage,
                                                                     emisionPage,
@@ -162,7 +156,6 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
             await emisionPage.clickNuevaVenta();
         });
 
-        // ─── Post-emisión: Búsqueda filtrada + Ver comprobante popup ───
         await test.step('Then: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
             await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
         });

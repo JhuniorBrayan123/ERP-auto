@@ -30,10 +30,8 @@ test.describe("Selección, edición de ítem en caja de venta — Edición de í
             EditarPrecioDeItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL, String(nuevoPrecio)),
         );
 
-        // Calcular totales esperados dinámicamente
         const esperados = calcularTotales(nuevoPrecio);
 
-        // Validar popup de totales (desglose)
         await cajero.intentaRealizar(AbrirTotales());
         const popupTotales = await emision.capturarTotalesPopup();
         validarCamposEspecificos(popupTotales, [
@@ -41,7 +39,6 @@ test.describe("Selección, edición de ítem en caja de venta — Edición de í
         ]);
         await cajero.intentaRealizar(CerrarTotales());
 
-        // Validar resumen inferior (auto-detección de filas)
         const resumen = await emision.capturarResumenPedido();
         validarTotales(resumen, esperados);
     });

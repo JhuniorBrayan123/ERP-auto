@@ -1,11 +1,3 @@
-/**
- * Service Layer para polling de estado SUNAT.
- *
- * Usa el endpoint PuntoVenta/api/v2/DocumentosContables/Consultas
- * para consultar el campo IdestadoSunat del comprobante.
- *
- * NUNCA falla el test por estado SUNAT — solo reporta vía logs.
- */
 import type { APIRequestContext } from '@playwright/test';
 import { env } from '../../../config/env';
 import {
@@ -20,12 +12,6 @@ export class SunatEstadoApi {
         private readonly token: string,
     ) {}
 
-    /**
-     * Consulta el estado SUNAT actual de un comprobante por su ID de ERP.
-     * Busca en el endpoint de DocumentosContables/Consultas.
-     *
-     * @returns Código numérico del estado (ver EstadoSunat enum)
-     */
     async obtenerEstado(idComprobanteERP: number): Promise<number> {
         const url = `${env.apiUrl}PuntoVenta/api/v2/DocumentosContables/Consultas`;
 
@@ -52,15 +38,6 @@ export class SunatEstadoApi {
         return comprobante.IdestadoSunat;
     }
 
-    /**
-     * Espera hasta que el comprobante alcance un estado SUNAT final.
-     * Usa polling controlado con intervalos y timeout configurables.
-     *
-     * NUNCA falla el test:
-     * - Si SUNAT acepta → log ✓ + aceptado: true
-     * - Si SUNAT rechaza (5,6,7,9,10) → log ⚠️ + rechazado: true
-     * - Si timeout → log ⚠️ + timeout: true
-     */
     async esperarEstadoFinal(
         idComprobanteERP: number,
         options?: WaitSunatOptions,

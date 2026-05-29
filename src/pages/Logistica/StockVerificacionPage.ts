@@ -12,10 +12,9 @@ export class StockVerificacionPage {
             const searchInput = this.page.getByRole('textbox', {name: 'Buscar por nombre, código o c'});
             await searchInput.click();
             await searchInput.fill(codigo);
-            
-            // Esperar el debounce del input de búsqueda en el ERP
+
             await esperarDebounce(this.page, 1000, 'Debounce al buscar en tabla de stock');
-            // Esperar a que la tabla termine de cargar los resultados filtrados
+            
             await esperarCargaOverlay(this.page);
             
             await expect(this.page.getByRole('table').getByText(codigo).first()).toBeVisible({timeout: 15000});
@@ -33,7 +32,7 @@ export class StockVerificacionPage {
         await this.page
             .locator('div')
             .filter({hasText: /^Varios\*$/})
-            .first() // Prevenir strict mode violation
+            .first() 
             .click();
     }
 
@@ -46,7 +45,7 @@ export class StockVerificacionPage {
     }
 
     async clickVariosTexto(): Promise<void> {
-        await this.page.getByText('Varios*').first().click(); // Prevenir strict mode violation
+        await this.page.getByText('Varios*').first().click(); 
     }
 
     async clickAlmacenEnTabla(nombre: string): Promise<void> {

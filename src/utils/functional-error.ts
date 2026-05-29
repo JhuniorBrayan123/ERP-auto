@@ -2,19 +2,8 @@ import {expect, type Locator, type Page} from '@playwright/test';
 
 export const FUNCTIONAL_META_PREFIX = '__PW_FUNCTIONAL_META__=';
 
-/**
- * Clasificación del fallo para que el equipo QA sepa dónde buscar la causa:
- *   AMBIENTE  → el entorno CRT/QA no respondió (timeout, servicio caído, red)
- *   DATOS     → faltaron datos de setup o datos del ambiente no coinciden
- *   SCRIPT    → selector desactualizado, lógica incorrecta en el test
- *   DESCONOCIDO → no se pudo determinar la causa automáticamente
- */
 export type FailureCategory = 'AMBIENTE' | 'DATOS' | 'SCRIPT' | 'DESCONOCIDO';
 
-/**
- * Detecta automáticamente la categoría de fallo a partir del error técnico.
- * Puede ser sobreescrita manualmente pasando `failureCategory` en el input.
- */
 export function detectFailureCategory(
     error: unknown,
     observedState?: string,
@@ -26,7 +15,6 @@ export function detectFailureCategory(
         .join(' ')
         .toLowerCase();
 
-    // ── AMBIENTE: problemas de red, timeout, servicios caídos ──────────
     const ambientePatterns = [
         'timeout',
         'timed out',
@@ -47,7 +35,6 @@ export function detectFailureCategory(
     ];
     if (ambientePatterns.some((p) => msg.includes(p))) return 'AMBIENTE';
 
-    // ── DATOS: fallos en expects de negocio (stock, kardex, saldos) ────
     const datosPatterns = [
         'expect(received).tobe',
         'tobetruthy',
@@ -67,7 +54,6 @@ export function detectFailureCategory(
     ];
     if (datosPatterns.some((p) => msg.includes(p))) return 'DATOS';
 
-    // ── SCRIPT: selectores, locators, lógica del test ─────────────────
     const scriptPatterns = [
         'locator',
         'selector',
@@ -103,7 +89,7 @@ type FunctionalErrorInput = {
     technicalDetail?: string;
     observedState?: string;
     cause?: unknown;
-    /** Clasificación explícita del fallo. Si no se pasa, se detecta automáticamente. */
+    
     failureCategory?: FailureCategory;
 };
 
@@ -131,12 +117,6 @@ export class FunctionalTestError extends Error {
     }
 }
 
-// ─── Mensajes de diagnóstico de UI (centralizados, personalizables) ───
-
-/**
- * Mensajes por defecto para cada patrón de error en la UI.
- * Se pueden personalizar por contexto pasando overrides a detectCommonUiState().
- */
 export const DEFAULT_UI_MESSAGES = {
   loading: 'el sistema está procesando (loader visible)',
   errorModal: (texto: string) => `el sistema muestra un modal de error: "${texto.slice(0, 200)}"`,
@@ -145,9 +125,6 @@ export const DEFAULT_UI_MESSAGES = {
   pageError: 'la pantalla mostró un error del sistema',
 };
 
-/**
- * Forma de los mensajes de UI. Permite overrides por contexto.
- */
 export interface UiMessages {
   loading: string;
   errorModal: (texto: string) => string;
@@ -163,29 +140,24 @@ export async function detectCommonUiState(
   const m: UiMessages = {...DEFAULT_UI_MESSAGES, ...messages};
   const observations: string[] = [];
 
-  // 1. Loading overlay
   const overloadVisible = await isVisibleSafe(page.locator('[id="cmn_cmp-overload:loading"]'));
   if (overloadVisible) observations.push(m.loading);
 
-  // 2. Error modal (overscreen) — extraer texto real
   const errorModal = page.locator('#cmn_cmp-overscreen\\:block.is-open');
   if (await isVisibleSafe(errorModal)) {
     const texto = (await errorModal.textContent().catch(() => ''))?.trim();
     if (texto) observations.push(m.errorModal(texto));
   }
 
-  // 3. Page error component
   const pageErrorVisible = await isVisibleSafe(page.locator('.cmp-page-error'));
   if (pageErrorVisible) observations.push(m.pageError);
 
-  // 4. Toast / notificaciones — extraer texto real
   const toast = page.locator('.toast, .v-toast, .v-notification, .swal2-popup, .notyf');
   if (await toast.first().isVisible({timeout: 300}).catch(() => false)) {
     const texto = (await toast.first().textContent().catch(() => ''))?.trim();
     if (texto) observations.push(m.toast(texto));
   }
 
-  // 5. Errores de validación inline — extraer textos reales
   const validaciones = page.locator('.v-messages__message, .error-text, .invalid-feedback');
   const textos = (await validaciones.allTextContents().catch(() => []))
     .filter(t => t.trim()).slice(0, 3);
@@ -195,13 +167,6 @@ export async function detectCommonUiState(
   return observations.join('. además ');
 }
 
-/**
- * Wrapper de expect(locator).toBeVisible() que en caso de fallo
- * lee el estado real de la UI y construye un mensaje legible para QA.
- *
- * En vez de "expect(locator).toBeVisible() failed", el QA ve:
- * "No se encontró 'botón Guardar' porque el sistema muestra un modal: 'El campo es obligatorio'."
- */
 export async function verificarVisible(
   page: Page,
   locator: Locator,

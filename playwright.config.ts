@@ -35,18 +35,14 @@ export default defineConfig({
     // fullyParallel: false,
     workers: 2,
 
-    /* ─── CI / Retries ─── */
     forbidOnly: !!process.env.CI,
     retries: 1,
 
-    /* ─── Timeouts para estabilidad ─── */
-    timeout: 240_000, // 3 min  por test por si
-    expect: {timeout: 10_000}, // 10s para assertions
+    timeout: 240_000,
+    expect: {timeout: 10_000},
 
-    /* ─── Ignorar codegen / borradores (no son suites de regresión) ─── */
     testIgnore: ["**/_*", "**/_codegen/**"],
 
-    /* ─── Reporters ─── */
     reporter: [
         ['./src/utils/maven-reporter.ts'], // consola estilo Maven/Surefire
         ['json', {outputFile: process.env.PW_REPORT_OUTPUT || 'results.json'}],
@@ -57,17 +53,12 @@ export default defineConfig({
     use: {
         baseURL: env.baseUrl,
 
-        // === CONFIGURACIÓN ANTERIOR (Comentada por seguridad) ===
-
-        // Trace en fallos para poder abrir con: npx playwright show-trace trace.zip
         trace: "on-first-retry",
         screenshot: "only-on-failure",
-        // Video solo en fallos para no saturar disco en ejecuciones largas
         video: "retain-on-failure",
 
-        /* ─── Timeouts ─── */
-        actionTimeout: 35_000, // 15s por acción individual
-        navigationTimeout: 60_000, // 30s para navegación
+        actionTimeout: 35_000,
+        navigationTimeout: 60_000,
     },
 
     projects: [

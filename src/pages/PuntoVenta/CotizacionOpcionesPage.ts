@@ -3,8 +3,6 @@ import { type Locator, type Page } from '@playwright/test';
 export class CotizacionOpcionesPage {
     constructor(private readonly page: Page) {}
 
-    // ─── Toggles de Cotización ────────────────────────────────────────
-
     private get inputIncluirImagenes(): Locator {
         return this.page.locator(
             '[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-header_v-switch:impresion-imagen"]'
@@ -27,15 +25,13 @@ export class CotizacionOpcionesPage {
     }
 
     async activarIncluirImagenes(): Promise<void> {
-        // En el codegen, el click se hace en el label del switch
+        
         await this.toggleIncluirImagenes.click();
     }
 
     async activarIncluirDescripcion(): Promise<void> {
         await this.toggleIncluirDescripcion.click();
     }
-
-    // ─── Vigencia de Oferta ───────────────────────────────────────────
 
     private get selectorVigencia(): Locator {
         return this.page.locator('div').filter({ hasText: /^0 días$/ }).nth(1);
@@ -44,8 +40,8 @@ export class CotizacionOpcionesPage {
     async seleccionarVigencia(dias: string): Promise<void> {
        await this.selectorVigencia.click();
         await this.page
-            .locator('.v-select-small-option')  // Apunta directo a las filas del selector
-            .getByText(dias, { exact: true })   // Filtra por el texto exacto
+            .locator('.v-select-small-option')  
+            .getByText(dias, { exact: true })   
             .click();
     }
 }

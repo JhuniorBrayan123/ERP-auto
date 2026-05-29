@@ -1,7 +1,3 @@
-/**
- * Helpers de verificación de bitácora de movimientos.
- * Extraído de verificaciones-movimientos.helper.ts
- */
 import {ListadoMovimientosPage} from '@pages/Logistica/ListadoMovimientosPage';
 import {FUNCTIONAL_CATALOG} from '@utils/functional-catalog';
 import {runFunctionalStep} from '@utils/functional-step';

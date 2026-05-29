@@ -1,8 +1,3 @@
-/**
- * PV-03 | Nota de venta con equivalencias y lista de productos
- *
- * IMPORTANTE: Notas de venta NO llegan a SUNAT → no se valida estado SUNAT.
- */
 import {test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 

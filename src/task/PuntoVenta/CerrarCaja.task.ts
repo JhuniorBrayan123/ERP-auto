@@ -25,23 +25,22 @@ export const CerrarCajaActiva = (nombreCaja: string = 'caja-auto') => {
             await btnModalCerrar.click();
         }
 
-        // --- Llenado Dinámico ---
         await page.waitForTimeout(1000);
         const inputs = page.getByRole('textbox', {name: 'S/'});
         const count = await inputs.count();
 
         for (let i = 0; i < count; i++) {
-            // Evaluamos la fila donde está este input para extraer el saldo reportado
+            
             const valor = await inputs.nth(i).evaluate((el) => {
-                // Vuetify grids usan .v-row, o .row
+                
                 let row = el.closest('.v-row') || el.closest('.row') || el.parentElement?.parentElement?.parentElement;
                 if (!row) return '0';
 
                 const text = (row as HTMLElement).innerText || '';
-                // Buscamos patrones como "S/ 862.10" ignorando espacios
+
                 const matches = text.match(/S\/\s*([\d,]+\.?\d*)/g);
                 if (matches && matches.length > 0) {
-                    // Tomamos el primer valor encontrado que usualmente es el saldo del sistema
+
                     return matches[0].replace(/S\/\s*/, '').replace(/,/g, '');
                 }
                 return '0';

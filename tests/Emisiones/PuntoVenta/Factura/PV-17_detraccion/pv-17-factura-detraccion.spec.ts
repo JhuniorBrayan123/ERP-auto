@@ -3,7 +3,6 @@ import {CLIENTES, DETRACCION, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.h
 
 test.describe('PV-17 | Emitir comprobante con detracción @PV-17', {tag: ['@punto-venta', '@factura', '@detraccion']}, () => {
 
-    // ─── Helper: seleccionar factura + cliente RUC ────────────────────
     async function setupFacturaConClienteRUC(
         comprobantePage: any, page: any,
     ) {
@@ -101,7 +100,6 @@ test.describe('PV-17 | Emitir comprobante con detracción @PV-17', {tag: ['@punt
         });
     });
 
-    // ─── Factura en dólares con detracción y tipo de cambio ───────────
     test('Emitir factura en moneda distinta a soles con detracción usando tipo de cambio @PV-17.3', async ({
                                                                                                                cajaPage,
                                                                                                                comprobantePage,
@@ -159,7 +157,6 @@ test.describe('PV-17 | Emitir comprobante con detracción @PV-17', {tag: ['@punt
         });
     });
 
-    // ─── Bloquear factura en dólares con detracción SIN tipo de cambio ─
     test('Bloquear factura en moneda distinta a soles con detracción sin tipo de cambio @PV-17.4', async ({
                                                                                                               cajaPage,
                                                                                                               comprobantePage,

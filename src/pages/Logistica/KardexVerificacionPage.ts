@@ -127,11 +127,11 @@ export class KardexVerificacionPage {
 
         if (indice === 0) {
             await btn.first().waitFor({state: 'visible', timeout: 25_000});
-            await this.esperarSinOverload(); // ← segunda espera justo antes del click
+            await this.esperarSinOverload(); 
             await btn.first().click();
         } else {
             await btn.nth(indice).waitFor({state: 'visible', timeout: 25_000});
-            await this.esperarSinOverload(); // ← segunda espera justo antes del click
+            await this.esperarSinOverload(); 
             await btn.nth(indice).click();
         }
     }
@@ -269,9 +269,9 @@ export class KardexVerificacionPage {
             .locator('div')
             .filter({hasText: /^Datos opcionales$/})
             .first()
-            .locator('..')  // sube al padre contenedor del acordeón
+            .locator('..')  
             .locator('div, span, p')
-            .filter({hasText: /.+/}) // cualquier texto no vacío
+            .filter({hasText: /.+/}) 
             .first();
 
         await expect(contenido).toBeVisible({timeout: 5_000});
