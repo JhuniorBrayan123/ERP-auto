@@ -21,9 +21,9 @@ function tieneSesionReal(): boolean {
         if (!fs.existsSync(authFile)) return false;
 
         const stats = fs.statSync(authFile);
-        const fileAgeHours = (Date.now() - stats.mtimeMs) / (1000 * 60 * 60);
-        if (fileAgeHours > 12) {
-            console.log(`[setup-state] La sesión guardada tiene más de 12 horas (${fileAgeHours.toFixed(1)}h). Se forzará un nuevo login.`);
+        const fileAgeMinutes = (Date.now() - stats.mtimeMs) / (1000 * 60);
+        if (fileAgeMinutes > 30) {
+            console.log(`[setup-state] La sesión guardada tiene más de 30 minutos (${fileAgeMinutes.toFixed(0)}min). Se forzará un nuevo login.`);
             return false;
         }
 
