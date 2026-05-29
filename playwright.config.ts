@@ -1,83 +1,73 @@
+import {existsSync, mkdirSync, writeFileSync} from 'node:fs';
+import {resolve, dirname} from 'node:path';
 import {defineConfig, devices} from "@playwright/test";
 import {env} from "./config/env";
+import {detectEnvironmentGroup, detectAccount} from "@utils/setup-state";
+import {generarSlugCache} from "./src/factories/item-factory";
+
+/**
+ * Resuelve dinámicamente el path del storageState según el entorno y cuenta actual.
+ *
+ * Si el archivo aún no existe (primera ejecución con esta cuenta/ambiente),
+ * crea un placeholder vacío para evitar el error ENOENT de Playwright.
+ * auth.setup.ts lo sobrescribirá con la sesión real al completar el login.
+ *
+ * Ej: APP_ENV=crt-3, USER_EMAIL=test@mail.com
+ *     → playwright/.auth/user.crt-group__test_at_mail.com.json
+ */
+function resolveStoragePath(): string {
+    const envGroup = detectEnvironmentGroup();
+    const account = detectAccount();
+    const slug = generarSlugCache(envGroup, account);
+    const fullPath = resolve(process.cwd(), 'playwright', '.auth', `user.${slug}.json`);
+    if (!existsSync(fullPath)) {
+        mkdirSync(dirname(fullPath), {recursive: true});
+        writeFileSync(fullPath, '{}', 'utf-8');
+        console.log(`[config] StorageState creado (placeholder vacío): user.${slug}.json`);
+    }
+    return `playwright/.auth/user.${slug}.json`;
+}
 
 export default defineConfig({
     testDir: "./tests",
 
-    /**
-     * Estabilidad (ERP, datos compartidos, wizards):
-     * - fullyParallel: false + workers: 1 evitan choques entre escenarios masivos.
-     * Los specs de actualización masiva viven en tests/logistica/productos-stock/edicion-masiva/.
-     */
-    fullyParallel: false,
-    // fullyParallel: true,
-    workers: 1,
-    // workers: process.env ? 2 : 2,
+    fullyParallel: true,
+    // fullyParallel: false,
+    workers: 2,
 
-    /* ─── CI / Retries ─── */
     forbidOnly: !!process.env.CI,
-    // retries: 2,
+    retries: 1,
 
-    /* ─── Timeouts para estabilidad ─── */
-    timeout: 240_000, // 3 min  por test por si
-    expect: {timeout: 10_000}, // 10s para assertions
+    timeout: 240_000,
+    expect: {timeout: 10_000},
 
-    /* ─── Ignorar codegen / borradores (no son suites de regresión) ─── */
     testIgnore: ["**/_*", "**/_codegen/**"],
 
-    /* ─── Reporters ─── */
-    // === CONFIGURACIÓN ANTERIOR (Comentada por seguridad) ===
-
-    /* ─── Reporters ─── */
     reporter: [
-        ["./src/utils/maven-reporter.ts"], // consola estilo Maven/Surefire
-        ["html", {open: "never"}], // reporte HTML nativo
-        ["junit", {outputFile: "test-results/results.xml"}],
-        ['json', {outputFile: 'test-results/results.json'}],
-
-        // ✨ ¡AQUÍ ESTÁ LA MAGIA DE ALLURE! ✨
-        ['allure-playwright', {
-            detail: true,
-            outputFolder: 'allure-results',
-            suiteTitle: false
-        }]
+        ['./src/utils/maven-reporter.ts'], // consola estilo Maven/Surefire
+        ['json', {outputFile: process.env.PW_REPORT_OUTPUT || 'results.json'}],
+        ['junit', {outputFile: process.env.PW_JUNIT_OUTPUT || 'junit.xml'}],
+        ['html', {outputFolder: process.env.PW_HTML_OUTPUT || 'report', open: 'never'}],
     ],
-    // // === NUEVA CONFIGURACIÓN DINÁMICA ===
-    // reporter: process.env.CI ? [
-    //     // ️ Entorno CI (Jenkins/GitHub Actions):
-    //     ['dot'],                                              // Máxima velocidad I/O (1 puntito por test)
-    //     ['junit', { outputFile: 'test-results/results.xml' }] // Integración CI clásica
-    // ] : [
-    //     //  Entorno Local:
-    //     ['line'],                                             // Terminal limpia de una sola línea
-    //     ['html', { open: 'on-failure' }],                     // Super poder: Auto-abre el reporte solo si fallas
-    //     // ['./src/utils/maven-reporter.ts'],                 // Tu custom reporter estilo Maven
-    // ],
 
     use: {
         baseURL: env.baseUrl,
 
-        // === CONFIGURACIÓN ANTERIOR (Comentada por seguridad) ===
-
         trace: "on-first-retry",
         screenshot: "only-on-failure",
-        video: "on",
+        video: "retain-on-failure",
 
-        // /* ─── Artefactos de Evidencia ─── */
-        // // Guarda la evidencia visual (Trace, Screenshot, Video) ÚNICAMENTE cuando ocurre un fallo
-        // trace: 'on',
-        // screenshot: 'only-on-failure',
-        // video: 'on',
-
-        /* ─── Timeouts ─── */
-        actionTimeout: 35_000, // 15s por acción individual
-        navigationTimeout: 60_000, // 30s para navegación
+        actionTimeout: 35_000,
+        navigationTimeout: 60_000,
     },
 
     projects: [
         {
             name: "setup",
             testMatch: "**/auth.setup.ts",
+            use: {
+                trace: "retain-on-failure",
+            },
         },
         {
             name: "datos-setup",
@@ -85,7 +75,8 @@ export default defineConfig({
             retries: 0,
             use: {
                 ...devices["Desktop Chrome"],
-                storageState: "playwright/.auth/user.json",
+                storageState: resolveStoragePath(),
+                trace: "retain-on-failure",
             },
             dependencies: ["setup"],
         },
@@ -95,7 +86,8 @@ export default defineConfig({
             retries: 0,
             use: {
                 ...devices["Desktop Chrome"],
-                storageState: "playwright/.auth/user.json",
+                storageState: resolveStoragePath(),
+                trace: "retain-on-failure",
             },
             dependencies: ["setup"],
         },
@@ -105,17 +97,39 @@ export default defineConfig({
             retries: 0,
             use: {
                 ...devices["Desktop Chrome"],
-                storageState: "playwright/.auth/user.json",
+                storageState: resolveStoragePath(),
+                trace: "retain-on-failure",
             },
             dependencies: ["setup"],
         },
         {
-            name: "chromium",
+            name: "PuntoVenta",
+            testMatch: "tests/Emisiones/**/*.spec.ts",
             use: {
                 ...devices["Desktop Chrome"],
-                storageState: "playwright/.auth/user.json",
+                storageState: resolveStoragePath(),
             },
-            dependencies: ["setup", "datos-setup", "pv-datos-setup", "pv-items-setup"],
+            dependencies: ["setup", "pv-items-setup"],//["setup"],//
+            teardown: "pv-teardown",
+            workers: 1,
+        },
+        {
+            name: "pv-teardown",
+            testMatch: "**/pv-teardown.setup.ts",
+            use: {
+                ...devices["Desktop Chrome"],
+                storageState: resolveStoragePath(),
+            }
+        },
+        {
+            name: "Logistica",
+            testMatch: "tests/Logistica/**",
+            use: {
+                ...devices["Desktop Chrome"],
+                storageState: resolveStoragePath(),
+            },
+            dependencies: ["setup"],
+            workers: 1,
         },
     ],
 });

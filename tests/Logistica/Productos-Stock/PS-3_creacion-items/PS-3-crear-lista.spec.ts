@@ -10,8 +10,8 @@ test.describe('PS-3 | Creación de Listas', {tag: ['@logistica', '@productos-sto
 
         const productos: ProductoListaItem[] = [
             {
-                codigoBusqueda: '111111',
-                textoSeleccion: 'Item para combos estricto',
+                codigoBusqueda: 'PRODUCTO_SIMPLE', 
+                textoSeleccion: 'Item para combos estricto', 
                 cantidadIncrementos: 4,
             },
         ];
@@ -19,7 +19,7 @@ test.describe('PS-3 | Creación de Listas', {tag: ['@logistica', '@productos-sto
         await confirmarCreacionEIrALista(listaForm, () => listaForm.crearLista());
         await test.step('Verificar item en detalle', async () => {
             await itemDetail.verificarItemDesdeMenu({
-                //verificarVentas: true,
+                
                 verificarBitacora: true,
             });
         });
@@ -41,14 +41,21 @@ test.describe('PS-3 | Creación de Listas', {tag: ['@logistica', '@productos-sto
         });
     });
 
-
     test('crear lista con items flexibles @PS-3', async ({listaForm, itemDetail}) => {
         const nombre = buildUniqueItemName('lista', 'items flexibles');
         const productos: ProductoListaItem[] = [
-            {codigoBusqueda: '121212', textoSeleccion: 'item para combos gravado'},
-            {codigoBusqueda: '313131', textoSeleccion: 'item con variante flexible', variante: 'Variante 1 flexible'},
-            {codigoBusqueda: '202020', textoSeleccion: 'item equivalente flexible', equivalencia: 'Equivalente X2'},
-            {codigoBusqueda: '545454', textoSeleccion: 'item selector flexible'},
+            {codigoBusqueda: 'PRODUCTO_GRAVADO', textoSeleccion: 'item para combos gravado'},
+            {
+                codigoBusqueda: 'ITEM_VARIANTE_FLEXIBLE',
+                textoSeleccion: 'item con variante flexible',
+                variante: 'Variante 1 flexible'
+            },
+            {
+                codigoBusqueda: 'ITEM_EQUIVALENTE',
+                textoSeleccion: 'item equivalente flexible',
+                equivalencia: 'Equivalente X2'
+            },
+            {codigoBusqueda: 'ITEM_SELECTOR_FLEXIBLE', textoSeleccion: 'item selector flexible'},
         ];
 
         await prepararListaBase(listaForm, nombre, 'nueva lista auto', productos);
@@ -57,19 +64,5 @@ test.describe('PS-3 | Creación de Listas', {tag: ['@logistica', '@productos-sto
             await itemDetail.verificarItemDesdeMenu({verificarBitacora: true});
         });
     });
-    // test('crear lista con items flexibles para Nota venta @PS-3', async ({listaForm, itemDetail}) => {
-    //     const nombre = buildUniqueItemName('lista', 'items flexibles');
-    //     const productos: ProductoListaItem[] = [
-    //         {codigoBusqueda: '121212', textoSeleccion: 'item para combos gravado'},
-    //         {codigoBusqueda: '313131', textoSeleccion: 'item con variante flexible', variante: 'Variante 1 flexible'},
-    //         {codigoBusqueda: '202020', textoSeleccion: 'item equivalente flexible', equivalencia: 'Equivalente X2'},
-    //         {codigoBusqueda: '545454', textoSeleccion: 'item selector flexible'},
-    //     ];
 
-    //     await prepararListaBase(listaForm, nombre, 'nueva lista auto', productos);
-    //     await confirmarCreacionEIrALista(listaForm, () => listaForm.crearLista());
-    //     await test.step('Verificar bitácora', async () => {
-    //         await itemDetail.verificarItemDesdeMenu({verificarBitacora: true});
-    //     });
-    // });
 });

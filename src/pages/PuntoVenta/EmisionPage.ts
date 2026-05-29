@@ -1,33 +1,15 @@
-/**
- * Page Object para la pantalla de emisión de comprobantes.
- *
- * Locators reales del codegen:
- * - Búsqueda: getByRole('textbox', { name: 'Escanea o busca por nombre, c' })
- * - Pagar: getByRole('button', { name: 'PAGAR' })
- * - Monto exacto: getByRole('button', { name: 'Monto exacto' })
- * - Realizar Pago: getByRole('button', { name: 'Realizar Pago' })
- * - Nueva Venta: getByRole('button', { name: 'Nueva Venta' })
- * - Cantidad increase: locator con id pv_cmp-punto-venta_..._div:increase
- * - Editar item: locator con id pv_cmp-punto-venta_..._dv:btn-editar
- * - Descuento input: locator con id pv_cmp-punto-venta_..._v-input:descuento
- * - Descuento global: locator con id pv_punto-venta_..._cmp-descuento-pedido_v-input:valor
- */
-import {type Locator, type Page} from '@playwright/test';
+import {expect, type Locator, type Page} from '@playwright/test';
 import type {EmisionResult} from '../../helpers/PuntoVenta/emision.types';
 import {throwFunctionalError} from '../../utils/functional-error';
 import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
+import {esperarDebounce} from '../../utils/wait-helpers';
 
 export class EmisionPage {
-    /**
-     * Último resultado de emisión capturado del network.
-     * Se llena al usar emitirConEfectivoExacto() o emitirConYape().
-     */
+    
     public ultimaEmision: EmisionResult | null = null;
 
     constructor(private readonly page: Page) {
     }
-
-    // ─── Locators reales ──────────────────────────────────────────────
 
     private get searchInput(): Locator {
         return this.page.getByRole('textbox', {name: 'Escanea o busca por nombre, c'});
@@ -43,6 +25,14 @@ export class EmisionPage {
 
     private get btnRealizarPago(): Locator {
         return this.page.getByRole('button', {name: 'Realizar Pago'});
+    }
+
+    private get btnGuardarPedido(): Locator {
+        return this.page.getByRole('button', {name: 'GUARDAR PEDIDO'});
+    }
+
+    private get btnActualizarPedido(): Locator {
+        return this.page.getByRole('button', {name: 'ACTUALIZAR PEDIDO'});
     }
 
     private get btnNuevaVenta(): Locator {
@@ -63,16 +53,6 @@ export class EmisionPage {
         return this.page.getByRole('button', {name: 'Aceptar'});
     }
 
-    // ─── Intercepción de respuesta de emisión ─────────────────────────
-
-    /**
-     * Intercepta la response del API de emisión para capturar serie/correlativo.
-     *
-     * Endpoint: DocumentosContables/Emisiones/v2
-     * Response: { IdComprobante, CorrelativoDocumento, FilePdf: { Nombre: "B001-00000017-..." } }
-     *
-     * Se extrae la serie del nombre del PDF: "B001-00000017-1004-PDF.pdf" → serie = "B001"
-     */
     private async interceptarEmision(): Promise<EmisionResult> {
         const responsePromise = this.page.waitForResponse(
             (resp) => resp.url().includes('DocumentosContables/Emisiones') && resp.status() === 200,
@@ -84,7 +64,6 @@ export class EmisionPage {
         const response = await responsePromise;
         const body = await response.json();
 
-        // Extraer serie del nombre del PDF: "B001-00000017-1004-PDF.pdf"
         const nombrePdf: string = body.FilePdf?.Nombre ?? '';
         const serie = nombrePdf.split('-')[0] || '';
         const correlativo = String(body.CorrelativoDocumento ?? '');
@@ -97,13 +76,11 @@ export class EmisionPage {
         return result;
     }
 
-    // ─── Ítems ────────────────────────────────────────────────────────
-
     async buscarItem(codigo: string): Promise<void> {
         try {
             await this.searchInput.click();
             await this.searchInput.fill(codigo);
-            await this.page.waitForTimeout(800); // debounce del ERP
+            await esperarDebounce(this.page, 800, 'Debounce del buscador de items en ERP');
         } catch (error) {
             await throwFunctionalError({
                 page: this.page,
@@ -116,7 +93,21 @@ export class EmisionPage {
 
     async seleccionarItem(nombre: string): Promise<void> {
         try {
-            await this.page.getByText(nombre).click();
+            const item = this.page
+                .locator('.cmp-producto-img')
+                .filter({hasText: nombre})
+                .first();
+
+            await expect(item).toBeVisible({timeout: 10_000});
+            await item.click();
+
+            const overload = this.page.locator('[id="cmn_cmp-overload:loading"]');
+            await overload.waitFor({state: 'visible', timeout: 2_000}).catch(() => {
+            });
+            await overload.waitFor({state: 'hidden', timeout: 15_000}).catch(() => {
+            });
+
+            await esperarDebounce(this.page, 800, 'Debounce al agregar ítem al carrito');
         } catch (error) {
             await throwFunctionalError({
                 page: this.page,
@@ -140,7 +131,26 @@ export class EmisionPage {
         }
     }
 
-    /** Incrementa la cantidad del ítem con el botón + */
+    async obtenerPrecioItem(): Promise<number> {
+        const precioTexto = await this.page
+            .locator('[id*="item_v-text:precio"]')
+            .first()
+            .textContent({timeout: 5000})
+            .catch(() => 'S/ 0');
+        const limpio = precioTexto?.replace(/[S\/$\s,]/g, '') ?? '0';
+        return parseFloat(limpio);
+    }
+
+    async obtenerSubtotalItem(): Promise<number> {
+        const subtotalTexto = await this.page
+            .locator('[id*="item_v-text:subtotal"]')
+            .first()
+            .textContent({timeout: 5000})
+            .catch(() => 'S/ 0');
+        const limpio = subtotalTexto?.replace(/[S\/$\s,]/g, '') ?? '0';
+        return parseFloat(limpio);
+    }
+
     async incrementarCantidad(veces: number = 1): Promise<void> {
         const btnIncrease = this.page.locator(
             '[id="pv_cmp-punto-venta_cmp-grilla-items:grilla_cmp-producto:item_v-step:cantidad_div:increase"]',
@@ -150,7 +160,6 @@ export class EmisionPage {
         }
     }
 
-    /** Editar precio del ítem directamente */
     async editarPrecioItem(nuevoPrecio: string): Promise<void> {
         await this.btnEditar.click();
         const inputPrecio = this.page.locator(
@@ -161,7 +170,20 @@ export class EmisionPage {
         await this.btnEditar.click();
     }
 
-    // ─── Descuentos por ítem ──────────────────────────────────────────
+    async activarDocAdelanto(): Promise<void> {
+        const input = this.page.locator(
+            '[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-header_v-switch:adelanto"]'
+        );
+        const slider = this.page.locator(
+            'label:has([id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-header_v-switch:adelanto"]) .slider'
+        );
+        const isChecked = await input.evaluate((el: HTMLInputElement) => el.checked);
+
+        if (!isChecked) {
+            await slider.scrollIntoViewIfNeeded();
+            await slider.click({force: true});
+        }
+    }
 
     async abrirEdicionItem(): Promise<void> {
         await this.btnEditar.click();
@@ -189,9 +211,23 @@ export class EmisionPage {
         await this.btnEditar.click();
     }
 
-    // ─── Descuento global ─────────────────────────────────────────────
+    async desplegarPanelCalculos(): Promise<void> {
+        const btnColapsable = this.page.locator('.collapse-icon').first();
+        try {
+            await btnColapsable.waitFor({state: 'attached', timeout: 5000});
+            const isCerrado = await btnColapsable.locator('.icon.cerrado').isVisible();
+            if (isCerrado) {
+                await btnColapsable.click();
+                
+                await esperarDebounce(this.page, 500, 'Animación de colapso de panel');
+            }
+        } catch (e) {
+            
+        }
+    }
 
     async abrirDescuentoGlobal(): Promise<void> {
+        await this.desplegarPanelCalculos();
         await this.page.locator(
             '[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-footer_v-icon:detalles"]',
         ).click();
@@ -210,64 +246,55 @@ export class EmisionPage {
     }
 
     async abrirTotales(): Promise<void> {
+        await this.desplegarPanelCalculos();
         await this.page.locator(
             '[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-footer_v-icon:totales"]',
         ).click();
     }
 
-// ─── Datos Opcionales ─────────────────────────────────────────────
+    async capturarResumenPedido(): Promise<Record<string, string>> {
+        const filas = await this.page.locator('.cmp-resumen-pedido .content .subtotal').all();
+        const resultado: Record<string, string> = {};
 
-    async abrirDatosOpcionales(): Promise<void> {
-        await this.page.getByRole('button', {name: 'Datos'}).click();
+        for (const fila of filas) {
+            const spans = await fila.locator('span.v-text').all();
+            if (spans.length < 2) continue;
+            const label = (await spans[0].textContent())?.trim() ?? '';
+            const valor = (await spans[1].textContent())?.trim() ?? '';
+            if (label && valor) {
+                const sinPrefijo = valor.replace(/^S\/\s*/, '');
+                resultado[label] = sinPrefijo;
+            }
+        }
+
+        const totalLabel = await this.page.locator('.cmp-resumen-pedido .content .total .texto-total span.v-text').first().textContent();
+        const totalValor = await this.page.locator('.cmp-resumen-pedido .content .total .monto span.v-text').last().textContent();
+        if (totalLabel && totalValor) {
+            const label = totalLabel.trim();
+            const sinPrefijo = totalValor.trim().replace(/^S\/\s*/, '');
+            resultado[label] = sinPrefijo;
+        }
+
+        return resultado;
     }
 
-    // async llenarDatosOpcionales(vendedorTextoSelector: string): Promise<void> {
-    //     // Seleccionar Vendedor / Cliente
-    //     const inputVendedor = this.page.getByRole("textbox", { name: "Nombre del vendedor" });
-    //     await inputVendedor.click();
-    //     await inputVendedor.fill("Vendedor");
-    //     await this.page.getByText(vendedorTextoSelector).first().click();
-    //
-    //     // Llenar campos de datos opcionales
-    //     await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:orden-compra"]').fill("121");
-    //     await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:contrato"]').fill("12");
-    //     await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:comentarios"]').fill("observacion para datos adicionales");
-    //     await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:campo-texto-0"]').fill("texto");
-    //     await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:campo-numero-0"]').fill("123123");
-    //
-    //     // Guardar
-    //     await this.page.getByRole("button", { name: "Guardar datos" }).click();
-    // }
-    //
-    // // ─── Datos Opcionales ─────────────────────────────────────────────
-    //
-    // async abrirDatosOpcionales(): Promise<void> {
-    //     await this.page.getByRole('button', {name: 'Datos'}).click();
-    // }
+    async capturarTotalesPopup(): Promise<Record<string, string>> {
+        const filas = await this.page.locator('.cmp-totales-comprobante .cuerpo div.texto').all();
+        const resultado: Record<string, string> = {};
 
-    // MIRA AQUÍ: Agregamos "cliente: any" en los paréntesis
-    async llenarDatosOpcionales(cliente: any): Promise<void> {
-        // Seleccionar Vendedor / Cliente
+        for (const fila of filas) {
+            const spans = await fila.locator('span.v-text, span.v-p').all();
+            if (spans.length < 2) continue;
+            const label = (await spans[0].textContent())?.trim() ?? '';
+            const valor = (await spans[1].textContent())?.trim() ?? '';
+            if (label && valor) {
+                const sinPrefijo = valor.replace(/^S\/\s*/, '');
+                resultado[label] = sinPrefijo;
+            }
+        }
 
-        const inputVendedor = this.page.getByRole("textbox", {name: "Nombre del vendedor"});
-        await inputVendedor.click();
-
-        // Ahora TypeScript ya sabe que "cliente" viene de arriba, de los paréntesis
-        await inputVendedor.fill(cliente.documento);
-        await this.page.locator(".card-entidad-cliente").filter({hasText: cliente.nombre}).first().click();
-
-        // Llenar campos de datos opcionales
-        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:orden-compra"]').fill("121");
-        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:contrato"]').fill("12");
-        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:comentarios"]').fill("observacion para datos adicionales");
-        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:campo-texto-0"]').fill("texto");
-        await this.page.locator('[id="pv_ventas_cmp-punto-venta_v-drape:cmp-datos-opcionales_v-input:campo-numero-0"]').fill("123123");
-
-        // Guardar
-        await this.page.getByRole("button", {name: "Guardar datos"}).click();
+        return resultado;
     }
-
-    // ─── Emisión / Pago ───────────────────────────────────────────────
 
     async clickPagar(): Promise<void> {
         await this.btnPagar.click();
@@ -279,6 +306,14 @@ export class EmisionPage {
 
     async clickRealizarPago(): Promise<void> {
         await this.btnRealizarPago.click();
+    }
+
+    async clickGuardarPedido(): Promise<void> {
+        await this.btnGuardarPedido.click();
+    }
+
+    async clickActualizarPedido(): Promise<void> {
+        await this.btnActualizarPedido.click();
     }
 
     async clickNuevaVenta(): Promise<void> {
@@ -293,10 +328,6 @@ export class EmisionPage {
         await this.btnAceptar.click();
     }
 
-    /**
-     * Flujo completo de emisión con pago en efectivo (monto exacto).
-     * Intercepta la API para capturar serie/correlativo del comprobante emitido.
-     */
     async emitirConEfectivoExacto(): Promise<EmisionResult> {
         try {
             await this.clickPagar();
@@ -311,10 +342,6 @@ export class EmisionPage {
         }
     }
 
-    /**
-     * Flujo completo de emisión con YAPE.
-     * Intercepta la API para capturar serie/correlativo del comprobante emitido.
-     */
     async emitirConYape(): Promise<EmisionResult> {
         try {
             await this.clickPagar();
@@ -329,13 +356,40 @@ export class EmisionPage {
         }
     }
 
-    // ─── Regresar ─────────────────────────────────────────────────────
+    async guardarPedido(): Promise<EmisionResult> {
+        try {
+            const responsePromise = this.page.waitForResponse(
+                (resp) => resp.url().includes('DocumentosContables/Emisiones') && resp.status() === 200,
+                {timeout: 30_000},
+            );
+
+            await this.clickGuardarPedido();
+
+            const response = await responsePromise;
+            const body = await response.json();
+
+            const nombrePdf: string = body.FilePdf?.Nombre ?? '';
+            const serie = nombrePdf.split('-')[0] || '';
+            const correlativo = String(body.CorrelativoDocumento ?? '');
+            const comprobanteId = body.IdComprobante ?? 0;
+
+            const result: EmisionResult = {serie, correlativo, comprobanteId};
+
+            console.log(`   Pedido guardado capturado: ${serie}-${correlativo} (ID: ${comprobanteId})`);
+            this.ultimaEmision = result;
+            return result;
+        } catch (error) {
+            return await throwFunctionalError({
+                page: this.page,
+                ...FUNCTIONAL_CATALOG.puntoVenta.emitirComprobante,
+                cause: error,
+            });
+        }
+    }
 
     async volverAlInicio(): Promise<void> {
         await this.page.locator('.icon').first().click();
     }
-
-    // ─── Precuenta / Vista previa ─────────────────────────────────────
 
     async clickPrecuenta(): Promise<void> {
         await this.page.getByRole('button', {name: 'PRECUENTA'}).click();
@@ -349,37 +403,16 @@ export class EmisionPage {
         await this.page.locator('.icon-close').click();
     }
 
-    // ─── Campos adicionales ───────────────────────────────────────────
-
-    async clickAnadirCampos(): Promise<void> {
-        await this.page.getByText('AÑADIR CAMPOS').click();
-    }
-
-    /** Activa el switch de Doc. Adelanto */
-    async activarDocAdelanto(): Promise<void> {
-        await this.page
-            .locator(
-                'div:nth-child(2) > .switch-component > .v-switch > .switch-content > .switch > .slider',
-            )
-            .click();
-    }
-
-    // ─── Moneda ────────────────────────────────────────────────────────
-
-    /** Cambia la moneda de Soles a Dólares en el selector de precios */
     async seleccionarMonedaDolares(): Promise<void> {
         await this.page.getByText('Precio estándar (S/)').first().click();
         await this.page.getByText('Precio dolares ($)').click();
     }
 
-    /** Llena el campo de tipo de cambio */
     async llenarTipoCambio(valor: string): Promise<void> {
         const input = this.page.getByRole('textbox', {name: 'Cambio'});
         await input.click();
         await input.fill(valor);
     }
-
-    // ─── Fecha ────────────────────────────────────────────────────────
 
     async abrirSelectorFecha(): Promise<void> {
         await this.page.locator(
@@ -401,11 +434,9 @@ export class EmisionPage {
         const fecha = new Date();
         fecha.setDate(fecha.getDate() - (diasLimite + 1));
 
-        // El calendario usa aria-labels en INGLÉS con formato: "Wednesday, May 6, 2026"
         const diasSemana = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const meses = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-        // Formato exacto que usa el DOM: "Wednesday, May 6, 2026"
         const ariaLabel = `${diasSemana[fecha.getDay()]}, ${meses[fecha.getMonth()]} ${fecha.getDate()}, ${fecha.getFullYear()}`;
 
         await this.abrirSelectorFecha();

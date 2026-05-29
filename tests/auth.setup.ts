@@ -2,21 +2,63 @@ import {expect, test as setup} from '@playwright/test';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import {env} from '../config/env';
+import {detectAccount, detectEnvironmentGroup, markSetupComplete, shouldSkipSetup} from '@utils/setup-state';
+import {generarSlugCache} from '@factories/item-factory';
 
+const SETUP_NAME = 'auth';
 const authDir = path.join(__dirname, '../playwright/.auth');
-const authFile = path.join(authDir, 'user.json');
+
+function resolveStorageStatePath(): string {
+    const envGroup = detectEnvironmentGroup();
+    const account = detectAccount();
+    const slug = generarSlugCache(envGroup, account);
+    return path.join(authDir, `user.${slug}.json`);
+}
+
+function tieneSesionReal(): boolean {
+    const authFile = resolveStorageStatePath();
+    try {
+        if (!fs.existsSync(authFile)) return false;
+
+        const stats = fs.statSync(authFile);
+        const fileAgeMinutes = (Date.now() - stats.mtimeMs) / (1000 * 60);
+        if (fileAgeMinutes > 30) {
+            console.log(`[setup-state] La sesión guardada tiene más de 30 minutos (${fileAgeMinutes.toFixed(0)}min). Se forzará un nuevo login.`);
+            return false;
+        }
+
+        const content = JSON.parse(fs.readFileSync(authFile, 'utf-8'));
+        if (content.cookies?.length > 0) return true;
+        if (content.origins?.length > 0) return true;
+        return false;
+    } catch {
+        return false;
+    }
+}
 
 setup('authenticate', async ({page}) => {
-    // Es buena práctica asegurar que el directorio padre del storageState exista
-    // para evitar errores ENOENT si la carpeta Playwright/.auth fue ignorada en git.
+    if (shouldSkipSetup(SETUP_NAME) && tieneSesionReal()) {
+        console.log(`[setup-state] ${SETUP_NAME} already completed with valid session, skipping`);
+        return;
+    }
+
+    if (!tieneSesionReal()) {
+        console.log(`[setup-state] ${SETUP_NAME}: storageState vacío o inexistente — ejecutando login real`);
+    }
+
     if (!fs.existsSync(authDir)) {
         fs.mkdirSync(authDir, {recursive: true});
     }
 
+    await page.context().clearCookies();
+    console.log('Cookies limpiadas');
+
     await page.goto('/auth/login');
     console.log('Ingresando a la página del login');
 
-    // Usamos las variables seguras desde nuestro config/env.ts centralizado
+    await page.evaluate(() => localStorage.clear());
+    console.log('localStorage limpiado');
+
     await page
         .getByRole('textbox', {name: /Coloca aquí tu correo/i})
         .fill(env.userEmail);
@@ -30,6 +72,9 @@ setup('authenticate', async ({page}) => {
 
     await expect(page).not.toHaveURL(/auth\/login/, {timeout: 15000});
 
+    const authFile = resolveStorageStatePath();
     await page.context().storageState({path: authFile});
-    console.log('Sesión guardada correctamente en playwright/.auth/user.json');
+    console.log(`Sesión guardada correctamente en ${authFile}`);
+
+    markSetupComplete(SETUP_NAME);
 });

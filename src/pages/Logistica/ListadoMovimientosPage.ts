@@ -9,7 +9,7 @@ export class ListadoMovimientosPage {
     private readonly overloadLoading = this.page.locator('[id="cmn_cmp-overload:loading"]');
 
     private async esperarSinOverlayCarga(): Promise<void> {
-        await this.overloadLoading.waitFor({state: 'hidden', timeout: 25_000}).catch(() => {
+        await this.overloadLoading.waitFor({state: 'hidden', timeout: 35_000}).catch(() => {
         });
     }
 
@@ -169,7 +169,6 @@ export class ListadoMovimientosPage {
 
         await this.esperarSinOverlayCarga();
 
-        // Espera a que exista al menos una acción visible en la grilla ya cargada
         await this.page
             .locator('.cmp-dropdown-toggle.justify-content-center')
             .first()

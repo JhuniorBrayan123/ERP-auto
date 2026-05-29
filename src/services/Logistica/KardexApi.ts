@@ -1,36 +1,18 @@
 import type {APIRequestContext} from '@playwright/test';
 import {env} from '../../../config/env';
+import type {KardexVariacionRaw, KardexAlmacenRaw} from '../../types/api-responses.types';
 
-/**
- * Parámetros opcionales para la consulta de saldo por producto en Kardex.
- */
 interface ObtenerSaldoParams {
-    /** Código del producto a consultar (obligatorio). */
+    
     codigoProducto: string;
-    /** Substring para buscar el almacén en DescripcionAlmacen (default: 'AUTO'). */
+    
     almacenFiltro?: string;
-    /** Fecha de inicio del rango de consulta (default: '2020-01-01'). */
+    
     fechaInicio?: string;
-    /** Tipos de ítem a incluir en la query (default: [1, 6]). */
+    
     tipoItem?: number[];
 }
 
-/**
- * Service Layer para el endpoint de Kardex del módulo de Logística.
- *
- * Encapsula la lógica de construcción de URL, autenticación,
- * parseo de respuesta y búsqueda de almacén.
- *
- * @example
- * ```ts
- * const kardexApi = new KardexApi(request, token);
- * const saldo = await kardexApi.obtenerSaldoPorProducto({
- *     codigoProducto: '121212',
- *     almacenFiltro: 'AUTO',
- *     codigo segu
- * });
- * ```
- */
 export class KardexApi {
     private readonly request: APIRequestContext;
     private readonly token: string;
@@ -42,24 +24,14 @@ export class KardexApi {
         this.almacenesQuery = almacenesQuery;
     }
 
-    // ─── Métodos privados ────────────────────────────────────────────
-
-    /** Retorna la fecha actual en formato YYYY-MM-DD. */
     private getFechaHoy(): string {
         return new Date().toISOString().split('T')[0];
     }
 
-    /**
-     * Construye la query string de TipoItem a partir de un array.
-     * Ejemplo: [1, 6] → 'TipoItem=1&TipoItem=6'
-     */
     private buildTipoItemQuery(tipos: number[]): string {
         return tipos.map((t) => `TipoItem=${t}`).join('&');
     }
 
-    /**
-     * Construye la URL completa del endpoint filtroAvanzado del Kardex.
-     */
     private buildUrl(params: Required<Pick<ObtenerSaldoParams, 'codigoProducto' | 'fechaInicio' | 'tipoItem'>>): string {
         const fechaFin = this.getFechaHoy();
         const tipoItemQuery = this.buildTipoItemQuery(params.tipoItem);
@@ -77,27 +49,15 @@ export class KardexApi {
         ].join('');
     }
 
-    // ─── Métodos públicos ────────────────────────────────────────────
-
-    /**
-     * Consulta el Kardex y retorna el SaldoFinal del almacén indicado
-     * para el producto especificado.
-     *
-     * Validaciones:
-     *  - Lanza error si la respuesta HTTP no es exitosa.
-     *  - Lanza error si `body.Data` no existe o está vacío.
-     *  - Si no encuentra el almacén por filtro, usa el primer almacén
-     *    como fallback y emite un warning en consola.
-     *
-     * @returns SaldoFinal del almacén encontrado (number).
-     */
     async obtenerSaldoPorProducto(params: ObtenerSaldoParams): Promise<number> {
         const {
-            codigoProducto,
+            codigoProducto: rawCodigo,
             almacenFiltro = 'AUTO',
             fechaInicio = '2020-01-01',
             tipoItem = [1, 6],
         } = params;
+
+        const codigoProducto = rawCodigo.replace(/-/g, '');
 
         const url = this.buildUrl({codigoProducto, fechaInicio, tipoItem});
 
@@ -119,14 +79,12 @@ export class KardexApi {
                 `Respuesta: ${JSON.stringify(body)}`,
             );
         }
-        //console.log('BODY:', JSON.stringify(body, null, 2));
 
         const dataItem = body.Data[0];
 
-// 🔹 Caso 1: producto sin variantes
         if (dataItem.Almacenes?.length) {
             const almacenEncontrado = dataItem.Almacenes.find(
-                (a: { DescripcionAlmacen?: string }) =>
+                (a: KardexAlmacenRaw) =>
                     a.DescripcionAlmacen?.includes(almacenFiltro),
             );
 
@@ -139,10 +97,9 @@ export class KardexApi {
                 : dataItem.Almacenes[0].SaldoFinal;
         }
 
-// 🔹 Caso 2: producto con variantes
         if (dataItem.Variaciones?.length) {
             const variacion = dataItem.Variaciones.find(
-                (v: any) => v.CodigoItem === codigoProducto
+                (v: KardexVariacionRaw) => v.CodigoItem === codigoProducto
             );
 
             if (!variacion?.Almacenes?.length) {
@@ -150,7 +107,7 @@ export class KardexApi {
             }
 
             const almacenEncontrado = variacion.Almacenes.find(
-                (a: { DescripcionAlmacen?: string }) =>
+                (a: KardexAlmacenRaw) =>
                     a.DescripcionAlmacen?.includes(almacenFiltro),
             );
 

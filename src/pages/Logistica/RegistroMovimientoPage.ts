@@ -1,6 +1,7 @@
 import {expect, type Locator, type Page} from '@playwright/test';
 import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
 import {runFunctionalAction} from '../../utils/functional-step';
+import {esperarDebounce} from '../../utils/wait-helpers';
 
 export class RegistroMovimientoPage {
     constructor(private readonly page: Page) {
@@ -30,12 +31,6 @@ export class RegistroMovimientoPage {
         await this.page.getByText('Agregar ingreso').click();
     }
 
-    async clickNuevoIngreso(): Promise<void> {
-        await this.page
-            .locator('[id="lgt_movimientos_content_cmp-header-movimientos.li:nuevo-ingreo"]')
-            .click();
-    }
-
     async clickAgregarSalida(): Promise<void> {
         await this.page.getByText('Agregar salida').click();
     }
@@ -57,7 +52,7 @@ export class RegistroMovimientoPage {
             .filter({hasText: new RegExp(`^${this.escapeRegex(almacenActual)}$`)})
             .nth(2)
             .click();
-        await this.page.waitForTimeout(500); // Esperar a que renderice la lista
+        await esperarDebounce(this.page, 500, 'Esperar renderizado de lista de almacenes (Vue dropdown)');
         await this.page.getByText(almacenDestino).click();
     }
 
@@ -70,7 +65,7 @@ export class RegistroMovimientoPage {
             .filter({hasText: new RegExp(`^${this.escapeRegex(almacenActual)}$`)})
             .nth(nth)
             .click();
-        await this.page.waitForTimeout(500); // Esperar a que renderice la lista
+        await esperarDebounce(this.page, 500, 'Esperar renderizado de lista de almacenes nth (Vue dropdown)');
         await this.page.getByText(almacenDestino).click();
     }
 
@@ -100,7 +95,7 @@ export class RegistroMovimientoPage {
             .filter({hasText: new RegExp(`^${this.escapeRegex(motivoActual)}$`)})
             .nth(2)
             .click();
-        await this.page.waitForTimeout(500); // Esperar a que renderice la lista
+        await esperarDebounce(this.page, 500, 'Esperar renderizado de lista de motivos (Vue dropdown)');
         await this.page.getByText(motivoNuevo, {exact: true}).click();
     }
 
@@ -126,21 +121,33 @@ export class RegistroMovimientoPage {
             .filter({hasText: new RegExp(`^${this.escapeRegex(motivoActual)}$`)})
             .nth(3)
             .click();
-        await this.page.waitForTimeout(500); // Esperar a que renderice la lista
+        await esperarDebounce(this.page, 500, 'Esperar renderizado de lista de motivos div (Vue dropdown)');
         await this.page.getByText(motivoNuevo, {exact: true}).click();
     }
 
     async buscarItem(codigo: string): Promise<void> {
-        await runFunctionalAction(this.page, FUNCTIONAL_CATALOG.movimientos.definirAlmacenMotivo, async () => {
+        await runFunctionalAction(this.page, {
+            ...FUNCTIONAL_CATALOG.movimientos.definirAlmacenMotivo,
+            flowStep: 'Buscar ítem por código',
+            userMessage: 'No se pudo buscar el ítem en la grilla.',
+            technicalDetail: 'Falla al interactuar con el input de búsqueda de ítems.',
+        }, async () => {
             await this.searchInput.click();
             await this.searchInput.fill(codigo);
-            await this.page.waitForTimeout(1000); // Esperar respuesta de debounce/búsqueda del ERP
+            await esperarDebounce(this.page, 500, 'Debounce búsqueda ítem en ERP logistica');
         });
     }
 
     async seleccionarItemEnResultados(nombre: string): Promise<void> {
-        await runFunctionalAction(this.page, FUNCTIONAL_CATALOG.movimientos.definirAlmacenMotivo, async () => {
-            await this.page.getByText(nombre).click();
+        await runFunctionalAction(this.page, {
+            ...FUNCTIONAL_CATALOG.movimientos.definirAlmacenMotivo,
+            flowStep: 'Seleccionar ítem en resultados',
+            userMessage: 'No se pudo seleccionar el ítem en los resultados de búsqueda.',
+            technicalDetail: 'Falla al hacer click en el resultado con el texto esperado.',
+        }, async () => {
+            const itemEnResultados = this.page.getByText(nombre);
+            await expect(itemEnResultados).toBeVisible({timeout: 10_000});
+            await itemEnResultados.click();
         });
     }
 
@@ -231,12 +238,11 @@ export class RegistroMovimientoPage {
     }
 
     async clickClonarIngreso(): Promise<void> {
-        // Esperar que el dropdown de Almacén tenga valor (no "Seleccionar")
+        
         await expect(
             this.page.locator('.v-select-header-form.form').first()
         ).not.toHaveText('Seleccionar', {timeout: 15000});
 
-        // Esperar que haya ítems en la tabla
         await this.page.locator('table tbody tr').first().waitFor({state: 'visible'});
 
         await this.page.getByRole('button', {name: 'CLONAR INGRESO'}).click();
@@ -248,7 +254,7 @@ export class RegistroMovimientoPage {
 
     async clickLimpiarConfirmacion(): Promise<void> {
         await this.page.getByRole('button', {name: 'Limpiar', exact: true}).click();
-        await this.page.waitForTimeout(1000);
+        await esperarDebounce(this.page, 1000, 'Animación y limpieza de items de la tabla tras confirmación');
     }
 
     async clickCancelar(): Promise<void> {

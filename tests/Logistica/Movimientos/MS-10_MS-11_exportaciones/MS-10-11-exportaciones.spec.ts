@@ -3,9 +3,6 @@ import {Download} from "@playwright/test";
 
 test.describe('MS-10-11 | Exportaciones de Movimientos @exportaciones', {tag: ['@logistica', '@movimientos']}, () => {
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 41: Exportar movimientos con filtros
-    // ═══════════════════════════════════════════════════════════════
     test('Exportar movimientos con filtros @MS-10-11', async ({
                                                                   movimientosNav,
                                                                   listadoMovimientos,
@@ -29,16 +26,13 @@ test.describe('MS-10-11 | Exportaciones de Movimientos @exportaciones', {tag: ['
         await test.step('Then: verificar que se pueden exportar los filtrados', async () => {
             await listadoMovimientos.clickIconoOpciones();
             download = await listadoMovimientos.exportarfiltrados()
-            // Aquí se abre el modal de exportación
+            
         });
         await test.step('Then: verificar que se descarga el archivo', async () => {
             expect(download).toBeTruthy();
         });
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 42: Exportar todos los movimientos detallados
-    // ═══════════════════════════════════════════════════════════════
     test('Exportar todos los movimientos detallados @MS-10-11', async ({
                                                                            movimientosNav,
                                                                            listadoMovimientos,

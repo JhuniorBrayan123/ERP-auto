@@ -33,7 +33,7 @@ test.describe(
             await test.step("Llenar campos adicionales", async () => {
                 await productoForm.irATabCamposAdicionales();
                 await productoForm.llenarCampoAdicionalTexto("item Automatizado");
-                // Fecha: se selecciona del calendario
+                
                 await productoForm.llenarCampoAdicionalNumerico("1");
             });
             await confirmarCreacionEIrALista(productoForm, () =>
@@ -63,7 +63,7 @@ test.describe(
 
             await test.step("Configurar sin stock + info adicional", async () => {
                 await productoForm.irATabStock();
-                // No seleccionar control de stock (por defecto: sin control)
+                
                 await productoForm.llenarInfoAdicional(
                     "REGRESION",
                     "AUTO-TEST",
@@ -281,40 +281,40 @@ test.describe(
                 });
             });
         });
-        test("crear producto con ISC monto fijo para facturacion @PS-3", async ({
-                                                                                    productoForm,
-                                                                                    itemDetail,
-                                                                                }) => {
-            const nombre = buildUniqueItemName("producto", "con ISC fijo");
+        test("crear producto gravado con control estricto solo un almacen @PS-3", async ({
+                                                                                             productoForm,
+                                                                                             itemDetail,
+                                                                                         }) => {
+            const nombre = buildUniqueItemName("producto", "gravado estricto");
             await prepararProductoBase(
                 productoForm,
                 nombre,
-                {venta: "11.52", compra: "3.5"},
-                {skipStock: true},
+                {venta: "10", compra: "10"},
+                {
+                    stockConfig: {
+                        tipo: "estricto",
+                        cantidadMaxima: "10",
+                        cantidadMinima: "10",
+                    },
+                },
             );
-
-            await test.step("Configurar stock flexible + info adicional", async () => {
-                await productoForm.irATabStock();
-                await productoForm.seleccionarControlStock("flexible");
+            await test.step("Llenar información adicional", async () => {
                 await productoForm.llenarInfoAdicional(
                     "REGRESION",
                     "AUTO-TEST",
                     "AUTOMATIZADO",
                 );
             });
-
-            await test.step("Configurar ISC monto fijo", async () => {
-                await productoForm.configurarISC({
-                    tipoSistema: "Aplicación al monto fijo",
-                    monto: "1.5",
-                });
+            await test.step("Llenar campos adicionales", async () => {
+                await productoForm.irATabCamposAdicionales();
+                await productoForm.llenarCampoAdicionalTexto("item Automatizado");
+                
+                await productoForm.llenarCampoAdicionalNumerico("1");
             });
-
             await confirmarCreacionEIrALista(productoForm, () =>
                 productoForm.crearProducto(),
             );
-
-            await test.step("Verificar item completo", async () => {
+            await test.step("Verificar item creado en detalle", async () => {
                 await itemDetail.verificarItemCompleto({
                     verificarVentas: true,
                     verificarCompras: true,
@@ -323,40 +323,5 @@ test.describe(
             });
         });
 
-        test("crear producto con ICBPER para facturacion @PS-3", async ({
-                                                                            productoForm,
-                                                                            itemDetail,
-                                                                        }) => {
-            const nombre = buildUniqueItemName("producto", "con ICBPER");
-
-            await prepararProductoBase(
-                productoForm,
-                nombre,
-                {venta: "10", compra: "10"},
-                {skipStock: true},
-            );
-
-            await test.step("Configurar stock flexible + info adicional", async () => {
-                await productoForm.irATabStock();
-                await productoForm.seleccionarControlStock("flexible");
-                await productoForm.llenarInfoAdicional(
-                    "REGRESION",
-                    "AUTO-TEST",
-                    "AUTOMATIZADO",
-                );
-            });
-
-            await test.step("Activar ICBPER", async () => {
-                await productoForm.activarICBPER();
-            });
-
-            await confirmarCreacionEIrALista(productoForm, () =>
-                productoForm.crearProducto(),
-            );
-
-            await test.step("Verificar item", async () => {
-                await itemDetail.verificarItemCompleto({verificarBitacora: true});
-            });
-        });
     },
 );

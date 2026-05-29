@@ -1,19 +1,7 @@
-/**
- * Page Object para la selección/creación de cliente en PuntoVenta.
- *
- * Locators reales del codegen:
- * - Búsqueda: getByRole('textbox', { name: 'Buscar por nombre, razón' })
- * - Agregar: getByRole('button', { name: 'Agregar cliente' })
- * - Tipo doc: locator con id ...v-select:tipo-documento
- * - Num doc: locator con id ...v-input:num-document
- * - Crear: getByRole('button', { name: 'Crear cliente' })
- */
 import { expect, type Locator, type Page } from '@playwright/test';
 
 export class ClientePage {
     constructor(private readonly page: Page) {}
-
-    // ─── Locators reales ──────────────────────────────────────────────
 
     private get inputBusqueda(): Locator {
         return this.page.getByRole('textbox', { name: 'Buscar por nombre, razón' });
@@ -23,21 +11,20 @@ export class ClientePage {
         return this.page.getByRole('button', { name: 'Agregar cliente' });
     }
 
-    // ─── Búsqueda y selección ─────────────────────────────────────────
+    private get sliderSinDocumento(): Locator {
+        return this.page.locator('.slider').first();
+    }
 
-    /** Busca un cliente por documento (DNI o RUC) */
     async buscarCliente(documento: string): Promise<void> {
         await this.inputBusqueda.click();
         await this.inputBusqueda.fill(documento);
         await this.page.waitForTimeout(800);
     }
 
-    /** Selecciona un cliente del listado de resultados por texto visible */
     async seleccionarClientePorTexto(textoSelector: string): Promise<void> {
         await this.page.getByText(textoSelector).click();
     }
 
-    /** Selecciona el cliente RUC de automatización (shortcut) */
     async seleccionarClienteRUCAuto(): Promise<void> {
         await this.buscarCliente('20759685854');
         await this.page.getByText(
@@ -45,18 +32,26 @@ export class ClientePage {
         ).click();
     }
 
-    /** Selecciona un cliente DNI por número */
     async seleccionarClienteDNI(dni: string, textoResultado: string): Promise<void> {
         await this.buscarCliente(dni);
         await this.page.getByText(textoResultado).click();
     }
 
-    /** Limpia la selección de cliente */
     async limpiarCliente(): Promise<void> {
         await this.page.locator('#undefined_delete').click();
     }
 
-    // ─── Creación de cliente ──────────────────────────────────────────
+    async llenarDatosClienteSinDocumento(nombre: string, direccion: string): Promise<void> {
+        await this.sliderSinDocumento.click();
+        
+        const inputNombre = this.page.getByRole('textbox', { name: 'Nombre/Razón social' });
+        await inputNombre.click();
+        await inputNombre.fill(nombre);
+
+        const inputDireccion = this.page.getByRole('textbox', { name: 'Dirección' });
+        await inputDireccion.click();
+        await inputDireccion.fill(direccion);
+    }
 
     async abrirFormCrearCliente(): Promise<void> {
         await this.inputBusqueda.click();
@@ -104,9 +99,6 @@ export class ClientePage {
         await this.page.getByRole('button', { name: 'Crear cliente' }).click();
     }
 
-    /**
-     * Flujo completo: crear cliente DNI con datos mínimos.
-     */
     async crearClienteDNI(datos: {
         documento: string;
         direccion: string;
@@ -122,9 +114,6 @@ export class ClientePage {
         await this.clickCrearCliente();
     }
 
-    /**
-     * Flujo completo: crear cliente RUC con datos mínimos.
-     */
     async crearClienteRUC(datos: {
         documento: string;
         razonSocial: string;
@@ -141,8 +130,6 @@ export class ClientePage {
         await this.llenarEmail(datos.email);
         await this.clickCrearCliente();
     }
-
-    // ─── Verificaciones ───────────────────────────────────────────────
 
     async validarClienteSeleccionado(nombre: string): Promise<void> {
         await expect(this.page.getByText(nombre)).toBeVisible();

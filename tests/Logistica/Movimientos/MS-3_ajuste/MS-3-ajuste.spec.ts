@@ -78,13 +78,13 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
             ITEMS_TEST.EQUIVALENTE_EST.codigo,
             ITEMS_TEST.EQUIVALENTE_EST.nombre,
             page,
-            'item equivalente estricto gravadoFactor Multiplicador:1S/'
+            `${ITEMS_TEST.EQUIVALENTE_EST.nombre}Factor Multiplicador:1S/`
         );
         await definirCantidadYFactor(registroMovimiento, '10', 'Agregar');
         await registrarAjusteEIrAlListado(registroMovimiento, resultadoMovimiento);
         await verificarStockYKardex(
             movimientosNav, stockVerificacion, kardexVerificacion, page,
-            ITEMS_TEST.EQUIVALENTE_EST.codigo, ALMACENES.AUTO, PATRON_CODIGO.AJUSTE, 'item equivalente estricto'
+            ITEMS_TEST.EQUIVALENTE_EST.codigo, ALMACENES.AUTO, PATRON_CODIGO.AJUSTE, ITEMS_TEST.EQUIVALENTE_EST.nombre
         );
     });
 

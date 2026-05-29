@@ -9,13 +9,14 @@ import {
 } from '@helpers/Logistica/movimiento-data.helper';
 import {KardexVerificacionPage} from '@pages/Logistica/KardexVerificacionPage';
 import {
+    buscarYSeleccionarItem,
     navegarATrasladosYNuevo,
     registrarTrasladoEIrAlListado,
-    buscarYSeleccionarItem,
+    verificarBitacoraEdicion,
     verificarKardexDesdeStock,
     verificarStockPorCodigoYClick,
-    verificarBitacoraEdicion,
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
+import {SucursalesPage} from "@pages/Logistica/SucursalesPage";
 
 test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@movimientos']}, () => {
 
@@ -90,11 +91,11 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
         await registrarTrasladoEIrAlListado(registroMovimiento, resultadoMovimiento);
 
         await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.VARIANTE_FLEXIBLE.codigo, async () => {
-            // no click action defined in original, but it searched variante
+            
         });
 
         await test.step('And: verificar kardex', async () => {
-            const kardexPage = await stockVerificacion.abrirKardexVariante('313131-V001 Variante 1');
+            const kardexPage = await stockVerificacion.abrirKardexVariante(VARIANTES.V1_FLEXIBLE.codigo);
             const kardexPopup = new KardexVerificacionPage(kardexPage);
             await kardexPage.waitForLoadState('networkidle');
             await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
@@ -117,7 +118,7 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
 
         await test.step('When: buscar ítem', async () => {
             await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
-            await page.getByText('Pproducto121212item para').click();
+            await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.PRODUCTO_GRAVADO.nombre);
         });
         await test.step('And: configurar datos opcionales', async () => {
             await datosOpcionales.abrirDatosOpcionales();
@@ -132,11 +133,11 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
         await registrarTrasladoEIrAlListado(registroMovimiento, resultadoMovimiento);
 
         await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.PRODUCTO_GRAVADO.codigo, async () => {
-            // just search, original left it at that
+            
         });
 
         await test.step('And: verificar kardex y datos opcionales', async () => {
-            const kardexPage = await stockVerificacion.abrirKardexDesdeStock();
+            const kardexPage = await stockVerificacion.abrirKardexDesdeStock(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
             const kardexPopup = new KardexVerificacionPage(kardexPage);
             await kardexPage.waitForLoadState('networkidle');
             await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
@@ -152,17 +153,15 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
                                                                               registroMovimiento,
                                                                               resultadoMovimiento,
                                                                               listadoMovimientos,
+
                                                                               page,
                                                                           }) => {
+        const sucursalesPage = new SucursalesPage(page);
 
         await test.step('Given: activar preferencia avanzada de traslado por confirmar', async () => {
             await movimientosNav.navegarAConfiguracionSucursales();
-            await page.locator('[id="cfg_cmp-menu-configuracion.v-button:menu-2-4"]').click();
-            await page.getByText('Preferencias avanzadas').nth(2).click();
-            await page.locator('.cmp-items-preferencias-avanzadas > div:nth-child(4) > .icon').click();
-            await page.locator('div:nth-child(4) > .switch.flex-row > .v-switch > .switch-content > .switch > .slider').click();
-            await page.getByRole('button', {name: 'Guardar'}).click();
-            await page.locator('.v-modal > div').first().click();
+            await sucursalesPage.activarPreferenciaTraslado()
+
         });
 
         await test.step('When: registrar traslado', async () => {

@@ -1,15 +1,8 @@
-/**
- * Fixture principal para tests de emisión en PuntoVenta.
- *
- * Inyecta page objects pre-instanciados y navega al módulo PdV.
- * Análogo a items-fixture.ts de Logística.
- *
- * Uso: tests que solo necesitan UI (sin validaciones API).
- * Para tests con SUNAT/stock, usar validacion-fixture.ts que extiende esta.
- */
 import {test as base} from '@playwright/test';
 import {PuntoVentaNavigationPage} from '../../pages/PuntoVenta/PuntoVentaNavigationPage';
 import {EmisionPage} from '../../pages/PuntoVenta/EmisionPage';
+import {EmisionDatosOpcionalesPage} from '../../pages/PuntoVenta/EmisionDatosOpcionalesPage';
+import {EmisionAdelantosPage} from '../../pages/PuntoVenta/EmisionAdelantosPage';
 import {CajaPage} from '../../pages/PuntoVenta/CajaPage';
 import {ClientePage} from '../../pages/PuntoVenta/ClientePage';
 import {ComprobantePage} from '../../pages/PuntoVenta/ComprobantePage';
@@ -17,10 +10,15 @@ import {ComprobanteDetallePage} from '../../pages/PuntoVenta/ComprobanteDetalleP
 import {BusquedaComprobantesPage} from '../../pages/PuntoVenta/BusquedaComprobantesPage';
 import {PrecuentaPage} from '../../pages/PuntoVenta/PrecuentaPage';
 import {DetraccionPage} from "@pages/PuntoVenta/detraccion.page";
+import {PostEmisionPage} from '../../pages/PuntoVenta/PostEmisionPage';
+import {PedidoListaPage} from '../../pages/PuntoVenta/PedidoListaPage';
+import {CotizacionOpcionesPage} from '../../pages/PuntoVenta/CotizacionOpcionesPage';
 
 type EmisionFixtures = {
     pvNav: PuntoVentaNavigationPage;
     emisionPage: EmisionPage;
+    emisionDatosOpcionalesPage: EmisionDatosOpcionalesPage;
+    emisionAdelantosPage: EmisionAdelantosPage;
     cajaPage: CajaPage;
     clientePage: ClientePage;
     comprobantePage: ComprobantePage;
@@ -28,6 +26,9 @@ type EmisionFixtures = {
     busquedaComprobantes: BusquedaComprobantesPage;
     precuentaPage: PrecuentaPage;
     detraccionPage: DetraccionPage;
+    postEmisionPage: PostEmisionPage;
+    pedidoListaPage: PedidoListaPage;
+    cotizacionOpcionesPage: CotizacionOpcionesPage;
 };
 
 export const test = base.extend<EmisionFixtures>({
@@ -40,6 +41,14 @@ export const test = base.extend<EmisionFixtures>({
 
     emisionPage: async ({page}, use) => {
         await use(new EmisionPage(page));
+    },
+
+    emisionDatosOpcionalesPage: async ({page}, use) => {
+        await use(new EmisionDatosOpcionalesPage(page));
+    },
+
+    emisionAdelantosPage: async ({page}, use) => {
+        await use(new EmisionAdelantosPage(page));
     },
 
     cajaPage: async ({page}, use) => {
@@ -67,13 +76,18 @@ export const test = base.extend<EmisionFixtures>({
     },
     detraccionPage: async ({page}, use) => {
         await use(new DetraccionPage(page));
+    },
+    postEmisionPage: async ({page}, use) => {
+        await use(new PostEmisionPage(page));
+    },
+    pedidoListaPage: async ({page}, use) => {
+        await use(new PedidoListaPage(page));
+    },
+    cotizacionOpcionesPage: async ({page}, use) => {
+        await use(new CotizacionOpcionesPage(page));
     }
 });
 
-/**
- * afterEach hook: Imprime PASS/FAIL en consola tras cada test.
- * Mantiene consistencia con el patrón de Logística.
- */
 test.afterEach(async ({}, testInfo) => {
     const status = testInfo.status === 'passed' ? ' PASS' : ' FAIL';
     const duracion = ((testInfo.duration ?? 0) / 1000).toFixed(1);

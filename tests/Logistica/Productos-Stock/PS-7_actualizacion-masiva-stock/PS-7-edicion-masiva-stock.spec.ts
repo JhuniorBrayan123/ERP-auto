@@ -1,10 +1,6 @@
 import {expect, test} from '@fixtures/Logistica/actualizacion-masiva-fixture';
 import {buildStockMasivoExcel, cleanupTempFile,} from '@helpers/Logistica/actualizacion-masiva-excel.helper';
 
-/**
- * Índice de almacén en el wizard de stock (0 = primer checkbox del codegen).
- * Override: STOCK_WAREHOUSE_INDEX=1
- */
 function indiceAlmacenStock(): number {
     const raw = process.env.STOCK_WAREHOUSE_INDEX;
     if (raw === undefined || raw === '') return 0;
@@ -48,7 +44,7 @@ test.describe('PS-7 | Actualización masiva — stock', {tag: ['@logistica', '@p
             await listaItems.searchByCode(primerCodigo);
             await itemDetail.abrirMenuAccionesItem();
             await itemDetail.clickVisualizarItem();
-            // const modal = page.locator('.v-modal');
+            
         });
 
         cleanupTempFile(tempPath);

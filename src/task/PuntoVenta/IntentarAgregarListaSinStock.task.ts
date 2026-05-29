@@ -1,0 +1,18 @@
+import {Page} from '@playwright/test';
+import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
+import {ALMACENES_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import type {ItemVenta} from '@helpers/PuntoVenta/emision.types';
+
+export const IntentarAgregarListaSinStock = (item: ItemVenta) => {
+    const fn = async (page: Page): Promise<void> => {
+        const emision = new EmisionPage(page);
+        
+        await page.getByText(ALMACENES_PV.AUTO).first().click();
+        await page.getByText(ALMACENES_PV.VENTAS).click();
+        
+        await emision.buscarItem(item.codigo);
+        await emision.seleccionarItem(item.nombre);
+    };
+    fn.displayName = 'Intentar agregar lista sin stock';
+    return fn;
+};

@@ -1,6 +1,7 @@
 import {expect, type Page} from '@playwright/test';
 import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
 import {throwFunctionalError} from '../../utils/functional-error';
+import {esperarDebounce, esperarCargaOverlay} from '../../utils/wait-helpers';
 
 export class StockVerificacionPage {
     constructor(private readonly page: Page) {
@@ -11,6 +12,11 @@ export class StockVerificacionPage {
             const searchInput = this.page.getByRole('textbox', {name: 'Buscar por nombre, código o c'});
             await searchInput.click();
             await searchInput.fill(codigo);
+
+            await esperarDebounce(this.page, 1000, 'Debounce al buscar en tabla de stock');
+            
+            await esperarCargaOverlay(this.page);
+            
             await expect(this.page.getByRole('table').getByText(codigo).first()).toBeVisible({timeout: 15000});
         } catch (error) {
             await throwFunctionalError({
@@ -26,7 +32,7 @@ export class StockVerificacionPage {
         await this.page
             .locator('div')
             .filter({hasText: /^Varios\*$/})
-            .first() // Prevenir strict mode violation
+            .first() 
             .click();
     }
 
@@ -39,7 +45,7 @@ export class StockVerificacionPage {
     }
 
     async clickVariosTexto(): Promise<void> {
-        await this.page.getByText('Varios*').first().click(); // Prevenir strict mode violation
+        await this.page.getByText('Varios*').first().click(); 
     }
 
     async clickAlmacenEnTabla(nombre: string): Promise<void> {
@@ -58,10 +64,15 @@ export class StockVerificacionPage {
         await this.page.getByText(nombre).click();
     }
 
-    async abrirKardexDesdeStock(): Promise<Page> {
+    async abrirKardexDesdeStock(codigo?: string): Promise<Page> {
         try {
             const popupPromise = this.page.waitForEvent('popup');
-            await this.page.getByRole('button', {name: 'Ver Kardex'}).first().click();
+            if (codigo) {
+                await this.page.getByRole('row', { name: new RegExp(codigo, 'i') })
+                    .getByRole('button', {name: 'Ver Kardex'}).first().click();
+            } else {
+                await this.page.getByRole('button', {name: 'Ver Kardex'}).first().click();
+            }
             const kardexPage = await popupPromise;
             await kardexPage.waitForLoadState('domcontentloaded');
             await kardexPage.waitForURL(/kardex/i, {timeout: 15_000});

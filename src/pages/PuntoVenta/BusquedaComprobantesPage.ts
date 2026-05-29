@@ -1,18 +1,3 @@
-/**
- * Page Object para la pantalla "Búsqueda de comprobantes".
- *
- * Pantalla accesible desde: Ventas y compras → Búsqueda de comprobantes.
- * Contiene la grilla de comprobantes emitidos con acciones por comprobante:
- *   - Bitácora (historial del comprobante)
- *   - Ver comprobante (abre popup con PDF/detalle)
- *
- * Locators reales del codegen:
- *   - Dropdown comprobante: .body-options > .cmp-dropdown (primer elemento)
- *   - Bitácora: getByText('Bitácora')
- *   - Ver comprobante: getByRole('link', { name: 'Ver comprobante' })
- *   - Cerrar drape: .drape.is-open > .button-close > .icon
- *   - Icono base (alternativa dropdown): .v-icon-base > .icon
- */
 import {expect, type Page} from '@playwright/test';
 import type {EmisionResult} from '../../helpers/PuntoVenta/emision.types';
 import {EstadoSunat} from '../../helpers/PuntoVenta/sunat-estados.helper';
@@ -26,16 +11,10 @@ export class BusquedaComprobantesPage {
     constructor(private readonly page: Page) {
     }
 
-    // ─── Navegación ───────────────────────────────────────────────────
-
     async salirDeCaja(): Promise<void> {
         await this.page.locator('.v-icon-back .icon').click();
     }
 
-    /**
-     * Navega a Búsqueda de comprobantes desde la caja.
-     * Si se pasa un EmisionResult, filtra automáticamente por correlativo.
-     */
     async navegarABusquedaComprobantes(emision?: EmisionResult | null): Promise<void> {
         await this.salirDeCaja();
         await this.page.getByText('Ventas y compras').click();
@@ -46,12 +25,6 @@ export class BusquedaComprobantesPage {
         }
     }
 
-    // ─── Filtros avanzados + intercepción de Consultas ────────────────
-
-    /**
-     * Último comprobante obtenido de la API de Consultas.
-     * Se llena al filtrar por correlativo — contiene IdestadoSunat.
-     */
     public ultimoComprobanteConsulta: {
         idEstadoSunat: number;
         estadoDescripcion: string;
@@ -60,30 +33,23 @@ export class BusquedaComprobantesPage {
         idComprobanteERP: number;
     } | null = null;
 
-    /**
-     * Abre filtros avanzados, busca por correlativo e intercepta la
-     * response de DocumentosContables/Consultas para capturar el estado SUNAT.
-     */
     async filtrarPorCorrelativo(correlativo: string): Promise<void> {
-        // Abrir filtros avanzados
         await this.page.locator(
             '[id="pv_comprobantes_cmp-filtros-comprobantes:state_v-button-filter-border:activar-filtros-avanzados"]',
         ).click();
 
-        // Preparar intercepción de la API de Consultas
         const consultaPromise = this.page.waitForResponse(
             (resp) => resp.url().includes('DocumentosContables/Consultas') && resp.status() === 200,
             {timeout: 15_000},
         );
 
-        // Llenar el input de correlativo (dispara la búsqueda)
         const inputCorrelativo = this.page.locator(
             '[id="pv_comprobantes_cmp-grid-comprobantes-header:header-grilla_v-input:Correlativo"]',
         );
         await inputCorrelativo.click();
         await inputCorrelativo.fill(correlativo);
+        await inputCorrelativo.press('Enter'); 
 
-        // Capturar la respuesta de Consultas
         try {
             const response = await consultaPromise;
             const body = await response.json();
@@ -112,7 +78,6 @@ export class BusquedaComprobantesPage {
     async filtrarAdelanto(emision: EmisionResult | null): Promise<void> {
         if (!emision) throw new Error('No hay emisión capturada para filtrar adelanto');
 
-        // Esperar que el modal cargue las series antes de interactuar
         const seriesPromise = this.page.waitForResponse(
             (resp) =>
                 resp.url().includes('entidades/series') &&
@@ -121,7 +86,6 @@ export class BusquedaComprobantesPage {
             {timeout: 15_000},
         );
 
-        // Esperar a que el modal esté listo
         await seriesPromise;
 
         const input = this.page.locator(
@@ -136,32 +100,27 @@ export class BusquedaComprobantesPage {
         console.log(`   Adelanto filtrado: correlativo ${emision.correlativo}`);
     }
 
-
-    // Dentro de BusquedaComprobantes (o como se llame tu Page Object)
     async filtrarAdelantoFactura(emision: EmisionResult | null): Promise<void> {
         if (!emision) throw new Error('No hay emisión capturada para filtrar adelanto');
 
-        // Seleccionar serie F001
         await this.page.locator('[id="_div:dropdown"]').getByText('Serie').click();
         await this.page.locator('[id*="opcion-serie"]').filter({hasText: 'F001'}).first().click();
 
-        // Buscar por correlativo
         const inputCorrelativo = this.page.getByRole('textbox', {name: 'Correlativo'});
         await inputCorrelativo.click();
         await inputCorrelativo.fill(emision.correlativo);
 
-        // NUEVO: esperamos a que la grilla reaccione al filtro.
-        // No asumimos velocidad de red — esperamos el resultado real.
-        // Usamos el correlativo porque es el dato más específico que acabamos
-        // de filtrar, y la fila lo contendrá sí o sí si el filtro funcionó.
-        const referenciaUnica = `F001-${emision.correlativo}`
-        const filaEsperada = this.page.locator('tr').filter({hasText: referenciaUnica});
+        await inputCorrelativo.press('Enter');
+
+        const referenciaUnica = `F001-${emision.correlativo}`;
+        const filaEsperada = this.page.locator('tr').filter({hasText: referenciaUnica}).first();
         await filaEsperada.waitFor({state: 'visible', timeout: 15_000});
 
-        console.log(`   Adelanto factura filtrado: F001-${emision.correlativo}`);
-    }
+        const checkbox = this.page.locator('[id="pv_punto-venta_cmp_venta_pedido:modals_cmp-gestion-adelantos_v-checkbox:agregar-adelanto-0"]');
+        await checkbox.click({force: true});
 
-    // ─── Validación de estado SUNAT ───────────────────────────────────
+        console.log(`   Adelanto factura filtrado y seleccionado: F001-${emision.correlativo}`);
+    }
 
     async validarEstadoSunat(): Promise<'EXITOSO' | 'TRANSITORIO' | 'DEFINITIVO'> {
         try {
@@ -183,13 +142,11 @@ export class BusquedaComprobantesPage {
                 console.log(`   SUNAT: ${compId} → procesando (estado ${idEstadoSunat}). Esperando 8s...`);
                 await this.page.waitForTimeout(8000);
 
-                // Re-consultar la API
                 const consultaPromise = this.page.waitForResponse(
                     (resp) => resp.url().includes('DocumentosContables/Consultas') && resp.status() === 200,
                     {timeout: 15_000},
                 );
 
-                // Disparar la búsqueda nuevamente
                 const inputCorrelativo = this.page.locator(
                     '[id="pv_comprobantes_cmp-grid-comprobantes-header:header-grilla_v-input:Correlativo"]',
                 );
@@ -233,8 +190,6 @@ export class BusquedaComprobantesPage {
         }
     }
 
-    // ─── Dropdown del comprobante ─────────────────────────────────────
-
     async abrirDropdownPrimerComprobante(): Promise<void> {
         await this.page.locator('.body-options > .cmp-dropdown').first().click();
     }
@@ -243,7 +198,6 @@ export class BusquedaComprobantesPage {
         await this.page.locator('.v-icon-base > .icon').first().click();
     }
 
-    // ─── Bitácora ─────────────────────────────────────────────────────
     async abrirBitacora(): Promise<void> {
         await this.page.getByText('Bitácora').click();
     }
@@ -257,32 +211,13 @@ export class BusquedaComprobantesPage {
         await this.abrirBitacora();
     }
 
-    // ─── Polling de Bitácora ──────────────────────────────────────────
-    //
-    // Los servicios backend (Logística/stock vía Kafka, SUNAT/CDR,
-    // Contabilidad) procesan de forma asíncrona. La bitácora carga su
-    // contenido al abrirse, así que si el servicio aún no terminó,
-    // hay que CERRAR → ESPERAR → REABRIR para ver la nueva entrada.
-    //
-
-    /** Opciones de polling para bitácora */
     private static readonly BITACORA_POLL = {
-        /** Intervalo entre reintentos (ms) */
+        
         interval: 5_000,
-        /** Timeout máximo de espera (ms) — cubre Kafka + SUNAT + Logística */
+        
         timeout: 90_000,
     };
 
-    /**
-     * Espera a que una entrada aparezca en la bitácora, recargándola entre intentos.
-     *
-     * Flujo: verificar → si no existe → cerrar bitácora → esperar → reabrir → verificar
-     * Repite hasta encontrar el texto o alcanzar el timeout.
-     *
-     * @param patron - RegExp o string a buscar en la bitácora
-     * @param descripcion - Nombre legible para logs/errores
-     * @param options - Override de interval/timeout
-     */
     private async esperarEntradaBitacora(
         patron: RegExp | string,
         descripcion: string,
@@ -297,15 +232,12 @@ export class BusquedaComprobantesPage {
             ? this.page.getByText(patron).first()
             : this.page.getByText(patron).first();
 
-        // Primer intento rápido (la bitácora ya está abierta)
         const visible = await locator.isVisible().catch(() => false);
         if (visible) return;
 
-        // Polling con recarga
         while (Date.now() < deadline) {
             await new Promise(r => setTimeout(r, interval));
 
-            // Cerrar y reabrir bitácora para refrescar
             await this.cerrarBitacora();
             await this.abrirBitacoraDelPrimerComprobante();
 
@@ -317,16 +249,11 @@ export class BusquedaComprobantesPage {
             console.log(`   Bitácora: esperando "${descripcion}"...`);
         }
 
-        // Último intento con assert para generar error descriptivo
         await expect(locator).toBeVisible({
             timeout: 5_000,
         });
     }
 
-    /**
-     * Valida que la bitácora muestre CDR aceptado (respuesta SUNAT).
-     * Polling: SUNAT puede tardar 30-60s en responder.
-     */
     async validarCDRAceptado(): Promise<void> {
         await this.esperarEntradaBitacora(
             /ha sido aceptada/i,
@@ -334,10 +261,6 @@ export class BusquedaComprobantesPage {
         );
     }
 
-    /**
-     * Valida que la bitácora muestre descargo de inventarios.
-     * Polling: Logística procesa vía Kafka, puede tardar 15-60s.
-     */
     async validarDescargoInventarios(): Promise<void> {
         await this.esperarEntradaBitacora(
             /Se descargaron los Inventarios/i,
@@ -345,12 +268,8 @@ export class BusquedaComprobantesPage {
         );
     }
 
-    /**
-     * Valida que la bitácora NO muestre descargo de inventarios.
-     * Usado en adelantos. Espera un tiempo prudente para confirmar ausencia.
-     */
     async validarSinDescargoInventarios(): Promise<void> {
-        // Esperar un tiempo razonable para que si fuera a aparecer, ya habría aparecido
+        
         await new Promise(r => setTimeout(r, 10_000));
         await this.cerrarBitacora();
         await this.abrirBitacoraDelPrimerComprobante();
@@ -359,10 +278,6 @@ export class BusquedaComprobantesPage {
         ).not.toBeVisible({timeout: 5_000});
     }
 
-    /**
-     * Valida "Comprobante Emitido" en la bitácora de forma inteligente.
-     * Solo hace polling si el estado SUNAT es exitoso.
-     */
     async validarComprobanteEmitido(estadoSunat: 'EXITOSO' | 'TRANSITORIO' | 'DEFINITIVO' = 'EXITOSO'): Promise<void> {
         await expect(
             this.page.getByText('Comprobante Emitido').first(),
@@ -384,7 +299,6 @@ export class BusquedaComprobantesPage {
 
     }
 
-    /** Valida "XML Generado" con polling */
     async validarXMLGenerado(): Promise<void> {
         await this.esperarEntradaBitacora(
             'XML Generado',
@@ -393,7 +307,6 @@ export class BusquedaComprobantesPage {
         );
     }
 
-    /** Valida "PDF Generado" con polling */
     async validarPDFGenerado(): Promise<void> {
         await this.esperarEntradaBitacora(
             'PDF Generado',
@@ -402,13 +315,6 @@ export class BusquedaComprobantesPage {
         );
     }
 
-    // ─── Ver comprobante (popup) ──────────────────────────────────────
-
-    /**
-     * Abre "Ver comprobante" en nueva pestaña (popup).
-     * Previamente debe abrirse el dropdown del comprobante.
-     * @returns La Page del popup abierto
-     */
     async abrirVerComprobante(): Promise<Page> {
         await this.abrirDropdownPrimerComprobante();
         const popupPromise = this.page.waitForEvent('popup');
@@ -416,31 +322,23 @@ export class BusquedaComprobantesPage {
         return popupPromise;
     }
 
-    // ─── Validaciones en popup ────────────────────────────────────────
-
-    /** Verifica leyenda de retención en popup del comprobante */
     async validarRetencionEnPopup(popupPage: Page, porcentaje: string): Promise<void> {
         await expect(
             popupPage.getByText(`ESTE DOCUMENTO ESTA AFECTO A RETENCION DEL ${porcentaje}%`),
         ).toBeVisible({timeout: 10_000});
     }
 
-    /** Verifica leyenda de detracción en popup del comprobante */
     async validarDetraccionEnPopup(popupPage: Page): Promise<void> {
         await expect(
             popupPage.getByText('OPERACIÓN SUJETA AL SISTEMA'),
         ).toBeVisible({timeout: 10_000});
     }
 
-    /** Verifica que sea factura de adelanto en popup */
     async validarFacturaAdelantoEnPopup(popupPage: Page): Promise<void> {
         await expect(
             popupPage.getByText('Factura de adelanto'),
         ).toBeVisible({timeout: 10_000});
     }
-
-    /** Verifica que el popup muestre adelantos aplicados */
-
 
     async validarAdelantosAplicadosEnPopup(popupPage: Page): Promise<void> {
         const adelantos = popupPage.getByText('Adelantos aplicados').nth(1);
@@ -449,17 +347,14 @@ export class BusquedaComprobantesPage {
         await expect(adelantos.or(comprobantes)).toBeVisible({timeout: 10000});
     }
 
-    /** Acciones extra dentro de la ventana de ver comprobante */
     async clickAccionesExtra(popupPage: Page): Promise<void> {
         await popupPage.getByRole('button', {name: 'Acciones extra'}).click();
     }
 
-    /** Datos opcionales dentro del popup */
     async clickDatosOpcionales(popupPage: Page): Promise<void> {
         await popupPage.getByText('Datos opcionales').click();
     }
 
-    /** Cierra drape en popup */
     async cerrarDrapePopup(popupPage: Page): Promise<void> {
         await popupPage.locator('.drape.is-open > .button-close > .icon').click();
     }

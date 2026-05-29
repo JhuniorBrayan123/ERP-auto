@@ -3,16 +3,6 @@ import {getRandomAffectationType} from '@helpers/Logistica/afectacion-igv.helper
 
 test.describe('Edición de tipo de afectación de item', () => {
 
-    /**
-     * Escenario: cambiar el tipo de afectación IGV de un producto existente (código 888999).
-     *
-     * Flujo:
-     * 1. Buscar item por código → abrir edición
-     * 2. Abrir dropdown de afectación → scroll dentro del dropdown si necesario
-     * 3. Seleccionar nueva afectación (aleatoria de los 17 tipos del sistema)
-     * 4. Confirmar actualización
-     * 5. Verificar en Ver Ítem (Ventas, Compras, Bitácora) que el cambio persistió
-     */
     test('cambiar el tipo de afectación IGV de un producto existente', async ({
                                                                                   page,
                                                                                   listaItems,

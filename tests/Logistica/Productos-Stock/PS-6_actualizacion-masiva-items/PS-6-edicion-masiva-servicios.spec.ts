@@ -47,7 +47,7 @@ test.describe('PS-6 | Actualización masiva — datos de servicios', {tag: ['@lo
             itemDetail,
             primerCodigo,
             primerNombreEditado,
-            true // verificarContenidoBitacora = true for insumos and servicios
+            true 
         );
 
         cleanupTempFile(tempPath);

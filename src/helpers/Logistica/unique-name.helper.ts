@@ -1,4 +1,3 @@
-
 export type TipoItem = 'producto' | 'servicio' | 'insumo' | 'combo' | 'receta' | 'lista';
 
 export function buildUniqueItemName(tipoItem: TipoItem, descripcionBase: string): string {

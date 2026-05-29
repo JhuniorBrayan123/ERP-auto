@@ -1,5 +1,5 @@
 import {test} from '@fixtures/Logistica/movimientos-fixture';
-import {ALMACENES, ITEMS_TEST, PATRON_CODIGO, PROVEEDOR_EXISTENTE,} from '@helpers/Logistica/movimiento-data.helper';
+import {ALMACENES, ITEMS_TEST, PATRON_CODIGO, PROVEEDOR_EXISTENTE, VARIANTES} from '@helpers/Logistica/movimiento-data.helper';
 import {
     clonarMovimientoDesdeListado,
     crearIngresoBaseParaClonacion,
@@ -8,9 +8,6 @@ import {
 
 test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica', '@movimientos']}, () => {
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 28: Clonar movimiento correctamente
-    // ═══════════════════════════════════════════════════════════════
     test('Clonar movimiento correctamente @MS-6', async ({
                                                              movimientosNav,
                                                              registroMovimiento,
@@ -29,7 +26,6 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
 
         await test.step('And: verificar stock antes de clonar', async () => {
             await movimientosNav.navegarAStockProductos();
-            await page.waitForTimeout(2000)
             await stockVerificacion.buscarPorCodigo(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
             await stockVerificacion.clickVariosTexto();
         });
@@ -44,7 +40,6 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
 
         await test.step('Assert: verificar nuevo movimiento en kardex', async () => {
             await movimientosNav.navegarAKardexTotal();
-            await page.waitForTimeout(2000)
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
             await kardexVerificacion.clickKardexPorProducto();
             await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
@@ -55,9 +50,6 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
         });
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 29: Clonar movimiento con equivalencia
-    // ═══════════════════════════════════════════════════════════════
     test('Clonar movimiento con equivalencia @MS-6', async ({
                                                                 movimientosNav,
                                                                 registroMovimiento,
@@ -72,10 +64,9 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
         await crearIngresoBaseParaClonacion(
             movimientosNav, registroMovimiento, resultadoMovimiento,
             ITEMS_TEST.EQUIVALENTE_FLEX.codigo, ITEMS_TEST.EQUIVALENTE_FLEX.nombre,
-            {waitAntes: page, seleccionarEquivalente: 'Equivalente X2'},
+            {waitAntes: page, seleccionarEquivalente: VARIANTES.EQUIVALENTE_X2},
         );
 
-        // Paso especial: ver movimiento antes de clonar
         await test.step('Act: ver movimiento y luego clonar', async () => {
             await listadoMovimientos.abrirMenuAcciones();
             await listadoMovimientos.clickVerMovimiento();
@@ -86,7 +77,6 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
 
         await test.step('Assert: verificar kardex del movimiento clonado', async () => {
             await movimientosNav.navegarAKardexTotal();
-            await page.waitForTimeout(2000)
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.EQUIVALENTE_FLEX.codigo);
             await kardexVerificacion.clickVariosTexto();
             await kardexVerificacion.clickKardexPorProducto();
@@ -96,9 +86,6 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
         });
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 30: Clonar movimiento con datos adicionales
-    // ═══════════════════════════════════════════════════════════════
     test('Clonar movimiento con datos adicionales @MS-6', async ({
                                                                      movimientosNav,
                                                                      registroMovimiento,

@@ -1,21 +1,11 @@
-/**
- * Datos centralizados para tests de Movimientos de Logística.
- *
- * Contiene constantes de ítems, almacenes, motivos y datos de contacto
- * reutilizables por todos los specs del módulo.
- *
- * REGLA: no hardcodear estos valores directamente en los specs.
- */
 import type {ComprobanteData, ItemTest, ProveedorData} from './movimiento.types';
-
-// ─── Ítems de test pre-existentes en el sistema ───────────────────────
 
 export const ITEMS_TEST = {
     PRODUCTO_ESTRICTO: {codigo: '111111', nombre: 'Item para combos estricto'} as ItemTest,
     PRODUCTO_GRAVADO: {codigo: '121212', nombre: 'item para combos gravado'} as ItemTest,
     VARIANTE_FLEXIBLE: {codigo: '313131', nombre: 'item con variante flexible'} as ItemTest,
     EQUIVALENTE_FLEX: {codigo: '202020', nombre: 'item equivalente flexible'} as ItemTest,
-    EQUIVALENTE_EST: {codigo: '101010', nombre: 'item equivalente estricto'} as ItemTest,
+    EQUIVALENTE_EST: {codigo: '101010', nombre: 'item equivalente estricto gravado'} as ItemTest,
     INSUMO_FLEXIBLE: {codigo: '666444', nombre: 'nuevo insumo flexible'} as ItemTest,
     INSUMO_TEST1: {codigo: '464646', nombre: 'Nuevo insumo test1'} as ItemTest,
     VARIANTE_ESTRICTO: {codigo: '131313', nombre: 'item variante estricto gravado'} as ItemTest,
@@ -24,8 +14,6 @@ export const ITEMS_TEST = {
     MASIVO_INSUMO: {codigo: 'EDINS002', nombre: ''} as ItemTest,
 
 };
-
-// ─── Variantes ────────────────────────────────────────────────────────
 
 export const VARIANTES = {
     V1_FLEXIBLE: {
@@ -47,15 +35,10 @@ export const VARIANTES = {
     EQUIVALENTE_X2: 'Equivalente X2',
 };
 
-
-// ─── Almacenes ────────────────────────────────────────────────────────
-
 export const ALMACENES = {
     AUTO: 'ALMACEN-AUTO',
     VENTAS: 'ALMACÉN DE VENTAS',
 };
-
-// ─── Motivos ──────────────────────────────────────────────────────────
 
 export const MOTIVOS_INGRESO = {
     ABASTECIMIENTO: 'INGRESO POR ABASTECIMIENTO',
@@ -80,18 +63,15 @@ export const MOTIVOS_TRASLADO = {
     OTROS: 'TRASLADO OTROS',
 };
 
-// ─── Datos de contacto para acciones post-registro ────────────────────
-
 export const DATOS_CONTACTO = {
     TELEFONO: '963078103',
     EMAIL: 'srqapruebaserp2@gmail.com',
 };
 
-// ─── Datos de proveedor para datos opcionales ─────────────────────────
-
 export const PROVEEDOR_TEST: ProveedorData = {
     tipoDocumento: 'DNI',
     numDocumento: '76975258',
+    razonSocial: 'JHUNIOR BRAYAN GUTIERREZ',  
     direccion: 'av-ejemplo-auto',
     telefono: '99999999',
     email: 'ejemploauto@gmail.com',
@@ -102,8 +82,6 @@ export const PROVEEDOR_EXISTENTE = {
     nombre: 'JHUNIOR BRAYAN GUTIERREZ',
 };
 
-// ─── Datos de comprobante ─────────────────────────────────────────────
-
 export const COMPROBANTE_TEST: ComprobanteData = {
     tipo: 'FACTURA',
     serie: 'F001',
@@ -111,21 +89,72 @@ export const COMPROBANTE_TEST: ComprobanteData = {
     cuc: '10101010101',
 };
 
-export const COMPROABNTE_VACIO: ComprobanteData = {
+export const COMPROBANTE_VACIO: ComprobanteData = {
     tipo: '',
     serie: '',
     numero: '',
     cuc: '',
 }
 
-// ─── Archivos Excel para movimientos masivos ──────────────────────────
+try {
+    const {cargarMapaCodigos} = require('../../factories/item-factory');
+    const mapa = cargarMapaCodigos();
+    if (mapa) {
+        console.log(`[movimiento-data] Códigos dinámicos activos (RUN_ID: ${mapa.RUN_ID})`);
+
+        const MAPA_CLAVES: Record<string, string> = {
+            'PRODUCTO_ESTRICTO': 'PRODUCTO_SIMPLE',
+            'PRODUCTO_GRAVADO': 'PRODUCTO_GRAVADO',
+            'VARIANTE_FLEXIBLE': 'ITEM_VARIANTE_FLEXIBLE',
+            'EQUIVALENTE_FLEX': 'ITEM_EQUIVALENTE',
+            'EQUIVALENTE_EST': 'ITEM_EQUIVALENTE_ESTRICTO',
+            'VARIANTE_ESTRICTO': 'ITEM_VARIANTE_ESTRICTO',
+        };
+
+        for (const [testKey, templateKey] of Object.entries(MAPA_CLAVES)) {
+            const dynamicCode = mapa[templateKey];
+            const itemTest = (ITEMS_TEST as Record<string, { codigo: string, nombre: string }>)[testKey];
+
+            if (dynamicCode && itemTest) {
+                
+                itemTest.codigo = dynamicCode.replace(/-/g, '');
+
+                const runIdSuffix = dynamicCode.split('-')[1];
+                if (runIdSuffix) {
+                    itemTest.nombre = `${itemTest.nombre} ${runIdSuffix}`;
+                }
+            }
+        }
+
+        const runId = mapa.RUN_ID as string;
+        if (runId) {
+            const codigoVarianteFlex = ITEMS_TEST.VARIANTE_FLEXIBLE.codigo;
+            const codigoVarianteEst = ITEMS_TEST.VARIANTE_ESTRICTO.codigo;
+
+            VARIANTES.V1_FLEXIBLE.codigo = `${codigoVarianteFlex}-V001`;
+            VARIANTES.V1_FLEXIBLE.nombre = `Variante 1 flexible ${runId}`;
+
+            VARIANTES.V2_FLEXIBLE.codigo = `${codigoVarianteFlex}-V002`;
+            VARIANTES.V2_FLEXIBLE.nombre = `Variante 2 flexible ${runId}`;
+
+            VARIANTES.V3_FLEXIBLE.codigo = `${codigoVarianteFlex}-V003`;
+            VARIANTES.V3_FLEXIBLE.nombre = `Variante 3 flexible ${runId}`;
+
+            VARIANTES.V3_ESTRICTO.codigo = `${codigoVarianteEst}-V003`;
+            VARIANTES.V3_ESTRICTO.nombre = `Variante 3 estricto ${runId}`;
+        }
+    } else {
+        console.warn('[movimiento-data] dynamic-items.json no encontrado. Usando códigos base estáticos.');
+        console.warn('[movimiento-data] Ejecuta PuntoVenta > pv-items primero para crear items dinámicos.');
+    }
+} catch {
+    console.warn('[movimiento-data] Error al cargar dynamic-items.json. Usando códigos base estáticos.');
+}
 
 export const EXCEL_MASIVOS = {
     INGRESOS: 'FORMATO_SUBIDA_MOVIMIENTOS_INGRESOS.xlsx',
     INGRESOS_INSUMOS: 'FORMATO_SUBIDA_MOVIMIENTOS_INGRESOS_INSUMOS.xlsx',
 };
-
-// ─── Patrones de código de movimiento ─────────────────────────────────
 
 export const PATRON_CODIGO = {
     INGRESO: /M001-I-/,

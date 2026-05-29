@@ -12,3 +12,16 @@ allure-report/
 .idea/
 .github/
 tests/test-1.spec.ts
+# Reportes y resultados de pruebas
+junit.xml
+results.json
+report/
+_codegen/
+AGENTS.md
+exploration.md
+.atl/
+.opencode/
+coverage/
+openspec/
+config/environment.env
+docs/

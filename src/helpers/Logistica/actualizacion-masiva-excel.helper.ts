@@ -13,11 +13,11 @@ import {
 
 export interface ActualizacionDatosExcelResult {
   tempFilePath: string;
-  /** Sufijo de ejecución (Lima); útil para buscar en grilla */
+  
   textoBusqueda: string;
-  /** Primer código de la primera fila de datos (clave estable) */
+  
   primerCodigo: string;
-  /** Nombre/descripción editada de la primera fila (con sufijo) */
+  
   primerNombreEditado: string;
 }
 
@@ -27,9 +27,6 @@ export interface StockMasivoExcelResult {
   stockValue: number;
 }
 
-/**
- * Quita sufijos de ejecuciones anteriores para no apilar marcas al re-leer celdas ya tocadas.
- */
 export function stripPriorAutomationSuffixes(valor: string): string {
   let s = valor.trim();
   for (let i = 0; i < 8; i++) {
@@ -67,10 +64,6 @@ function findColumnIndex(headerRow: ExcelJS.Row, header: string): number {
   return idx;
 }
 
-/**
- * Genera Excel temporal desde la plantilla en src/data: solo nombres con sufijo de edición.
- * Siempre lee el archivo original de `src/data` (no el temporal).
- */
 export async function buildActualizacionDatosExcel(
   tipo: TipoActualizacionDatos,
 ): Promise<ActualizacionDatosExcelResult> {
@@ -131,9 +124,6 @@ export async function buildActualizacionDatosExcel(
   };
 }
 
-/**
- * Excel de stock: escribe un número en la columna STOCK desde la plantilla original.
- */
 export async function buildStockMasivoExcel(): Promise<StockMasivoExcelResult> {
   const cfg = STOCK_MASIVO_CONFIG;
   const srcPath = resolveStockExcelPath();
@@ -183,6 +173,6 @@ export function cleanupTempFile(filePath: string): void {
       fs.unlinkSync(filePath);
     }
   } catch {
-    /* ignore */
+    
   }
 }
