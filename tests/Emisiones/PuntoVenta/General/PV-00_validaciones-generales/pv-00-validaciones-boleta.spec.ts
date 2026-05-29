@@ -3,7 +3,6 @@ import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
 test.describe('PV-00 | Validaciones generales de emisión — Boleta @PV-00', {tag: ['@punto-venta', '@boleta', '@validaciones']}, () => {
 
-    // ─── Bloquear boleta sin cliente >= 700 (NO va a búsqueda) ────────
     test('Bloquear emisión de boleta sin cliente para montos >= 700 @PV-00.1', async ({
                                                                                           cajaPage, emisionPage, page,
                                                                                       }) => {
@@ -32,7 +31,6 @@ test.describe('PV-00 | Validaciones generales de emisión — Boleta @PV-00', {t
         });
     });
 
-    // ─── Bloquear boleta con fecha fuera de rango (NO va a búsqueda) ──
     test('Bloquear emisión de boleta con fecha fuera del rango permitido @PV-00.2', async ({
                                                                                                cajaPage,
                                                                                                emisionPage,

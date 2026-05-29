@@ -28,7 +28,7 @@ export class ListaItemsPage {
             .locator('[id="cmn_cmp-overload:loading"]')
             .waitFor({state: 'visible', timeout: 5_000})
             .catch(() => {
-            }); // Puede no aparecer si la carga fue instantánea
+            }); 
 
         await this.page
             .locator('[id="cmn_cmp-overload:loading"]')
@@ -94,30 +94,21 @@ export class ListaItemsPage {
     }
 
     async exportarItems(): Promise<import('@playwright/test').Download> {
-        // 1. Primero abrimos el menú de opciones
+        
         await this.page
             .locator('[id="lgt_cmp-items_cmp-datos-items.cmp-option-button:options"]')
             .click();
 
-        // 2. Esperamos a que la opción de exportar sea visible
         const exportarBtn = this.page.locator('[id="lgt_cmp-items_cmp-datos-items.li:exportar-sin-filtro"]');
         await exportarBtn.waitFor({state: 'visible', timeout: 10_000});
 
-        // 3. AHORA SÍ: Empezamos a escuchar el evento de descarga justo antes del clic
-        // Le damos un buen margen de tiempo (ej. 60s) en caso de que la BD tenga muchos ítems
         const downloadPromise = this.page.waitForEvent('download', {timeout: 180_000});
 
-        // 4. Hacemos clic para desencadenar la descarga
         await exportarBtn.click();
 
-        // 5. Retornamos la promesa (tu test hará el await sobre esto)
         return downloadPromise;
     }
 
-    /**
-     * Busca un ítem por código y lo elimina desde el menú de acciones.
-     * Retorna true si se eliminó, false si no se encontró.
-     */
     async eliminarItemPorCodigo(codigo: string): Promise<boolean> {
         await this.searchByCode(codigo);
 
@@ -132,20 +123,16 @@ export class ListaItemsPage {
             return false;
         }
 
-        // Abrir menú de acciones
         await this.openActionsMenu();
 
-        // Buscar opción de eliminar por texto
         const eliminarBtn = this.page.getByText(/eliminar/i).first();
         await eliminarBtn.click();
 
-        // Confirmar eliminación si aparece modal de confirmación
         const btnConfirmar = this.page.getByRole('button', {name: /confirmar|sí|eliminar|accept/i});
         if (await btnConfirmar.isVisible({timeout: 3_000}).catch(() => false)) {
             await btnConfirmar.click();
         }
 
-        // Esperar a que se complete la eliminación
         await this.page.locator('[id="cmn_cmp-overload:loading"]')
             .waitFor({state: 'visible', timeout: 3_000})
             .catch(() => {

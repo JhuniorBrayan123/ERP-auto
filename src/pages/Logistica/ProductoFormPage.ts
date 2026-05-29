@@ -22,7 +22,6 @@ export class ProductoFormPage extends ItemFormBasePage {
         await inputPrecioCompra.fill(precioCompra);
     }
 
-    // llenar cidgo es nuevo
     async llenarCodigo(codigo: number): Promise<void> {
         await this.page.getByText("Automático").first().click();
         await this.page.getByText("Manual").first().click();
@@ -117,7 +116,6 @@ export class ProductoFormPage extends ItemFormBasePage {
         await inputMonto.fill(config.monto);
     }
 
-    //
     async esperarLoader(): Promise<void> {
         await this.page
             .locator('[id="cmn_cmp-overload:loading"]')
@@ -136,32 +134,23 @@ export class ProductoFormPage extends ItemFormBasePage {
     ): Promise<void> {
         await this.irATabInfoAdicional();
 
-        // 1. Seleccionar Categoría
         await this.page.locator(`.subcategoria > ${this.DROPDOWN_ARROW}`).first().click();
         await this.page.getByText(categoria, { exact: true }).click();
         await this.esperarLoader();
 
-        // 2. Seleccionar Subcategoría
         await this.page.locator(`div:nth-child(2) > ${this.DROPDOWN_ARROW}`).click();
         await this.page.getByText(subcategoria, { exact: true }).click();
         await this.esperarLoader();
 
-        // 3. Seleccionar Marca
         await this.page.locator(`div:nth-child(3) > ${this.DROPDOWN_ARROW}`).click();
         await this.page.getByText(marca, { exact: true }).click();
         await this.esperarLoader();
     }
 
-    // ─── Tab Variantes ────────────────────────────────────────────────
-
     async irATabVariantes(): Promise<void> {
         await this.page.getByText('Variantes(Opcional)').click();
     }
 
-    /**
-     * Crea un atributo de variante con título y opciones (máximo 3).
-     * Flujo UI: "Añadir atributo" → "Crear nuevo atributo" → título + opciones → "Crear atributo"
-     */
     async crearAtributoVariante(titulo: string, opciones: string[]): Promise<void> {
         await this.page.getByText('Añadir atributo').click();
         await this.page.getByRole('button', { name: 'Crear nuevo atributo' }).click();
@@ -177,17 +166,10 @@ export class ProductoFormPage extends ItemFormBasePage {
         }
 
         await this.page.getByRole('button', { name: 'Crear atributo' }).click();
-        // Cerrar modal de confirmación
+        
         await this.page.locator('.v-modal > div').first().click();
     }
 
-    /**
-     * Añade una nueva variante, le cambia el nombre y opcionalmente configura su stock.
-     *
-     * @param indice Índice base-0 de la variante (0 = primera, 1 = segunda, etc.)
-     * @param nombre Nombre de la variante (ej: "Variante 1 {estricto}")
-     * @param stock Cantidades de stock max/min (opcional — solo si tiene control de stock)
-     */
     async agregarVariante(
         indice: number,
         nombre: string,
@@ -195,13 +177,11 @@ export class ProductoFormPage extends ItemFormBasePage {
     ): Promise<void> {
         await this.page.getByText('Añadir una nueva variante').click();
 
-        // Abrir dropdown de opciones de la variante (cada card tiene el mismo ID)
         const dropdownOpciones = this.page.locator(
             '[id="lgt_reg-item_v-tab:variantes-item_cmp-dropdown:opciones"]',
         ).nth(indice);
         await dropdownOpciones.click();
 
-        // Cambiar nombre (botón dentro del dropdown)
         await this.page.locator(
             '[id="lgt_reg-item_v-tab:variantes-item_cmp-dropdown:btn-cambiar-nombre"]',
         ).nth(indice).click();
@@ -212,12 +192,10 @@ export class ProductoFormPage extends ItemFormBasePage {
         await inputNombreVariante.click();
         await inputNombreVariante.fill(nombre);
 
-        // Confirmar edición del nombre
         await this.page.locator(
             '[id="lgt_reg-item_v-tab:variantes-item_combinacion-variantes-item-list:item_div:btn-editar-combinacion"]',
         ).click();
 
-        // Administrar stock si se proporcionó
         if (stock) {
             await dropdownOpciones.click();
             await this.page.locator(
@@ -236,13 +214,6 @@ export class ProductoFormPage extends ItemFormBasePage {
         }
     }
 
-    // ─── Tab Equivalencias ────────────────────────────────────────────
-
-    /**
-     * Crea una equivalencia con nombre, factor, tipo de afectación y precios.
-     *
-     * @param config.esPrimera true para la primera equivalencia (usa .arc), false para las siguientes (usa "Agregar equivalencia")
-     */
     async crearEquivalencia(config: {
         nombre: string;
         factor: number;
@@ -251,30 +222,26 @@ export class ProductoFormPage extends ItemFormBasePage {
         precioCompra: string;
         esPrimera: boolean;
     }): Promise<void> {
-        // Abrir drape de equivalencia
+        
         if (config.esPrimera) {
             await this.page.getByText('AQUÍ', { exact: true }).first().click();
         } else {
             await this.page.getByRole('button', { name: 'Agregar equivalencia' }).click();
         }
 
-        // Nombre
         const inputNombre = this.page.getByRole('textbox', { name: 'Digita el nombre de la' });
         await inputNombre.click();
         await inputNombre.fill(config.nombre);
 
-        // Factor: poner el valor directamente en el input
         const inputFactor = this.page.locator(
             '[id="lgt_reg-item_v-drape:gestion-equivalencia_v-step:cantidad"]',
         );
         await inputFactor.click();
         await inputFactor.fill(String(config.factor));
 
-        // Tipo de afectación IGV
         await this.page.locator('div').filter({ hasText: /^Seleccionar$/ }).nth(2).click();
         await this.page.getByText(config.tipoAfectacion).last().click();
 
-        // Precios
         const inputPrecioVenta = this.page.getByRole('textbox', { name: 'Monto final' }).first();
         await inputPrecioVenta.click();
         await inputPrecioVenta.fill(config.precioVenta);
@@ -283,7 +250,6 @@ export class ProductoFormPage extends ItemFormBasePage {
         await inputPrecioCompra.click();
         await inputPrecioCompra.fill(config.precioCompra);
 
-        // Crear
         await this.page.getByRole('button', { name: 'Crear Equivalencia' }).click();
     }
 

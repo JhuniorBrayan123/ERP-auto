@@ -12,20 +12,18 @@ export const IntentarAgregarSobrepasandoStock = (item: ItemVenta, clicksExtra: n
         const blocker = page.locator('[id="cmn_cmp-overscreen:block"]');
 
         for (let i = 0; i < clicksExtra; i++) {
-            // Verificamos si ya salió el modal de error
+            
             if (await errorModal.isVisible()) break;
 
-            // Si hay un overscreen (bloqueo/carga) activo, esperamos brevemente a que desaparezca
             await blocker.waitFor({ state: 'hidden', timeout: 2000 }).catch(() => {});
 
-            // Verificamos de nuevo por si el modal de error apareció mientras esperábamos
             if (await errorModal.isVisible()) break;
 
             try {
-                // Click con timeout corto para que si un overlay intercepta el evento no espere 35s
+                
                 await page.locator('.image-default').first().click({ timeout: 1500 });
             } catch (e) {
-                // Si el click fue interceptado, verificamos si es porque el modal ya apareció
+                
                 if (await errorModal.isVisible()) {
                     break;
                 }

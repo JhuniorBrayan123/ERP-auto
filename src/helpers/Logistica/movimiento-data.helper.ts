@@ -1,14 +1,4 @@
-/**
- * Datos centralizados para tests de Movimientos de Logística.
- *
- * Contiene constantes de ítems, almacenes, motivos y datos de contacto
- * reutilizables por todos los specs del módulo.
- *
- * REGLA: no hardcodear estos valores directamente en los specs.
- */
 import type {ComprobanteData, ItemTest, ProveedorData} from './movimiento.types';
-
-// ─── Ítems de test pre-existentes en el sistema ───────────────────────
 
 export const ITEMS_TEST = {
     PRODUCTO_ESTRICTO: {codigo: '111111', nombre: 'Item para combos estricto'} as ItemTest,
@@ -24,8 +14,6 @@ export const ITEMS_TEST = {
     MASIVO_INSUMO: {codigo: 'EDINS002', nombre: ''} as ItemTest,
 
 };
-
-// ─── Variantes ────────────────────────────────────────────────────────
 
 export const VARIANTES = {
     V1_FLEXIBLE: {
@@ -47,15 +35,10 @@ export const VARIANTES = {
     EQUIVALENTE_X2: 'Equivalente X2',
 };
 
-
-// ─── Almacenes ────────────────────────────────────────────────────────
-
 export const ALMACENES = {
     AUTO: 'ALMACEN-AUTO',
     VENTAS: 'ALMACÉN DE VENTAS',
 };
-
-// ─── Motivos ──────────────────────────────────────────────────────────
 
 export const MOTIVOS_INGRESO = {
     ABASTECIMIENTO: 'INGRESO POR ABASTECIMIENTO',
@@ -80,19 +63,15 @@ export const MOTIVOS_TRASLADO = {
     OTROS: 'TRASLADO OTROS',
 };
 
-// ─── Datos de contacto para acciones post-registro ────────────────────
-
 export const DATOS_CONTACTO = {
     TELEFONO: '963078103',
     EMAIL: 'srqapruebaserp2@gmail.com',
 };
 
-// ─── Datos de proveedor para datos opcionales ─────────────────────────
-
 export const PROVEEDOR_TEST: ProveedorData = {
     tipoDocumento: 'DNI',
     numDocumento: '76975258',
-    razonSocial: 'JHUNIOR BRAYAN GUTIERREZ',  // Fallback si SUNAT no responde
+    razonSocial: 'JHUNIOR BRAYAN GUTIERREZ',  
     direccion: 'av-ejemplo-auto',
     telefono: '99999999',
     email: 'ejemploauto@gmail.com',
@@ -102,8 +81,6 @@ export const PROVEEDOR_EXISTENTE = {
     numDocumento: '76975258',
     nombre: 'JHUNIOR BRAYAN GUTIERREZ',
 };
-
-// ─── Datos de comprobante ─────────────────────────────────────────────
 
 export const COMPROBANTE_TEST: ComprobanteData = {
     tipo: 'FACTURA',
@@ -118,12 +95,6 @@ export const COMPROBANTE_VACIO: ComprobanteData = {
     numero: '',
     cuc: '',
 }
-
-// ─── Sobrescritura dinámica de códigos ─────────────────────────────────
-// Si existe dynamic-items.json (generado por el setup), sobrescribe los
-// códigos hardcodeados con los códigos dinámicos de esta ejecución.
-// Las keys de ITEMS_TEST no coinciden con las de ITEM_TEMPLATES, así que
-// usamos un mapeo explícito.
 
 try {
     const {cargarMapaCodigos} = require('../../factories/item-factory');
@@ -145,10 +116,9 @@ try {
             const itemTest = (ITEMS_TEST as Record<string, { codigo: string, nombre: string }>)[testKey];
 
             if (dynamicCode && itemTest) {
-                // Actualizar código sin guiones para la búsqueda
+                
                 itemTest.codigo = dynamicCode.replace(/-/g, '');
 
-                // Actualizar nombre con el sufijo (ej: " 21726") para selectores exactos
                 const runIdSuffix = dynamicCode.split('-')[1];
                 if (runIdSuffix) {
                     itemTest.nombre = `${itemTest.nombre} ${runIdSuffix}`;
@@ -156,10 +126,9 @@ try {
             }
         }
 
-        // Actualizar VARIANTES con los códigos y nombres dinámicos
         const runId = mapa.RUN_ID as string;
         if (runId) {
-            const codigoVarianteFlex = ITEMS_TEST.VARIANTE_FLEXIBLE.codigo; // ya actualizado arriba
+            const codigoVarianteFlex = ITEMS_TEST.VARIANTE_FLEXIBLE.codigo;
             const codigoVarianteEst = ITEMS_TEST.VARIANTE_ESTRICTO.codigo;
 
             VARIANTES.V1_FLEXIBLE.codigo = `${codigoVarianteFlex}-V001`;
@@ -182,14 +151,10 @@ try {
     console.warn('[movimiento-data] Error al cargar dynamic-items.json. Usando códigos base estáticos.');
 }
 
-// ─── Archivos Excel para movimientos masivos ──────────────────────────
-
 export const EXCEL_MASIVOS = {
     INGRESOS: 'FORMATO_SUBIDA_MOVIMIENTOS_INGRESOS.xlsx',
     INGRESOS_INSUMOS: 'FORMATO_SUBIDA_MOVIMIENTOS_INGRESOS_INSUMOS.xlsx',
 };
-
-// ─── Patrones de código de movimiento ─────────────────────────────────
 
 export const PATRON_CODIGO = {
     INGRESO: /M001-I-/,

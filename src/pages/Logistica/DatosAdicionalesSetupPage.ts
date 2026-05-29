@@ -117,7 +117,7 @@ export class DatosAdicionalesSetupPage {
             const overlay = this.page.locator('[id="cmn_cmp-overscreen:block"].is-open');
             await overlay.waitFor({ state: 'hidden', timeout: 10_000 });
         } catch {
-            // Si no hay overlay, continuar
+            
         }
     }
 
@@ -126,7 +126,6 @@ export class DatosAdicionalesSetupPage {
         await this.page.waitForTimeout(2000);
         await this.esperarOverlay();
 
-        // Verificar si dice "Proveedor no encontrado"
         const noEncontrado = this.page.getByText('Proveedor no encontrado');
         const proveedorNoExiste = await noEncontrado.isVisible().catch(() => false);
 
@@ -137,13 +136,12 @@ export class DatosAdicionalesSetupPage {
             return false;
         }
 
-        // Si llegamos aquí, el proveedor sí existe → click en la tarjeta del panel
         const tarjeta = this.page.locator('article[id*="seleccion-entidad"]')
             .filter({ hasText: nombreEsperado }).first();
         const esVisible = await tarjeta.isVisible().catch(() => false);
 
         if (esVisible) {
-            // dispatchEvent bypasea completamente el overlay cmp-overscreen
+            
             await tarjeta.dispatchEvent('click');
             await this.page.waitForTimeout(1000);
             console.log(`      Proveedor "${nombreEsperado}" seleccionado`);
@@ -163,7 +161,6 @@ export class DatosAdicionalesSetupPage {
             return false;
         }
 
-        // No existe → CREAR (el sistema lo selecciona automáticamente al crearlo)
         console.log(`   Creando proveedor "${datos.numDocumento}"...`);
         await this.datosOpcionales.crearProveedor(datos);
         await this.page.waitForTimeout(2000);
@@ -177,7 +174,6 @@ export class DatosAdicionalesSetupPage {
         await this.page.waitForTimeout(2000);
         await this.esperarOverlay();
 
-        // Verificar si dice "Cliente no encontrado"
         const noEncontrado = this.page.getByText('Cliente no encontrado');
         const clienteNoExiste = await noEncontrado.isVisible().catch(() => false);
 
@@ -188,13 +184,12 @@ export class DatosAdicionalesSetupPage {
             return false;
         }
 
-        // Si llegamos aquí, el cliente sí existe → click en la tarjeta del panel
         const tarjeta = this.page.locator('article[id*="seleccion-entidad"]')
             .filter({ hasText: nombreEsperado }).first();
         const esVisible = await tarjeta.isVisible().catch(() => false);
 
         if (esVisible) {
-            // dispatchEvent bypasea completamente el overlay cmp-overscreen
+            
             await tarjeta.dispatchEvent('click');
             await this.page.waitForTimeout(1000);
             console.log(`      Cliente "${nombreEsperado}" seleccionado`);
@@ -214,7 +209,6 @@ export class DatosAdicionalesSetupPage {
             return false;
         }
 
-        // No existe → CREAR (el sistema lo selecciona automáticamente al crearlo)
         console.log(`   Creando cliente "${datos.numDocumento}"...`);
         await this.datosOpcionales.crearCliente(datos);
         await this.page.waitForTimeout(2000);

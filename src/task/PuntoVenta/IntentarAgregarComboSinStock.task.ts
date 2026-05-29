@@ -7,7 +7,6 @@ export const IntentarAgregarComboSinStock = (item: ItemVenta) => {
         const emision = new EmisionPage(page);
         await emision.buscarItem(item.codigo);
         await emision.seleccionarItem(item.nombre);
-        // Clicks repetidos para sobrepasar stock del componente
        
     };
     fn.displayName = 'Intentar agregar combo sin stock';

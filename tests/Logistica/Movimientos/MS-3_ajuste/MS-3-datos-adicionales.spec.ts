@@ -8,9 +8,6 @@ import {
 
 test.describe('MS-3 | Datos Adicionales de Movimientos @datos-adicionales', {tag: ['@logistica', '@movimientos']}, () => {
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 47: Registrar datos adicionales completos
-    // ═══════════════════════════════════════════════════════════════
     test('Registrar datos adicionales completos @MS-3', async ({
                                                                    movimientosNav,
                                                                    registroMovimiento,
@@ -43,9 +40,6 @@ test.describe('MS-3 | Datos Adicionales de Movimientos @datos-adicionales', {tag
         });
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 48: Agregar documento relacionado (comprobante)
-    // ═══════════════════════════════════════════════════════════════
     test('Agregar documento relacionado (comprobante) @MS-3', async ({
                                                                          movimientosNav,
                                                                          registroMovimiento,
@@ -75,9 +69,6 @@ test.describe('MS-3 | Datos Adicionales de Movimientos @datos-adicionales', {tag
         });
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 49: Valida documento incompleto (comprobante)
-    // ═══════════════════════════════════════════════════════════════
     test('Valida documento incompleto @MS-3', async ({
                                                          movimientosNav,
                                                          registroMovimiento,

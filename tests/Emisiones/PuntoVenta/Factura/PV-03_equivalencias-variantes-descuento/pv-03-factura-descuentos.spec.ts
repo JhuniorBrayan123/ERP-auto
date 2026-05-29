@@ -3,7 +3,6 @@ import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
 test.describe('PV-03 | Factura con equivalencias, variantes y descuento global @PV-03', {tag: ['@punto-venta', '@factura', '@descuento']}, () => {
 
-    // ─── Helper: seleccionar factura + cliente RUC ────────────────────
     async function setupFacturaConClienteRUC(
         comprobantePage: any, clientePage: any, page: any,
     ) {
@@ -92,7 +91,7 @@ test.describe('PV-03 | Factura con equivalencias, variantes y descuento global @
         });
 
         await test.step('Then: precuenta visible', async () => {
-            // La precuenta abre un overlay — verificar visibilidad
+            
             await expect(page.getByRole('button', {name: 'PRECUENTA'})).toBeVisible();
         });
     });

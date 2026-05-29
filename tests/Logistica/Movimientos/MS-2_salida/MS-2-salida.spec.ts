@@ -103,7 +103,6 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
                                                                         page,
                                                                     }) => {
 
-        // Inline: almacén/motivo especial con locator particular
         await test.step('Given: crear nueva salida con almacén VENTAS', async () => {
             await movimientosNav.navegarASalidas()
             await registroMovimiento.clickNuevoMovimiento();
@@ -144,7 +143,6 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
             await stockVerificacion.clickStockComprometido();
         });
 
-        // Inline: flujo único de despacho desde listado
         await test.step('When: despachar la salida desde el listado', async () => {
             await movimientosNav.navegarASalidas();
             await listadoMovimientos.abrirMenuAcciones();
@@ -181,7 +179,6 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
 
         await buscarYSeleccionarItem(registroMovimiento, ITEMS_TEST.PRODUCTO_GRAVADO.codigo, ITEMS_TEST.PRODUCTO_GRAVADO.nombre);
 
-        // Inline: datos opcionales especiales
         await test.step('When: configurar datos opcionales', async () => {
             await datosOpcionales.abrirDatosOpcionales();
             await datosOpcionales.buscarCliente(PROVEEDOR_EXISTENTE.numDocumento);

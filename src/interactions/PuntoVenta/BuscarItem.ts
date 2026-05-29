@@ -1,5 +1,3 @@
-// 📁 src/interactions/PuntoVenta/BuscarItem.ts
-// Delega a EmisionPage.buscarItem() — NO duplica locators
 import { Page } from '@playwright/test';
 import { EmisionPage } from '../../pages/PuntoVenta/EmisionPage';
 

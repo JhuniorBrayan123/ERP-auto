@@ -1,7 +1,3 @@
-/**
- * Helpers de navegación a secciones de movimientos.
- * Extraído de verificaciones-movimientos.helper.ts
- */
 import {test} from '@fixtures/Logistica/movimientos-fixture';
 import {MovimientosNavigationPage} from '@pages/Logistica/MovimientosNavigationPage';
 import {RegistroMovimientoPage} from '@pages/Logistica/RegistroMovimientoPage';

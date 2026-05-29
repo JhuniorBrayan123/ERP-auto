@@ -3,7 +3,6 @@ import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
 test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @PV-03', {tag: ['@punto-venta', '@boleta', '@descuento']}, () => {
 
-    // ─── Boleta descuento ítem monto (Patrón A: Bitácora) ─────────────
     test('Emitir boleta con descuento por ítem por monto @PV-03.1', async ({
                                                                               cajaPage,
                                                                               emisionPage,
@@ -31,7 +30,6 @@ test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @P
             await emisionPage.clickNuevaVenta();
         });
 
-        // ─── Post-emisión: Búsqueda filtrada + SUNAT + Bitácora ───
         await test.step('Then: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
             await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
         });
@@ -47,7 +45,6 @@ test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @P
         });
     });
 
-    // ─── Boleta descuento global porcentaje (Patrón A: Bitácora) ──────
     test('Emitir boleta con descuento global por porcentaje @PV-03.2', async ({
                                                                                  cajaPage,
                                                                                  emisionPage,
@@ -74,7 +71,6 @@ test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @P
             await emisionPage.clickNuevaVenta();
         });
 
-        // ─── Post-emisión: Búsqueda filtrada + SUNAT + Bitácora ───
         await test.step('Then: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
             await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
         });
@@ -90,7 +86,6 @@ test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @P
         });
     });
 
-    // ─── Boleta descuento ítem + global (Patrón B: Bitácora + Stock) ──
     test('Emitir boleta con descuento ítem porcentaje + descuento global @PV-03.3', async ({
                                                                                               cajaPage,
                                                                                               emisionPage,
@@ -126,7 +121,6 @@ test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @P
             await emisionPage.clickNuevaVenta();
         });
 
-        // ─── Post-emisión: Búsqueda filtrada + SUNAT + Bitácora ───
         await test.step('Then: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
             await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
         });
@@ -142,7 +136,6 @@ test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @P
         });
     });
 
-    // ─── Boleta con equivalencia (Patrón A: Bitácora) ─────────────────
     test('Emitir boleta con ítem con equivalencia @PV-03.4', async ({
                                                                        cajaPage,
                                                                        emisionPage,
@@ -168,7 +161,6 @@ test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @P
             await emisionPage.clickNuevaVenta();
         });
 
-        // ─── Post-emisión: Búsqueda filtrada + SUNAT + Bitácora ───
         await test.step('Then: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
             await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
         });
@@ -184,7 +176,6 @@ test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @P
         });
     });
 
-    // ─── Precuenta (NO va a búsqueda) ─────────────────────────────────
     test('Visualizar precuenta de una boleta antes de emitir @PV-03.5', async ({
                                                                                    cajaPage,
                                                                                    comprobantePage,

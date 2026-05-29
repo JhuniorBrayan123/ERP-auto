@@ -19,7 +19,9 @@ report/
 _codegen/
 AGENTS.md
 exploration.md
+.atl/
 .opencode/
+coverage/
 openspec/
 config/environment.env
 docs/

@@ -11,7 +11,7 @@ const SETUP_NAME = 'datos-adicionales';
 setup.skip(!!process.env.SKIP_DATOS_SETUP, 'Setup de datos omitido por SKIP_DATOS_SETUP');
 
 setup('preparar datos adicionales y proveedor para movimientos', async ({page}) => {
-    // ── Auto-skip si ya completado ───────────────────────────────────
+    
     if (shouldSkipSetup(SETUP_NAME)) {
         console.log(`[setup-state] ${SETUP_NAME} already completed, skipping`);
         return;
@@ -29,10 +29,8 @@ setup('preparar datos adicionales y proveedor para movimientos', async ({page}) 
     await registro.clickAgregarIngreso();
     await datosSetup.abrirPanel();
 
-    // Proveedor (entidad global, se crea una vez y aplica para todos los tipos)
     await datosSetup.asegurarProveedor(PROVEEDOR_TEST, PROVEEDOR_EXISTENTE.nombre);
 
-    // Campos adicionales de Ingresos
     await datosSetup.asegurarCampos(CAMPOS_INGRESOS);
 
     await datosSetup.guardarDatos();
@@ -66,6 +64,5 @@ setup('preparar datos adicionales y proveedor para movimientos', async ({page}) 
 
     console.log('\n [Setup] Datos adicionales, proveedor y cliente listos\n');
 
-    // ── Marcar completado ────────────────────────────────────────────
     markSetupComplete(SETUP_NAME);
 });

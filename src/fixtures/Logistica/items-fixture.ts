@@ -8,9 +8,6 @@ import { RecetaFormPage } from '../../pages/Logistica/RecetaFormPage';
 import { ListaFormPage } from '../../pages/Logistica/ListaFormPage';
 import { ItemDetailPage } from '../../pages/Logistica/ItemDetailPage';
 
-/**
- * Tipos de todas las fixtures disponibles para tests de items.
- */
 type ItemsFixtures = {
   navigationPage: NavigationPage;
   productoForm: ProductoFormPage;
@@ -22,17 +19,6 @@ type ItemsFixtures = {
   itemDetail: ItemDetailPage;
 };
 
-/**
- * Custom test con page objects pre-instanciados.
- *
- * Cada fixture:
- * 1. Navega a la URL base (ya autenticada por storageState)
- * 2. Espera a que el dashboard cargue
- * 3. Navega al módulo Productos y Stock
- * 4. Inyecta los page objects listos para usar
- *
- * Incluye afterEach para imprimir PASS/FAIL en consola.
- */
 export const test = base.extend<ItemsFixtures>({
   navigationPage: [async ({ page }, use) => {
     const nav = new NavigationPage(page);
@@ -70,10 +56,6 @@ export const test = base.extend<ItemsFixtures>({
   },
 });
 
-/**
- * afterEach hook global: Imprime PASS/FAIL en consola tras cada test.
- * Facilita la lectura de resultados en Jenkins y terminal.
- */
 test.afterEach(async ({}, testInfo) => {
   const status = testInfo.status === 'passed' ? ' PASS' : ' FAIL';
   const duracion = ((testInfo.duration ?? 0) / 1000).toFixed(1);

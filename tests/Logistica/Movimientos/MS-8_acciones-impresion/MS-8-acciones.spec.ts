@@ -4,9 +4,6 @@ import {navegarAIngresosYAbrirAccionesImpresion,} from '@helpers/Logistica/verif
 
 test.describe('MS-8 | Acciones de Movimientos @acciones', {tag: ['@logistica', '@movimientos']}, () => {
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 36: Imprimir movimiento A4
-    // ═══════════════════════════════════════════════════════════════
     test('Imprimir movimiento A4 @MS-8', async ({
                                                     movimientosNav,
                                                     listadoMovimientos,
@@ -17,9 +14,6 @@ test.describe('MS-8 | Acciones de Movimientos @acciones', {tag: ['@logistica', '
         });
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 37: Imprimir movimiento Ticket
-    // ═══════════════════════════════════════════════════════════════
     test('Imprimir movimiento Ticket @MS-8', async ({
                                                         movimientosNav,
                                                         listadoMovimientos,
@@ -30,9 +24,6 @@ test.describe('MS-8 | Acciones de Movimientos @acciones', {tag: ['@logistica', '
         });
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 38: Enviar movimiento por WhatsApp
-    // ═══════════════════════════════════════════════════════════════
     test('Enviar movimiento por WhatsApp @MS-8', async ({
                                                             movimientosNav,
                                                             listadoMovimientos,
@@ -44,9 +35,6 @@ test.describe('MS-8 | Acciones de Movimientos @acciones', {tag: ['@logistica', '
         });
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 39: Enviar movimiento por Email
-    // ═══════════════════════════════════════════════════════════════
     test('Enviar movimiento por Email @MS-8', async ({
                                                          movimientosNav,
                                                          listadoMovimientos,
@@ -60,9 +48,6 @@ test.describe('MS-8 | Acciones de Movimientos @acciones', {tag: ['@logistica', '
         });
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // Scenario 40: Descargar PDF de movimiento
-    // ═══════════════════════════════════════════════════════════════
     test('Descargar PDF de movimiento @MS-8', async ({
                                                          movimientosNav,
                                                          listadoMovimientos,

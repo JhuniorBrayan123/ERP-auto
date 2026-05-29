@@ -14,7 +14,6 @@ import {ModalPostEmision} from '@question/PuntoVenta/ModalPostEmision.question';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
 
-
 test.describe('PV-20: Búsqueda y carga de pedidos', {tag: ['@punto-venta', '@pedido', '@busqueda']}, () => {
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);
@@ -24,7 +23,6 @@ test.describe('PV-20: Búsqueda y carga de pedidos', {tag: ['@punto-venta', '@pe
     test('P5: Cargar pedido emitido previamente @PV-20.12', async ({page}) => {
         const cajero = Cajero.con(page);
 
-        // 1. Crear pedido y capturar correlativo vía API
         const pedido: EmisionOutputRef = {current: null};
         await cajero.intentaRealizar(
             SeleccionarTipoComprobante('PEDIDO'),
@@ -36,7 +34,6 @@ test.describe('PV-20: Búsqueda y carga de pedidos', {tag: ['@punto-venta', '@pe
         expect(correlativo).not.toBe('');
         await new PostEmisionPage(page).clickNuevaVenta();
 
-        // 2. Buscar y cargar el pedido por su correlativo real
         await cajero.intentaRealizar(
             SeleccionarTipoComprobante('PEDIDO'),
             CargarPedidoDesdeLista(correlativo)
@@ -49,7 +46,6 @@ test.describe('PV-20: Búsqueda y carga de pedidos', {tag: ['@punto-venta', '@pe
     test('P20: Actualizar pedido cargado @PV-20.13', async ({page}) => {
         const cajero = Cajero.con(page);
 
-        // 1. Crear pedido y capturar correlativo vía API
         const pedido: EmisionOutputRef = {current: null};
         await cajero.intentaRealizar(
             SeleccionarTipoComprobante('PEDIDO'),
@@ -61,7 +57,6 @@ test.describe('PV-20: Búsqueda y carga de pedidos', {tag: ['@punto-venta', '@pe
         expect(correlativo).not.toBe('');
         await new PostEmisionPage(page).clickNuevaVenta();
 
-        // 2. Cargar y actualizar
         await cajero.intentaRealizar(
             SeleccionarTipoComprobante('PEDIDO'),
             CargarPedidoDesdeLista(correlativo),

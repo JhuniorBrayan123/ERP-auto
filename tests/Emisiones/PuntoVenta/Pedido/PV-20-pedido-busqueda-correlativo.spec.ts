@@ -12,7 +12,6 @@ import {BotonesPedidoCargadoVisibles} from '@question/PuntoVenta/BotonesPedidoCa
 import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
 
-
 test.describe('PV-20 Pedido - Búsqueda por correlativo', {tag: ['@punto-venta', '@pedido', '@busqueda']}, () => {
 
     test.beforeEach(async ({page}) => {
@@ -22,8 +21,7 @@ test.describe('PV-20 Pedido - Búsqueda por correlativo', {tag: ['@punto-venta',
 
     test('P10: Buscar pedido por correlativo @PV-20.17', async ({page}) => {
         const cajero = Cajero.con(page);
-        
-        // 1. Create a pedido to have a valid correlativo — capturamos por API
+
         const pedido: EmisionOutputRef = { current: null };
         await cajero.intentaRealizar(
             SeleccionarTipoComprobante(TIPOS_COMPROBANTE.PEDIDO),
@@ -36,13 +34,11 @@ test.describe('PV-20 Pedido - Búsqueda por correlativo', {tag: ['@punto-venta',
         expect(correlativo).not.toBe('');
         await new PostEmisionPage(page).clickNuevaVenta();
 
-        // 2. Search it
         await cajero.intentaRealizar(
             SeleccionarTipoComprobante(TIPOS_COMPROBANTE.PEDIDO),
             BuscarPedidoPorCorrelativo(correlativo)
         );
 
-        // 3. Validations
         expect(await cajero.pregunta(BotonesPedidoCargadoVisibles())).toBe(true);
         expect(await cajero.pregunta(MensajeVisible(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre))).toBe(true);
     });

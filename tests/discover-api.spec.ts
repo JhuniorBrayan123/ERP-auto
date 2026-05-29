@@ -8,7 +8,6 @@ test('Check combos filtro', async ({ page, request }) => {
     console.log('\\n============================');
     console.log('GET /Logistica/api/v1/kardexs/total/combos/filtro');
 
-    // El endpoint q descubrimos
     const response = await request.get(`${env.apiUrl}Logistica/api/v1/kardexs/total/combos/filtro`, {
         headers: { Authorization: `Bearer ${token}` }
     });

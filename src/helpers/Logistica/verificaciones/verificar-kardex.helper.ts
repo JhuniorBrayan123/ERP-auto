@@ -1,7 +1,3 @@
-/**
- * Helpers de verificación de kardex total y desde stock.
- * Extraído de verificaciones-movimientos.helper.ts
- */
 import {Page} from '@playwright/test';
 import {MovimientosNavigationPage} from '@pages/Logistica/MovimientosNavigationPage';
 import {KardexVerificacionPage} from '@pages/Logistica/KardexVerificacionPage';

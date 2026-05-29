@@ -1,13 +1,4 @@
-/**
- * Tests unitarios para scripts/test-runner.ts
- *
- * Verifica la lógica de selección de setups (applySetupSelections).
- *
- * Ejecutar: npx tsx tests/unit/test-runner.test.ts
- */
 import {strict as assert} from 'node:assert';
-
-// ─── Helpers de testing ─────────────────────────────────────────────────
 
 let passed = 0;
 let failed = 0;
@@ -30,8 +21,6 @@ function cleanupSkips(): void {
     delete process.env.SKIP_DATOS_SETUP;
 }
 
-// ─── Tests ──────────────────────────────────────────────────────────────
-
 async function main(): Promise<void> {
     console.log('\n=== test-runner.ts — Unit Tests ===\n');
 
@@ -49,7 +38,7 @@ async function main(): Promise<void> {
 
     await it('should clear SKIP_PV_SETUP and SKIP_PV_ITEMS_SETUP when auth and pv-items selected', async () => {
         cleanupSkips();
-        // Set all as skipped first
+        
         process.env.SKIP_PV_SETUP = '1';
         process.env.SKIP_PV_ITEMS_SETUP = '1';
         process.env.SKIP_DATOS_SETUP = '1';
@@ -94,12 +83,10 @@ async function main(): Promise<void> {
 
     await it('should handle combined SKIP_PV_SETUP (auth+pv-datos share same env var)', async () => {
         cleanupSkips();
-        // auth alone should clear SKIP_PV_SETUP
+        
         applySetupSelections(['auth']);
         assert.strictEqual(process.env.SKIP_PV_SETUP, undefined, 'auth → SKIP_PV_SETUP eliminado');
     });
-
-    // ── Report ───────────────────────────────────────────────────────
 
     console.log(`\n  ──────────────────────────────────────`);
     console.log(`  Total: ${passed + failed} | ✅ ${passed} passed | ❌ ${failed} failed\n`);

@@ -1,4 +1,3 @@
-// 📁 src/interactions/PuntoVenta/ClickAceptarModal.ts
 import { Page } from '@playwright/test';
 
 export const ClickAceptarModal = () => {

@@ -12,7 +12,7 @@ export class ListaFormPage extends ItemFormBasePage {
       name: "Ej. Lista de útiles primaria",
     });
   }
-  // En ListaFormPage agrega este método público
+  
   async obtenerValorNombre(): Promise<string> {
     return await this.inputNombre.inputValue();
   }
@@ -20,23 +20,22 @@ export class ListaFormPage extends ItemFormBasePage {
   async iniciarCreacionLista(): Promise<void> {
     await this.botonCrearItems.click();
     await this.page.getByText("LNueva lista").click();
-    // Esperar a que el formulario de lista se renderice completamente
+    
     await this.inputNombre.waitFor({ state: "visible" });
     await this.page.waitForTimeout(2000);
   }
 
   override async llenarNombre(nombre: string): Promise<void> {
-    // Forzar foco directo sin click
+    
     await this.inputNombre.focus();
-    await this.inputNombre.fill(""); // limpiar
+    await this.inputNombre.fill("");
 
-    // Esperar que el componente procese el foco
     await this.page.waitForTimeout(300);
 
     await this.inputNombre.pressSequentially(nombre, { delay: 50 });
     await expect(this.inputNombre).toHaveValue(nombre);
   }
-  // llenar cidgo es nuevo
+
   async llenarCodigo(codigo: number): Promise<void> {
     await this.page.getByText("Automático").first().click();
     await this.page.getByText("Manual").first().click();

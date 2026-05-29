@@ -1,11 +1,4 @@
-/**
- * Tests unitarios para setup-state.ts
- *
- * Ejecutar: npx tsx tests/unit/setup-state.test.ts
- */
 import {strict as assert} from 'node:assert';
-
-// ─── Helpers de testing ─────────────────────────────────────────────────
 
 let passed = 0;
 let failed = 0;
@@ -27,14 +20,10 @@ function cleanupEnv(): void {
     delete process.env.USER_EMAIL;
 }
 
-// ─── Tests ──────────────────────────────────────────────────────────────
-
 async function main(): Promise<void> {
     console.log('\n=== setup-state.ts — Unit Tests ===\n');
 
     const mod = await import('@utils/setup-state');
-
-    // ── Module-partitioned SETUP_NAMES ───────────────────────────────
 
     console.log('  ── PV_SETUP_NAMES / LOG_SETUP_NAMES ──');
 
@@ -62,8 +51,6 @@ async function main(): Promise<void> {
         }
     });
 
-    // ── detectEnvironmentGroup ───────────────────────────────────────
-
     console.log('  ── detectEnvironmentGroup() ──');
 
     await it('should return "prd" when APP_ENV is "prd"', async () => {
@@ -90,8 +77,6 @@ async function main(): Promise<void> {
         assert.strictEqual(mod.detectEnvironmentGroup(), 'crt-group');
     });
 
-    // ── detectAccount ────────────────────────────────────────────────
-
     console.log('  ── detectAccount() ──');
 
     await it('should export detectAccount as a function', async () => {
@@ -102,11 +87,9 @@ async function main(): Promise<void> {
         const account = mod.detectAccount();
         assert.strictEqual(typeof account, 'string');
         assert.ok(account.length > 0, 'debe retornar un email o "unknown"');
-        // Should be lowercase
+        
         assert.strictEqual(account, account.toLowerCase(), 'debe estar en lowercase');
     });
-
-    // ── areAllSetupsComplete con módulo ──────────────────────────────
 
     console.log('  ── areAllSetupsComplete(module?) ──');
 
@@ -118,13 +101,11 @@ async function main(): Promise<void> {
         cleanupEnv();
         process.env.APP_ENV = 'crt';
         process.env.USER_EMAIL = 'test@test.com';
-        // Without state file, should return false
+        
         assert.strictEqual(mod.areAllSetupsComplete(), false);
         assert.strictEqual(mod.areAllSetupsComplete('pv'), false);
         assert.strictEqual(mod.areAllSetupsComplete('logistica'), false);
     });
-
-    // ── getSetupStateSummary per-module ──────────────────────────────
 
     console.log('  ── getSetupStateSummary() ──');
 
@@ -132,7 +113,7 @@ async function main(): Promise<void> {
         cleanupEnv();
         process.env.APP_ENV = 'prd';
         process.env.USER_EMAIL = 'test@test.com';
-        // Need a fresh module because env.ts caches env values at load time
+        
         const mod2 = await import('@utils/setup-state');
         const summary = mod2.getSetupStateSummary();
         assert.ok(summary.includes('Ambiente:'), 'Debe mostrar Ambiente');
@@ -144,8 +125,6 @@ async function main(): Promise<void> {
         assert.ok(summary.includes('punto-venta-items'));
         assert.ok(summary.includes('datos-adicionales'));
     });
-
-    // ── Report ───────────────────────────────────────────────────────
 
     console.log(`\n  ──────────────────────────────────────`);
     console.log(`  Total: ${passed + failed} | ✅ ${passed} passed | ❌ ${failed} failed\n`);

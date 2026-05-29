@@ -3,7 +3,6 @@ import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
 test.describe('PV-04 | Vista previa de comprobante @PV-04', {tag: ['@punto-venta', '@boleta']}, () => {
 
-    // ─── Vista previa (NO va a búsqueda) ──────────────────────────────
     test('Visualizar vista previa de una boleta antes de emitir @PV-04.5', async ({
                                                                                       cajaPage,
                                                                                       comprobantePage,
@@ -22,7 +21,7 @@ test.describe('PV-04 | Vista previa de comprobante @PV-04', {tag: ['@punto-venta
         });
 
         await test.step('Then: vista previa visible', async () => {
-            // La vista previa abre un overlay con el comprobante
+            
             await page.locator('.icon-close').click();
         });
     });

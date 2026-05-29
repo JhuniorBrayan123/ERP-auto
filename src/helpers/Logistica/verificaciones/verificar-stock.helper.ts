@@ -1,7 +1,3 @@
-/**
- * Helpers de verificación de stock en inventario.
- * Extraído de verificaciones-movimientos.helper.ts
- */
 import {Page} from '@playwright/test';
 import {MovimientosNavigationPage} from '@pages/Logistica/MovimientosNavigationPage';
 import {StockVerificacionPage} from '@pages/Logistica/StockVerificacionPage';

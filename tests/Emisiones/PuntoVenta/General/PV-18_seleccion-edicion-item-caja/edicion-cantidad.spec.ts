@@ -21,7 +21,6 @@ test.describe('Selección, edición de ítem en caja de venta — Edición de ca
         const cajero = Cajero.con(page);
         const emision = new EmisionPage(page);
 
-        // Agregar item (qty=1) y capturar totales reales del ERP
         await emision.buscarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
         await emision.seleccionarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
         await cajero.intentaRealizar(DesplegarPanelCalculos());

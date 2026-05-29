@@ -28,7 +28,7 @@ test.describe('PV-19: Emisión de Cotización Básica', {tag: ['@punto-venta', '
         );
 
         expect(await cajero.pregunta(ModalPostEmision.estaVisible())).toBe(true);
-        // expect(await cajero.pregunta(ModalPostEmision.tieneCorrelativo())).toBe(true);
+        
         expect(await cajero.pregunta(BitacoraComprobante.noMuestraDescargoInventario())).toBe(true);
     });
 

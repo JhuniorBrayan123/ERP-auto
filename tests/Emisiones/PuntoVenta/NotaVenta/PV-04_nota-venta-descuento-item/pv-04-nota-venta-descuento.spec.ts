@@ -1,9 +1,3 @@
-/**
- * PV-04 | Emisión de nota de venta con descuento por ítem
- *
- * IMPORTANTE: Notas de venta NO llegan a SUNAT → no se valida estado SUNAT.
- * Post-emisión: cada test exitoso navega a Búsqueda de comprobantes + Bitácora.
- */
 import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 

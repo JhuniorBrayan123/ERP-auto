@@ -28,7 +28,6 @@ test.describe('PS-3 | Creación de Servicios', {tag: ['@logistica', '@productos-
         });
     });
 
-
     test('crear servicio exonerado @PS-3', async ({servicioForm, itemDetail}) => {
         const nombre = buildUniqueItemName('servicio', 'exonerado');
 
@@ -46,7 +45,6 @@ test.describe('PS-3 | Creación de Servicios', {tag: ['@logistica', '@productos-
             await servicioForm.expandirOpcionesAvanzadas();
             await servicioForm.irATabInfoAdicional();
 
-            // Para servicio exonerado, usar el patrón del codegen
             const page = servicioForm['page'];
             await page
                 .locator(`.subcategoria > ${servicioForm['DROPDOWN_ARROW']}`)

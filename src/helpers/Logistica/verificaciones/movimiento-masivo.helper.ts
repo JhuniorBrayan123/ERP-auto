@@ -1,7 +1,3 @@
-/**
- * Helpers de movimientos masivos y movimientos rápidos.
- * Extraído de verificaciones-movimientos.helper.ts
- */
 import {test} from '@fixtures/Logistica/movimientos-fixture';
 import {Page} from '@playwright/test';
 import {MovimientosNavigationPage} from '@pages/Logistica/MovimientosNavigationPage';

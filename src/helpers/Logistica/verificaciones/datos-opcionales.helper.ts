@@ -1,7 +1,3 @@
-/**
- * Helpers de datos opcionales para movimientos.
- * Extraído de verificaciones-movimientos.helper.ts
- */
 import {test} from '@fixtures/Logistica/movimientos-fixture';
 import {DatosOpcionalesPage} from '@pages/Logistica/DatosOpcionalesPage';
 

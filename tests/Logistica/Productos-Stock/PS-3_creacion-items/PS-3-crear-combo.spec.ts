@@ -33,7 +33,6 @@ test.describe('PS-3 | Creación de Combos', {tag: ['@logistica', '@productos-sto
         });
     });
 
-
     test('crear combo con items flexibles gravados @PS-3', async ({
                                                                       comboForm,
                                                                       itemDetail,

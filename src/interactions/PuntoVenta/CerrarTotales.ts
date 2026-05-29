@@ -1,4 +1,3 @@
-// 📁 src/interactions/PuntoVenta/CerrarTotales.ts
 import { Page } from '@playwright/test';
 
 export const CerrarTotales = () => {

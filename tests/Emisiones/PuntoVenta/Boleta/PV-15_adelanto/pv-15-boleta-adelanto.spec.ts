@@ -3,7 +3,6 @@ import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
 test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-venta', '@boleta', '@adelanto']}, () => {
 
-    // ─── Boleta adelanto (Patrón A: Bitácora SIN descargo) ────────────
     test('Emitir boleta de adelanto @PV-15.1', async ({
                                                          cajaPage, emisionPage, busquedaComprobantes, emisionAdelantosPage,
                                                      }) => {
@@ -25,7 +24,6 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
             await emisionPage.clickNuevaVenta();
         });
 
-        // ─── Post-emisión: Búsqueda filtrada + SUNAT + Bitácora (sin descargo) ───
         await test.step('Then: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
             await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
         });

@@ -9,7 +9,7 @@ export const EditarNombreDeItem = (item: ItemVenta, nuevoNombre: string) => {
         const emision = new EmisionPage(page);
         await emision.buscarItem(item.codigo);
         await emision.seleccionarItem(item.nombre);
-        // Abrir edición y cambiar nombre
+        
         await emision.abrirEdicionItem();
         await page.locator(INPUT_DESCRIPCION).fill(nuevoNombre);
     };

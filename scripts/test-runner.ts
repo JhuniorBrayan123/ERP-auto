@@ -4,7 +4,7 @@ import type { ChildProcess } from 'node:child_process';
 import { spawn as nodeSpawn } from 'node:child_process';
 import { checkbox, input, select } from '@inquirer/prompts';
 import crossSpawn from 'cross-spawn';
-import {getSetupStateSummary, areAllSetupsComplete, PV_SETUP_NAMES, LOG_SETUP_NAMES} from '@utils/setup-state';
+import {getSetupStateSummary, areAllSetupsComplete, forceCompleteAllSetups, PV_SETUP_NAMES, LOG_SETUP_NAMES} from '@utils/setup-state';
 import { getFailedTests, type FailedTestGroup } from './analyze-results';
 import { cargarMapaDesdeCache, guardarMapaEnCache, cargarMapaCodigos } from '../src/factories/item-factory';
 import Fuse from 'fuse.js';
@@ -65,7 +65,7 @@ interface ExplorerEntry {
 interface TestCase {
     title: string;
     filePath: string;
-    /** Tags extraídos inline del título (ej: @MS-1, @logistica) */
+    
     tags?: string[];
 }
 
@@ -169,7 +169,6 @@ function extractTestsFromFile(filePath: string): TestCase[] {
 
     const regex = /(?:^|\n)\s*test(?:\.(?:only|skip|fixme))?\s*\(\s*['"`]([^'"`]+)['"`]/g;
 
-    // Extrae tags inline del título: @MS-1, @logistica, @PV-1.1
     const tagRegex = /@[\w.-]+/g;
 
     const tests: TestCase[] = [];
@@ -198,39 +197,20 @@ function quoteArg(arg: string): string {
     return arg;
 }
 
-// ─── Búsqueda helpers ─────────────────────────────────────────────────
-
-/**
- * Normaliza texto: lowercase + elimina acentos (NFD).
- * Útil para búsquedas por token donde "almacén" == "almacen".
- */
 function normalizeText(text: string): string {
     return text.toLowerCase()
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '');
 }
 
-/**
- * Token matching: divide query en palabras y verifica que TODAS
- * aparezcan en el target (orden irrelevante).
- * 
- * Ej: query "ingreso almac" → target "Registrar ingreso de almacén..." → ✅ match
- *     query "almac ingreso" → mismo target → ✅ match
- */
 function tokenMatch(query: string, target: string): boolean {
     const tokens = query.trim().toLowerCase().split(/\s+/);
     const normalized = normalizeText(target);
     return tokens.every(token => normalized.includes(token));
 }
 
-// ─── Fuse.js (fuzzy search) ───────────────────────────────────────────
-
 let _fuseInstance: Fuse<TestCase> | null = null;
 
-/**
- * Retorna una instancia singleton de Fuse para fuzzy search.
- * Se crea bajo demanda (lazy) para no pagar el overhead si no se usa.
- */
 function getFuseInstance(tests: TestCase[]): Fuse<TestCase> {
     if (!_fuseInstance) {
         _fuseInstance = new Fuse(tests, {
@@ -246,27 +226,16 @@ function formatCommand(args: string[]): string {
     return ['npx', 'playwright', 'test', ...args].map(quoteArg).join(' ');
 }
 
-/**
- * Carga el cache de items dinámicos para el entorno y cuenta actual.
- * 
- * REGLA: Solo CARGA, nunca guarda. Quien guarda es el setup
- * (punto-venta-items.setup.ts) cuando completa exitosamente.
- * 
- * 1. Busca cache para (env_actual, cuenta_actual)
- * 2. Si no hay cache y es PRD, seed desde dynamic-items.prd.json
- */
 function cargarCacheActual(): void {
     const envGroup = (process.env.APP_ENV ?? '').trim().toLowerCase() === 'prd' ? 'prd' : 'crt-group';
     const currentAccount = (process.env.USER_EMAIL ?? '').trim().toLowerCase() || 'unknown';
 
-    // Intentar cargar desde cache para (entorno_actual, cuenta_actual)
     const cacheMapa = cargarMapaDesdeCache(envGroup, currentAccount);
     if (cacheMapa) {
         console.log(`[Cache] Items cargados desde cache: ${envGroup} / ${currentAccount}`);
         return;
     }
 
-    // PRD: seed desde dynamic-items.prd.json si no hay cache
     if (envGroup === 'prd') {
         const prdItemsFile = path.join(ROOT_DIR, 'playwright', 'dynamic-items.prd.json');
         const authItemsFile = path.join(ROOT_DIR, 'playwright', '.auth', 'dynamic-items.json');
@@ -285,36 +254,23 @@ function cargarCacheActual(): void {
         return;
     }
 
-    // CRT sin cache
     console.warn(`[Cache] No hay cache para ${envGroup} / ${currentAccount}. Ejecuta setups primero.`);
 }
 
-/**
- * Aplica la selección de setups configurando las variables SKIP_*.
- *
- * Para cada setup:
- *   - Si está en `selected` → se elimina su SKIP_* (se ejecutará)
- *   - Si NO está en `selected` → se setea SKIP_* = '1' (se saltará)
- *
- * Nota: auth y punto-venta-datos comparten SKIP_PV_SETUP porque ambos
- * pertenecen al grupo de setup de PuntoVenta (autenticación + datos base).
- */
 export function applySetupSelections(selected: string[]): void {
-    // SKIP_PV_SETUP: compartido por auth + punto-venta-datos
+    
     if (selected.includes('auth') || selected.includes('punto-venta-datos')) {
         delete process.env.SKIP_PV_SETUP;
     } else {
         process.env.SKIP_PV_SETUP = '1';
     }
 
-    // SKIP_PV_ITEMS_SETUP: punto-venta-items
     if (selected.includes('punto-venta-items')) {
         delete process.env.SKIP_PV_ITEMS_SETUP;
     } else {
         process.env.SKIP_PV_ITEMS_SETUP = '1';
     }
 
-    // SKIP_DATOS_SETUP: datos-adicionales
     if (selected.includes('datos-adicionales')) {
         delete process.env.SKIP_DATOS_SETUP;
     } else {
@@ -322,34 +278,27 @@ export function applySetupSelections(selected: string[]): void {
     }
 }
 
-/**
- * Retorna los nombres de setup por defecto según el proyecto seleccionado.
- */
 function getDefaultSetups(projectKey?: ProjectKey): string[] {
     if (projectKey === 'PuntoVenta') return [...PV_SETUP_NAMES];
     if (projectKey === 'Logistica') return [...LOG_SETUP_NAMES];
-    // RunAll → todos
+    
     return [...PV_SETUP_NAMES, ...LOG_SETUP_NAMES];
 }
 
 async function askRunOptions(projectKey?: ProjectKey): Promise<string[]> {
-    // Mostrar estado actual de los setups
+    
     const stateSummary = getSetupStateSummary();
     console.log('\n──────────────────────────────────────');
     console.log('Estado de setups:');
     console.log(stateSummary);
     console.log('──────────────────────────────────────\n');
 
-    // Si todos los setups están completados, auto-responder que no
     if (areAllSetupsComplete()) {
         console.log('[setup-state] Todos los setups completados — saltando ejecución de setups\n');
-        // Salteamos items (lento) y datos-adicionales.
-        // Auth se saltea también (todos completados — si se necesita refrescar,
-        // el usuario puede seleccionarlo manualmente).
+
         process.env.SKIP_PV_ITEMS_SETUP = '1';
         process.env.SKIP_DATOS_SETUP = '1';
 
-        // Cargar cache para asegurar dynamic-items.json correcto
         cargarCacheActual();
 
         return [];
@@ -357,7 +306,6 @@ async function askRunOptions(projectKey?: ProjectKey): Promise<string[]> {
 
     const defaults = getDefaultSetups(projectKey);
 
-    // Elegir qué setups ejecutar mediante checkboxes
     const CONFIG_NAME = {
         name: '─' .repeat(30),
         value: '__SEPARATOR__',
@@ -379,12 +327,24 @@ async function askRunOptions(projectKey?: ProjectKey): Promise<string[]> {
             {name: CONFIG_NAME.name, value: CONFIG_NAME.value, disabled: true},
             {name: '✓ Seleccionar todos', value: ALL_VALUE},
             {name: '○ Deseleccionar todos', value: NONE_VALUE},
+            {name: '>> Marcar todos como completados (saltar y guardar estado)', value: '__FORCE_COMPLETE__'},
         ],
     });
 
-    // Procesar selección
+    const FORCE_COMPLETE_VALUE = '__FORCE_COMPLETE__';
+
     let selected: string[];
-    if (rawSelection.includes(ALL_VALUE)) {
+    if (rawSelection.includes(FORCE_COMPLETE_VALUE)) {
+        console.log(`\n[setup-state] Bypass manual invocado. Marcando todos los setups como completados...`);
+        forceCompleteAllSetups();
+        
+        process.env.SKIP_PV_ITEMS_SETUP = '1';
+        process.env.SKIP_DATOS_SETUP = '1';
+        process.env.SKIP_PV_SETUP = '1';
+
+        cargarCacheActual();
+        return [];
+    } else if (rawSelection.includes(ALL_VALUE)) {
         selected = ['auth', 'punto-venta-datos', 'punto-venta-items', 'datos-adicionales'];
     } else if (rawSelection.includes(NONE_VALUE)) {
         selected = [];
@@ -394,10 +354,8 @@ async function askRunOptions(projectKey?: ProjectKey): Promise<string[]> {
 
     console.log(`\n[setup-selection] Setups seleccionados: ${selected.length > 0 ? selected.join(', ') : '(ninguno)'}`);
 
-    // Aplicar selección a variables de entorno
     applySetupSelections(selected);
 
-    // Cargar cache de items si no se va a ejecutar pv-items-setup
     if (!selected.includes('punto-venta-items')) {
         cargarCacheActual();
     }
@@ -687,8 +645,6 @@ async function searchGlobalTest(projectContext: ProjectContext): Promise<void> {
     const allTests = walkSpecFiles(projectContext.testDir).flatMap(extractTestsFromFile);
     const trimmed = query.trim();
 
-    // ── 1. Token matching (rápido, no requiere deps externas) ────
-    // Busca que TODAS las palabras del query aparezcan en el título O en los tags
     const tokenMatches = allTests.filter((testCase) => {
         if (tokenMatch(trimmed, testCase.title)) return true;
         if (testCase.tags?.length) {
@@ -698,8 +654,6 @@ async function searchGlobalTest(projectContext: ProjectContext): Promise<void> {
         return false;
     });
 
-    // ── 2. Fuse.js fallback (solo si token matching no encontró nada) ────
-    // Útil para búsquedas con typos o términos muy parciales
     let matches: TestCase[];
 
     if (tokenMatches.length > 0) {
@@ -750,8 +704,6 @@ async function searchGlobalFile(projectContext: ProjectContext): Promise<void> {
     const files = walkSpecFiles(projectContext.testDir);
     const trimmed = query.trim();
 
-    // Token matching (orden irrelevante, acentos opcionales)
-    // Fallback a fuzzy search con archivos como "titles"
     const tokenFileMatches = files.filter((filePath) =>
         tokenMatch(trimmed, toRelative(filePath)),
     );
@@ -840,7 +792,6 @@ async function runAllSequential(): Promise<void> {
     ensureOutputDirs('playwright-report/puntoventa');
     ensureOutputDirs('playwright-report/logistica');
 
-    // ── PuntoVenta primero ─────────────────────────────────────────
     console.log('\n=== Ejecutando Suite: PuntoVenta ===\n');
     const pvExitCode = await new Promise<number | null>((resolve) => {
         const pv = crossSpawn('npx', ['playwright', 'test', ...pvArgs], {
@@ -855,7 +806,6 @@ async function runAllSequential(): Promise<void> {
         });
     });
 
-    // ── Logistica después ──────────────────────────────────────────
     console.log('\n=== Ejecutando Suite: Logistica ===\n');
     const logExitCode = await new Promise<number | null>((resolve) => {
         const log = crossSpawn('npx', ['playwright', 'test', ...logArgs], {
@@ -901,7 +851,6 @@ async function runAllParallel(): Promise<void> {
     console.log('\n=== Ejecutando PuntoVenta + Logistica en paralelo ===\n');
     console.log('NOTA: El output se mezclará porque ambos procesos comparten la consola.\n');
 
-    // Filter: only show Maven reporter lines
     const isRelevantLine = (line: string): boolean => {
         const t = line.trim();
         if (!t) return false;
@@ -980,7 +929,7 @@ async function runFailedTests(): Promise<void> {
     const failedGroups = getFailedTests();
 
     if (failedGroups.length === 0) {
-        // Check if results files exist at all
+        
         const pvPath = path.join(PROJECT_CONFIG.PuntoVenta.outputDir, 'results.json');
         const logPath = path.join(PROJECT_CONFIG.Logistica.outputDir, 'results.json');
 

@@ -32,7 +32,6 @@ import {copyFileSync, existsSync, readFileSync} from 'node:fs';
 const SETUP_NAME = 'punto-venta-items';
 setup.skip(!!process.env.SKIP_PV_ITEMS_SETUP, 'Setup de ítems PV omitido por SKIP_PV_ITEMS_SETUP');
 
-// ─── Helpers de Logging Estructurado ──────────────────────────────────
 const CASO_ACTUAL = 'Setup: Preparar ítems base para PuntoVenta / Emisiones';
 
 function logInfo(paso: string, mensaje: string) {
@@ -44,9 +43,6 @@ function logError(paso: string, error: unknown) {
     console.error(`[FAIL][QA] - Caso: ${CASO_ACTUAL} | Paso: ${paso} | Motivo: ${motivo}`);
 }
 
-// ─── Funciones Auxiliares ─────────────────────────────────────────────
-
-/** Navega al módulo Productos y Stock */
 async function navegarAItems(page: import('@playwright/test').Page): Promise<void> {
     await setup.step('Navegar al módulo de Productos y Stock', async () => {
         try {
@@ -61,13 +57,12 @@ async function navegarAItems(page: import('@playwright/test').Page): Promise<voi
     });
 }
 
-/** Busca un ítem por código y retorna true si existe en la grilla */
 async function itemExistePorCodigo(
     listaItems: ListaItemsPage,
     page: import('@playwright/test').Page,
     codigo: string,
 ): Promise<boolean> {
-    // ERP almacena códigos sin guión (ej. "11111121726", no "111111-21726")
+    
     const codigoLimpio = codigo.replace(/-/g, '');
     return await setup.step(`Verificar existencia del ítem con código ${codigoLimpio}`, async () => {
         try {
@@ -82,50 +77,35 @@ async function itemExistePorCodigo(
     });
 }
 
-// ─── Resolver de códigos dinámicos ────────────────────────────────────
-
-/**
- * Resuelve un código: si es un template key O un código base conocido,
- * retorna el código dinámico de esta ejecución.
- * Si no coincide con nada, retorna el valor tal cual (código externo/fijo).
- *
- * Esto es crítico para combos/listas/recetas: cuando un componente usa
- * codigoBusqueda '202020', el resolver lo convierte a '202020-21726' →
- * luego .replace(/-/g,'') → '20202021726' → búsqueda exacta (1 resultado).
- */
 function crearResolver(mapaCodigos: Record<string, string>): (key: string) => string {
     const templateKeys = new Set(ITEM_TEMPLATES.map(t => t.key));
 
-    // Reverse map: codigoBase → template key (para resolver '202020' → 'ITEM_EQUIVALENTE')
     const baseToKey = new Map<string, string>();
     for (const t of ITEM_TEMPLATES) {
         baseToKey.set(t.codigoBase, t.key);
     }
 
     return (key: string) => {
-        // 1. Match directo por template key (ej. 'ITEM_EQUIVALENTE')
+        
         if (templateKeys.has(key) && mapaCodigos[key]) {
             return mapaCodigos[key];
         }
-        // 2. Match por código base (ej. '202020' → 'ITEM_EQUIVALENTE' → '202020-21726')
+        
         const templateKey = baseToKey.get(key);
         if (templateKey && mapaCodigos[templateKey]) {
             return mapaCodigos[templateKey];
         }
-        return key; // código externo no registrado, usar tal cual
+        return key; 
     };
 }
 
-// ─── Setup principal ──────────────────────────────────────────────────
-
 setup(CASO_ACTUAL, async ({page}) => {
-    // ── Auto-skip si ya completado ───────────────────────────────────
+    
     if (shouldSkipSetup(SETUP_NAME)) {
         console.log(`[setup-state] ${SETUP_NAME} already completed, skipping`);
         return;
     }
 
-    // ── PRD: usar JSON fijo (no crear items nuevos) ──────────────────
     const isPrd = (process.env.APP_ENV ?? '').trim().toLowerCase() === 'prd';
     if (isPrd) {
         const prdItemsFile = resolve(process.cwd(), 'playwright', 'dynamic-items.prd.json');
@@ -134,7 +114,7 @@ setup(CASO_ACTUAL, async ({page}) => {
         }
         copyFileSync(prdItemsFile, resolve(process.cwd(), 'playwright', '.auth', 'dynamic-items.json'));
         console.log(`[setup-state] PRD: ítems fijos copiados desde dynamic-items.prd.json`);
-        // Guardar en cache para reuso entre cambios de cuenta
+        
         try {
             const prdData = readFileSync(prdItemsFile, 'utf-8');
             const prdMapa = JSON.parse(prdData);
@@ -148,9 +128,8 @@ setup(CASO_ACTUAL, async ({page}) => {
         return;
     }
 
-    setup.setTimeout(600_000); // 10 min — crea hasta 17 ítems (incluye combos, variantes y equivalencias)
+    setup.setTimeout(600_000); 
 
-    // ── Resolver RUN_ID: reusar checkpoint o generar nuevo ─────────────
     const checkpointPrevio = cargarCheckpoint();
     let RUN_ID: string;
     let itemsDone: Set<string>;
@@ -172,7 +151,6 @@ setup(CASO_ACTUAL, async ({page}) => {
 
     logInfo('Códigos dinámicos', `Se crearán ${ITEM_TEMPLATES.filter(t => t.fase).length} ítems con sufijo -${RUN_ID}`);
 
-    // ── Navegación ─────────────────────────────────────────────────────
     await setup.step('Navegación inicial al sistema', async () => {
         try {
             await page.goto('/');
@@ -189,7 +167,6 @@ setup(CASO_ACTUAL, async ({page}) => {
     const listaForm = new ListaFormPage(page);
     const comboForm = new ComboFormPage(page);
 
-    // ── 1. Crear ítems en orden de fases ───────────────────────────────
     const templatesOrdenados = ITEM_TEMPLATES
         .filter(t => t.fase)
         .sort((a, b) => a.fase! - b.fase!);
@@ -197,7 +174,6 @@ setup(CASO_ACTUAL, async ({page}) => {
     for (const template of templatesOrdenados) {
         const codigo = dc(template.key);
 
-        // ── Checkpoint: saltar ítems ya creados en un intento anterior ──
         if (itemsDone.has(template.key)) {
             logInfo('Checkpoint', `"${template.key}" (${codigo}) ya marcado done — saltando`);
             continue;
@@ -230,28 +206,23 @@ setup(CASO_ACTUAL, async ({page}) => {
             logInfo('Creación', `✓ "${template.key}" (${codigo}) creado y marcado en checkpoint`);
         } catch (error) {
             logError(`Crear ${template.tipo} "${template.key}"`, error);
-            throw error; // checkpoint queda intacto → próximo intento retoma desde aquí
+            throw error; 
         }
     }
 
-    // ── 2. Post-setup: activar selector obligatorio ───────────────────
     await setup.step('Activar selector obligatorio en ITEM_SELECTOR_GRAVADO', async () => {
         try {
             logInfo('Post-setup', 'Activando switch obligatorio en ITEM_SELECTOR_GRAVADO (454545)...');
 
-            // Navegar a Productos y Stock (el setup puede haber dejado el page en otro estado)
             await page.goto('/');
             await navegarAItems(page);
 
-            // Buscar y editar el item 454545
             const listaItemsEdit = new ListaItemsPage(page);
             await listaItemsEdit.searchAndEdit('454545');
 
-            // Esperar carga del formulario de edición
             const edicionItemPage = new EdicionItemPage(page);
             await edicionItemPage.waitForFormLoad();
 
-            // Ir al tab Selectores y activar switch
             await edicionItemPage.goToSelectoresTab();
             const changed = await edicionItemPage.setSelectorObligatorioSwitch();
 
@@ -268,9 +239,8 @@ setup(CASO_ACTUAL, async ({page}) => {
         }
     });
 
-    // ── Guardar mapa de códigos dinámicos ──────────────────────────────
     guardarMapaCodigos(mapaCodigos);
-    // Guardar en cache para reuso entre cambios de cuenta
+    
     const envGroup = (process.env.APP_ENV ?? '').trim().toLowerCase() === 'prd' ? 'prd' : 'crt-group';
     const account = (process.env.USER_EMAIL ?? '').trim().toLowerCase() || 'unknown';
     guardarMapaEnCache(mapaCodigos, envGroup, account);

@@ -11,7 +11,6 @@ import {BitacoraComprobante} from '@question/PuntoVenta/BitacoraComprobante.ques
 import {CLIENTES, ITEMS_PV, TIPOS_COMPROBANTE} from '@helpers/PuntoVenta/emision-data.helper';
 import {EmisionResult} from "@app-types/emision.types";
 
-
 test.describe('PV-20: Registro de Pedido Básico', {tag: ['@punto-venta', '@pedido', '@emision']}, () => {
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);

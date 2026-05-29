@@ -1,10 +1,5 @@
 import { type Page } from '@playwright/test';
 
-/**
- * Mapeo de columnas del wizard masivo (creación o actualización).
- * Centraliza la lógica para no duplicarla entre Page Objects.
- */
-
 function stripAccents(text: string): string {
   return text
     .normalize('NFD')
@@ -25,7 +20,6 @@ function buildAccentTolerantRegex(text: string): RegExp {
   return new RegExp(tolerant, 'i');
 }
 
-/** Espera la tabla de asignación con dropdowns en encabezados. */
 export async function waitForColumnAssignmentStep(page: Page): Promise<void> {
   await page
     .locator('th .v-select-header-small-arrow')
@@ -33,11 +27,6 @@ export async function waitForColumnAssignmentStep(page: Page): Promise<void> {
     .waitFor({ state: 'visible', timeout: 15_000 });
 }
 
-/**
- * Mapea una columna del Excel al campo del sistema por encabezado de archivo.
- * Usa la fila de mapeo con `.v-select-header-small-arrow`; índice interno solo
- * para acotar el `th` correcto (evitar strict mode con la fila de preview).
- */
 export async function mapColumnByFileHeader(
   page: Page,
   fileHeader: string,
@@ -101,9 +90,6 @@ export async function mapColumnByFileHeader(
   const curNorm = stripAccents(currentText ?? '');
   const targetNorm = stripAccents(targetField);
 
-  // Solo consideramos "ya mapeado" cuando el encabezado ya refleja el campo destino.
-  // Si el encabezado muestra el header del archivo (p. ej. DESCRIPCION) eso NO garantiza
-  // que esté mapeado al campo correcto (p. ej. Nombre) y debemos permitir remapeo.
   if (curNorm.startsWith(targetNorm)) {
     return;
   }

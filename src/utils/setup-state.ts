@@ -1,43 +1,18 @@
-/**
- * Gestor centralizado de estado para setup files de Playwright.
- *
- * Persiste el estado de completitud de cada setup en
- * playwright/.auth/setup-state.json, permitiendo auto-skip en
- * ejecuciones subsecuentes sin necesidad de variables manuales SKIP_*.
- *
- * Funcionamiento:
- * 1. Al iniciar un setup → shouldSkipSetup() chequea SKIP_* (prioridad)
- *    + environment match + estado completado.
- * 2. Al finalizar exitosamente → markSetupComplete() persiste el estado.
- * 3. Si cambia APP_ENV → se invalida TODO el estado.
- *
- * Backward compatible: SKIP_* env vars tienen prioridad absoluta.
- */
-
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {env} from '../../config/env';
 
-// ─── Constantes ──────────────────────────────────────────────────────────
-
 const AUTH_DIR = resolve(process.cwd(), 'playwright', '.auth');
 const STATE_FILE = resolve(AUTH_DIR, 'setup-state.json');
 
-/** Nombres de setup del módulo PuntoVenta. */
 export const PV_SETUP_NAMES = ['auth', 'punto-venta-datos', 'punto-venta-items'] as const;
 
-/** Nombres de setup del módulo Logistica. */
 export const LOG_SETUP_NAMES = ['auth', 'datos-adicionales'] as const;
 
-/** Unión de todos los nombres de setup (backward compat). */
 export const SETUP_NAMES = [...PV_SETUP_NAMES, ...LOG_SETUP_NAMES] as const;
 
 type SetupName = (typeof SETUP_NAMES)[number];
 
-/**
- * Mapa: setup name → variable de entorno SKIP_* correspondiente.
- * Ej: 'auth' → SKIP_PV_SETUP (reutiliza la variable existente)
- */
 const SKIP_ENV_MAP: Record<string, string> = {
     'auth': 'SKIP_PV_SETUP',
     'punto-venta-items': 'SKIP_PV_ITEMS_SETUP',
@@ -45,194 +20,165 @@ const SKIP_ENV_MAP: Record<string, string> = {
     'datos-adicionales': 'SKIP_DATOS_SETUP',
 };
 
-// ─── Tipos ───────────────────────────────────────────────────────────────
-
 export interface SetupEntry {
-    /** true si el setup completó exitosamente */
-    completed: boolean;
-    /** ISO timestamp de la última ejecución exitosa */
-    timestamp: string;
+        completed: boolean;
+        timestamp: string;
+}
+
+export interface SetupProfile {
+        setups: Record<string, SetupEntry>;
 }
 
 export interface SetupState {
-    /** Grupo de ambiente en el que se ejecutó ("crt-group" | "prd") */
-    environment: string;
-    /** Cuenta (USER_EMAIL) con la que se ejecutó */
-    account?: string;
-    /** Mapa setupName → entry */
-    setups: Record<string, SetupEntry>;
+    version: number;
+        profiles: Record<string, SetupProfile>;
 }
 
-// ─── Utilidades internas ─────────────────────────────────────────────────
-
-/**
- * Detecta el grupo de ambiente actual.
- * Normaliza crt/crt-2/crt-3/crt-4 → "crt-group", prd → "prd".
- */
 export function detectEnvironmentGroup(): string {
-    const env = (process.env.APP_ENV ?? '').trim().toLowerCase();
-    return env === 'prd' ? 'prd' : 'crt-group';
+    const envVar = (process.env.APP_ENV ?? '').trim().toLowerCase();
+    return envVar === 'prd' ? 'prd' : 'crt-group';
 }
 
-/**
- * Detecta la cuenta actual desde USER_EMAIL.
- * Retorna "unknown" si USER_EMAIL no está definido o está vacío.
- */
 export function detectAccount(): string {
     return (env.userEmail ?? '').trim().toLowerCase() || 'unknown';
 }
 
-/**
- * Asegura que el directorio .auth exista.
- */
+export function getProfileKey(envGroup: string, account: string): string {
+    return `${envGroup}_${account}`;
+}
+
 function ensureAuthDir(): void {
     if (!existsSync(AUTH_DIR)) {
         mkdirSync(AUTH_DIR, {recursive: true});
     }
 }
 
-/**
- * Retorna el estado por defecto (ningún setup completado).
- */
 function defaultState(): SetupState {
     return {
-        environment: detectEnvironmentGroup(),
-        account: detectAccount(),
-        setups: {},
+        version: 2,
+        profiles: {},
     };
 }
 
-// ─── API pública ─────────────────────────────────────────────────────────
-
-/**
- * Carga el estado persistente desde setup-state.json.
- * Si el archivo no existe o está corrupto, retorna el estado por defecto.
- */
 export function loadSetupState(): SetupState {
     if (!existsSync(STATE_FILE)) {
         return defaultState();
     }
     try {
         const raw = readFileSync(STATE_FILE, 'utf-8');
-        return JSON.parse(raw) as SetupState;
+        const parsed = JSON.parse(raw);
+        if (parsed.version !== 2) {
+            
+            const newState = defaultState();
+            if (parsed.environment && parsed.account && parsed.setups) {
+                const key = getProfileKey(parsed.environment, parsed.account);
+                newState.profiles[key] = {setups: parsed.setups};
+            }
+            return newState;
+        }
+        return parsed as SetupState;
     } catch {
         return defaultState();
     }
 }
 
-/**
- * Guarda el estado en setup-state.json.
- * Crea el directorio .auth si no existe.
- */
 export function saveSetupState(state: SetupState): void {
     ensureAuthDir();
     writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), 'utf-8');
 }
 
-/**
- * Decide si un setup debe saltarse.
- *
- * Orden de chequeo:
- * 1. Si la variable SKIP_* está seteada → skip (backward compat)
- * 2. Si cambió el grupo de ambiente (crt-group/prd) respecto al estado guardado → NO skip
- * 3. Si cambió la cuenta (USER_EMAIL) respecto al estado guardado → NO skip
- * 4. Si el setup está marcado como completado → skip
- * 5. En cualquier otro caso → NO skip (ejecutar normalmente)
- */
 export function shouldSkipSetup(setupName: string): boolean {
-    // 1. Chequeo de variable de entorno SKIP_* (backward compat — prioridad absoluta)
     const envVar = SKIP_ENV_MAP[setupName];
     if (envVar && process.env[envVar] === '1') {
         console.log(`[setup-state] ${setupName}: SKIP detectado por variable ${envVar}=1`);
         return true;
     }
 
-    // 2. Cargar estado
     const state = loadSetupState();
-
-    // 3. Si no hay entries registradas → no skippear
-    if (!state.setups[setupName]) {
-        return false;
-    }
-
-    const entry = state.setups[setupName];
-
-    // 4. Si cambió el grupo de ambiente → invalidar → no skippear
     const currentEnvGroup = detectEnvironmentGroup();
-    if (state.environment !== currentEnvGroup) {
-        console.log(`[setup-state] ${setupName}: ambiente cambió de "${state.environment}" a "${currentEnvGroup}" — ejecutando setup`);
-        return false;
-    }
-
-    // 5. Si cambió la cuenta → invalidar → no skippear
     const currentAccount = detectAccount();
-    if (state.account !== currentAccount) {
-        console.log(`[setup-state] ${setupName}: cuenta cambió de "${state.account ?? '(ninguna)'}" a "${currentAccount}" — ejecutando setup`);
+    const profileKey = getProfileKey(currentEnvGroup, currentAccount);
+
+    const profile = state.profiles[profileKey];
+    if (!profile || !profile.setups[setupName]) {
         return false;
     }
 
-    // 6. Si el setup está completado → skippear
+    const entry = profile.setups[setupName];
+
     if (entry.completed) {
-        console.log(`[setup-state] ${setupName}: ya completado — saltando`);
+        console.log(`[setup-state] ${setupName}: ya completado en ${currentEnvGroup} — saltando`);
         return true;
     }
 
     return false;
 }
 
-/**
- * Marca un setup como completado exitosamente.
- * Persiste el estado a disco inmediatamente (para sobrevivir a crashes).
- */
 export function markSetupComplete(setupName: string): void {
     const state = loadSetupState();
-    state.environment = detectEnvironmentGroup();
-    state.account = detectAccount();
-    state.setups[setupName] = {
+    const currentEnvGroup = detectEnvironmentGroup();
+    const currentAccount = detectAccount();
+    const profileKey = getProfileKey(currentEnvGroup, currentAccount);
+
+    if (!state.profiles[profileKey]) {
+        state.profiles[profileKey] = {setups: {}};
+    }
+
+    state.profiles[profileKey].setups[setupName] = {
         completed: true,
         timestamp: new Date().toISOString(),
     };
     saveSetupState(state);
-    console.log(`[setup-state] ${setupName}: marcado como completado`);
+    console.log(`[setup-state] ${setupName}: marcado como completado para ${currentEnvGroup}`);
 }
 
-/**
- * Marca un setup como incompleto (elimina su entrada del estado).
- * Útil para forzar re-ejecución de setups como auth incluso cuando
- * ya estaban completados, sin modificar el resto del estado.
- */
 export function markSetupIncomplete(setupName: string): void {
     const state = loadSetupState();
-    if (state.setups[setupName]) {
-        delete state.setups[setupName];
+    const currentEnvGroup = detectEnvironmentGroup();
+    const currentAccount = detectAccount();
+    const profileKey = getProfileKey(currentEnvGroup, currentAccount);
+
+    if (state.profiles[profileKey]?.setups[setupName]) {
+        delete state.profiles[profileKey].setups[setupName];
         saveSetupState(state);
         console.log(`[setup-state] ${setupName}: marcado como incompleto — se re-ejecutará`);
     }
 }
 
-/**
- * Retorna un resumen legible del estado de todos los setups.
- * Muestra el estado particionado por módulo (PuntoVenta / Logistica).
- * Útil para mostrar en el menú test-runner o en reportes.
- */
+export function forceCompleteAllSetups(): void {
+    const state = loadSetupState();
+    const currentEnvGroup = detectEnvironmentGroup();
+    const currentAccount = detectAccount();
+    const profileKey = getProfileKey(currentEnvGroup, currentAccount);
+
+    if (!state.profiles[profileKey]) {
+        state.profiles[profileKey] = {setups: {}};
+    }
+
+    const timestamp = new Date().toISOString();
+    for (const name of SETUP_NAMES) {
+        state.profiles[profileKey].setups[name] = {completed: true, timestamp};
+    }
+
+    saveSetupState(state);
+    console.log(`[setup-state] Todos los setups marcados manualmente como completados para ${currentEnvGroup} / ${currentAccount}`);
+}
+
 export function getSetupStateSummary(): string {
     const state = loadSetupState();
     const currentEnv = detectEnvironmentGroup();
     const currentAccount = detectAccount();
-    const lines: string[] = [];
-    lines.push(`Ambiente: ${currentEnv}`);
-    lines.push(`Cuenta: ${currentAccount}`);
-    if (state.environment && state.environment !== currentEnv) {
-        lines.push(`  ⚠️ ambiente cambió de "${state.environment}" a "${currentEnv}" — setups deben re-ejecutarse`);
-    }
-    if (state.account && state.account !== currentAccount) {
-        lines.push(`  ⚠️ cuenta cambió de "${state.account}" a "${currentAccount}" — setups deben re-ejecutarse`);
-    }
+    const profileKey = getProfileKey(currentEnv, currentAccount);
 
-    // ── Módulo PuntoVenta ───────────────────────────────────────────
+    const profile = state.profiles[profileKey] || {setups: {}};
+
+    const lines: string[] = [];
+    lines.push(`Ambiente activo: ${currentEnv}`);
+    lines.push(`Cuenta activa: ${currentAccount}`);
+
     lines.push(`  [PuntoVenta]`);
     for (const name of PV_SETUP_NAMES) {
-        const entry = state.setups[name];
+        const entry = profile.setups[name];
         if (entry?.completed) {
             const fecha = new Date(entry.timestamp).toLocaleString('es-PE');
             lines.push(`    ✓ ${name}: completado (${fecha})`);
@@ -241,10 +187,9 @@ export function getSetupStateSummary(): string {
         }
     }
 
-    // ── Módulo Logistica ────────────────────────────────────────────
     lines.push(`  [Logistica]`);
     for (const name of LOG_SETUP_NAMES) {
-        const entry = state.setups[name];
+        const entry = profile.setups[name];
         if (entry?.completed) {
             const fecha = new Date(entry.timestamp).toLocaleString('es-PE');
             lines.push(`    ✓ ${name}: completado (${fecha})`);
@@ -256,18 +201,14 @@ export function getSetupStateSummary(): string {
     return lines.join('\n');
 }
 
-/**
- * Retorna true si todos los setups del módulo indicado (o todos si no se especifica) están completados.
- *
- * @param module - Opcional: 'pv' para solo PuntoVenta, 'logistica' para solo Logistica.
- */
 export function areAllSetupsComplete(module?: 'pv' | 'logistica'): boolean {
     const state = loadSetupState();
-    if (!state.environment) return false;
     const currentEnvGroup = detectEnvironmentGroup();
-    if (state.environment !== currentEnvGroup) return false;
     const currentAccount = detectAccount();
-    if (state.account !== currentAccount) return false;
+    const profileKey = getProfileKey(currentEnvGroup, currentAccount);
+
+    const profile = state.profiles[profileKey];
+    if (!profile) return false;
 
     const namesToCheck = module === 'pv'
         ? PV_SETUP_NAMES
@@ -275,5 +216,5 @@ export function areAllSetupsComplete(module?: 'pv' | 'logistica'): boolean {
             ? LOG_SETUP_NAMES
             : SETUP_NAMES;
 
-    return namesToCheck.every(name => state.setups[name]?.completed === true);
+    return namesToCheck.every(name => profile.setups[name]?.completed === true);
 }

@@ -4,8 +4,6 @@ import fs from 'node:fs';
 import os from 'node:os';
 import { parseResultsFile, getFailedTests, FailedTestGroup } from '../scripts/analyze-results';
 
-// ── Fixture helpers ───────────────────────────────────────────────────
-
 const TMP_DIR = path.join(os.tmpdir(), 'erp-test-analyze-' + Date.now());
 
 function writeFixture(subdir: string, data: unknown): string {
@@ -16,21 +14,13 @@ function writeFixture(subdir: string, data: unknown): string {
     return dir;
 }
 
-/**
- * Escape regex special characters — same logic as escapeGrep() in test-runner.ts.
- */
 function escapeGrep(value: string): string {
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-/**
- * Build grep pattern from titles — same logic as runFailedTests().
- */
 function buildGrepPattern(titles: string[]): string {
     return titles.map((t) => escapeGrep(t)).join('|');
 }
-
-// ── Test: parseResultsFile ─────────────────────────────────────────────
 
 test.describe('parseResultsFile', () => {
     test.afterAll(() => {
@@ -40,7 +30,7 @@ test.describe('parseResultsFile', () => {
     });
 
     test('extracts failed test titles from valid results.json', () => {
-        // Given a valid results.json with 2 failed + 1 timedOut tests in Logistica
+        
         const fixtureDir = writeFixture('logistica', {
             config: { projects: [{ name: 'Logistica' }] },
             suites: [
@@ -76,7 +66,6 @@ test.describe('parseResultsFile', () => {
         const filePath = path.join(fixtureDir, 'results.json');
         const titles = parseResultsFile(filePath);
 
-        // Then it returns only the failed + timedOut titles
         expect(titles).toEqual([
             'Login with valid credentials',
             'Logout clears session',
@@ -182,8 +171,6 @@ test.describe('parseResultsFile', () => {
     });
 });
 
-// ── Test: getFailedTests ────────────────────────────────────────────────
-
 test.describe('getFailedTests', () => {
     test.afterAll(() => {
         if (fs.existsSync(TMP_DIR)) {
@@ -207,31 +194,27 @@ test.describe('getFailedTests', () => {
     });
 });
 
-// ── Test: Grep pattern building (Phase 2 logic) ─────────────────────────
-
 test.describe('grep pattern building (runFailedTests logic)', () => {
     test('builds correct grep pattern from multiple plain titles', () => {
-        // Given titles without special characters
+        
         const titles = ['Login with valid credentials', 'Logout clears session'];
-        // When building grep pattern
+        
         const pattern = buildGrepPattern(titles);
-        // Then it is a simple pipe-joined pattern
+        
         expect(pattern).toBe('Login with valid credentials|Logout clears session');
     });
 
     test('escapes special regex characters in titles', () => {
-        // Given titles with special regex characters
-        // Regex special chars: \ . * + ? ^ $ { } ( ) | [ ]
-        // Non-special chars like % : @ are NOT escaped
+
         const titles = ['Calculate 10% + $50 tax', 'Price (per unit) [2024]'];
-        // When building grep pattern
+        
         const pattern = buildGrepPattern(titles);
-        // Then regex special chars are escaped, non-special are left as-is
+        
         expect(pattern).toBe('Calculate 10% \\+ \\$50 tax|Price \\(per unit\\) \\[2024\\]');
     });
 
     test('builds grep pattern from getFailedTests output data flow', () => {
-        // Given a FailedTestGroup as returned by getFailedTests
+        
         const pvDir = path.join(TMP_DIR, 'grep-flow-pv');
         fs.mkdirSync(pvDir, { recursive: true });
         fs.writeFileSync(
@@ -260,12 +243,9 @@ test.describe('grep pattern building (runFailedTests logic)', () => {
             'utf-8',
         );
 
-        // Read it with parseResultsFile (simulating what getFailedTests does internally)
         const titles = parseResultsFile(path.join(pvDir, 'results.json'));
         expect(titles).toEqual(['PV: Tax calculation fails', 'PV: Discount @ 10% off']);
 
-        // Build grep pattern (simulating what runFailedTests does)
-        // Note: colon : and @ are NOT regex special characters, so they are NOT escaped
         const pattern = buildGrepPattern(titles);
         expect(pattern).toContain('PV: Tax calculation fails');
         expect(pattern).toContain('PV: Discount @ 10% off');

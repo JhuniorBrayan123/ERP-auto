@@ -8,8 +8,6 @@ import {ClickAceptarModal} from '../../../../../src/interactions/PuntoVenta/Clic
 import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
-
-
 test.describe('Selección, edición de ítem en caja de venta — Bloqueos por stock', {tag: ['@punto-venta', '@seleccion-edicion-item', '@bloqueos-stock']}, () => {
 
     test.beforeEach(async ({page}) => {

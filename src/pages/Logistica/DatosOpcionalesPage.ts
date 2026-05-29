@@ -24,21 +24,17 @@ export class DatosOpcionalesPage {
     async crearProveedor(datos: ProveedorData): Promise<void> {
         await this.page.getByRole('button', {name: 'Agregar proveedor'}).click();
 
-        // Seleccionar tipo de documento (DNI es default, pero lo aseguramos)
         await this.seleccionarTipoDocumento(datos.tipoDocumento);
 
-        // Llenar número de documento
         const inputDoc = this.page.locator(
             '[id="pv_conductores_form-registro-relacionado-entidad:form_basico:v-input:num-document"]',
         );
         await inputDoc.click();
         await inputDoc.fill(datos.numDocumento);
 
-        // Consultar SUNAT/RENIEC y esperar respuesta
         await this.page.getByRole('button', {name: 'Consultar SUNAT/RENIEC'}).click();
         await this.esperarConsultaSunat();
 
-        // Si SUNAT no devolvió nombre, llenar razón social manualmente
         await this.llenarRazonSocialSiVacio(datos.razonSocial);
 
         if (datos.direccion) {
@@ -78,21 +74,17 @@ export class DatosOpcionalesPage {
     async crearCliente(datos: ProveedorData): Promise<void> {
         await this.page.getByRole('button', {name: 'Agregar cliente'}).click();
 
-        // Seleccionar tipo de documento
         await this.seleccionarTipoDocumento(datos.tipoDocumento);
 
-        // Llenar número de documento
         const inputDoc = this.page.locator(
             '[id="pv_conductores_form-registro-relacionado-entidad:form_basico:v-input:num-document"]',
         );
         await inputDoc.click();
         await inputDoc.fill(datos.numDocumento);
 
-        // Consultar SUNAT/RENIEC y esperar respuesta
         await this.page.getByRole('button', {name: 'Consultar SUNAT/RENIEC'}).click();
         await this.esperarConsultaSunat();
 
-        // Si SUNAT no devolvió nombre, llenar razón social manualmente
         await this.llenarRazonSocialSiVacio(datos.razonSocial);
 
         if (datos.direccion) {
@@ -117,35 +109,30 @@ export class DatosOpcionalesPage {
         await this.page.waitForTimeout(2000);
     }
 
-    // ─── Helpers privados para formulario de entidades ─────────────────
-
     private async seleccionarTipoDocumento(tipoDocumento: string): Promise<void> {
         const selector = this.page.locator(
             '[id="pv_conductores_form-registro-relacionado-entidad:form_basico:v-select:tipo-documento"]',
         ).first();
 
-        // Verificar si ya tiene el tipo correcto
         const textoActual = await selector.locator('.v-text').textContent();
         if (textoActual?.trim() === tipoDocumento) {
             console.log(`      Tipo documento ya es ${tipoDocumento}`);
             return;
         }
 
-        // Si no, abrir el selector y elegir
         await selector.click();
         await this.page.getByText(tipoDocumento, {exact: true}).first().click();
     }
 
     private async esperarConsultaSunat(): Promise<void> {
-        // Esperar a que desaparezca el loading o a que el campo razón social tenga valor
+        
         const razonSocialInput = this.page.locator(
             '[id="pv_conductores_form-registro-relacionado-entidad:form_basico:v-input:razon-social"]',
         );
 
-        // Esperar hasta 15s a que el input de razón social sea visible (señal de que la consulta terminó)
         try {
             await razonSocialInput.waitFor({state: 'visible', timeout: 35_000});
-            await this.page.waitForTimeout(1000); // Esperar que se llene el valor
+            await this.page.waitForTimeout(1000); 
         } catch {
             console.log('      ⚠ Consulta SUNAT/RENIEC tardó más de 15s');
         }
@@ -166,7 +153,7 @@ export class DatosOpcionalesPage {
                 console.log(`      Razón social obtenida de SUNAT: ${valorActual.trim()}`);
             }
         } catch {
-            // Si el input no existe, ignorar
+            
         }
     }
 
@@ -360,11 +347,9 @@ export class DatosOpcionalesPage {
     async agregarComprobanteParcial(tipo: string): Promise<void> {
         await this.page.getByRole('button', {name: 'Añadir comprobante'}).click();
 
-        // Esperar que el modal esté visible antes de interactuar
         const modal = this.page.locator('.asignacion-documento-movimiento');
         await modal.waitFor({state: 'visible'});
 
-        // Apuntar al Seleccionar DENTRO del modal, no el del panel lateral
         await modal.getByText('Seleccionar', {exact: true}).click();
         await this.page.getByText(tipo).click();
         await this.page.getByRole('button', {name: 'Añadir'}).click();
