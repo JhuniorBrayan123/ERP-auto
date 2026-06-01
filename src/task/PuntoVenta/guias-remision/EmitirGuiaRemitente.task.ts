@@ -4,7 +4,7 @@ import {GUIAS_DATA} from '@helpers/PuntoVenta/guias-data.helper';
 import {runFunctionalAction} from '@utils/functional-step';
 
 export type EmitirGuiaRemitenteData = {
-    motivo: string;
+    motivo?: string;
     modalidad: 'PUBLICA' | 'PRIVADA';
     peso: string;
     esExportacion?: boolean;
@@ -35,7 +35,7 @@ export const EmitirGuiaRemitenteTask = (data: EmitirGuiaRemitenteData) => {
                 // COMPRA reemplaza el motivo en el mismo dropdown VENTA/COMPRA
                 await guiaPage.seleccionarTipoOperacion('COMPRA');
             } else {
-                await guiaPage.seleccionarMotivo(data.motivo);
+                await guiaPage.seleccionarMotivo(data.motivo!);
             }
             await guiaPage.seleccionarModalidad(data.modalidad);
 

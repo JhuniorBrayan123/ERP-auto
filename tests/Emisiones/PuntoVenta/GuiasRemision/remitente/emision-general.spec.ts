@@ -4,15 +4,15 @@ import {GUIAS_DATA} from '@helpers/PuntoVenta/guias-data.helper';
 import {NavegarAGuiaRemitente} from '@task/PuntoVenta/guias-remision/NavegarAGuiaRemitente.task';
 import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
 
-test.describe('Guías de Remisión Remitente - Emisión General', { tag: ['@guias', '@puntoventa'] }, () => {
-    test.beforeEach(async ({ cajero }) => {
+test.describe('Guías de Remisión Remitente - Emisión General', {tag: ['@guias', '@puntoventa']}, () => {
+    test.beforeEach(async ({cajero}) => {
         await cajero.intentaRealizar(
             IniciarVentaEnCaja('caja-auto'),
             NavegarAGuiaRemitente()
         );
     });
 
-    test('GRR-01: Emitir guía con modalidad pública', async ({ cajero, listadoGuiasPage }) => {
+    test('GRR-01: Emitir guía con modalidad pública', async ({cajero, listadoGuiasPage}) => {
         await cajero.intentaRealizar(
             EmitirGuiaRemitenteTask({
                 motivo: GUIAS_DATA.MOTIVOS_TRASLADO.VENTA,
@@ -30,7 +30,7 @@ test.describe('Guías de Remisión Remitente - Emisión General', { tag: ['@guia
         });
     });
 
-    test('Emitir guía donde el destinatario es el mismo emisor @GRR-03a', async ({ cajero, listadoGuiasPage, page }) => {
+    test('Emitir guía donde el destinatario es el mismo emisor @GRR-03a', async ({cajero, listadoGuiasPage, page}) => {
         await cajero.intentaRealizar(
             EmitirGuiaRemitenteTask({
                 tipoOperacion: 'COMPRA',
@@ -39,7 +39,7 @@ test.describe('Guías de Remisión Remitente - Emisión General', { tag: ['@guia
                 items: [
                     {codigoONombre: GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_SIN_CONTROL.codigo}
                 ],
-                proveedorDocumento: GUIAS_DATA.REMITENTE.DNI,
+                proveedorDocumento: GUIAS_DATA.DESTINATARIO.DNI,
                 puntoPartida: GUIAS_DATA.REMITENTE.UBIGEO,
                 puntoLlegada: GUIAS_DATA.DESTINATARIO.UBIGEO,
                 direccionPartida: GUIAS_DATA.REMITENTE.DIRECCION,
@@ -53,7 +53,7 @@ test.describe('Guías de Remisión Remitente - Emisión General', { tag: ['@guia
         });
     });
 
-    test('GRR-06: Guardar guía en modalidad privada (borrador)', async ({ cajero, listadoGuiasPage }) => {
+    test('GRR-06: Guardar guía en modalidad privada (borrador)', async ({cajero, listadoGuiasPage}) => {
         await cajero.intentaRealizar(
             EmitirGuiaRemitenteTask({
                 motivo: GUIAS_DATA.MOTIVOS_TRASLADO.VENTA,

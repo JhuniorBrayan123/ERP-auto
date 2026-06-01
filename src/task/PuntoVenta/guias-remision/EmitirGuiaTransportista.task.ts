@@ -26,6 +26,11 @@ export type EmitirGuiaTransportistaData = {
     };
     decrementarCantidad?: boolean;
     fechaInicioTraslado?: string;
+    // Skip flags para validaciones — omiten el paso correspondiente
+    skipConductor?: boolean;
+    skipTransportista?: boolean;
+    skipPuntoPartida?: boolean;
+    skipItems?: boolean;
 };
 
 export const EmitirGuiaTransportistaTask = (data: EmitirGuiaTransportistaData) => {
@@ -40,76 +45,89 @@ export const EmitirGuiaTransportistaTask = (data: EmitirGuiaTransportistaData) =
             technicalDetail: 'Error al llenar datos del formulario',
             failureCategory: 'SCRIPT'
         }, async () => {
-
+            // === DATOS OBLIGATORIOS SIEMPRE ===
             await guiaPage.seleccionarRemitente(GUIAS_DATA.REMITENTE.DNI);
             await guiaPage.seleccionarDestinatario(GUIAS_DATA.DESTINATARIO.RUC);
 
-            // Vincular comprobante
+            // === CONDUCTOR (opcional con skip) ===
+            if (!data.skipConductor) {
+                await guiaPage.seleccionarConductor(GUIAS_DATA.TRANSPORTISTA.DNI_CONDUCTOR);
+                await guiaPage.completarPlacaYLicencia(
+                    GUIAS_DATA.TRANSPORTISTA.PLACA,
+                    GUIAS_DATA.TRANSPORTISTA.LICENCIA
+                );
+                await guiaPage.completarMTC(GUIAS_DATA.TRANSPORTISTA.MTC);
+                await guiaPage.completarTUCE(GUIAS_DATA.TRANSPORTISTA.TUCE);
+            }
+
+            // === TRANSPORTISTA (opcional con skip) ===
+            if (!data.skipTransportista) {
+                await guiaPage.seleccionarTransportista(GUIAS_DATA.TRANSPORTISTA.RUC);
+            }
+
+            // === VINCULAR COMPROBANTE ===
             if (data.vincularComprobante) {
                 const { tipo, serie, correlativo, rucProveedor } = data.vincularComprobante;
-                await page.getByRole('button', { name: 'Vincular comprobante' }).click();
-                await page.getByRole('button', { name: 'Vincular comprobante' }).click();
-                if (tipo === 'BOLETA_DE_VENTA') {
-                    await page.getByText('Boleta de venta').click();
-                } else {
-                    await page.getByText('Factura').click();
-                }
-                await page.getByRole('textbox', { name: 'Serie' }).fill(serie);
-                await page.getByRole('textbox', { name: 'Correlativo' }).fill(correlativo);
-                await page.getByRole('textbox', { name: 'RUC Proveedor' }).fill(rucProveedor);
-                await page.getByRole('button', { name: 'Añadir' }).click();
-                await page.getByRole('button', { name: 'Cerrar' }).click();
-                await page.getByRole('button', { name: 'Guardar comprobante' }).click();
+                await guiaPage.vincularComprobante(tipo, serie, correlativo, rucProveedor);
             }
 
-            // Pagador de flete
+            // === PAGADOR DE FLETE ===
             if (data.pagadorFlete) {
-                const pagadorLabel: Record<string, string> = {
-                    remitente: 'Remitente',
-                    destinatario: 'Destinatario',
-                    otros_terceros: 'Otros(Terceros)',
-                    subcontratador: 'Subcontratador',
-                };
-                await page.getByText(pagadorLabel[data.pagadorFlete]).click();
+                await guiaPage.seleccionarPagadorFlete(data.pagadorFlete);
             }
-
-            // Datos del pagador de flete (documento)
             if (data.pagadorFleteData) {
-                await page.getByRole('textbox', { name: /Digite N.° de RUC, nombre o/ }).fill(data.pagadorFleteData.documento);
+                await guiaPage.completarPagadorFleteData(data.pagadorFleteData.documento);
             }
 
-            // Retorno
-            if (data.retorno === 'transporte-subcontratado') {
-                await page.getByRole('button', { name: 'Retorno de vehículo con' }).click();
-                await page.getByText('Transporte subcontratado').click();
-            } else if (data.retorno === 'retorno-vehiculo') {
-                await page.getByRole('button', { name: 'Retorno de vehículo con' }).click();
+            // === RETORNO ===
+            if (data.retorno) {
+                await guiaPage.seleccionarRetorno(data.retorno);
             }
 
-            // Subcontratador
+            // === SUBCONTRATADOR ===
             if (data.subcontratador) {
-                await page.getByRole('textbox', { name: /Digite N.° de RUC, nombre o/ }).fill(data.subcontratador.documento);
+                await guiaPage.seleccionarSubcontratador(data.subcontratador.documento);
             }
 
-            // Autorización especial
+            // === PUNTO PARTIDA / LLEGADA (opcional con skip) ===
+            if (!data.skipPuntoPartida) {
+                await guiaPage.completarPuntoPartidaYLlegada(
+                    GUIAS_DATA.PUNTO_PARTIDA.UBIGEO,
+                    GUIAS_DATA.PUNTO_LLEGADA.UBIGEO,
+                    GUIAS_DATA.PUNTO_PARTIDA.DIRECCION
+                );
+            }
+
+            // === AUTORIZACIÓN ESPECIAL ===
             if (data.autorizacionEspecial) {
-                await page.getByRole('checkbox', { name: 'Autorización Especial' }).check();
-                await page.getByRole('textbox', { name: 'Número de autorización' }).fill(data.autorizacionEspecial.numeroAutorizacion);
-                if (data.autorizacionEspecial.tuce) {
-                    await page.getByRole('textbox', { name: /TUCE/ }).fill(data.autorizacionEspecial.tuce);
+                await guiaPage.completarAutorizacionEspecial(
+                    data.autorizacionEspecial.numeroAutorizacion,
+                    data.autorizacionEspecial.tuce
+                );
+            }
+
+            // === ITEMS (opcional con skip) ===
+            if (!data.skipItems) {
+                for (const item of data.items) {
+                    await guiaPage.buscarYSeleccionarItem(item.codigoONombre);
                 }
             }
 
-            // Decrementar cantidad
+            // === DEFINIR PESO ===
+            await guiaPage.definirPesoTotal(data.peso);
+
+            // === DECREMENTAR CANTIDAD (para validación GRT-25) ===
             if (data.decrementarCantidad) {
-                await page.getByRole('button', { name: /decrementar|decrement/i }).click();
+                await guiaPage.decrementarCantidad();
             }
 
-            // Fecha inicio traslado
+            // === FECHA INICIO TRASLADO (para validación GRT-22) ===
             if (data.fechaInicioTraslado) {
-                await page.getByRole('textbox', { name: /fecha.*inicio.*traslado/i }).fill(data.fechaInicioTraslado);
+                // No disponible en page object — se usa locator directo
+                await page.getByRole('textbox', {name: /fecha.*inicio.*traslado/i}).fill(data.fechaInicioTraslado);
             }
 
+            // === EMITIR ===
             await guiaPage.emitirGuia();
         });
     };

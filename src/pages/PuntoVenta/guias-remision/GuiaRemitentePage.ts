@@ -1,54 +1,101 @@
-import {expect, type Locator, type Page} from '@playwright/test';
-import {runFunctionalAction} from '../../../utils/functional-step';
-import {esperarDebounce} from '../../../utils/wait-helpers';
+import {expect, type Page, test} from '@playwright/test';
+import {esperarDebounce} from '@utils/wait-helpers';
 
 export class GuiaRemitentePage {
-    constructor(public readonly page: Page) {}
+    constructor(public readonly page: Page) {
+    }
 
     // Modals y botones globales
-    get btnNuevaGuia() { return this.page.getByRole('button', { name: 'Nueva guía remisión remitente' }); }
-    get btnEmitir() { return this.page.getByRole('button', { name: 'Emitir' }); }
-    get btnGuardar() { return this.page.getByRole('button', { name: 'Guardar', exact: true }); }
-    
+    get btnNuevaGuia() {
+        return this.page.getByRole('button', {name: 'Nueva guía remisión remitente'});
+    }
+
+    get btnEmitir() {
+        return this.page.getByRole('button', {name: 'Emitir'});
+    }
+
+    get btnGuardar() {
+        return this.page.getByRole('button', {name: 'Guardar', exact: true});
+    }
+
     // Locators Principales
-    get fechaEmisionPicker() { return this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-inicio:form-inicio_v-datepicker:fecha-emision"]'); }
-    get fechaTrasladoPicker() { return this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-inicio:form-inicio_v-datepicker:fecha-inicio-traslado"]'); }
-    get inputDestinatario() { return this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-destinatario:form-destino_v-input:filtrar-entidad"]'); }
-    get inputTransportista() { return this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-transporte:form-transporte-transportista_v-input:filtrar-entidad"]'); }
-    get inputConductor() { return this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-transporte:form-transporte-conductor_v-input:filtrar-entidad"]'); }
-    get inputMTC() { return this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-transporte:form-transporte_v-input:registro-mtc"]'); }
-    get inputDam() { return this.page.getByRole('textbox', { name: 'Ej. 2024/123-4567-40-' }); }
-    get inputBultos() { return this.page.getByRole('textbox', { name: 'Ej. 10' }); }
-    get inputBuscarItem() { return this.page.getByRole('textbox', { name: 'Escanea o busca por nombre, c' }); }
+    get fechaEmisionPicker() {
+        return this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-inicio:form-inicio_v-datepicker:fecha-emision"]');
+    }
+
+    get fechaTrasladoPicker() {
+        return this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-inicio:form-inicio_v-datepicker:fecha-inicio-traslado"]');
+    }
+
+    get inputDestinatario() {
+        return this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-destinatario:form-destino_v-input:filtrar-entidad"]');
+    }
+
+    get inputTransportista() {
+        return this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-transporte:form-transporte-transportista_v-input:filtrar-entidad"]');
+    }
+
+    get inputConductor() {
+        return this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-transporte:form-transporte-conductor_v-input:filtrar-entidad"]');
+    }
+
+    get inputMTC() {
+        return this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-transporte:form-transporte_v-input:registro-mtc"]');
+    }
+
+    get inputDam() {
+        return this.page.getByRole('textbox', {name: 'Ej. 2024/123-4567-40-'});
+    }
+
+    get inputBultos() {
+        return this.page.getByRole('textbox', {name: 'Ej. 10'});
+    }
+
+    get inputBuscarItem() {
+        return this.page.getByRole('textbox', {name: 'Escanea o busca por nombre, c'});
+    }
 
     async abrirNuevaGuia() {
         await this.btnNuevaGuia.click();
         await esperarDebounce(this.page, 500, 'Esperando render de Nueva Guia');
     }
 
+    /**
+     * Abre un dropdown v-select y selecciona una opción.
+     * Scopes la búsqueda dentro de .v-select-base-options.is-open para evitar
+     * strict mode violations cuando el trigger y la opción tienen el mismo texto.
+     */
+    private async seleccionarOpcionDropdown(triggerLocator: string | RegExp, opcionTexto: string, triggerIndex = 2) {
+        await this.page.locator('div').filter({hasText: triggerLocator}).nth(triggerIndex).click();
+        await this.page.locator('.v-select-base-options.is-open')
+            .getByText(opcionTexto, {exact: true})
+            .click();
+    }
+
     async seleccionarMotivo(motivo: string) {
-        await this.page.locator('div').filter({ hasText: /^VENTA$/ }).nth(2).click();
-        await this.page.getByText(motivo, { exact: true }).click();
+        await this.seleccionarOpcionDropdown(/^VENTA$/, motivo);
     }
 
     async seleccionarModalidad(modalidad: 'PUBLICA' | 'PRIVADA') {
-        await this.page.locator('div').filter({ hasText: /^PRIVADA$/ }).nth(3).click();
-        await this.page.getByText(modalidad, { exact: true }).click();
+        await this.seleccionarOpcionDropdown(/^PRIVADA$/, modalidad, 3);
     }
 
     async seleccionarDestinatario(documento: string, resultadoTexto: string) {
         await this.inputDestinatario.click();
         await this.inputDestinatario.fill(documento);
-        await this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-destinatario:form-destino_item:seleccion-entidad_div-0"]').click();
+        // Scope al card de destinatario + filtro por nombre para desambiguar
+        await this.page.locator('[id*="card-destinatario"][id*="seleccion-entidad"]')
+            .filter({ hasText: resultadoTexto })
+            .click();
     }
 
     async completarPuntoPartidaYLlegada(origenUbigeo: string, destinoUbigeo: string, partidaDireccion: string) {
-        await this.page.getByRole('article').filter({ hasText: 'Datos de inicio de' }).locator('input[type="text"]').click();
-        await this.page.getByRole('article').filter({ hasText: 'Datos de inicio de' }).locator('input[type="text"]').fill(origenUbigeo.split('-')[0].trim());
+        await this.page.getByRole('article').filter({hasText: 'Datos de inicio de'}).locator('input[type="text"]').click();
+        await this.page.getByRole('article').filter({hasText: 'Datos de inicio de'}).locator('input[type="text"]').fill(origenUbigeo.split('-')[0].trim());
         await this.page.getByText(origenUbigeo).first().click();
 
-        await this.page.getByRole('textbox', { name: 'Busca por distrito, ciudad,' }).click();
-        await this.page.getByRole('textbox', { name: 'Busca por distrito, ciudad,' }).fill(destinoUbigeo.split('-')[0].trim());
+        await this.page.getByRole('textbox', {name: 'Busca por distrito, ciudad,'}).click();
+        await this.page.getByRole('textbox', {name: 'Busca por distrito, ciudad,'}).fill(destinoUbigeo.split('-')[0].trim());
         await this.page.getByText(destinoUbigeo).last().click();
 
         await this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-inicio:form-inicio_v-input:direccion-partida"]').click();
@@ -62,15 +109,15 @@ export class GuiaRemitentePage {
     }
 
     async completarPlacaYLicencia(placa: string, licencia: string) {
-        await this.page.getByRole('textbox', { name: 'Ej. A1A000' }).click();
-        await this.page.getByRole('textbox', { name: 'Ej. A1A000' }).fill(placa);
-        await this.page.getByRole('textbox', { name: 'Ej. A23456723' }).click();
-        await this.page.getByRole('textbox', { name: 'Ej. A23456723' }).fill(licencia);
+        await this.page.getByRole('textbox', {name: 'Ej. A1A000'}).click();
+        await this.page.getByRole('textbox', {name: 'Ej. A1A000'}).fill(placa);
+        await this.page.getByRole('textbox', {name: 'Ej. A23456723'}).click();
+        await this.page.getByRole('textbox', {name: 'Ej. A23456723'}).fill(licencia);
     }
 
     async seleccionarTransportista(documento: string) {
-        await this.page.getByRole('textbox', { name: 'Digite N° de documento' }).click();
-        await this.page.getByRole('textbox', { name: 'Digite N° de documento' }).fill(documento);
+        await this.page.getByRole('textbox', {name: 'Digite N° de documento'}).click();
+        await this.page.getByRole('textbox', {name: 'Digite N° de documento'}).fill(documento);
         await this.page.getByText(new RegExp(documento)).click();
     }
 
@@ -92,18 +139,20 @@ export class GuiaRemitentePage {
     async buscarYSeleccionarItem(codigoONombre: string) {
         await this.inputBuscarItem.click();
         await this.inputBuscarItem.fill(codigoONombre);
-        await this.page.getByText(codigoONombre, { exact: false }).first().click();
+        await this.page.getByText(codigoONombre, {exact: false}).first().click();
     }
 
     async definirPesoTotal(tipo: 'Kg' | 'Tn', peso: string) {
-        await this.page.locator('div').filter({ hasText: /^Peso total \(Kg\)$/ }).nth(3).click();
-        await this.page.getByText(`Peso total (${tipo})`).first().click();
-        await this.page.getByRole('textbox', { name: tipo }).click();
-        await this.page.getByRole('textbox', { name: tipo }).fill(peso);
+        await this.page.locator('div').filter({hasText: /^Peso total \(Kg\)$/}).nth(3).click();
+        await this.page.locator('.v-select-base-options.is-open')
+            .getByText(`Peso total (${tipo})`, {exact: true})
+            .click();
+        await this.page.getByRole('textbox', {name: tipo}).click();
+        await this.page.getByRole('textbox', {name: tipo}).fill(peso);
     }
 
     async anadirContenedor(numero: string, precinto: string) {
-        await this.page.locator('div').filter({ hasText: /^Sin Contenedor$/ }).nth(3).click();
+        await this.page.locator('div').filter({hasText: /^Sin Contenedor$/}).nth(3).click();
         await this.page.getByText('Con Contenedor').click();
         await this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-inicio:form-inicio_v-input:contenedor-1"]').fill(numero);
         await this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-inicio:form-inicio_v-input:precinto-1"]').click();
@@ -115,8 +164,38 @@ export class GuiaRemitentePage {
     }
 
     async seleccionarTipoOperacion(tipo: 'VENTA' | 'COMPRA') {
-        await this.page.locator('div').filter({ hasText: /^VENTA$/ }).nth(2).click();
-        await this.page.getByText(tipo, { exact: true }).click();
+        await this.seleccionarOpcionDropdown(/^VENTA$/, tipo);
+    }
+
+    /**
+     * Vincula un comprobante (factura/boleta) a la guía de remisión remitente.
+     * Abre el modal de vinculación, selecciona la serie, ingresa el correlativo,
+     * busca el comprobante, valida los datos visibles y hace clic en Vincular.
+     */
+    async vincularComprobanteEnModal(serie: string, correlativo: string) {
+        await test.step('Vincular comprobante a la guía', async () => {
+            await this.page.getByRole('button', {name: 'Vincular comprobante'}).click();
+            await this.page.locator(
+                `[id="pv_cmp-guia-remision-remitente_cmp-modal-vincular-comprobante:form-vincular-comprobante_v-select:serie-comprobante"] div`
+            ).filter({hasText: new RegExp(`^${serie}$`)}).click();
+            await this.page.getByText(serie).nth(1).click();
+            await this.page.getByRole('textbox', {name: 'Ej. 0075'}).click();
+            await this.page.getByRole('textbox', {name: 'Ej. 0075'}).fill(correlativo);
+            await this.page.getByRole('button', {name: 'Buscar'}).click();
+
+            await expect(this.page.locator('body')).toContainText(`${serie}-${correlativo}`);
+            await this.page.getByRole('button', {name: 'Vincular y crear guía'}).click();
+            await expect(this.page.getByText('Comprobante vinculado')).toBeVisible();
+        });
+    }
+
+    /**
+     * Activa la opción "Con Contenedor" sin llenar los campos de número/precinto.
+     * Útil para validaciones que verifican campo obligatorio en contenedor.
+     */
+    async activarContenedorSinDatos() {
+        await this.page.locator('div').filter({hasText: /^Sin Contenedor$/}).nth(2).click();
+        await this.page.getByText('Con Contenedor').click();
     }
 
     async seleccionarProveedor(documento: string) {

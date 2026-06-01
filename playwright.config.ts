@@ -53,7 +53,7 @@ export default defineConfig({
     use: {
         baseURL: env.baseUrl,
 
-        trace: "on-first-retry",
+        trace: "retain-on-failure",
         screenshot: "only-on-failure",
         video: "retain-on-failure",
 

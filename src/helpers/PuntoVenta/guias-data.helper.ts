@@ -17,8 +17,18 @@ export const GUIAS_DATA = {
         RUC: '20759685854',
         MTC: '123',
         NOMBRE: 'automatizacionerp2 cliente',
-        PLACA: 'ABC-123',
-        LICENCIA: 'A1231ADw',
+        PLACA: 'ABC123',
+        LICENCIA: 'A12345678',
+        DNI_CONDUCTOR: '75652545',
+        TUCE: '1234567890/1234567890',
+    },
+    PUNTO_PARTIDA: {
+        UBIGEO: 'Arequipa - Arequipa - Arequipa',
+        DIRECCION: 'Avenida automatizacion qa',
+    },
+    PUNTO_LLEGADA: {
+        UBIGEO: 'Juliaca - San Roman - Puno',
+        DIRECCION: 'juliaca-automatización',
     },
     ITEMS: {
         PRODUCTO_GRAVADO_FLEXIBLE: {
