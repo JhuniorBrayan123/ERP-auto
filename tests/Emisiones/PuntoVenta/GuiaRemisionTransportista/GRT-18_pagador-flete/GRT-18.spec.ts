@@ -1,7 +1,8 @@
-import {test, expect} from '@fixtures/PuntoVenta/guias-fixture';
+import {test} from '@fixtures/PuntoVenta/guias-fixture';
 import {EmitirGuiaTransportistaTask} from '@task/PuntoVenta/guias-remision/EmitirGuiaTransportista.task';
 import {NavegarAGuiaTransportista} from '@task/PuntoVenta/guias-remision/NavegarAGuiaTransportista.task';
 import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
+import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
 
 test.describe('Guías de Remisión Transportista', {
  tag: ['@guias', '@puntoventa', '@transportista'] }, () => {
@@ -12,7 +13,7 @@ test.describe('Guías de Remisión Transportista', {
         );
     });
 
-    test('P18: Emitir guía transportista con pagador de flete adicional @GRT-18', async ({ cajero, page, listadoGuiasPage }) => {
+    test('P18: Emitir guía transportista con pagador de flete adicional @GRT-18', async ({ cajero, listadoGuiasPage, page, busquedaComprobantes }) => {
         await cajero.intentaRealizar(
             EmitirGuiaTransportistaTask({
                 peso: '10',
@@ -22,20 +23,24 @@ test.describe('Guías de Remisión Transportista', {
             })
         );
 
-        await listadoGuiasPage.validarGuiaEmitidaExito();
+        await test.step('Validar emisión exitosa y estado EMITIDO en comprobantes', async () => {
+            // 1. Validar que se emitió correctamente
+            await listadoGuiasPage.validarGuiaEmitidaExito();
 
-        await test.step('Validar EMITIDO en grilla de comprobantes', async () => {
-            await listadoGuiasPage.cerrarModalExito();
-            await page.locator('.icon').first().click();
-            await page.getByText('Ventas y compras').click();
-            await page.getByText('Búsqueda de comprobantes').click();
-            await page.locator('[id="pv_comprobantes_cmp-header-comprobantes_categorias:pill-GUIAS"]').click();
-            await page.getByRole('button', { name: 'Ver filtros avanzados' }).click();
-            await page.locator('div').filter({ hasText: /^Tipo de comprobante$/ }).nth(2).click();
-            await page.getByText('Guía de Remisión T.').click();
-            await page.getByRole('textbox', { name: 'Correlativo' }).click();
-            await page.getByRole('textbox', { name: 'Correlativo' }).fill('3');
-            await expect(page.getByRole('cell', { name: 'EMITIDO' })).toBeVisible();
+            // 2. Capturar correlativo desde la pantalla post-emisión
+            const postEmision = new PostEmisionPage(page);
+            const correlativoTexto = await postEmision.obtenerCorrelativoDinamico();
+            const correlativo = correlativoTexto.split('-')[1];
+
+            console.log(`   Guía emitida: ${correlativoTexto} | Correlativo: ${correlativo}`);
+
+            // 3. Navegar a búsqueda de comprobantes y filtrar
+            await busquedaComprobantes.navegarABusquedaComprobantes({correlativo, serie: correlativoTexto.split('-')[0], comprobanteId: 0});
+
+            // 4. Validar que aparece EMITIDO
+            await busquedaComprobantes.abrirBitacoraDelPrimerComprobante();
+            await busquedaComprobantes.validarComprobanteEmitidonota();
+            await busquedaComprobantes.cerrarBitacora();
         });
     });
 });
