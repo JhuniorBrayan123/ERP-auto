@@ -92,7 +92,7 @@ export class PostEmisionPage {
     }
 
     async obtenerCorrelativoDinamico(): Promise<string> {
-        const regex = /(PD01|F001|B001|NV01|CT01)-\d+/;
+        const regex = /[A-Z]{1,4}\d{1,4}-\d+/;
 
         const locator = this.page.getByText(regex).last();
 

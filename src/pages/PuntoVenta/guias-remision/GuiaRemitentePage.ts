@@ -42,17 +42,14 @@ export class GuiaRemitentePage {
         await this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-destinatario:form-destino_item:seleccion-entidad_div-0"]').click();
     }
 
-    async completarPuntoPartidaYLlegada(llegadaUbigeo: string, llegadaDireccion: string, partidaDireccion: string) {
+    async completarPuntoPartidaYLlegada(origenUbigeo: string, destinoUbigeo: string, partidaDireccion: string) {
         await this.page.getByRole('article').filter({ hasText: 'Datos de inicio de' }).locator('input[type="text"]').click();
-        await this.page.getByRole('article').filter({ hasText: 'Datos de inicio de' }).locator('input[type="text"]').fill(llegadaUbigeo.split('-')[0].trim());
-        await this.page.getByText(llegadaUbigeo).first().click();
-        
-        await this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-destinatario:form-destino_v-input:direccion-destino"]').click();
-        await this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-destinatario:form-destino_v-input:direccion-destino"]').fill(llegadaDireccion);
+        await this.page.getByRole('article').filter({ hasText: 'Datos de inicio de' }).locator('input[type="text"]').fill(origenUbigeo.split('-')[0].trim());
+        await this.page.getByText(origenUbigeo).first().click();
 
         await this.page.getByRole('textbox', { name: 'Busca por distrito, ciudad,' }).click();
-        await this.page.getByRole('textbox', { name: 'Busca por distrito, ciudad,' }).fill(llegadaUbigeo.split('-')[0].trim());
-        await this.page.getByText(llegadaUbigeo).last().click();
+        await this.page.getByRole('textbox', { name: 'Busca por distrito, ciudad,' }).fill(destinoUbigeo.split('-')[0].trim());
+        await this.page.getByText(destinoUbigeo).last().click();
 
         await this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-inicio:form-inicio_v-input:direccion-partida"]').click();
         await this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-inicio:form-inicio_v-input:direccion-partida"]').fill(partidaDireccion);
@@ -115,6 +112,18 @@ export class GuiaRemitentePage {
 
     async seleccionarTrasladoVehiculosM1() {
         await this.page.locator('.v-checkbox-default-label.v-h6 > span').first().click();
+    }
+
+    async seleccionarTipoOperacion(tipo: 'VENTA' | 'COMPRA') {
+        await this.page.locator('div').filter({ hasText: /^VENTA$/ }).nth(2).click();
+        await this.page.getByText(tipo, { exact: true }).click();
+    }
+
+    async seleccionarProveedor(documento: string) {
+        const inputProveedor = this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-inicio:form-inicio-proveedor_v-input:filtrar-entidad"]');
+        await inputProveedor.click();
+        await inputProveedor.fill(documento);
+        await this.page.getByText(new RegExp(documento)).first().click();
     }
 
     async emitirGuia() {

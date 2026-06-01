@@ -44,7 +44,7 @@ export const EmitirGuiaRemitenteConValidacionTask = (data: EmitirGuiaRemitenteCo
             if (!data.skipUbigeo) {
                 await guiaPage.completarPuntoPartidaYLlegada(
                     GUIAS_DATA.DESTINATARIO.UBIGEO,
-                    GUIAS_DATA.DESTINATARIO.DIRECCION,
+                    GUIAS_DATA.DESTINATARIO.UBIGEO,
                     GUIAS_DATA.REMITENTE.DIRECCION
                 );
             }
