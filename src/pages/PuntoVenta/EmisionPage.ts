@@ -1,8 +1,8 @@
 import {expect, type Locator, type Page} from '@playwright/test';
-import type {EmisionResult} from '../../helpers/PuntoVenta/emision.types';
-import {throwFunctionalError} from '../../utils/functional-error';
-import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
-import {esperarDebounce} from '../../utils/wait-helpers';
+import type {EmisionResult} from '@app-types/emision.types';
+import {throwFunctionalError} from '@utils/functional-error';
+import {FUNCTIONAL_CATALOG} from '@utils/functional-catalog';
+import {esperarDebounce} from '@utils/wait-helpers';
 
 export class EmisionPage {
     
@@ -392,7 +392,8 @@ export class EmisionPage {
     }
 
     async clickPrecuenta(): Promise<void> {
-        await this.page.getByRole('button', {name: 'PRECUENTA'}).click();
+        await this.page.locator('[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-footer_v-button:precuenta"]').click()
+        await this.page.locator('[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-footer_v-button:precuenta_li:imprimir_a4"]').click();
     }
 
     async clickVistaPrevia(): Promise<void> {
@@ -441,6 +442,15 @@ export class EmisionPage {
 
         await this.abrirSelectorFecha();
 
+        const fechaObjetivo = new Date()
+        fechaObjetivo.setDate(fechaObjetivo.getDate() - (diasLimite + 1));
+        const hoy = new Date();
+        if (
+            fechaObjetivo.getMonth() !== hoy.getMonth() ||
+            fechaObjetivo.getFullYear() !== hoy.getFullYear()
+        ) {
+            await this.page.locator('button.vc-arrow.vc-prev').click()
+        }
         const botonFecha = this.page.locator(`[aria-label="${ariaLabel}"]`);
         await botonFecha.waitFor({state: 'attached', timeout: 5_000});
 

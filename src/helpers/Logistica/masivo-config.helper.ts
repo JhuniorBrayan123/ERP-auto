@@ -60,7 +60,7 @@ export const MASIVO_CONFIG: Record<TipoItemMasivo, MasivoItemConfig> = {
   },
   listas: {
     tipo: 'listas',
-    cardLabel: 'Lista de productos',
+    cardLabel: 'Listas de productos',
     excelFile: 'FORMATO_SUBIDA_LISTASPRODUCTOS.xlsx',
     sheetName: 'LISTA DE PRODUCTOS',
     nombreHeader: 'NOMBRE LISTA',

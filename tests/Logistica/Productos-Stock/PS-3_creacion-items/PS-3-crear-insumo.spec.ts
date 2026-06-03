@@ -32,7 +32,7 @@ test.describe('PS-3 | Creación de Insumos', { tag: ['@logistica', '@productos-s
         });
         await test.step('Llenar nombre y unidad de medida', async () => {
             await insumoForm.llenarNombre(nombre);
-            await insumoForm.seleccionarUnidadMedida('KILOGRAMOS');
+            await insumoForm.seleccionarUnidadMedida('KILOGRAMOS (KGM)');
         });
         await test.step('Configurar stock estricto', async () => {
             await insumoForm.expandirOpcionesAvanzadas();
