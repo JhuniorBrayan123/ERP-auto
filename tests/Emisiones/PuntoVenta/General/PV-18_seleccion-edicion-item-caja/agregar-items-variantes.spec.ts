@@ -41,7 +41,7 @@ test.describe('Selección, edición de ítem en caja de venta — Variantes y eq
     test('SC-12: Bloquear agregado de variante sin stock @PV-18.12', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
-            IntentarAgregarVarianteSinStock(ITEMS_PV.ITEM_VARIANTE_ESTRICTO, 25)
+            IntentarAgregarVarianteSinStock(ITEMS_PV.ITEM_VARIANTE_ESTRICTO)
         );
         expect(await cajero.pregunta(
             MensajeVisible('No puedes agregar este ítem a tu venta sobrepasando el stock disponible')

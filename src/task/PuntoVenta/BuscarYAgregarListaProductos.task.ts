@@ -7,8 +7,7 @@ export const BuscarYAgregarListaProductos = (item: ItemVenta) => {
         const emision = new EmisionPage(page);
         await emision.buscarItem(item.codigo);
         await emision.seleccionarItem(item.nombre);
-        
-        await page.getByText('(Obligatorio)').click();
+        // await page.getByText('(Obligatorio)').click(); innecesario
         await page.locator('[id="_div:increase"] > .simbolo-mas').first().click();
         await page.getByRole('button', {name: 'Agregar a venta'}).click();
     };
