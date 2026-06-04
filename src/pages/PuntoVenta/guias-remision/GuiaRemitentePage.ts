@@ -5,7 +5,6 @@ export class GuiaRemitentePage {
     constructor(public readonly page: Page) {
     }
 
-    // Modals y botones globales
     get btnNuevaGuia() {
         return this.page.getByRole('button', {name: 'Nueva guía remisión remitente'});
     }
@@ -18,7 +17,6 @@ export class GuiaRemitentePage {
         return this.page.getByRole('button', {name: 'Guardar', exact: true});
     }
 
-    // Locators Principales
     get fechaEmisionPicker() {
         return this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-inicio:form-inicio_v-datepicker:fecha-emision"]');
     }
@@ -60,11 +58,6 @@ export class GuiaRemitentePage {
         await esperarDebounce(this.page, 500, 'Esperando render de Nueva Guia');
     }
 
-    /**
-     * Abre un dropdown v-select y selecciona una opción.
-     * Scopes la búsqueda dentro de .v-select-base-options.is-open para evitar
-     * strict mode violations cuando el trigger y la opción tienen el mismo texto.
-     */
     private async seleccionarOpcionDropdown(triggerLocator: string | RegExp, opcionTexto: string, triggerIndex = 2) {
         await this.page.locator('div').filter({hasText: triggerLocator}).nth(triggerIndex).click();
         await this.page.locator('.v-select-base-options.is-open')
@@ -85,7 +78,7 @@ export class GuiaRemitentePage {
         await this.inputDestinatario.fill(documento);
         // Scope al card de destinatario + filtro por nombre para desambiguar
         await this.page.locator('[id*="card-destinatario"][id*="seleccion-entidad"]')
-            .filter({ hasText: resultadoTexto })
+            .filter({hasText: resultadoTexto})
             .click();
     }
 
@@ -167,11 +160,6 @@ export class GuiaRemitentePage {
         await this.seleccionarOpcionDropdown(/^VENTA$/, tipo);
     }
 
-    /**
-     * Vincula un comprobante (factura/boleta) a la guía de remisión remitente.
-     * Abre el modal de vinculación, selecciona la serie, ingresa el correlativo,
-     * busca el comprobante, valida los datos visibles y hace clic en Vincular.
-     */
     async vincularComprobanteEnModal(serie: string, correlativo: string) {
         await test.step('Vincular comprobante a la guía', async () => {
             await this.page.getByRole('button', {name: 'Vincular comprobante'}).click();
@@ -189,10 +177,7 @@ export class GuiaRemitentePage {
         });
     }
 
-    /**
-     * Activa la opción "Con Contenedor" sin llenar los campos de número/precinto.
-     * Útil para validaciones que verifican campo obligatorio en contenedor.
-     */
+
     async activarContenedorSinDatos() {
         await this.page.locator('div').filter({hasText: /^Sin Contenedor$/}).nth(2).click();
         await this.page.getByText('Con Contenedor').click();

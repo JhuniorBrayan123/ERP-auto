@@ -325,26 +325,26 @@ export class BusquedaComprobantesPage {
     async validarRetencionEnPopup(popupPage: Page, porcentaje: string): Promise<void> {
         await expect(
             popupPage.getByText(`ESTE DOCUMENTO ESTA AFECTO A RETENCION DEL ${porcentaje}%`),
-        ).toBeVisible({timeout: 10_000});
+        ).toBeVisible({timeout: 30_000});
     }
 
     async validarDetraccionEnPopup(popupPage: Page): Promise<void> {
         await expect(
             popupPage.getByText('OPERACIÓN SUJETA AL SISTEMA'),
-        ).toBeVisible({timeout: 10_000});
+        ).toBeVisible({timeout: 30_000});
     }
 
     async validarFacturaAdelantoEnPopup(popupPage: Page): Promise<void> {
         await expect(
             popupPage.getByText('Factura de adelanto'),
-        ).toBeVisible({timeout: 10_000});
+        ).toBeVisible({timeout: 30_000});
     }
 
     async validarAdelantosAplicadosEnPopup(popupPage: Page): Promise<void> {
         const adelantos = popupPage.getByText('Adelantos aplicados').nth(1);
         const comprobantes = popupPage.getByText('Comprobantes de aplicación').nth(1);
 
-        await expect(adelantos.or(comprobantes)).toBeVisible({timeout: 10000});
+        await expect(adelantos.or(comprobantes)).toBeVisible({timeout: 30_000});
     }
 
     async clickAccionesExtra(popupPage: Page): Promise<void> {

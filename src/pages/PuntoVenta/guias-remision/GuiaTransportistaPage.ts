@@ -1,8 +1,9 @@
-import {type Locator, type Page} from '@playwright/test';
+import {type Page} from '@playwright/test';
 import {esperarDebounce} from '@utils/wait-helpers';
 
 export class GuiaTransportistaPage {
-    constructor(public readonly page: Page) {}
+    constructor(public readonly page: Page) {
+    }
 
     get btnNuevaGuia() {
         return this.page.getByRole('button', {name: 'Nueva guía remisión transportista'});
@@ -72,34 +73,29 @@ export class GuiaTransportistaPage {
         return this.page.getByRole('textbox', {name: /Digite N.° de RUC, nombre o/});
     }
 
-    /** Navegación */
     async abrirNuevaGuia() {
         await this.btnNuevaGuia.click();
         await esperarDebounce(this.page, 500, 'Esperando render de Nueva Guia Transportista');
     }
 
-    /** Remitente */
     async seleccionarRemitente(documento: string) {
         await this.inputRemitente.click();
         await this.inputRemitente.fill(documento);
         await this.page.getByText(new RegExp(documento)).click();
     }
 
-    /** Destinatario */
     async seleccionarDestinatario(documento: string) {
         await this.inputDestinatario.click();
         await this.inputDestinatario.fill(documento);
         await this.page.getByText(new RegExp(documento)).click();
     }
 
-    /** Conductor */
     async seleccionarConductor(documento: string) {
         await this.inputConductor.click();
         await this.inputConductor.fill(documento);
         await this.page.getByText(documento).first().click();
     }
 
-    /** Placa y licencia */
     async completarPlacaYLicencia(placa: string, licencia: string) {
         await this.inputPlaca.click();
         await this.inputPlaca.fill(placa);
@@ -107,26 +103,22 @@ export class GuiaTransportistaPage {
         await this.inputLicencia.fill(licencia);
     }
 
-    /** Registro MTC */
     async completarMTC(mtc: string) {
         await this.inputMTC.click();
         await this.inputMTC.fill(mtc);
     }
 
-    /** TUCE (autorización) */
     async completarTUCE(tuce: string) {
         await this.inputTUCE.click();
         await this.inputTUCE.fill(tuce);
     }
 
-    /** Transportista */
     async seleccionarTransportista(documento: string) {
         await this.inputDocTransportista.click();
         await this.inputDocTransportista.fill(documento);
         await this.page.getByText(new RegExp(documento)).first().click();
     }
 
-    /** Retorno */
     async seleccionarRetorno(tipo: 'retorno-vehiculo' | 'transporte-subcontratado') {
         await this.page.getByRole('button', {name: /Retorno de vehículo con/}).click();
         if (tipo === 'transporte-subcontratado') {
@@ -134,13 +126,11 @@ export class GuiaTransportistaPage {
         }
     }
 
-    /** Subcontratador */
     async seleccionarSubcontratador(documento: string) {
         await this.page.getByRole('textbox', {name: /Digite N.° de RUC, nombre o/}).fill(documento);
         await this.page.getByText(new RegExp(documento)).first().click();
     }
 
-    /** Pagador de flete */
     async seleccionarPagadorFlete(tipo: 'remitente' | 'destinatario' | 'otros_terceros' | 'subcontratador') {
         const label: Record<string, string> = {
             remitente: 'Remitente',
@@ -155,13 +145,11 @@ export class GuiaTransportistaPage {
             .click();
     }
 
-    /** Datos del pagador de flete */
     async completarPagadorFleteData(documento: string) {
         await this.inputPagadorFlete.fill(documento);
         await this.page.getByText(new RegExp(documento)).first().click();
     }
 
-    /** Punto de partida y punto de llegada */
     async completarPuntoPartidaYLlegada(origen: string, destino: string, direccion: string) {
         await this.inputBuscarPuntoLlegada.first().click();
         await this.inputBuscarPuntoLlegada.first().fill(origen.split('-')[0].trim());
@@ -175,14 +163,12 @@ export class GuiaTransportistaPage {
         await this.inputDireccion.fill(direccion);
     }
 
-    /** Item */
     async buscarYSeleccionarItem(codigo: string) {
         await this.inputBuscarItem.click();
         await this.inputBuscarItem.fill(codigo);
         await this.page.getByText(codigo, {exact: false}).first().click();
     }
 
-    /** Peso total */
     async definirPesoTotal(peso: string) {
         await this.page.locator('div').filter({hasText: /^Peso total \(Kg\)$/}).nth(3).click();
         await this.page.getByText('Peso total (Kg)').first().click();
@@ -190,7 +176,6 @@ export class GuiaTransportistaPage {
         await this.inputPeso.fill(peso);
     }
 
-    /** Vincular comprobante */
     async vincularComprobante(
         tipo: 'BOLETA_DE_VENTA' | 'FACTURA',
         serie: string,
@@ -212,7 +197,6 @@ export class GuiaTransportistaPage {
         await this.page.getByRole('button', {name: 'Guardar comprobante'}).click();
     }
 
-    /** Autorización especial */
     async completarAutorizacionEspecial(numeroAutorizacion: string, tuce?: string) {
         await this.page.getByRole('checkbox', {name: 'Autorización Especial'}).check();
         await this.page.getByRole('textbox', {name: 'Número de autorización'}).fill(numeroAutorizacion);
@@ -221,12 +205,10 @@ export class GuiaTransportistaPage {
         }
     }
 
-    /** Decrementar cantidad del primer item */
     async decrementarCantidad() {
         await this.page.locator('[id*="cambia-cantidad-items_step"][id$="div:decrement"]').click();
     }
 
-    /** Emitir */
     async emitirGuia() {
         await this.btnEmitir.click();
     }

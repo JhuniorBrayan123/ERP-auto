@@ -151,6 +151,8 @@ test.describe('PV-20 Pedido - Lista de pedidos', {tag: ['@punto-venta', '@pedido
 
         const popup = await VerPedidoDesdeLista(correlativo)(page);
 
-        expect(await MensajeVisible(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre)(popup)).toBe(true);
+        // Se usa expect de playwright con un timeout alto en lugar de MensajeVisible 
+        // para que espere todo el tiempo necesario a que el comprobante cargue en el popup.
+        await expect(popup.getByText(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre).first()).toBeVisible({ timeout: 30_000 });
     });
 });

@@ -32,7 +32,6 @@ export const EmitirGuiaRemitenteTask = (data: EmitirGuiaRemitenteData) => {
             failureCategory: 'SCRIPT'
         }, async () => {
             if (data.tipoOperacion === 'COMPRA') {
-                // COMPRA reemplaza el motivo en el mismo dropdown VENTA/COMPRA
                 await guiaPage.seleccionarTipoOperacion('COMPRA');
             } else {
                 await guiaPage.seleccionarMotivo(data.motivo!);
@@ -45,15 +44,13 @@ export const EmitirGuiaRemitenteTask = (data: EmitirGuiaRemitenteData) => {
             }
 
             if (data.tipoOperacion === 'COMPRA') {
-                // En COMPRA se llena el proveedor y el sistema auto-completa el destinatario
                 await guiaPage.seleccionarProveedor(data.proveedorDocumento || GUIAS_DATA.REMITENTE.DNI);
-                // En COMPRA el origen y destino pueden ser diferentes
                 const partida = data.puntoPartida || GUIAS_DATA.REMITENTE.UBIGEO;
                 const llegada = data.puntoLlegada || GUIAS_DATA.DESTINATARIO.UBIGEO;
                 const partidaDir = data.direccionPartida || GUIAS_DATA.REMITENTE.DIRECCION;
                 await guiaPage.completarPuntoPartidaYLlegada(partida, llegada, partidaDir);
             } else {
-                await guiaPage.seleccionarDestinatario(GUIAS_DATA.DESTINATARIO.DNI, GUIAS_DATA.DESTINATARIO.NOMBRE_DNI);
+                await guiaPage.seleccionarDestinatario(GUIAS_DATA.DESTINATARIO.RUC, GUIAS_DATA.DESTINATARIO.NOMBRE_RUC);
                 await guiaPage.completarPuntoPartidaYLlegada(
                     GUIAS_DATA.DESTINATARIO.UBIGEO,
                     GUIAS_DATA.DESTINATARIO.UBIGEO,
