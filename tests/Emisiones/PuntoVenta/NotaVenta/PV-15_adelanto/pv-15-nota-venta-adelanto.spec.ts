@@ -1,6 +1,6 @@
 import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
-import {esperarCargaOverlay} from "@utils/wait-helpers";
+import {esperarCargaOverlay, recargarSiHayError} from "@utils/wait-helpers";
 
 test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-venta', '@nota-venta', '@adelanto']}, () => {
 
@@ -40,7 +40,9 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
         await test.step('Then: nota de venta adelanto emitida', async () => {
             await emisionPage.clickNuevaVenta();
         });
-
+        await test.step('recargar si hay error', async ()=>{
+            await recargarSiHayError(page)
+        })
         await test.step('And: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
             await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
         });
@@ -81,7 +83,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
 
         await test.step('And: iniciar nueva nota de venta', async () => {
             await comprobantePage.seleccionarNotaVenta();
-            await esperarCargaOverlay(page);
+            await recargarSiHayError(page)
             await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
             await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
             await emisionPage.incrementarCantidad(1)
@@ -108,7 +110,9 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
         await test.step('Then: nota de venta con adelanto aplicado emitida', async () => {
             await emisionPage.clickNuevaVenta();
         });
-
+        await test.step('recargar si hay error', async ()=>{
+            await recargarSiHayError(page)
+        })
         await test.step('And: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
             await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
         });
