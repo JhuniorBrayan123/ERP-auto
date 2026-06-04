@@ -81,6 +81,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
 
         await test.step('And: iniciar nueva nota de venta', async () => {
             await comprobantePage.seleccionarNotaVenta();
+            await esperarCargaOverlay(page);
             await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
             await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
             await emisionPage.incrementarCantidad(1)
@@ -120,7 +121,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
 
         await test.step('And: Ver comprobante muestra adelantos aplicados', async () => {
             const popup = await busquedaComprobantes.abrirVerComprobante();
-            await esperarCargaOverlay(popup);
+            await esperarCargaOverlay(popup)
             await busquedaComprobantes.validarAdelantosAplicadosEnPopup(popup);
         });
     });

@@ -3,6 +3,7 @@ import type {EmisionResult} from '../../helpers/PuntoVenta/emision.types';
 import {EstadoSunat} from '../../helpers/PuntoVenta/sunat-estados.helper';
 import {throwFunctionalError} from '../../utils/functional-error';
 import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 const ESTADOS_EXITOSOS = [EstadoSunat.ACEPTADA, EstadoSunat.ACEPTADA_OBSERVADA];
 const ESTADOS_TRANSITORIOS = [EstadoSunat.PENDIENTE_ENVIO, EstadoSunat.PENDIENTE_RESPUESTA, EstadoSunat.NO_DISPONIBLE];

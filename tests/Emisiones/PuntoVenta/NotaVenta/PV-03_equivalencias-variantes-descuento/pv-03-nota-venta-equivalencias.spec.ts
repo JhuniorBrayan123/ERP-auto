@@ -1,5 +1,7 @@
 import {test} from '@fixtures/PuntoVenta/validacion-fixture';
-import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import {esperarCargaOverlay} from "@utils/wait-helpers";
+import {ClientePage} from "@pages/PuntoVenta/ClientePage";
 
 test.describe('PV-03 | Nota de venta con equivalencias y lista @PV-03', {tag: ['@punto-venta', '@nota-venta', '@equivalencias']}, () => {
 
@@ -16,6 +18,9 @@ test.describe('PV-03 | Nota de venta con equivalencias y lista @PV-03', {tag: ['
         });
 
         await test.step('When: agregar lista de ítems flexibles', async () => {
+            await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).click();
+            await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).fill(CLIENTES.PERSONA_DNI_2.documento);
+            await page.getByText(CLIENTES.PERSONA_DNI_2.textoSelector).click();
             await emisionPage.buscarItem(ITEMS_PV.LISTA_ITEMS.codigo);
             await page.getByText(ITEMS_PV.LISTA_ITEMS.nombre).first().click();
             await page.locator('[id="_div:increase"]').first().click();
@@ -31,6 +36,7 @@ test.describe('PV-03 | Nota de venta con equivalencias y lista @PV-03', {tag: ['
         });
 
         await test.step('And: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
+            await esperarCargaOverlay(page)
             await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
         });
 
@@ -68,6 +74,7 @@ test.describe('PV-03 | Nota de venta con equivalencias y lista @PV-03', {tag: ['
             await emisionPage.clickNuevaVenta();
         });
         await test.step('And: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
+            await esperarCargaOverlay(page)
             await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
         });
         await test.step('And: abrir bitácora y verificar emisión', async () => {

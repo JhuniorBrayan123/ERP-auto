@@ -19,17 +19,16 @@ export const IntentarAgregarVarianteSinStock = (item: ItemVenta, clicksExtra: nu
         );
 
         await VARIANTE_LOCATOR.click();
-
+      
         for (let i = 0; i < clicksExtra; i++) {
             const modalVisible = await errorModal.isVisible();
-            console.log(`Iteración ${i} - Modal visible: ${modalVisible}`);
+            console.log(`Iteracion ${i} - modal visible: ${modalVisible}`);
             if (modalVisible) {
-                console.log('BREAK');
+                console.log('BREACK')
                 break;
             }
-            await VARIANTE_LOCATOR.click({timeout: 2000}).catch(() => {
-            });
-            console.log(`click ${i}`);
+            await VARIANTE_LOCATOR.click({ timeout: 2000 }).catch(() => {});
+            console.log(`click ${i}`)
             await page.waitForTimeout(200);
         }
     };

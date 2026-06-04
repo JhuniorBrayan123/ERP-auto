@@ -1,7 +1,8 @@
 import {type Page} from '@playwright/test';
-import type {TipoComprobante} from '../../helpers/PuntoVenta/emision.types';
-import {throwFunctionalError} from '../../utils/functional-error';
-import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
+import type {TipoComprobante} from '@app-types/emision.types';
+import {throwFunctionalError} from '@utils/functional-error';
+import {FUNCTIONAL_CATALOG} from '@utils/functional-catalog';
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 const TIPO_COMPROBANTE_ID: Record<TipoComprobante, number> = {
     'BOLETA': 1004,
@@ -16,7 +17,6 @@ export class ComprobantePage {
     }
 
     async abrirSelectorTipo(): Promise<void> {
-        
         await this.page.getByText('BOLETA').first().click();
     }
 
@@ -40,22 +40,27 @@ export class ComprobantePage {
     }
 
     async seleccionarBoleta(): Promise<void> {
+        await esperarCargaOverlay(this.page);
         await this.seleccionarTipoComprobante('BOLETA');
     }
 
     async seleccionarFactura(): Promise<void> {
+        await esperarCargaOverlay(this.page);
         await this.seleccionarTipoComprobante('FACTURA');
     }
 
     async seleccionarNotaVenta(): Promise<void> {
+        await esperarCargaOverlay(this.page);
         await this.seleccionarTipoComprobante('NOTA DE VENTA');
     }
 
     async seleccionarCotizacion(): Promise<void> {
+        await esperarCargaOverlay(this.page);
         await this.seleccionarTipoComprobante('COTIZACIÓN');
     }
 
     async seleccionarPedido(): Promise<void> {
+        await esperarCargaOverlay(this.page);
         await this.seleccionarTipoComprobante('PEDIDO');
     }
 }

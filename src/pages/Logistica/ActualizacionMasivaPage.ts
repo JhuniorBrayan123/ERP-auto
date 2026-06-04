@@ -203,7 +203,5 @@ export class ActualizacionMasivaPage {
         await this.waitForFinishStep();
     }
 
-    async ejecutarcreacionajustes(): Promise<void> {
 
-    }
 }
