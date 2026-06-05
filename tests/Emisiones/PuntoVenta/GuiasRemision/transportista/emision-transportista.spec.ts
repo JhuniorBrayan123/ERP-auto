@@ -1,22 +1,23 @@
-import {test, expect} from '@fixtures/PuntoVenta/guias-fixture';
+import {expect, test} from '@fixtures/PuntoVenta/guias-fixture';
 import {EmitirGuiaTransportistaTask} from '@task/PuntoVenta/guias-remision/EmitirGuiaTransportista.task';
 import {NavegarAGuiaTransportista} from '@task/PuntoVenta/guias-remision/NavegarAGuiaTransportista.task';
 import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
+import {GUIAS_DATA} from "@helpers/PuntoVenta/guias-data.helper";
 
-test.describe('Guías de Remisión Transportista - Emisión', { tag: ['@guias', '@puntoventa', '@transportista'] }, () => {
-    test.beforeEach(async ({ cajero }) => {
+test.describe('Guías de Remisión Transportista - Emisión', {tag: ['@guias', '@puntoventa', '@transportista']}, () => {
+    test.beforeEach(async ({cajero}) => {
         await cajero.intentaRealizar(
             IniciarVentaEnCaja('caja-auto'),
             NavegarAGuiaTransportista()
         );
     });
 
-    test('GRT-16: Emitir guía transportista básica', async ({ cajero, listadoGuiasPage }) => {
+    test('GRT-16: Emitir guía transportista básica', async ({cajero, listadoGuiasPage}) => {
         await cajero.intentaRealizar(
             EmitirGuiaTransportistaTask({
                 peso: '10', // Kg
-                items: []
+                items: [{codigoONombre: GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_SIN_CONTROL.nombre}]
             })
         );
 
@@ -25,11 +26,18 @@ test.describe('Guías de Remisión Transportista - Emisión', { tag: ['@guias', 
         });
     });
 
-    test('GRT-17: Emitir guía transportista vinculando comprobante', async ({ cajero, listadoGuiasPage, page, busquedaComprobantes }) => {
+    test('GRT-17: Emitir guía transportista vinculando comprobante', async ({
+                                                                                cajero,
+                                                                                listadoGuiasPage,
+                                                                                page,
+                                                                                busquedaComprobantes
+                                                                            }) => {
         await cajero.intentaRealizar(
             EmitirGuiaTransportistaTask({
                 peso: '10',
-                items: [],
+                items: [
+                    {codigoONombre: GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_SIN_CONTROL.nombre}
+                ],
                 vincularComprobante: {
                     tipo: 'BOLETA_DE_VENTA',
                     serie: 'B001',
@@ -44,22 +52,31 @@ test.describe('Guías de Remisión Transportista - Emisión', { tag: ['@guias', 
 
             const postEmision = new PostEmisionPage(page);
             const correlativoTexto = await postEmision.obtenerCorrelativoDinamico();
-            const correlativo = correlativoTexto.split('-')[1];
-
-            await busquedaComprobantes.navegarABusquedaComprobantes({correlativo, serie: correlativoTexto.split('-')[0], comprobanteId: 0});
+            const correlativo = String(parseInt(correlativoTexto.split('-')[1], 10));
+            await listadoGuiasPage.cerrarModalExito()
+            await busquedaComprobantes.navegarABusquedaComprobantes({
+                correlativo,
+                serie: correlativoTexto.split('-')[0],
+                comprobanteId: 0
+            });
             await busquedaComprobantes.abrirBitacoraDelPrimerComprobante();
             await busquedaComprobantes.validarComprobanteEmitidonota();
             await busquedaComprobantes.cerrarBitacora();
         });
     });
 
-    test('GRT-18: Emitir guía transportista con pagador de flete adicional', async ({ cajero, listadoGuiasPage, page, busquedaComprobantes }) => {
+    test('GRT-18: Emitir guía transportista con pagador de flete adicional', async ({
+                                                                                        cajero,
+                                                                                        listadoGuiasPage,
+                                                                                        page,
+                                                                                        busquedaComprobantes
+                                                                                    }) => {
         await cajero.intentaRealizar(
             EmitirGuiaTransportistaTask({
                 peso: '10',
-                items: [],
+                items: [{codigoONombre: GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_SIN_CONTROL.nombre}],
                 pagadorFlete: 'otros_terceros',
-                pagadorFleteData: { documento: '76975258' }
+                pagadorFleteData: {documento: '76975258'}
             })
         );
 
@@ -68,22 +85,26 @@ test.describe('Guías de Remisión Transportista - Emisión', { tag: ['@guias', 
 
             const postEmision = new PostEmisionPage(page);
             const correlativoTexto = await postEmision.obtenerCorrelativoDinamico();
-            const correlativo = correlativoTexto.split('-')[1];
-
-            await busquedaComprobantes.navegarABusquedaComprobantes({correlativo, serie: correlativoTexto.split('-')[0], comprobanteId: 0});
+            const correlativo = String(parseInt(correlativoTexto.split('-')[1], 10));
+            await listadoGuiasPage.cerrarModalExito()
+            await busquedaComprobantes.navegarABusquedaComprobantes({
+                correlativo,
+                serie: correlativoTexto.split('-')[0],
+                comprobanteId: 0
+            });
             await busquedaComprobantes.abrirBitacoraDelPrimerComprobante();
             await busquedaComprobantes.validarComprobanteEmitidonota();
             await busquedaComprobantes.cerrarBitacora();
         });
     });
 
-    test('GRT-19: Emitir guía transportista con retorno subcontratado', async ({ cajero, listadoGuiasPage }) => {
+    test('GRT-19: Emitir guía transportista con retorno subcontratado', async ({cajero, listadoGuiasPage}) => {
         await cajero.intentaRealizar(
             EmitirGuiaTransportistaTask({
                 peso: '10',
-                items: [],
-                retorno: 'transporte-subcontratado',
-                subcontratador: { documento: '20759685854' }
+                items: [{codigoONombre: GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_SIN_CONTROL.nombre}],
+                retorno: 'Transporte subcontratado',
+                subcontratador: {documento: '20759685854'}
             })
         );
 
@@ -91,12 +112,12 @@ test.describe('Guías de Remisión Transportista - Emisión', { tag: ['@guias', 
         await listadoGuiasPage.validarModalPostEmisionCompleto();
     });
 
-    test('GRT-20: Emitir guía transportista con autorización especial', async ({ cajero, page, listadoGuiasPage }) => {
+    test('GRT-20: Emitir guía transportista con autorización especial', async ({cajero, page, listadoGuiasPage}) => {
         await cajero.intentaRealizar(
             EmitirGuiaTransportistaTask({
                 peso: '10',
-                items: [],
-                autorizacionEspecial: { numeroAutorizacion: '1234567890' }
+                items: [{codigoONombre: GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_SIN_CONTROL.nombre}],
+                autorizacionEspecial: {numeroAutorizacion: '1234567890'}
             })
         );
 

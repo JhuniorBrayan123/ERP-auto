@@ -1,12 +1,28 @@
-import {expect, test, type Locator, type Page} from '@playwright/test';
+import {expect, type Page, test} from '@playwright/test';
 
 export class ListadoGuiasPage {
-    constructor(public readonly page: Page) {}
+    constructor(public readonly page: Page) {
+    }
 
-    get successMessageEmitido() { return this.page.getByText('Tu comprobante fue emitido'); }
-    get successMessageGuardado() { return this.page.getByText('Tu comprobante fue guardado'); }
-    get msgBuenTrabajo() { return this.page.getByText('¡Buen trabajo!'); }
-    get btnNuevaGuia() { return this.page.getByRole('button', { name: 'Nueva guía remisión remitente' }); }
+    get successMessageEmitido() {
+        return this.page.getByText('Tu comprobante fue emitido');
+    }
+
+    get successMessageGuardado() {
+        return this.page.getByText('Tu comprobante fue guardado');
+    }
+
+    get msgBuenTrabajo() {
+        return this.page.getByText('¡Buen trabajo!');
+    }
+
+    get btnNuevaGuiaRemitente() {
+        return this.page.getByRole('button', {name: 'Nueva guía remisión remitente'});
+    }
+
+    get btnNuevaGuiaTransportista() {
+        return this.page.getByRole('button', {name: 'Nueva guía remisión transportista'});
+    }
 
     async validarGuiaEmitidaExito() {
         const exito = this.msgBuenTrabajo.or(this.successMessageEmitido);
@@ -27,15 +43,15 @@ export class ListadoGuiasPage {
     async validarElementosDeEnvioVisibles() {
         await expect(this.page.getByText('Enviar por WhatsApp')).toBeVisible();
         await expect(this.page.getByText('Enviar por Email')).toBeVisible();
-        await expect(this.page.locator('div').filter({ hasText: /^Copiar Link$/ }).first()).toBeVisible();
+        await expect(this.page.locator('div').filter({hasText: /^Copiar Link$/}).first()).toBeVisible();
         await expect(this.page.getByText('Descargar XML')).toBeVisible();
         await expect(this.page.getByText('Descargar PDF')).toBeVisible();
     }
 
     async validarModalPostEmisionCompleto() {
         await test.step('Validar modal post-emisión completo', async () => {
-            await expect(this.page.getByRole('button', { name: 'Imprimir', exact: true })).toBeVisible();
-            await expect(this.page.getByRole('button', { name: 'Imprimir Ticket' })).toBeVisible();
+            await expect(this.page.getByRole('button', {name: 'Imprimir', exact: true})).toBeVisible();
+            await expect(this.page.getByRole('button', {name: 'Imprimir Ticket'})).toBeVisible();
             await expect(this.page.getByText('Enviar por WhatsApp')).toBeVisible();
             await expect(this.page.getByText('Enviar por Email')).toBeVisible();
             await expect(this.page.getByText('Copiar Link')).toBeVisible();
@@ -45,6 +61,7 @@ export class ListadoGuiasPage {
     }
 
     async cerrarModalExito() {
-        await this.btnNuevaGuia.click();
+        const btn = this.btnNuevaGuiaRemitente.or(this.btnNuevaGuiaTransportista);
+        await btn.click();
     }
 }

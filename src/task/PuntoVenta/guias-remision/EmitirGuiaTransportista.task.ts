@@ -16,7 +16,7 @@ export type EmitirGuiaTransportistaData = {
     pagadorFleteData?: {
         documento: string;
     };
-    retorno?: 'retorno-vehiculo' | 'transporte-subcontratado';
+    retorno?: 'Retorno de vehículo con envases o embalajes vacíos' | 'Retorno de vehículo vacío' | 'Transporte subcontratado';
     subcontratador?: {
         documento: string;
     };
@@ -45,11 +45,8 @@ export const EmitirGuiaTransportistaTask = (data: EmitirGuiaTransportistaData) =
             technicalDetail: 'Error al llenar datos del formulario',
             failureCategory: 'SCRIPT'
         }, async () => {
-            // === DATOS OBLIGATORIOS SIEMPRE ===
-            await guiaPage.seleccionarRemitente(GUIAS_DATA.REMITENTE.DNI);
+            await guiaPage.seleccionarRemitente(GUIAS_DATA.DESTINATARIO.DNI);
             await guiaPage.seleccionarDestinatario(GUIAS_DATA.DESTINATARIO.RUC);
-
-            // === CONDUCTOR (opcional con skip) ===
             if (!data.skipConductor) {
                 await guiaPage.seleccionarConductor(GUIAS_DATA.TRANSPORTISTA.DNI_CONDUCTOR);
                 await guiaPage.completarPlacaYLicencia(
@@ -60,18 +57,15 @@ export const EmitirGuiaTransportistaTask = (data: EmitirGuiaTransportistaData) =
                 await guiaPage.completarTUCE(GUIAS_DATA.TRANSPORTISTA.TUCE);
             }
 
-            // === TRANSPORTISTA (opcional con skip) ===
             if (!data.skipTransportista) {
                 await guiaPage.seleccionarTransportista(GUIAS_DATA.TRANSPORTISTA.RUC);
             }
 
-            // === VINCULAR COMPROBANTE ===
             if (data.vincularComprobante) {
-                const { tipo, serie, correlativo, rucProveedor } = data.vincularComprobante;
+                const {tipo, serie, correlativo, rucProveedor} = data.vincularComprobante;
                 await guiaPage.vincularComprobante(tipo, serie, correlativo, rucProveedor);
             }
 
-            // === PAGADOR DE FLETE ===
             if (data.pagadorFlete) {
                 await guiaPage.seleccionarPagadorFlete(data.pagadorFlete);
             }
@@ -79,26 +73,22 @@ export const EmitirGuiaTransportistaTask = (data: EmitirGuiaTransportistaData) =
                 await guiaPage.completarPagadorFleteData(data.pagadorFleteData.documento);
             }
 
-            // === RETORNO ===
             if (data.retorno) {
                 await guiaPage.seleccionarRetorno(data.retorno);
             }
 
-            // === SUBCONTRATADOR ===
             if (data.subcontratador) {
                 await guiaPage.seleccionarSubcontratador(data.subcontratador.documento);
             }
 
-            // === PUNTO PARTIDA / LLEGADA (opcional con skip) ===
             if (!data.skipPuntoPartida) {
                 await guiaPage.completarPuntoPartidaYLlegada(
                     GUIAS_DATA.PUNTO_PARTIDA.UBIGEO,
                     GUIAS_DATA.PUNTO_LLEGADA.UBIGEO,
-                    GUIAS_DATA.PUNTO_PARTIDA.DIRECCION
+                    GUIAS_DATA.PUNTO_PARTIDA.DIRECCION,
+                    GUIAS_DATA.PUNTO_LLEGADA.DIRECCION
                 );
             }
-
-            // === AUTORIZACIÓN ESPECIAL ===
             if (data.autorizacionEspecial) {
                 await guiaPage.completarAutorizacionEspecial(
                     data.autorizacionEspecial.numeroAutorizacion,
@@ -106,28 +96,22 @@ export const EmitirGuiaTransportistaTask = (data: EmitirGuiaTransportistaData) =
                 );
             }
 
-            // === ITEMS (opcional con skip) ===
             if (!data.skipItems) {
                 for (const item of data.items) {
                     await guiaPage.buscarYSeleccionarItem(item.codigoONombre);
                 }
             }
 
-            // === DEFINIR PESO ===
             await guiaPage.definirPesoTotal(data.peso);
 
-            // === DECREMENTAR CANTIDAD (para validación GRT-25) ===
             if (data.decrementarCantidad) {
                 await guiaPage.decrementarCantidad();
             }
 
-            // === FECHA INICIO TRASLADO (para validación GRT-22) ===
             if (data.fechaInicioTraslado) {
-                // No disponible en page object — se usa locator directo
                 await page.getByRole('textbox', {name: /fecha.*inicio.*traslado/i}).fill(data.fechaInicioTraslado);
             }
 
-            // === EMITIR ===
             await guiaPage.emitirGuia();
         });
     };

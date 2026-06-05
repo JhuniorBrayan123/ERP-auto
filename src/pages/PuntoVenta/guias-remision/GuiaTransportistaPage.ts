@@ -1,8 +1,21 @@
-import {type Page} from '@playwright/test';
-import {esperarDebounce} from '@utils/wait-helpers';
+import {expect, type Locator, type Page} from '@playwright/test';
+import {esperarCargaOverlay, esperarDebounce} from '@utils/wait-helpers';
 
 export class GuiaTransportistaPage {
     constructor(public readonly page: Page) {
+    }
+
+    private readonly nombreInputUbigeo =
+        /Busca por distrito, ciudad, región o código de ubigeo/i;
+
+    private seccionUbigeo(titulo: 'Datos de partida' | 'Punto de llegada'): Locator {
+        return this.page
+            .locator('article')
+            .filter({has: this.page.getByText(titulo, {exact: true})});
+    }
+
+    private inputUbigeoEnSeccion(titulo: 'Datos de partida' | 'Punto de llegada'): Locator {
+        return this.seccionUbigeo(titulo).getByRole('textbox', {name: this.nombreInputUbigeo});
     }
 
     get btnNuevaGuia() {
@@ -11,18 +24,6 @@ export class GuiaTransportistaPage {
 
     get btnEmitir() {
         return this.page.getByRole('button', {name: 'Emitir'});
-    }
-
-    get inputRemitente() {
-        return this.page.locator('[id="pv_cmp-guia-remision-transportista_cmp-card-remitente:form_v-input:filtrar-entidad"]');
-    }
-
-    get inputDestinatario() {
-        return this.page.locator('[id="pv_cmp-guia-remision-transportista_cmp-card-destinatario:form_v-input:filtrar-entidad"]');
-    }
-
-    get inputConductor() {
-        return this.page.locator('[id="pv_cmp-guia-remision-transportista_cmp-card-transporte:form-transporte-conductor_v-input:filtrar-entidad"]');
     }
 
     get inputPlaca() {
@@ -34,15 +35,11 @@ export class GuiaTransportistaPage {
     }
 
     get inputMTC() {
-        return this.page.locator('[id="pv_cmp-guia-remision-transportista_cmp-card-transporte:form-transporte_v-input:registro-mtc"]');
+        return this.page.locator('[id*="card-transporte"][id*="registro-mtc"]');
     }
 
     get inputTUCE() {
         return this.page.getByRole('textbox', {name: /Ej\. 1234567891\//});
-    }
-
-    get inputTransportista() {
-        return this.page.locator('[id="pv_cmp-guia-remision-transportista_cmp-card-transporte:form-transporte_item:seleccion-entidad"]');
     }
 
     get inputBuscarItem() {
@@ -53,24 +50,10 @@ export class GuiaTransportistaPage {
         return this.page.getByRole('textbox', {name: 'Kg'});
     }
 
-    get inputBuscarPuntoLlegada() {
-        return this.page.getByRole('textbox', {name: 'Busca por distrito, ciudad,'});
-    }
-
-    get inputDireccion() {
-        return this.page.getByRole('textbox', {name: /Ej\. Calle Manzanos 202/});
-    }
-
-    get inputDocTransportista() {
-        return this.page.getByRole('textbox', {name: 'Digite N° de documento'});
-    }
-
     get inputPagadorFlete() {
-        return this.page.getByRole('textbox', {name: /Digite N.° de RUC, nombre o/});
-    }
-
-    get inputSubcontratador() {
-        return this.page.getByRole('textbox', {name: /Digite N.° de RUC, nombre o/});
+        return this.page.locator(
+            'input[id="pv_cmp-guia-remision-transportista_cmp-card-inicio:form-inicio_v-input:filtrar-entidad"][placeholder="Digite N° de documento"]'
+        ).last();
     }
 
     async abrirNuevaGuia() {
@@ -78,22 +61,38 @@ export class GuiaTransportistaPage {
         await esperarDebounce(this.page, 500, 'Esperando render de Nueva Guia Transportista');
     }
 
+    private cardBusquedaEntidad(etiqueta: 'Buscar remitente' | 'Buscar destinatario' | 'Buscar conductor'): Locator {
+        return this.page
+            .getByText(new RegExp(`^${etiqueta}`))
+            .locator('xpath=ancestor::article[1]');
+    }
+
+    private async seleccionarEntidadEnCard(
+        card: Locator,
+        documento: string
+    ): Promise<void> {
+        const input = card.getByRole('textbox', {name: 'Digite N° de documento'}).first();
+        await expect(input).toBeVisible();
+        await input.click();
+        await input.fill(documento);
+        await this.page
+            .locator('.v-input-dropdown.is-open article')
+            .filter({hasText: new RegExp(documento)})
+            .first()
+            .click();
+        await esperarCargaOverlay(this.page);
+    }
+
     async seleccionarRemitente(documento: string) {
-        await this.inputRemitente.click();
-        await this.inputRemitente.fill(documento);
-        await this.page.getByText(new RegExp(documento)).click();
+        await this.seleccionarEntidadEnCard(this.cardBusquedaEntidad('Buscar remitente'), documento);
     }
 
     async seleccionarDestinatario(documento: string) {
-        await this.inputDestinatario.click();
-        await this.inputDestinatario.fill(documento);
-        await this.page.getByText(new RegExp(documento)).click();
+        await this.seleccionarEntidadEnCard(this.cardBusquedaEntidad('Buscar destinatario'), documento);
     }
 
     async seleccionarConductor(documento: string) {
-        await this.inputConductor.click();
-        await this.inputConductor.fill(documento);
-        await this.page.getByText(documento).first().click();
+        await this.seleccionarEntidadEnCard(this.cardBusquedaEntidad('Buscar conductor'), documento);
     }
 
     async completarPlacaYLicencia(placa: string, licencia: string) {
@@ -114,21 +113,43 @@ export class GuiaTransportistaPage {
     }
 
     async seleccionarTransportista(documento: string) {
-        await this.inputDocTransportista.click();
-        await this.inputDocTransportista.fill(documento);
-        await this.page.getByText(new RegExp(documento)).first().click();
+        const input = this.page.locator(
+            '[id*="card-transporte"][id*="transportista"][id*="filtrar-entidad"]'
+        );
+        if (!(await input.isVisible().catch(() => false))) {
+            return;
+        }
+        await input.click();
+        await input.fill(documento);
+        await this.page
+            .locator('[id*="card-transporte"][id*="transportista"][id*="seleccion-entidad"]')
+            .filter({hasText: new RegExp(documento)})
+            .first()
+            .click();
+        await esperarCargaOverlay(this.page);
     }
 
-    async seleccionarRetorno(tipo: 'retorno-vehiculo' | 'transporte-subcontratado') {
-        await this.page.getByRole('button', {name: /Retorno de vehículo con/}).click();
-        if (tipo === 'transporte-subcontratado') {
-            await this.page.getByText('Transporte subcontratado').click();
-        }
+    async seleccionarRetorno(tipo: 'Retorno de vehículo con envases o embalajes vacíos' | 'Retorno de vehículo vacío' | 'Transporte subcontratado') {
+        const selectRetorno = this.page.locator('.v-select-header-form')
+            .filter({hasText: /Retorno de vehículo|Transporte subcontratado/})
+            .first();
+        await selectRetorno.click();
+        await this.page.locator('.v-select-base-options.is-open')
+            .getByText(tipo, {exact: true})
+            .click();
     }
 
     async seleccionarSubcontratador(documento: string) {
-        await this.page.getByRole('textbox', {name: /Digite N.° de RUC, nombre o/}).fill(documento);
-        await this.page.getByText(new RegExp(documento)).first().click();
+        const input = this.page.locator(
+            'input[id="pv_cmp-guia-remision-transportista_cmp-card-inicio:form-inicio_v-input:filtrar-entidad"][placeholder="Digite N° de RUC, nombre o razón social"]'
+        ).last();
+        await input.click();
+        await input.fill(documento);
+        await this.page.locator('.v-input-dropdown.is-open article')
+            .filter({hasText: new RegExp(documento)})
+            .first()
+            .click();
+        await esperarCargaOverlay(this.page);
     }
 
     async seleccionarPagadorFlete(tipo: 'remitente' | 'destinatario' | 'otros_terceros' | 'subcontratador') {
@@ -139,10 +160,10 @@ export class GuiaTransportistaPage {
             subcontratador: 'Subcontratador',
         };
         await this.page.locator('div').filter({hasText: /^Remitente$/}).nth(3).click();
-        // Scope to open dropdown to avoid strict mode when trigger === option
         await this.page.locator('.v-select-base-options.is-open')
             .getByText(label[tipo], {exact: true})
             .click();
+        await esperarCargaOverlay(this.page);
     }
 
     async completarPagadorFleteData(documento: string) {
@@ -150,17 +171,52 @@ export class GuiaTransportistaPage {
         await this.page.getByText(new RegExp(documento)).first().click();
     }
 
-    async completarPuntoPartidaYLlegada(origen: string, destino: string, direccion: string) {
-        await this.inputBuscarPuntoLlegada.first().click();
-        await this.inputBuscarPuntoLlegada.first().fill(origen.split('-')[0].trim());
-        await this.page.getByText(origen).first().click();
+    private textoBusquedaUbigeo(ubigeo: string): string {
+        return ubigeo.split('-')[0].trim();
+    }
 
-        await this.inputBuscarPuntoLlegada.click();
-        await this.inputBuscarPuntoLlegada.fill(destino.split('-')[0].trim());
-        await this.page.getByText(destino).last().click();
+    private async seleccionarUbigeo(input: Locator, ubigeo: string): Promise<void> {
+        const busqueda = this.textoBusquedaUbigeo(ubigeo);
 
-        await this.inputDireccion.click();
-        await this.inputDireccion.fill(direccion);
+        await expect(input).toBeVisible();
+        await input.click();
+        await input.fill(busqueda);
+
+        const panelAbierto = this.page.locator('.v-select-base-options.is-open');
+        const opcion = panelAbierto.getByText(ubigeo, {exact: false}).first();
+
+        await expect(opcion).toBeVisible({timeout: 10_000});
+        await opcion.click();
+        await esperarDebounce(this.page, 300, 'Esperando cierre de ubigeo');
+        await esperarCargaOverlay(this.page);
+    }
+
+    private async resolverInputPuntoLlegada(): Promise<Locator> {
+        const enSeccionLlegada = this.inputUbigeoEnSeccion('Punto de llegada');
+        if (await enSeccionLlegada.isVisible().catch(() => false)) {
+            return enSeccionLlegada;
+        }
+        return this.page.getByRole('textbox', {name: this.nombreInputUbigeo}).last();
+    }
+
+    async completarPuntoPartidaYLlegada(
+        origen: string,
+        destino: string,
+        direccionPartida: string,
+        direccionLlegada: string
+    ) {
+        await this.seleccionarUbigeo(this.inputUbigeoEnSeccion('Datos de partida'), origen);
+        await this.seleccionarUbigeo(await this.resolverInputPuntoLlegada(), destino);
+
+        const inputDireccionPartida = this.seccionUbigeo('Datos de partida')
+            .locator('[id="pv_cmp-guia-remision-transportista_cmp-card-ubigeo:form-ubigeo_v-input:direccion-partida"]')
+        await inputDireccionPartida.click();
+        await inputDireccionPartida.fill(direccionPartida);
+
+        const inputDireccionLlegada = this.page
+            .locator('[id="pv_cmp-guia-remision-transportista_cmp-card-ubigeo:form-ubigeo_v-input:direccion-destion"]')
+        await inputDireccionLlegada.click();
+        await inputDireccionLlegada.fill(direccionLlegada);
     }
 
     async buscarYSeleccionarItem(codigo: string) {
@@ -171,7 +227,9 @@ export class GuiaTransportistaPage {
 
     async definirPesoTotal(peso: string) {
         await this.page.locator('div').filter({hasText: /^Peso total \(Kg\)$/}).nth(3).click();
-        await this.page.getByText('Peso total (Kg)').first().click();
+        await this.page.locator('.v-select-base-options.is-open')
+            .getByText('Peso total (Kg)', {exact: true})
+            .click();
         await this.inputPeso.click();
         await this.inputPeso.fill(peso);
     }
@@ -182,24 +240,26 @@ export class GuiaTransportistaPage {
         correlativo: string,
         rucProveedor: string
     ) {
-        await this.page.getByRole('button', {name: 'Vincular comprobante'}).click();
-        await this.page.getByRole('button', {name: 'Vincular comprobante'}).click();
-        if (tipo === 'BOLETA_DE_VENTA') {
-            await this.page.getByText('Boleta de venta').click();
-        } else {
-            await this.page.getByText('Factura').click();
-        }
-        await this.page.getByRole('textbox', {name: 'Serie'}).fill(serie);
-        await this.page.getByRole('textbox', {name: 'Correlativo'}).fill(correlativo);
-        await this.page.getByRole('textbox', {name: 'RUC Proveedor'}).fill(rucProveedor);
+        await esperarCargaOverlay(this.page);
+        const botonVincular = this.page.locator('[id="pv_cmp-guia-remision-transportista_cmp-head-guia:form-head_v-button:vincular-comprobante"]');
+        await botonVincular.first().click();
+        await this.page.locator('[id="pv_cmp-guia-remision-transportista_agregar-comprobante:form-drape-agregar-comprobante_v-button:agrega-comprobante"]').first().click();
+        const selectTipo = this.page.locator('[idx="pv_cmp-guia-remision-transportista_card-vincular-comprobante:form-agregar-comprobante_v-select:tipo-comprobante"]');
+        await selectTipo.first().click();
+        const opcion = tipo === 'BOLETA_DE_VENTA' ? 'BOLETA DE VENTA' : 'FACTURA';
+        await this.page.locator('.v-select-base-options.is-open')
+            .getByText(opcion, {exact: true})
+            .click();
+        await this.page.locator('[id="pv_cmp-guia-remision-transportista_card-vincular-comprobante:form-agregar-comprobante_v-input:comprobante-serie"  ]').fill(serie);
+        await this.page.locator('[id="pv_cmp-guia-remision-transportista_card-vincular-comprobante:form-agregar-comprobante_v-input:comprobante-correlativo"]').fill(correlativo);
+        await this.page.locator('[id="pv_cmp-guia-remision-transportista_card-vincular-comprobante:form-agregar-comprobante_v-input:comprobante-ruc"]').fill(rucProveedor);
         await this.page.getByRole('button', {name: 'Añadir'}).click();
-        await this.page.getByRole('button', {name: 'Cerrar'}).click();
         await this.page.getByRole('button', {name: 'Guardar comprobante'}).click();
     }
 
     async completarAutorizacionEspecial(numeroAutorizacion: string, tuce?: string) {
-        await this.page.getByRole('checkbox', {name: 'Autorización Especial'}).check();
-        await this.page.getByRole('textbox', {name: 'Número de autorización'}).fill(numeroAutorizacion);
+        await this.page.locator('[id="pv_cmp-guia-remision-transportista_cmp-card-transporte:form-transporte_v-checkbox:autoriza-traslado-carga"]').locator('..').click();
+        await this.page.locator('[id="pv_cmp-guia-remision-transportista_cmp-card-transporte:form-transporte_v-input:numero-autorizacion"]').fill(numeroAutorizacion);
         if (tuce) {
             await this.page.getByRole('textbox', {name: /TUCE/}).fill(tuce);
         }
