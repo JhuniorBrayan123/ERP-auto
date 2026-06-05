@@ -84,7 +84,7 @@ export const obtenerDestinatarioPorMotivo = (data: DestinatarioGuiaOptions) => {
 };
 
 export const EmitirGuiaRemitenteTask = (data: EmitirGuiaRemitenteData) => {
-    return async (page: Page) => {
+    const fn = async (page: Page) => {
         const guiaPage = new GuiaRemitentePage(page);
 
         await runFunctionalAction(page, {
@@ -167,4 +167,6 @@ export const EmitirGuiaRemitenteTask = (data: EmitirGuiaRemitenteData) => {
             }
         });
     };
+    fn.displayName = 'Emitir guía remitente';
+    return fn;
 };

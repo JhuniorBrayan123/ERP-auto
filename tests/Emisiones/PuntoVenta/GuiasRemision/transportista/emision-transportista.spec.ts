@@ -108,8 +108,10 @@ test.describe('Guías de Remisión Transportista - Emisión', {tag: ['@guias', '
             })
         );
 
-        await listadoGuiasPage.validarGuiaEmitidaExito();
-        await listadoGuiasPage.validarModalPostEmisionCompleto();
+        await test.step('Verificar emisión exitosa y modal post-emisión completo', async () => {
+            await listadoGuiasPage.validarGuiaEmitidaExito();
+            await listadoGuiasPage.validarModalPostEmisionCompleto();
+        });
     });
 
     test('GRT-20: Emitir guía transportista con autorización especial', async ({cajero, page, listadoGuiasPage}) => {
@@ -121,7 +123,9 @@ test.describe('Guías de Remisión Transportista - Emisión', {tag: ['@guias', '
             })
         );
 
-        await listadoGuiasPage.validarGuiaEmitidaExito();
+        await test.step('Verificar que la guía se emite exitosamente', async () => {
+            await listadoGuiasPage.validarGuiaEmitidaExito();
+        });
 
         await test.step('Validar botones de envío en modal post-emisión', async () => {
             await expect(page.getByText('Enviar por WhatsApp')).toBeVisible();

@@ -26,7 +26,7 @@ export type EmitirGuiaRemitenteConValidacionData = {
 };
 
 export const EmitirGuiaRemitenteConValidacionTask = (data: EmitirGuiaRemitenteConValidacionData) => {
-    return async (page: Page) => {
+    const fn = async (page: Page) => {
         const guiaPage = new GuiaRemitentePage(page);
 
         await runFunctionalAction(page, {
@@ -103,4 +103,6 @@ export const EmitirGuiaRemitenteConValidacionTask = (data: EmitirGuiaRemitenteCo
             }
         });
     };
+    fn.displayName = 'Emitir guía remitente (validación)';
+    return fn;
 };

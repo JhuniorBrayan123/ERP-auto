@@ -34,7 +34,7 @@ export type EmitirGuiaTransportistaData = {
 };
 
 export const EmitirGuiaTransportistaTask = (data: EmitirGuiaTransportistaData) => {
-    return async (page: Page) => {
+    const fn = async (page: Page) => {
         const guiaPage = new GuiaTransportistaPage(page);
 
         await runFunctionalAction(page, {
@@ -115,4 +115,6 @@ export const EmitirGuiaTransportistaTask = (data: EmitirGuiaTransportistaData) =
             await guiaPage.emitirGuia();
         });
     };
+    fn.displayName = 'Emitir guía transportista';
+    return fn;
 };
