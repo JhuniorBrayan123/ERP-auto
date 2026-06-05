@@ -43,21 +43,17 @@ class MavenReporter implements Reporter {
     private activeTestInfo: { title: string; attempt: number; isRetry: boolean } | null = null;
     private currentTestPrinted = false;
 
+    /** Identifica tests de setup (archivos .setup.ts) que no deben aparecer en el reporte */
+    private isSetupTest(test: TestCase): boolean {
+        return !!test.location?.file?.includes('.setup.ts');
+    }
+
     onBegin(_: unknown, suite: Suite): void {
         this.startTime = Date.now();
         
-        let effectiveTotal = suite.allTests().length;
-        for (const test of suite.allTests()) {
-            if (process.env.SKIP_PV_SETUP === '1' && test.title.includes('preparar datos base')) {
-                effectiveTotal--;
-            } else if (process.env.SKIP_PV_ITEMS_SETUP === '1' && test.title.includes('preparar ítems base')) {
-                effectiveTotal--;
-            } else if (process.env.SKIP_DATOS_SETUP === '1' && test.title.includes('preparar datos adicionales')) {
-                effectiveTotal--;
-            }
-        }
-        
-        this.totalTests = effectiveTotal;
+        const allTests = suite.allTests();
+        const realTests = allTests.filter(t => !this.isSetupTest(t));
+        this.totalTests = realTests.length;
         this.suiteName = this.extractSuiteName(suite);
 
         console.log('');
@@ -70,6 +66,8 @@ class MavenReporter implements Reporter {
     }
 
     onTestBegin(test: TestCase): void {
+        if (this.isSetupTest(test)) return;
+
         const isRetry = this.startedTests.has(test.id);
         if (!isRetry) {
             this.startedTests.add(test.id);
@@ -95,6 +93,8 @@ class MavenReporter implements Reporter {
     }
 
     onStepBegin(test: TestCase, result: TestResult, step: TestStep): void {
+        if (this.isSetupTest(test)) return;
+
         this.ensureTestTitlePrinted();
 
         if (step.category === 'test.step') {
@@ -104,17 +104,9 @@ class MavenReporter implements Reporter {
     }
 
     onTestEnd(test: TestCase, result: TestResult): void {
+        if (this.isSetupTest(test)) return;
+
         const duration = (result.duration / 1000).toFixed(1);
-
-        if (result.status === 'skipped') {
-
-            if (process.env.SKIP_PV_SETUP === '1' && test.title.includes('preparar datos base')) return;
-            if (process.env.SKIP_PV_ITEMS_SETUP === '1' && test.title.includes('preparar ítems base')) return;
-            if (process.env.SKIP_DATOS_SETUP === '1' && test.title.includes('preparar datos adicionales')) return;
-            
-            this.skipped++;
-            return;
-        }
 
         this.ensureTestTitlePrinted();
 
