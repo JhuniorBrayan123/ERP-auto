@@ -36,6 +36,22 @@ function tieneSesionReal(): boolean {
     }
 }
 
+/** Elimina storage states de CRT anteriores, conservando solo el actual y PRD */
+function limpiarCrtAnteriores(actual: string): void {
+    if (!fs.existsSync(authDir)) return;
+    const actualName = path.basename(actual);
+    for (const file of fs.readdirSync(authDir)) {
+        if (!file.startsWith('user.crt') || file === actualName) continue;
+        const fullPath = path.join(authDir, file);
+        try {
+            fs.unlinkSync(fullPath);
+            console.log(`[setup-state] Storage state CRT anterior eliminado: ${file}`);
+        } catch {
+            // no crítico
+        }
+    }
+}
+
 setup('authenticate', async ({page}) => {
     if (shouldSkipSetup(SETUP_NAME) && tieneSesionReal()) {
         console.log(`[setup-state] ${SETUP_NAME} already completed with valid session, skipping`);
@@ -76,5 +92,6 @@ setup('authenticate', async ({page}) => {
     await page.context().storageState({path: authFile});
     console.log(`Sesión guardada correctamente en ${authFile}`);
 
+    limpiarCrtAnteriores(authFile);
     markSetupComplete(SETUP_NAME);
 });
