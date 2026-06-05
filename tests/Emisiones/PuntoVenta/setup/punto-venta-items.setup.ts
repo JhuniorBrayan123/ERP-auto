@@ -241,7 +241,7 @@ setup(CASO_ACTUAL, async ({page}) => {
 
     guardarMapaCodigos(mapaCodigos);
     
-    const envGroup = (process.env.APP_ENV ?? '').trim().toLowerCase() || 'crt';
+    const envGroup = (process.env.APP_ENV ?? '').trim().toLowerCase() === 'prd' ? 'prd' : 'crt-group';
     const account = (process.env.USER_EMAIL ?? '').trim().toLowerCase() || 'unknown';
     guardarMapaEnCache(mapaCodigos, envGroup, account);
     limpiarCheckpoint();

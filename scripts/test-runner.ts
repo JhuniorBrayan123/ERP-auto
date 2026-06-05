@@ -227,7 +227,7 @@ function formatCommand(args: string[]): string {
 }
 
 function cargarCacheActual(): void {
-    const envGroup = (process.env.APP_ENV ?? '').trim().toLowerCase() || 'crt';
+    const envGroup = (process.env.APP_ENV ?? '').trim().toLowerCase() === 'prd' ? 'prd' : 'crt-group';
     const currentAccount = (process.env.USER_EMAIL ?? '').trim().toLowerCase() || 'unknown';
 
     const cacheMapa = cargarMapaDesdeCache(envGroup, currentAccount);

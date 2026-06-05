@@ -2,11 +2,11 @@ import {existsSync, mkdirSync, writeFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import {defineConfig, devices} from "@playwright/test";
 import {env} from "./config/env";
-import {detectAccount, detectEnvironmentGroup} from "@utils/setup-state";
+import {detectAccount, detectEnvironmentFine} from "@utils/setup-state";
 import {generarSlugCache} from "./src/factories/item-factory";
 
 function resolveStoragePath(): string {
-    const envGroup = detectEnvironmentGroup();
+    const envGroup = detectEnvironmentFine();
     const account = detectAccount();
     const slug = generarSlugCache(envGroup, account);
     const fullPath = resolve(process.cwd(), 'playwright', '.auth', `user.${slug}.json`);

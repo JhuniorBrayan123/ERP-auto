@@ -2,14 +2,14 @@ import {expect, test as setup} from '@playwright/test';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import {env} from '../config/env';
-import {detectAccount, detectEnvironmentGroup, markSetupComplete, shouldSkipSetup} from '@utils/setup-state';
+import {detectAccount, detectEnvironmentFine, markSetupComplete, shouldSkipSetup} from '@utils/setup-state';
 import {generarSlugCache} from '@factories/item-factory';
 
 const SETUP_NAME = 'auth';
 const authDir = path.join(__dirname, '../playwright/.auth');
 
 function resolveStorageStatePath(): string {
-    const envGroup = detectEnvironmentGroup();
+    const envGroup = detectEnvironmentFine();
     const account = detectAccount();
     const slug = generarSlugCache(envGroup, account);
     return path.join(authDir, `user.${slug}.json`);
