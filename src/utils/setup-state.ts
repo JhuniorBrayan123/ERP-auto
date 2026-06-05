@@ -36,7 +36,7 @@ export interface SetupState {
 
 export function detectEnvironmentGroup(): string {
     const envVar = (process.env.APP_ENV ?? '').trim().toLowerCase();
-    return envVar === 'prd' ? 'prd' : 'crt-group';
+    return envVar || 'crt';
 }
 
 export function detectAccount(): string {

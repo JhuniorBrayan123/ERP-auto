@@ -59,22 +59,22 @@ async function main(): Promise<void> {
         assert.strictEqual(mod.detectEnvironmentGroup(), 'prd');
     });
 
-    await it('should return "crt-group" when APP_ENV is "crt"', async () => {
+    await it('should return the actual env when APP_ENV is "crt"', async () => {
         cleanupEnv();
         process.env.APP_ENV = 'crt';
-        assert.strictEqual(mod.detectEnvironmentGroup(), 'crt-group');
+        assert.strictEqual(mod.detectEnvironmentGroup(), 'crt');
     });
 
-    await it('should return "crt-group" when APP_ENV is "crt-3"', async () => {
+    await it('should return the actual env when APP_ENV is "crt-3"', async () => {
         cleanupEnv();
         process.env.APP_ENV = 'crt-3';
-        assert.strictEqual(mod.detectEnvironmentGroup(), 'crt-group');
+        assert.strictEqual(mod.detectEnvironmentGroup(), 'crt-3');
     });
 
-    await it('should return "crt-group" when APP_ENV is "crt-4"', async () => {
+    await it('should return the actual env when APP_ENV is "crt-4"', async () => {
         cleanupEnv();
         process.env.APP_ENV = 'crt-4';
-        assert.strictEqual(mod.detectEnvironmentGroup(), 'crt-group');
+        assert.strictEqual(mod.detectEnvironmentGroup(), 'crt-4');
     });
 
     console.log('  ── detectAccount() ──');
