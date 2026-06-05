@@ -49,7 +49,7 @@ test.describe('Guías de Remisión Remitente - Mercancía Extranjera', { tag: ['
                 ]
             })
         );
-    
+
         await test.step('Verificar emisión exitosa', async () => {
             await listadoGuiasPage.validarGuiaEmitidaExito();
         });
@@ -59,9 +59,6 @@ test.describe('Guías de Remisión Remitente - Mercancía Extranjera', { tag: ['
             GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo,
             saldoAntes
         );
-    });
-    
-        await listadoGuiasPage.validarGuiaEmitidaExito();
     });
 
     test('GRR-12: Emitir guía con traslado de vehículos categoría M1 o L', async ({ cajero, listadoGuiasPage, kardexApi }) => {
