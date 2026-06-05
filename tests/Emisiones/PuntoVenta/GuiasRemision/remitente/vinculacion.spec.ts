@@ -8,13 +8,14 @@ import {ComprobantePage} from '@pages/PuntoVenta/ComprobantePage';
 import {ClientePage} from '@pages/PuntoVenta/ClientePage';
 import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
 import {ComprobanteDetallePage} from '@pages/PuntoVenta/ComprobanteDetallePage';
+import {capturarSaldoAnterior, verificarStockSinCambio} from '@helpers/PuntoVenta/verificaciones-pv.helper';
 
 test.describe('Guías de Remisión Remitente - Vinculación', { tag: ['@guias', '@puntoventa'] }, () => {
     test.beforeEach(async ({ cajero }) => {
         await cajero.intentaRealizar(IniciarVentaEnCaja('caja-auto'));
     });
 
-    test('GRR-15: Emitir guía vinculando un comprobante', async ({page, listadoGuiasPage}) => {
+    test('GRR-15: Emitir guía vinculando un comprobante', async ({page, listadoGuiasPage, kardexApi}) => {
         // 1. Emitir Factura como precondición usando flujo de emisión estándar
         const resultado = await ejecutarEmisionBasica(
             {
@@ -49,7 +50,13 @@ test.describe('Guías de Remisión Remitente - Vinculación', { tag: ['@guias', 
         const guiaPage = new GuiaRemitentePage(page);
         await guiaPage.vincularComprobanteEnModal(resultado.serie, resultado.correlativo);
 
-        // 4. Completar datos de la guía
+        // 4. Capturar stock ANTES de emitir guía (la factura ya descontó, la guía no debe)
+        const saldoAntes = await capturarSaldoAnterior(
+            kardexApi,
+            GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo
+        );
+
+        // 5. Completar datos de la guía
         await guiaPage.completarPuntoPartidaYLlegada(
             GUIAS_DATA.REMITENTE.UBIGEO,
             GUIAS_DATA.DESTINATARIO.UBIGEO,
@@ -64,9 +71,16 @@ test.describe('Guías de Remisión Remitente - Vinculación', { tag: ['@guias', 
         await guiaPage.definirPesoTotal('Kg', '10.45');
         await guiaPage.emitirGuia();
 
-        // 5. Validar emisión exitosa
+        // 6. Validar emisión exitosa
         await test.step('Validar emisión exitosa de guía vinculada', async () => {
             await listadoGuiasPage.validarGuiaEmitidaExito();
         });
+
+        // 7. Verificar que la guía NO descontó stock
+        await verificarStockSinCambio(
+            kardexApi,
+            GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo,
+            saldoAntes
+        );
     });
 });

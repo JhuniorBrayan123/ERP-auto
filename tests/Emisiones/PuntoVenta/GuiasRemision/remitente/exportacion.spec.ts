@@ -4,6 +4,7 @@ import {EmitirGuiaRemitenteConValidacionTask} from '@task/PuntoVenta/guias-remis
 import {GUIAS_DATA} from '@helpers/PuntoVenta/guias-data.helper';
 import {NavegarAGuiaRemitente} from '@task/PuntoVenta/guias-remision/NavegarAGuiaRemitente.task';
 import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
+import {capturarSaldoAnterior, verificarStockSinCambio} from '@helpers/PuntoVenta/verificaciones-pv.helper';
 
 test.describe('Guías de Remisión Remitente - Exportación', { tag: ['@guias', '@puntoventa'] }, () => {
     test.beforeEach(async ({ cajero }) => {
@@ -13,7 +14,12 @@ test.describe('Guías de Remisión Remitente - Exportación', { tag: ['@guias', 
         );
     });
 
-    test('GRR-02: Emitir guía por exportación (Modalidad Pública)', async ({ cajero, listadoGuiasPage }) => {
+    test('GRR-02: Emitir guía por exportación (Modalidad Pública)', async ({ cajero, listadoGuiasPage, kardexApi }) => {
+        const saldoAntes = await capturarSaldoAnterior(
+            kardexApi,
+            GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo
+        );
+
         await cajero.intentaRealizar(
             EmitirGuiaRemitenteTask({
                 motivo: GUIAS_DATA.MOTIVOS_TRASLADO.EXPORTACION,
@@ -31,6 +37,12 @@ test.describe('Guías de Remisión Remitente - Exportación', { tag: ['@guias', 
         await test.step('Verificar que la guía de exportación se emite exitosamente', async () => {
             await listadoGuiasPage.validarGuiaEmitidaExito();
         });
+
+        await verificarStockSinCambio(
+            kardexApi,
+            GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo,
+            saldoAntes
+        );
     });
 
     test('GRR-03: Validar datos obligatorios de exportación', async ({ cajero, page }) => {

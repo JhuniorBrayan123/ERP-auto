@@ -3,6 +3,7 @@ import {EmitirGuiaRemitenteTask} from '@task/PuntoVenta/guias-remision/EmitirGui
 import {GUIAS_DATA} from '@helpers/PuntoVenta/guias-data.helper';
 import {NavegarAGuiaRemitente} from '@task/PuntoVenta/guias-remision/NavegarAGuiaRemitente.task';
 import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
+import {capturarSaldoAnterior, verificarStockSinCambio} from '@helpers/PuntoVenta/verificaciones-pv.helper';
 
 test.describe('Guías de Remisión Remitente - Emisión General', {tag: ['@guias', '@puntoventa']}, () => {
     test.beforeEach(async ({cajero}) => {
@@ -12,7 +13,12 @@ test.describe('Guías de Remisión Remitente - Emisión General', {tag: ['@guias
         );
     });
 
-    test('GRR-01: Emitir guía con modalidad pública', async ({cajero, listadoGuiasPage}) => {
+    test('GRR-01: Emitir guía con modalidad pública', async ({cajero, listadoGuiasPage, kardexApi}) => {
+        const saldoAntes = await capturarSaldoAnterior(
+            kardexApi,
+            GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo
+        );
+
         await cajero.intentaRealizar(
             EmitirGuiaRemitenteTask({
                 motivo: GUIAS_DATA.MOTIVOS_TRASLADO.VENTA,
@@ -28,6 +34,12 @@ test.describe('Guías de Remisión Remitente - Emisión General', {tag: ['@guias
             await listadoGuiasPage.validarGuiaEmitidaExito();
             await listadoGuiasPage.validarElementosDeEnvioVisibles();
         });
+
+        await verificarStockSinCambio(
+            kardexApi,
+            GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo,
+            saldoAntes
+        );
     });
 
     test('Emitir guía donde el destinatario es el mismo emisor @GRR-03a', async ({cajero, listadoGuiasPage, page}) => {

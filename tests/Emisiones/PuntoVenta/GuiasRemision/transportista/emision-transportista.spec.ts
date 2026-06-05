@@ -82,7 +82,6 @@ test.describe('Guías de Remisión Transportista - Emisión', {tag: ['@guias', '
 
         await test.step('Validar emisión exitosa y estado EMITIDO en comprobantes', async () => {
             await listadoGuiasPage.validarGuiaEmitidaExito();
-
             const postEmision = new PostEmisionPage(page);
             const correlativoTexto = await postEmision.obtenerCorrelativoDinamico();
             const correlativo = String(parseInt(correlativoTexto.split('-')[1], 10));

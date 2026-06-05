@@ -5,6 +5,7 @@ import {GuiaRemitentePage} from '@pages/PuntoVenta/guias-remision/GuiaRemitenteP
 import {GUIAS_DATA} from '@helpers/PuntoVenta/guias-data.helper';
 import {NavegarAGuiaRemitente} from '@task/PuntoVenta/guias-remision/NavegarAGuiaRemitente.task';
 import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
+import {capturarSaldoAnterior, verificarStockSinCambio} from '@helpers/PuntoVenta/verificaciones-pv.helper';
 
 test.describe('Guías de Remisión Remitente - Mercancía Extranjera', { tag: ['@guias', '@puntoventa'] }, () => {
     test.beforeEach(async ({ cajero }) => {
@@ -28,7 +29,12 @@ test.describe('Guías de Remisión Remitente - Mercancía Extranjera', { tag: ['
         await listadoGuiasPage.validarGuiaEmitidaExito();
     });
 
-    test('GRR-11: Emitir guía por traslado de mercancía extranjera con contenedor', async ({ cajero, listadoGuiasPage }) => {
+    test('GRR-11: Emitir guía por traslado de mercancía extranjera con contenedor', async ({ cajero, listadoGuiasPage, kardexApi }) => {
+        const saldoAntes = await capturarSaldoAnterior(
+            kardexApi,
+            GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo
+        );
+
         await cajero.intentaRealizar(
             EmitirGuiaRemitenteConValidacionTask({
                 motivo: GUIAS_DATA.MOTIVOS_TRASLADO.TRASLADO_MERCANCIA_EXTRANJERA,
@@ -40,14 +46,30 @@ test.describe('Guías de Remisión Remitente - Mercancía Extranjera', { tag: ['
                 peso: '1',
                 items: [
                     { codigoONombre: GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo }
-                ])
-            );
+                ]
+            })
+        );
+    
+        await test.step('Verificar emisión exitosa', async () => {
+            await listadoGuiasPage.validarGuiaEmitidaExito();
         });
+
+        await verificarStockSinCambio(
+            kardexApi,
+            GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo,
+            saldoAntes
+        );
+    });
     
         await listadoGuiasPage.validarGuiaEmitidaExito();
     });
 
-    test('GRR-12: Emitir guía con traslado de vehículos categoría M1 o L', async ({ cajero, listadoGuiasPage }) => {
+    test('GRR-12: Emitir guía con traslado de vehículos categoría M1 o L', async ({ cajero, listadoGuiasPage, kardexApi }) => {
+        const saldoAntes = await capturarSaldoAnterior(
+            kardexApi,
+            GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo
+        );
+
         await cajero.intentaRealizar(
             EmitirGuiaRemitenteConValidacionTask({
                 motivo: GUIAS_DATA.MOTIVOS_TRASLADO.VENTA,
@@ -60,7 +82,16 @@ test.describe('Guías de Remisión Remitente - Mercancía Extranjera', { tag: ['
                 ]
             })
         );
-        await listadoGuiasPage.validarGuiaEmitidaExito();
+
+        await test.step('Verificar emisión exitosa', async () => {
+            await listadoGuiasPage.validarGuiaEmitidaExito();
+        });
+
+        await verificarStockSinCambio(
+            kardexApi,
+            GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo,
+            saldoAntes
+        );
     });
 
     test('GRR-13: Validar datos obligatorios de traslado de mercancía extranjera', async ({ cajero, page }) => {
