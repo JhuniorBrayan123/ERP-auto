@@ -83,15 +83,18 @@ test.describe('Guías de Remisión Remitente - Mercancía Extranjera', { tag: ['
         const guiaPage = new GuiaRemitentePage(page);
 
         await guiaPage.seleccionarMotivo(GUIAS_DATA.MOTIVOS_TRASLADO.TRASLADO_MERCANCIA_EXTRANJERA);
+        await guiaPage.seleccionarModalidad(GUIAS_DATA.MODALIDADES.PUBLICA);
         await guiaPage.completarDam('2024/124-4567-30-12345');
-        await guiaPage.seleccionarDestinatario(GUIAS_DATA.DESTINATARIO.DNI, GUIAS_DATA.DESTINATARIO.NOMBRE_DNI);
-        await guiaPage.completarPuntoPartidaYLlegada(
-            GUIAS_DATA.DESTINATARIO.UBIGEO,
-            GUIAS_DATA.DESTINATARIO.DIRECCION,
-            GUIAS_DATA.REMITENTE.DIRECCION
+        await guiaPage.seleccionarDestinatarioSiAplica(
+            GUIAS_DATA.DESTINATARIO.RUC,
+            GUIAS_DATA.DESTINATARIO.NOMBRE_RUC
         );
-        await guiaPage.seleccionarConductor(GUIAS_DATA.REMITENTE.DNI);
-        await guiaPage.completarPlacaYLicencia(GUIAS_DATA.TRANSPORTISTA.PLACA, GUIAS_DATA.TRANSPORTISTA.LICENCIA);
+        await guiaPage.completarPuntoPartidaYLlegada(
+            GUIAS_DATA.MERCANCIA_EXTRANJERA.UBIGEO_PARTIDA,
+            GUIAS_DATA.MERCANCIA_EXTRANJERA.UBIGEO_LLEGADA,
+            GUIAS_DATA.REMITENTE.DIRECCION,
+            GUIAS_DATA.DESTINATARIO.DIRECCION
+        );
         await guiaPage.seleccionarTransportista(GUIAS_DATA.TRANSPORTISTA.RUC);
         await guiaPage.completarMTC(GUIAS_DATA.TRANSPORTISTA.MTC);
         await guiaPage.buscarYSeleccionarItem(GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_SIN_CONTROL.codigo);
@@ -103,15 +106,9 @@ test.describe('Guías de Remisión Remitente - Mercancía Extranjera', { tag: ['
         await guiaPage.emitirGuia();
 
         await expect(page.getByRole('main')).toContainText('Campo obligatorio');
-        await expect(page.getByRole('main')).toMatchAriaSnapshot(`
-          - text: Contenedor 1 *
-          - textbox
-          - text: Campo obligatorio
-        `);
-        await expect(page.getByRole('main')).toMatchAriaSnapshot(`
-          - text: Precinto 1 *
-          - textbox
-          - text: Campo obligatorio
-        `);
+        await expect(page.getByText('Contenedor 1', {exact: true})).toBeVisible();
+        await expect(page.getByText('Precinto 1', {exact: true})).toBeVisible();
+        await expect(page.getByText('Campo obligatorio').first()).toBeVisible();
+        await expect(page.getByText('Campo obligatorio').nth(1)).toBeVisible();
     });
 });

@@ -53,5 +53,9 @@ export const GUIAS_DATA = {
     MODALIDADES: {
         PUBLICA: 'PUBLICA',
         PRIVADA: 'PRIVADA',
-    }
+    },
+    MERCANCIA_EXTRANJERA: {
+        UBIGEO_PARTIDA: '070101 - Callao',
+        UBIGEO_LLEGADA: 'Juliaca - San Roman - Puno',
+    },
 } as const;

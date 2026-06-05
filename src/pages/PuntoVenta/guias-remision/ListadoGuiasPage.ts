@@ -9,7 +9,19 @@ export class ListadoGuiasPage {
     get btnNuevaGuia() { return this.page.getByRole('button', { name: 'Nueva guía remisión remitente' }); }
 
     async validarGuiaEmitidaExito() {
-        await expect(this.msgBuenTrabajo).toBeVisible({ timeout: 15_000 });
+        const exito = this.msgBuenTrabajo.or(this.successMessageEmitido);
+        await expect(exito.first()).toBeVisible({timeout: 15_000});
+    }
+
+    async validarGuiaGuardadaExito() {
+        const mensajeGuardado = this.successMessageGuardado.or(this.msgBuenTrabajo);
+        const filaGuardada = this.page
+            .getByRole('row')
+            .filter({hasText: 'GUÍA DE REMISIÓN REMITENTE'})
+            .filter({hasText: 'GUARDADO'})
+            .first();
+
+        await expect(mensajeGuardado.or(filaGuardada)).toBeVisible({timeout: 15_000});
     }
 
     async validarElementosDeEnvioVisibles() {

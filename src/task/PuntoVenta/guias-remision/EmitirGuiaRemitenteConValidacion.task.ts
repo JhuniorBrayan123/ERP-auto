@@ -2,6 +2,11 @@ import {Page} from '@playwright/test';
 import {GuiaRemitentePage} from '@pages/PuntoVenta/guias-remision/GuiaRemitentePage';
 import {GUIAS_DATA} from '@helpers/PuntoVenta/guias-data.helper';
 import {runFunctionalAction} from '@utils/functional-step';
+import {
+    motivoRequiereComprador,
+    obtenerDestinatarioPorMotivo,
+    resolverUbigeosPorMotivo,
+} from '@task/PuntoVenta/guias-remision/EmitirGuiaRemitente.task';
 
 export type EmitirGuiaRemitenteConValidacionData = {
     motivo?: string;
@@ -37,15 +42,29 @@ export const EmitirGuiaRemitenteConValidacionTask = (data: EmitirGuiaRemitenteCo
             if (data.dam) await guiaPage.completarDam(data.dam);
             if (data.bultos) await guiaPage.completarBultos(data.bultos);
 
-            if (!data.skipDestinatario) {
-                await guiaPage.seleccionarDestinatario(GUIAS_DATA.DESTINATARIO.DNI, GUIAS_DATA.DESTINATARIO.NOMBRE_DNI);
+            if (!data.skipDestinatario && data.motivo) {
+                const destinatario = obtenerDestinatarioPorMotivo({motivo: data.motivo});
+
+                if (motivoRequiereComprador(data.motivo)) {
+                    await guiaPage.seleccionarComprador(
+                        destinatario.documento,
+                        destinatario.nombre
+                    );
+                }
+
+                await guiaPage.seleccionarDestinatarioSiAplica(
+                    destinatario.documento,
+                    destinatario.nombre
+                );
             }
 
             if (!data.skipUbigeo) {
+                const ubigeos = resolverUbigeosPorMotivo(data.motivo);
                 await guiaPage.completarPuntoPartidaYLlegada(
-                    GUIAS_DATA.DESTINATARIO.UBIGEO,
-                    GUIAS_DATA.DESTINATARIO.UBIGEO,
-                    GUIAS_DATA.REMITENTE.DIRECCION
+                    ubigeos.partida,
+                    ubigeos.llegada,
+                    GUIAS_DATA.REMITENTE.DIRECCION,
+                    GUIAS_DATA.DESTINATARIO.DIRECCION
                 );
             }
 

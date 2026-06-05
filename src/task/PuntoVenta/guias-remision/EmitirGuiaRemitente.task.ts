@@ -3,6 +3,44 @@ import {GuiaRemitentePage} from '@pages/PuntoVenta/guias-remision/GuiaRemitenteP
 import {GUIAS_DATA} from '@helpers/PuntoVenta/guias-data.helper';
 import {runFunctionalAction} from '@utils/functional-step';
 
+const normalizarMotivo = (motivo: string): string =>
+    motivo
+        .trim()
+        .toUpperCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+
+const MOTIVOS_ACEPTAN_DNI = new Set<string>([
+    'VENTA',
+    'OTROS MOTIVOS',
+    'DEVOLUCION',
+    'CONSIGNACION',
+]);
+
+export const motivoAceptaDni = (motivo?: string): boolean => {
+    if (!motivo) return false;
+    return MOTIVOS_ACEPTAN_DNI.has(normalizarMotivo(motivo));
+};
+
+export const motivoRequiereComprador = (motivo?: string): boolean =>
+    !!motivo && normalizarMotivo(motivo) === 'VENTA CON ENTREGA A TERCEROS';
+
+export const motivoEsMercanciaExtranjera = (motivo?: string): boolean =>
+    !!motivo && normalizarMotivo(motivo) === 'TRASLADO DE MERCANCIA EXTRANJERA';
+
+export const resolverUbigeosPorMotivo = (motivo?: string) => {
+    if (motivoEsMercanciaExtranjera(motivo)) {
+        return {
+            partida: GUIAS_DATA.MERCANCIA_EXTRANJERA.UBIGEO_PARTIDA,
+            llegada: GUIAS_DATA.MERCANCIA_EXTRANJERA.UBIGEO_LLEGADA,
+        };
+    }
+    return {
+        partida: GUIAS_DATA.REMITENTE.UBIGEO,
+        llegada: GUIAS_DATA.DESTINATARIO.UBIGEO,
+    };
+};
+
 export type EmitirGuiaRemitenteData = {
     motivo?: string;
     modalidad: 'PUBLICA' | 'PRIVADA';
@@ -17,6 +55,32 @@ export type EmitirGuiaRemitenteData = {
     puntoPartida?: string;
     puntoLlegada?: string;
     direccionPartida?: string;
+    destinatarioDocumento?: string;
+    destinatarioNombre?: string;
+    forzarDestinatario?: 'DNI' | 'RUC';
+};
+
+export type DestinatarioGuiaOptions = Pick<
+    EmitirGuiaRemitenteData,
+    'motivo' | 'destinatarioDocumento' | 'destinatarioNombre' | 'forzarDestinatario'
+>;
+
+export const obtenerDestinatarioPorMotivo = (data: DestinatarioGuiaOptions) => {
+    const usarDni = data.forzarDestinatario
+        ? data.forzarDestinatario === 'DNI'
+        : motivoAceptaDni(data.motivo);
+
+    if (usarDni) {
+        return {
+            documento: data.destinatarioDocumento || GUIAS_DATA.DESTINATARIO.DNI,
+            nombre: data.destinatarioNombre || GUIAS_DATA.DESTINATARIO.NOMBRE_DNI,
+        };
+    }
+
+    return {
+        documento: data.destinatarioDocumento || GUIAS_DATA.DESTINATARIO.RUC,
+        nombre: data.destinatarioNombre || GUIAS_DATA.DESTINATARIO.NOMBRE_RUC,
+    };
 };
 
 export const EmitirGuiaRemitenteTask = (data: EmitirGuiaRemitenteData) => {
@@ -48,13 +112,37 @@ export const EmitirGuiaRemitenteTask = (data: EmitirGuiaRemitenteData) => {
                 const partida = data.puntoPartida || GUIAS_DATA.REMITENTE.UBIGEO;
                 const llegada = data.puntoLlegada || GUIAS_DATA.DESTINATARIO.UBIGEO;
                 const partidaDir = data.direccionPartida || GUIAS_DATA.REMITENTE.DIRECCION;
-                await guiaPage.completarPuntoPartidaYLlegada(partida, llegada, partidaDir);
-            } else {
-                await guiaPage.seleccionarDestinatario(GUIAS_DATA.DESTINATARIO.RUC, GUIAS_DATA.DESTINATARIO.NOMBRE_RUC);
                 await guiaPage.completarPuntoPartidaYLlegada(
-                    GUIAS_DATA.DESTINATARIO.UBIGEO,
-                    GUIAS_DATA.DESTINATARIO.UBIGEO,
-                    GUIAS_DATA.REMITENTE.DIRECCION
+                    partida,
+                    llegada,
+                    partidaDir,
+                    GUIAS_DATA.DESTINATARIO.DIRECCION
+                );
+            } else {
+                const destinatario = obtenerDestinatarioPorMotivo(data);
+                const ubigeos = resolverUbigeosPorMotivo(data.motivo);
+
+                if (motivoRequiereComprador(data.motivo)) {
+                    await guiaPage.seleccionarComprador(
+                        destinatario.documento,
+                        destinatario.nombre
+                    );
+                    await guiaPage.seleccionarDestinatarioSiAplica(
+                        destinatario.documento,
+                        destinatario.nombre
+                    );
+                } else {
+                    await guiaPage.seleccionarDestinatarioSiAplica(
+                        destinatario.documento,
+                        destinatario.nombre
+                    );
+                }
+
+                await guiaPage.completarPuntoPartidaYLlegada(
+                    ubigeos.partida,
+                    ubigeos.llegada,
+                    GUIAS_DATA.REMITENTE.DIRECCION,
+                    GUIAS_DATA.DESTINATARIO.DIRECCION
                 );
             }
 

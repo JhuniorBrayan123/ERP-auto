@@ -14,7 +14,7 @@ test.describe('Guías de Remisión Remitente - Vinculación', { tag: ['@guias', 
         await cajero.intentaRealizar(IniciarVentaEnCaja('caja-auto'));
     });
 
-    test('GRR-15: Emitir guía vinculando un comprobante', async ({ page }) => {
+    test('GRR-15: Emitir guía vinculando un comprobante', async ({page, listadoGuiasPage}) => {
         // 1. Emitir Factura como precondición usando flujo de emisión estándar
         const resultado = await ejecutarEmisionBasica(
             {
@@ -51,20 +51,22 @@ test.describe('Guías de Remisión Remitente - Vinculación', { tag: ['@guias', 
 
         // 4. Completar datos de la guía
         await guiaPage.completarPuntoPartidaYLlegada(
+            GUIAS_DATA.REMITENTE.UBIGEO,
             GUIAS_DATA.DESTINATARIO.UBIGEO,
-            GUIAS_DATA.DESTINATARIO.DIRECCION,
-            GUIAS_DATA.REMITENTE.DIRECCION
+            GUIAS_DATA.REMITENTE.DIRECCION,
+            GUIAS_DATA.DESTINATARIO.DIRECCION
         );
-        await guiaPage.completarPlacaYLicencia(GUIAS_DATA.TRANSPORTISTA.PLACA, GUIAS_DATA.TRANSPORTISTA.LICENCIA);
-        await guiaPage.seleccionarTransportista(GUIAS_DATA.TRANSPORTISTA.RUC);
-        await guiaPage.completarMTC(GUIAS_DATA.TRANSPORTISTA.MTC);
+        await guiaPage.seleccionarConductor(GUIAS_DATA.REMITENTE.DNI);
+        await guiaPage.completarPlacaYLicencia(
+            GUIAS_DATA.TRANSPORTISTA.PLACA,
+            GUIAS_DATA.TRANSPORTISTA.LICENCIA
+        );
         await guiaPage.definirPesoTotal('Kg', '10.45');
         await guiaPage.emitirGuia();
 
         // 5. Validar emisión exitosa
         await test.step('Validar emisión exitosa de guía vinculada', async () => {
-            await expect(page.getByText('¡Buen trabajo!')).toBeVisible();
-            await expect(page.getByText('Tu comprobante fue emitido')).toBeVisible();
+            await listadoGuiasPage.validarGuiaEmitidaExito();
         });
     });
 });

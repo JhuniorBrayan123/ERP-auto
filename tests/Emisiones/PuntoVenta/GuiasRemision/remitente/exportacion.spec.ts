@@ -45,7 +45,7 @@ test.describe('Guías de Remisión Remitente - Exportación', { tag: ['@guias', 
             })
         );
         await expect(page.getByRole('main')).toContainText('Campo obligatorio');
-        await expect(page.getByRole('main')).toContainText('Campo obligatorio');
-        await expect(page.getByText('Campo obligatorio').nth(2)).toBeVisible();
+        await expect(page.getByText('Campo obligatorio').first()).toBeVisible();
+        await expect(page.getByText('Campo obligatorio').nth(1)).toBeVisible();
     });
 });

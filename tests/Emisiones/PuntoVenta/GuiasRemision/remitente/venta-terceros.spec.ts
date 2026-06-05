@@ -36,13 +36,14 @@ test.describe('Guías de Remisión Remitente - Venta a terceros', { tag: ['@guia
                 motivo: GUIAS_DATA.MOTIVOS_TRASLADO.VENTA_TERCEROS,
                 modalidad: GUIAS_DATA.MODALIDADES.PUBLICA,
                 peso: '10',
+                skipDestinatario: true,
                 items: [
                     {codigoONombre: GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo}
                 ]
             })
         );
         await expect(page.getByText('Buscar comprador')).toBeVisible();
-        await expect(page.getByText('Campo obligatorio')).toBeVisible();
+        await expect(page.getByText('Campo obligatorio').first()).toBeVisible();
         await expect(page.getByRole('main')).toContainText('Campo obligatorio');
     });
 });

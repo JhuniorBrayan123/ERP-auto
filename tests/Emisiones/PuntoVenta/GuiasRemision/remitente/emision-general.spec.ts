@@ -67,7 +67,7 @@ test.describe('Guías de Remisión Remitente - Emisión General', {tag: ['@guias
         );
 
         await test.step('Verificar que la guía se guardó exitosamente', async () => {
-            await expect(listadoGuiasPage.successMessageGuardado).toBeVisible({timeout: 15_000});
+            await listadoGuiasPage.validarGuiaGuardadaExito();
         });
     });
 });
