@@ -118,37 +118,35 @@ export class EmisionPage {
         }
     }
 
-    async seleccionarItemPorCodigo(codigo: string): Promise<void> {
+    async incrementarCantidadImagen(veces: number = 1, nombre: string): Promise<void> {
         try {
-            await this.page.getByText(`${codigo})`).click();
+            const btnIncrease = this.page
+                .locator('.cmp-producto-img') // Reemplaza con la clase real del ícono de incremento
+                .filter({hasText: nombre})     // O el texto/atributo que identifique el botón
+                .first();
+
+            await expect(btnIncrease).toBeVisible({timeout: 10_000});
+
+            for (let i = 0; i < veces; i++) {
+                await btnIncrease.click();
+                await this.page.waitForTimeout(200); // pequeño delay entre clicks si es necesario
+            }
+
+            const overload = this.page.locator('[id="cmn_cmp-overload:loading"]');
+            await overload.waitFor({state: 'visible', timeout: 2_000}).catch(() => {
+            });
+            await overload.waitFor({state: 'hidden', timeout: 15_000}).catch(() => {
+            });
+
+            await esperarDebounce(this.page, 800, 'Debounce al incrementar cantidad');
         } catch (error) {
             await throwFunctionalError({
                 page: this.page,
-                ...FUNCTIONAL_CATALOG.puntoVenta.agregarItem,
-                technicalDetail: `Error al seleccionar ítem por código. Código: ${codigo}.`,
+                ...FUNCTIONAL_CATALOG.puntoVenta.incrementarCantidadImagen,
+                technicalDetail: `Error al incrementar cantidad. Veces: ${veces}.`,
                 cause: error,
             });
         }
-    }
-
-    async obtenerPrecioItem(): Promise<number> {
-        const precioTexto = await this.page
-            .locator('[id*="item_v-text:precio"]')
-            .first()
-            .textContent({timeout: 5000})
-            .catch(() => 'S/ 0');
-        const limpio = precioTexto?.replace(/[S\/$\s,]/g, '') ?? '0';
-        return parseFloat(limpio);
-    }
-
-    async obtenerSubtotalItem(): Promise<number> {
-        const subtotalTexto = await this.page
-            .locator('[id*="item_v-text:subtotal"]')
-            .first()
-            .textContent({timeout: 5000})
-            .catch(() => 'S/ 0');
-        const limpio = subtotalTexto?.replace(/[S\/$\s,]/g, '') ?? '0';
-        return parseFloat(limpio);
     }
 
     async incrementarCantidad(veces: number = 1): Promise<void> {
