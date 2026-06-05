@@ -254,7 +254,6 @@ function cargarCacheActual(): void {
         }
         return;
     }
-
     try {
         if (fs.existsSync(authItemsFile)) {
             const crtContent = fs.readFileSync(authItemsFile, 'utf-8');

@@ -1,6 +1,6 @@
 import {test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
-import {esperarCargaOverlay} from "@utils/wait-helpers";
+import {esperarCargaOverlay, recargarSiHayError} from "@utils/wait-helpers";
 import {ClientePage} from "@pages/PuntoVenta/ClientePage";
 
 test.describe('PV-03 | Nota de venta con equivalencias y lista @PV-03', {tag: ['@punto-venta', '@nota-venta', '@equivalencias']}, () => {
@@ -34,7 +34,9 @@ test.describe('PV-03 | Nota de venta con equivalencias y lista @PV-03', {tag: ['
         await test.step('Then: nota de venta emitida', async () => {
             await emisionPage.clickNuevaVenta();
         });
-
+        await test.step('recargar si hay error', async ()=>{
+            await recargarSiHayError(page)
+        })
         await test.step('And: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
             await esperarCargaOverlay(page)
             await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
@@ -73,6 +75,9 @@ test.describe('PV-03 | Nota de venta con equivalencias y lista @PV-03', {tag: ['
         await test.step('Then: nota de venta emitida', async () => {
             await emisionPage.clickNuevaVenta();
         });
+        await test.step('recargar si hay error', async ()=>{
+            await recargarSiHayError(page)
+        })
         await test.step('And: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
             await esperarCargaOverlay(page)
             await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
