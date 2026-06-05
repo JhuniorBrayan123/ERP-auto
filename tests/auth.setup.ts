@@ -2,14 +2,14 @@ import {expect, test as setup} from '@playwright/test';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import {env} from '../config/env';
-import {detectAccount, detectEnvironmentGroup, markSetupComplete, shouldSkipSetup} from '@utils/setup-state';
+import {detectAccount, detectEnvironmentFine, markSetupComplete, shouldSkipSetup} from '@utils/setup-state';
 import {generarSlugCache} from '@factories/item-factory';
 
 const SETUP_NAME = 'auth';
 const authDir = path.join(__dirname, '../playwright/.auth');
 
 function resolveStorageStatePath(): string {
-    const envGroup = detectEnvironmentGroup();
+    const envGroup = detectEnvironmentFine();
     const account = detectAccount();
     const slug = generarSlugCache(envGroup, account);
     return path.join(authDir, `user.${slug}.json`);
@@ -21,9 +21,9 @@ function tieneSesionReal(): boolean {
         if (!fs.existsSync(authFile)) return false;
 
         const stats = fs.statSync(authFile);
-        const fileAgeHours = (Date.now() - stats.mtimeMs) / (1000 * 60 * 60);
-        if (fileAgeHours > 12) {
-            console.log(`[setup-state] La sesión guardada tiene más de 12 horas (${fileAgeHours.toFixed(1)}h). Se forzará un nuevo login.`);
+        const fileAgeMinutes = (Date.now() - stats.mtimeMs) / (1000 * 60);
+        if (fileAgeMinutes > 30) {
+            console.log(`[setup-state] La sesión guardada tiene más de 30 minutos (${fileAgeMinutes.toFixed(0)}min). Se forzará un nuevo login.`);
             return false;
         }
 
@@ -33,6 +33,22 @@ function tieneSesionReal(): boolean {
         return false;
     } catch {
         return false;
+    }
+}
+
+/** Elimina storage states de CRT anteriores, conservando solo el actual y PRD */
+function limpiarCrtAnteriores(actual: string): void {
+    if (!fs.existsSync(authDir)) return;
+    const actualName = path.basename(actual);
+    for (const file of fs.readdirSync(authDir)) {
+        if (!file.startsWith('user.crt') || file === actualName) continue;
+        const fullPath = path.join(authDir, file);
+        try {
+            fs.unlinkSync(fullPath);
+            console.log(`[setup-state] Storage state CRT anterior eliminado: ${file}`);
+        } catch {
+            // no crítico
+        }
     }
 }
 
@@ -76,5 +92,6 @@ setup('authenticate', async ({page}) => {
     await page.context().storageState({path: authFile});
     console.log(`Sesión guardada correctamente en ${authFile}`);
 
+    limpiarCrtAnteriores(authFile);
     markSetupComplete(SETUP_NAME);
 });

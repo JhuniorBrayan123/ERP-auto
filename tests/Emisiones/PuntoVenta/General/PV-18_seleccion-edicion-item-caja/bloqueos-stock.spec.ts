@@ -20,9 +20,11 @@ test.describe('Selección, edición de ítem en caja de venta — Bloqueos por s
         await cajero.intentaRealizar(
             IntentarAgregarComboSinStock(ITEMS_PV.COMBO_STOCK_BAJO_ITEM)
         );
-        expect(await cajero.pregunta(
-            MensajeVisible('No puedes agregar el item a tu venta porque no tienes stock')
-        )).toBe(true);
+        await expect(
+            page.getByText('No puedes agregar el item a tu venta porque no tienes stock').first(),
+            'El sistema no validó el stock y dejó agregar el combo a pesar de que un ítem no tiene stock'
+        ).toBeVisible({ timeout: 15_000 });
+        
         await cajero.intentaRealizar(ClickAceptarModal());
     });
 
@@ -31,9 +33,11 @@ test.describe('Selección, edición de ítem en caja de venta — Bloqueos por s
         await cajero.intentaRealizar(
             IntentarAgregarRecetaSinStock(ITEMS_PV.RECETA_SIN_STOCK)
         );
-        expect(await cajero.pregunta(
-            MensajeVisible(`${ITEMS_PV.RECETA_SIN_STOCK.nombre} (${ITEMS_PV.PRODUCTO_SIN_STOCK.nombre})`)
-        )).toBe(true);
+        await expect(
+            page.getByText(`${ITEMS_PV.RECETA_SIN_STOCK.nombre} (${ITEMS_PV.PRODUCTO_SIN_STOCK.nombre})`).first(),
+            'El sistema no validó el stock y dejó agregar la receta a pesar de que un componente no tiene stock'
+        ).toBeVisible({ timeout: 15_000 });
+        
         await cajero.intentaRealizar(ClickAceptarModal());
     });
 
@@ -42,9 +46,10 @@ test.describe('Selección, edición de ítem en caja de venta — Bloqueos por s
         await cajero.intentaRealizar(
             IntentarAgregarListaSinStock(ITEMS_PV.LISTA_SIN_STOCK)
         );
-        expect(await cajero.pregunta(
-            MensajeVisible('No puedes agregar el item a tu venta porque no tienes stock')
-        )).toBe(true);
+        await expect(
+            page.getByText('No puedes agregar el item a tu venta porque no tienes stock').first()
+        ).toBeVisible({ timeout: 15_000 });
+        
         await cajero.intentaRealizar(ClickAceptarModal());
     });
 });

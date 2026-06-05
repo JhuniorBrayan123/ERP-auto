@@ -1,5 +1,6 @@
 import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import {esperarCargaOverlay} from '@utils/wait-helpers';
 
 test.describe('PV-14 | Emitir comprobante con retención @PV-14', {tag: ['@punto-venta', '@factura', '@retencion']}, () => {
 
@@ -51,6 +52,7 @@ test.describe('PV-14 | Emitir comprobante con retención @PV-14', {tag: ['@punto
 
         await test.step('And: Ver comprobante muestra leyenda de retención', async () => {
             const popup = await busquedaComprobantes.abrirVerComprobante();
+            await esperarCargaOverlay(popup);
             await busquedaComprobantes.validarRetencionEnPopup(popup, '18');
         });
     });

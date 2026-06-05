@@ -1,22 +1,12 @@
 import {existsSync, mkdirSync, writeFileSync} from 'node:fs';
-import {resolve, dirname} from 'node:path';
+import {dirname, resolve} from 'node:path';
 import {defineConfig, devices} from "@playwright/test";
 import {env} from "./config/env";
-import {detectEnvironmentGroup, detectAccount} from "@utils/setup-state";
+import {detectAccount, detectEnvironmentFine} from "@utils/setup-state";
 import {generarSlugCache} from "./src/factories/item-factory";
 
-/**
- * Resuelve dinámicamente el path del storageState según el entorno y cuenta actual.
- *
- * Si el archivo aún no existe (primera ejecución con esta cuenta/ambiente),
- * crea un placeholder vacío para evitar el error ENOENT de Playwright.
- * auth.setup.ts lo sobrescribirá con la sesión real al completar el login.
- *
- * Ej: APP_ENV=crt-3, USER_EMAIL=test@mail.com
- *     → playwright/.auth/user.crt-group__test_at_mail.com.json
- */
 function resolveStoragePath(): string {
-    const envGroup = detectEnvironmentGroup();
+    const envGroup = detectEnvironmentFine();
     const account = detectAccount();
     const slug = generarSlugCache(envGroup, account);
     const fullPath = resolve(process.cwd(), 'playwright', '.auth', `user.${slug}.json`);
@@ -36,7 +26,7 @@ export default defineConfig({
     workers: 2,
 
     forbidOnly: !!process.env.CI,
-    retries: 1,
+    // retries: 1,
 
     timeout: 240_000,
     expect: {timeout: 10_000},
@@ -53,7 +43,7 @@ export default defineConfig({
     use: {
         baseURL: env.baseUrl,
 
-        trace: "on-first-retry",
+        trace: "retain-on-failure",
         screenshot: "only-on-failure",
         video: "retain-on-failure",
 

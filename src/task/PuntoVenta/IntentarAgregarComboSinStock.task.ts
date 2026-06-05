@@ -7,6 +7,7 @@ export const IntentarAgregarComboSinStock = (item: ItemVenta) => {
         const emision = new EmisionPage(page);
         await emision.buscarItem(item.codigo);
         await emision.seleccionarItem(item.nombre);
+        await emision.incrementarCantidad(3)
        
     };
     fn.displayName = 'Intentar agregar combo sin stock';

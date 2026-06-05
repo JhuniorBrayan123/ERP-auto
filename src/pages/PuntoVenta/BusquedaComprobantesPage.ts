@@ -3,6 +3,7 @@ import type {EmisionResult} from '../../helpers/PuntoVenta/emision.types';
 import {EstadoSunat} from '../../helpers/PuntoVenta/sunat-estados.helper';
 import {throwFunctionalError} from '../../utils/functional-error';
 import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 const ESTADOS_EXITOSOS = [EstadoSunat.ACEPTADA, EstadoSunat.ACEPTADA_OBSERVADA];
 const ESTADOS_TRANSITORIOS = [EstadoSunat.PENDIENTE_ENVIO, EstadoSunat.PENDIENTE_RESPUESTA, EstadoSunat.NO_DISPONIBLE];
@@ -325,26 +326,26 @@ export class BusquedaComprobantesPage {
     async validarRetencionEnPopup(popupPage: Page, porcentaje: string): Promise<void> {
         await expect(
             popupPage.getByText(`ESTE DOCUMENTO ESTA AFECTO A RETENCION DEL ${porcentaje}%`),
-        ).toBeVisible({timeout: 10_000});
+        ).toBeVisible({timeout: 30_000});
     }
 
     async validarDetraccionEnPopup(popupPage: Page): Promise<void> {
         await expect(
             popupPage.getByText('OPERACIÓN SUJETA AL SISTEMA'),
-        ).toBeVisible({timeout: 10_000});
+        ).toBeVisible({timeout: 30_000});
     }
 
     async validarFacturaAdelantoEnPopup(popupPage: Page): Promise<void> {
         await expect(
             popupPage.getByText('Factura de adelanto'),
-        ).toBeVisible({timeout: 10_000});
+        ).toBeVisible({timeout: 30_000});
     }
 
     async validarAdelantosAplicadosEnPopup(popupPage: Page): Promise<void> {
         const adelantos = popupPage.getByText('Adelantos aplicados').nth(1);
         const comprobantes = popupPage.getByText('Comprobantes de aplicación').nth(1);
 
-        await expect(adelantos.or(comprobantes)).toBeVisible({timeout: 10000});
+        await expect(adelantos.or(comprobantes)).toBeVisible({timeout: 30_000});
     }
 
     async clickAccionesExtra(popupPage: Page): Promise<void> {

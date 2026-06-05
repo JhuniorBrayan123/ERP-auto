@@ -34,9 +34,15 @@ export interface SetupState {
         profiles: Record<string, SetupProfile>;
 }
 
+/** Grupo amplio de entorno (crt-group / prd) — para setup-state y cache de items */
 export function detectEnvironmentGroup(): string {
     const envVar = (process.env.APP_ENV ?? '').trim().toLowerCase();
     return envVar === 'prd' ? 'prd' : 'crt-group';
+}
+
+/** Entorno específico (crt-4, crt, prd) — para storage state de login */
+export function detectEnvironmentFine(): string {
+    return (process.env.APP_ENV ?? '').trim().toLowerCase() || 'crt';
 }
 
 export function detectAccount(): string {

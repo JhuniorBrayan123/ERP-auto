@@ -1,5 +1,6 @@
 import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {CLIENTES, DETRACCION, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import {esperarCargaOverlay} from '@utils/wait-helpers';
 
 test.describe('PV-17 | Emitir comprobante con detracción @PV-17', {tag: ['@punto-venta', '@factura', '@detraccion']}, () => {
 
@@ -96,6 +97,7 @@ test.describe('PV-17 | Emitir comprobante con detracción @PV-17', {tag: ['@punt
 
         await test.step('And: Ver comprobante muestra leyenda de detracción', async () => {
             const popup = await busquedaComprobantes.abrirVerComprobante();
+            await esperarCargaOverlay(popup);
             await busquedaComprobantes.validarDetraccionEnPopup(popup);
         });
     });
@@ -153,6 +155,7 @@ test.describe('PV-17 | Emitir comprobante con detracción @PV-17', {tag: ['@punt
 
         await test.step('And: Ver comprobante muestra leyenda de detracción', async () => {
             const popup = await busquedaComprobantes.abrirVerComprobante();
+            await esperarCargaOverlay(popup);
             await busquedaComprobantes.validarDetraccionEnPopup(popup);
         });
     });

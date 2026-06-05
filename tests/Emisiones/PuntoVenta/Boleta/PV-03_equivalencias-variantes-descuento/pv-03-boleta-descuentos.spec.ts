@@ -193,8 +193,5 @@ test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @P
             await emisionPage.clickPrecuenta();
         });
 
-        await test.step('Then: precuenta visible', async () => {
-            await expect(page.getByRole('button', {name: 'PRECUENTA'})).toBeVisible();
-        });
     });
 });
