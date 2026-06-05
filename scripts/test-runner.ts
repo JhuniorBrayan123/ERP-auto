@@ -236,9 +236,10 @@ function cargarCacheActual(): void {
         return;
     }
 
+    const authItemsFile = path.join(ROOT_DIR, 'playwright', '.auth', 'dynamic-items.json');
+
     if (envGroup === 'prd') {
         const prdItemsFile = path.join(ROOT_DIR, 'playwright', 'dynamic-items.prd.json');
-        const authItemsFile = path.join(ROOT_DIR, 'playwright', '.auth', 'dynamic-items.json');
         try {
             const prdContent = fs.readFileSync(prdItemsFile, 'utf-8');
             const prdMapa = JSON.parse(prdContent);
@@ -253,8 +254,19 @@ function cargarCacheActual(): void {
         }
         return;
     }
-
-    console.warn(`[Cache] No hay cache para ${envGroup} / ${currentAccount}. Ejecuta setups primero.`);
+    try {
+        if (fs.existsSync(authItemsFile)) {
+            const crtContent = fs.readFileSync(authItemsFile, 'utf-8');
+            const crtMapa = JSON.parse(crtContent);
+            guardarMapaEnCache(crtMapa, envGroup, currentAccount);
+            console.log(`[Cache] CRT cache creado desde dynamic-items.json (RUN_ID: ${crtMapa.RUN_ID})`);
+        } else {
+            console.warn(`[Cache] No hay cache para ${envGroup} / ${currentAccount}. ` +
+                `Ejecuta setups o copia tus códigos a playwright/.auth/dynamic-items.json`);
+        }
+    } catch {
+        console.warn('[Cache] dynamic-items.json inválido — revisa el formato del archivo');
+    }
 }
 
 export function applySetupSelections(selected: string[]): void {
