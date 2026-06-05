@@ -1,4 +1,4 @@
-import {Page} from '@playwright/test';
+import {Page, test} from '@playwright/test';
 import {GuiaRemitentePage} from '@pages/PuntoVenta/guias-remision/GuiaRemitentePage';
 import {GUIAS_DATA} from '@helpers/PuntoVenta/guias-data.helper';
 import {runFunctionalAction} from '@utils/functional-step';
@@ -37,69 +37,114 @@ export const EmitirGuiaRemitenteConValidacionTask = (data: EmitirGuiaRemitenteCo
             technicalDetail: 'Error al llenar datos del formulario',
             failureCategory: 'SCRIPT'
         }, async () => {
-            if (data.motivo) await guiaPage.seleccionarMotivo(data.motivo);
-            if (data.modalidad) await guiaPage.seleccionarModalidad(data.modalidad);
-            if (data.dam) await guiaPage.completarDam(data.dam);
-            if (data.bultos) await guiaPage.completarBultos(data.bultos);
+            if (data.motivo) {
+                await test.step(`Seleccionar motivo: ${data.motivo}`, async () => {
+                    await guiaPage.seleccionarMotivo(data.motivo!);
+                });
+            }
+            if (data.modalidad) {
+                await test.step(`Seleccionar modalidad: ${data.modalidad}`, async () => {
+                    await guiaPage.seleccionarModalidad(data.modalidad!);
+                });
+            }
+            if (data.dam) {
+                await test.step('Completar DAM', async () => {
+                    await guiaPage.completarDam(data.dam!);
+                });
+            }
+            if (data.bultos) {
+                await test.step('Completar bultos', async () => {
+                    await guiaPage.completarBultos(data.bultos!);
+                });
+            }
 
             if (!data.skipDestinatario && data.motivo) {
                 const destinatario = obtenerDestinatarioPorMotivo({motivo: data.motivo});
 
                 if (motivoRequiereComprador(data.motivo)) {
-                    await guiaPage.seleccionarComprador(
+                    await test.step('Seleccionar comprador', async () => {
+                        await guiaPage.seleccionarComprador(
+                            destinatario.documento,
+                            destinatario.nombre
+                        );
+                    });
+                }
+
+                await test.step('Seleccionar destinatario', async () => {
+                    await guiaPage.seleccionarDestinatarioSiAplica(
                         destinatario.documento,
                         destinatario.nombre
                     );
-                }
-
-                await guiaPage.seleccionarDestinatarioSiAplica(
-                    destinatario.documento,
-                    destinatario.nombre
-                );
+                });
             }
 
             if (!data.skipUbigeo) {
-                const ubigeos = resolverUbigeosPorMotivo(data.motivo);
-                await guiaPage.completarPuntoPartidaYLlegada(
-                    ubigeos.partida,
-                    ubigeos.llegada,
-                    GUIAS_DATA.REMITENTE.DIRECCION,
-                    GUIAS_DATA.DESTINATARIO.DIRECCION
-                );
+                await test.step('Completar punto de partida y llegada', async () => {
+                    const ubigeos = resolverUbigeosPorMotivo(data.motivo);
+                    await guiaPage.completarPuntoPartidaYLlegada(
+                        ubigeos.partida,
+                        ubigeos.llegada,
+                        GUIAS_DATA.REMITENTE.DIRECCION,
+                        GUIAS_DATA.DESTINATARIO.DIRECCION
+                    );
+                });
             }
 
             if (data.trasladoVehiculosM1) {
-                await guiaPage.seleccionarTrasladoVehiculosM1();
+                await test.step('Seleccionar traslado vehículos M1', async () => {
+                    await guiaPage.seleccionarTrasladoVehiculosM1();
+                });
             }
 
             if (!data.skipConductor) {
-                await guiaPage.seleccionarConductor(GUIAS_DATA.REMITENTE.DNI);
-                await guiaPage.completarPlacaYLicencia(GUIAS_DATA.TRANSPORTISTA.PLACA, GUIAS_DATA.TRANSPORTISTA.LICENCIA);
+                await test.step('Seleccionar conductor', async () => {
+                    await guiaPage.seleccionarConductor(GUIAS_DATA.REMITENTE.DNI);
+                });
+                await test.step('Completar placa y licencia', async () => {
+                    await guiaPage.completarPlacaYLicencia(
+                        GUIAS_DATA.TRANSPORTISTA.PLACA,
+                        GUIAS_DATA.TRANSPORTISTA.LICENCIA
+                    );
+                });
             }
 
             if (!data.skipTransportista) {
-                await guiaPage.seleccionarTransportista(GUIAS_DATA.TRANSPORTISTA.RUC);
-                await guiaPage.completarMTC(GUIAS_DATA.TRANSPORTISTA.MTC);
+                await test.step('Seleccionar transportista', async () => {
+                    await guiaPage.seleccionarTransportista(GUIAS_DATA.TRANSPORTISTA.RUC);
+                });
+                await test.step('Completar MTC', async () => {
+                    await guiaPage.completarMTC(GUIAS_DATA.TRANSPORTISTA.MTC);
+                });
             }
 
             if (data.contenedorNumero !== undefined && data.contenedorPrecinto !== undefined) {
-                await guiaPage.anadirContenedor(data.contenedorNumero, data.contenedorPrecinto);
+                await test.step(`Añadir contenedor: ${data.contenedorNumero}`, async () => {
+                    await guiaPage.anadirContenedor(data.contenedorNumero!, data.contenedorPrecinto!);
+                });
             }
 
             if (data.items) {
-                for (const item of data.items) {
-                    await guiaPage.buscarYSeleccionarItem(item.codigoONombre);
+                for (let i = 0; i < data.items.length; i++) {
+                    await test.step(`Buscar y seleccionar ítem ${i + 1}: ${data.items[i].codigoONombre}`, async () => {
+                        await guiaPage.buscarYSeleccionarItem(data.items[i].codigoONombre);
+                    });
                 }
             }
 
             if (data.peso) {
-                await guiaPage.definirPesoTotal(data.peso.includes('.') ? 'Kg' : 'Tn', data.peso);
+                await test.step(`Definir peso total: ${data.peso}`, async () => {
+                    await guiaPage.definirPesoTotal(data.peso.includes('.') ? 'Kg' : 'Tn', data.peso!);
+                });
             }
 
             if (data.guardarEnVezDeEmitir) {
-                await guiaPage.guardarGuia();
+                await test.step('Guardar guía', async () => {
+                    await guiaPage.guardarGuia();
+                });
             } else {
-                await guiaPage.emitirGuia();
+                await test.step('Emitir guía', async () => {
+                    await guiaPage.emitirGuia();
+                });
             }
         });
     };

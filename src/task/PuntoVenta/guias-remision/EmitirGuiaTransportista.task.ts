@@ -1,4 +1,4 @@
-import {Page} from '@playwright/test';
+import {Page, test} from '@playwright/test';
 import {GuiaTransportistaPage} from '@pages/PuntoVenta/guias-remision/GuiaTransportistaPage';
 import {GUIAS_DATA} from '@helpers/PuntoVenta/guias-data.helper';
 import {runFunctionalAction} from '@utils/functional-step';
@@ -45,74 +45,113 @@ export const EmitirGuiaTransportistaTask = (data: EmitirGuiaTransportistaData) =
             technicalDetail: 'Error al llenar datos del formulario',
             failureCategory: 'SCRIPT'
         }, async () => {
-            await guiaPage.seleccionarRemitente(GUIAS_DATA.DESTINATARIO.DNI);
-            await guiaPage.seleccionarDestinatario(GUIAS_DATA.DESTINATARIO.RUC);
+            await test.step('Seleccionar remitente', async () => {
+                await guiaPage.seleccionarRemitente(GUIAS_DATA.DESTINATARIO.DNI);
+            });
+            await test.step('Seleccionar destinatario', async () => {
+                await guiaPage.seleccionarDestinatario(GUIAS_DATA.DESTINATARIO.RUC);
+            });
+
             if (!data.skipConductor) {
-                await guiaPage.seleccionarConductor(GUIAS_DATA.TRANSPORTISTA.DNI_CONDUCTOR);
-                await guiaPage.completarPlacaYLicencia(
-                    GUIAS_DATA.TRANSPORTISTA.PLACA,
-                    GUIAS_DATA.TRANSPORTISTA.LICENCIA
-                );
-                await guiaPage.completarMTC(GUIAS_DATA.TRANSPORTISTA.MTC);
-                await guiaPage.completarTUCE(GUIAS_DATA.TRANSPORTISTA.TUCE);
+                await test.step('Seleccionar conductor', async () => {
+                    await guiaPage.seleccionarConductor(GUIAS_DATA.TRANSPORTISTA.DNI_CONDUCTOR);
+                });
+                await test.step('Completar placa y licencia', async () => {
+                    await guiaPage.completarPlacaYLicencia(
+                        GUIAS_DATA.TRANSPORTISTA.PLACA,
+                        GUIAS_DATA.TRANSPORTISTA.LICENCIA
+                    );
+                });
+                await test.step('Completar MTC', async () => {
+                    await guiaPage.completarMTC(GUIAS_DATA.TRANSPORTISTA.MTC);
+                });
+                await test.step('Completar TUCE', async () => {
+                    await guiaPage.completarTUCE(GUIAS_DATA.TRANSPORTISTA.TUCE);
+                });
             }
 
             if (!data.skipTransportista) {
-                await guiaPage.seleccionarTransportista(GUIAS_DATA.TRANSPORTISTA.RUC);
+                await test.step('Seleccionar transportista', async () => {
+                    await guiaPage.seleccionarTransportista(GUIAS_DATA.TRANSPORTISTA.RUC);
+                });
             }
 
             if (data.vincularComprobante) {
                 const {tipo, serie, correlativo, rucProveedor} = data.vincularComprobante;
-                await guiaPage.vincularComprobante(tipo, serie, correlativo, rucProveedor);
+                await test.step(`Vincular comprobante: ${tipo} ${serie}-${correlativo}`, async () => {
+                    await guiaPage.vincularComprobante(tipo, serie, correlativo, rucProveedor);
+                });
             }
 
             if (data.pagadorFlete) {
-                await guiaPage.seleccionarPagadorFlete(data.pagadorFlete);
+                await test.step(`Seleccionar pagador flete: ${data.pagadorFlete}`, async () => {
+                    await guiaPage.seleccionarPagadorFlete(data.pagadorFlete!);
+                });
             }
             if (data.pagadorFleteData) {
-                await guiaPage.completarPagadorFleteData(data.pagadorFleteData.documento);
+                await test.step('Completar datos del pagador flete', async () => {
+                    await guiaPage.completarPagadorFleteData(data.pagadorFleteData.documento);
+                });
             }
 
             if (data.retorno) {
-                await guiaPage.seleccionarRetorno(data.retorno);
+                await test.step(`Seleccionar retorno: ${data.retorno}`, async () => {
+                    await guiaPage.seleccionarRetorno(data.retorno!);
+                });
             }
 
             if (data.subcontratador) {
-                await guiaPage.seleccionarSubcontratador(data.subcontratador.documento);
+                await test.step(`Seleccionar subcontratador: ${data.subcontratador.documento}`, async () => {
+                    await guiaPage.seleccionarSubcontratador(data.subcontratador.documento);
+                });
             }
 
             if (!data.skipPuntoPartida) {
-                await guiaPage.completarPuntoPartidaYLlegada(
-                    GUIAS_DATA.PUNTO_PARTIDA.UBIGEO,
-                    GUIAS_DATA.PUNTO_LLEGADA.UBIGEO,
-                    GUIAS_DATA.PUNTO_PARTIDA.DIRECCION,
-                    GUIAS_DATA.PUNTO_LLEGADA.DIRECCION
-                );
+                await test.step('Completar punto de partida y llegada', async () => {
+                    await guiaPage.completarPuntoPartidaYLlegada(
+                        GUIAS_DATA.PUNTO_PARTIDA.UBIGEO,
+                        GUIAS_DATA.PUNTO_LLEGADA.UBIGEO,
+                        GUIAS_DATA.PUNTO_PARTIDA.DIRECCION,
+                        GUIAS_DATA.PUNTO_LLEGADA.DIRECCION
+                    );
+                });
             }
             if (data.autorizacionEspecial) {
-                await guiaPage.completarAutorizacionEspecial(
-                    data.autorizacionEspecial.numeroAutorizacion,
-                    data.autorizacionEspecial.tuce
-                );
+                await test.step('Completar autorización especial', async () => {
+                    await guiaPage.completarAutorizacionEspecial(
+                        data.autorizacionEspecial.numeroAutorizacion,
+                        data.autorizacionEspecial.tuce
+                    );
+                });
             }
 
             if (!data.skipItems) {
-                for (const item of data.items) {
-                    await guiaPage.buscarYSeleccionarItem(item.codigoONombre);
+                for (let i = 0; i < data.items.length; i++) {
+                    await test.step(`Buscar y seleccionar ítem ${i + 1}: ${data.items[i].codigoONombre}`, async () => {
+                        await guiaPage.buscarYSeleccionarItem(data.items[i].codigoONombre);
+                    });
                 }
             }
 
-            await guiaPage.definirPesoTotal(data.peso);
+            await test.step(`Definir peso total: ${data.peso}`, async () => {
+                await guiaPage.definirPesoTotal(data.peso);
+            });
 
             if (data.decrementarCantidad) {
-                await guiaPage.decrementarCantidad();
+                await test.step('Decrementar cantidad', async () => {
+                    await guiaPage.decrementarCantidad();
+                });
             }
 
             if (data.fechaInicioTraslado) {
-                await page.getByRole('textbox', {name: /fecha.*inicio.*traslado/i}).fill(data.fechaInicioTraslado);
+                await test.step(`Completar fecha inicio traslado: ${data.fechaInicioTraslado}`, async () => {
+                    await page.getByRole('textbox', {name: /fecha.*inicio.*traslado/i}).fill(data.fechaInicioTraslado!);
+                });
             }
 
-            await guiaPage.emitirGuia();
+            await test.step('Emitir guía', async () => {
+                await guiaPage.emitirGuia();
+            });
         });
     };
     fn.displayName = 'Emitir guía transportista';
