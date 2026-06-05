@@ -39,10 +39,11 @@ test.describe('Guías de Remisión Remitente - Mercancía Extranjera', { tag: ['
                 contenedorPrecinto: '1',
                 peso: '1',
                 items: [
-                    { codigoONombre: GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_SIN_CONTROL.codigo }
-                ]
-            })
-        );
+                    { codigoONombre: GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo }
+                ])
+            );
+        });
+    
         await listadoGuiasPage.validarGuiaEmitidaExito();
     });
 

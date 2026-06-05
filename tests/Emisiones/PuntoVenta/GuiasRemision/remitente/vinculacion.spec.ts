@@ -32,8 +32,8 @@ test.describe('Guías de Remisión Remitente - Vinculación', { tag: ['@guias', 
                 },
                 items: [
                     {
-                        codigo: GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_SIN_CONTROL.codigo,
-                        nombre: GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_SIN_CONTROL.nombre,
+                        codigo: GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo,
+                        nombre: GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.nombre,
                         cantidad: 1,
                     }
                 ],
