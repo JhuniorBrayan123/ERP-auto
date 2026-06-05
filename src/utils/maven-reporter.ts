@@ -43,9 +43,10 @@ class MavenReporter implements Reporter {
     private activeTestInfo: { title: string; attempt: number; isRetry: boolean } | null = null;
     private currentTestPrinted = false;
 
-    /** Identifica tests de setup (archivos .setup.ts) que no deben aparecer en el reporte */
+    /** Identifica tests de setup (excluye auth.setup.ts que es el login y debe mostrarse) */
     private isSetupTest(test: TestCase): boolean {
-        return !!test.location?.file?.includes('.setup.ts');
+        const file = test.location?.file ?? '';
+        return file.includes('.setup.ts') && !file.includes('auth.setup.ts');
     }
 
     onBegin(_: unknown, suite: Suite): void {
