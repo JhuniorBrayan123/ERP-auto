@@ -4,8 +4,7 @@ import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
 import {IntentarAgregarComboSinStock} from '@task/PuntoVenta/IntentarAgregarComboSinStock.task';
 import {IntentarAgregarRecetaSinStock} from '@task/PuntoVenta/IntentarAgregarRecetaSinStock.task';
 import {IntentarAgregarListaSinStock} from '@task/PuntoVenta/IntentarAgregarListaSinStock.task';
-import {ClickAceptarModal} from '../../../../../src/interactions/PuntoVenta/ClickAceptarModal';
-import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
+import {ClickAceptarModal} from '@interactions/PuntoVenta/ClickAceptarModal';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
 test.describe('Selección, edición de ítem en caja de venta — Bloqueos por stock', {tag: ['@punto-venta', '@seleccion-edicion-item', '@bloqueos-stock']}, () => {
@@ -18,13 +17,13 @@ test.describe('Selección, edición de ítem en caja de venta — Bloqueos por s
     test('SC-16: Bloquear combo cuando un componente no tiene stock @PV-18.16', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
-            IntentarAgregarComboSinStock(ITEMS_PV.COMBO_STOCK_BAJO_ITEM)
+            IntentarAgregarComboSinStock(ITEMS_PV.COMBO_STOCK_BAJO_ITEM),
         );
         await expect(
             page.getByText('No puedes agregar el item a tu venta porque no tienes stock').first(),
             'El sistema no validó el stock y dejó agregar el combo a pesar de que un ítem no tiene stock'
-        ).toBeVisible({ timeout: 15_000 });
-        
+        ).toBeVisible({timeout: 15_000});
+
         await cajero.intentaRealizar(ClickAceptarModal());
     });
 
@@ -36,8 +35,8 @@ test.describe('Selección, edición de ítem en caja de venta — Bloqueos por s
         await expect(
             page.getByText(`${ITEMS_PV.RECETA_SIN_STOCK.nombre} (${ITEMS_PV.PRODUCTO_SIN_STOCK.nombre})`).first(),
             'El sistema no validó el stock y dejó agregar la receta a pesar de que un componente no tiene stock'
-        ).toBeVisible({ timeout: 15_000 });
-        
+        ).toBeVisible({timeout: 15_000});
+
         await cajero.intentaRealizar(ClickAceptarModal());
     });
 
@@ -48,8 +47,8 @@ test.describe('Selección, edición de ítem en caja de venta — Bloqueos por s
         );
         await expect(
             page.getByText('No puedes agregar el item a tu venta porque no tienes stock').first()
-        ).toBeVisible({ timeout: 15_000 });
-        
+        ).toBeVisible({timeout: 15_000});
+
         await cajero.intentaRealizar(ClickAceptarModal());
     });
 });
