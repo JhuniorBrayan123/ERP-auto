@@ -5,7 +5,7 @@ import {FUNCTIONAL_CATALOG} from '@utils/functional-catalog';
 import {esperarDebounce} from '@utils/wait-helpers';
 
 export class EmisionPage {
-    
+
     public ultimaEmision: EmisionResult | null = null;
 
     constructor(private readonly page: Page) {
@@ -218,11 +218,11 @@ export class EmisionPage {
             const isCerrado = await btnColapsable.locator('.icon.cerrado').isVisible();
             if (isCerrado) {
                 await btnColapsable.click();
-                
+
                 await esperarDebounce(this.page, 500, 'Animación de colapso de panel');
             }
         } catch (e) {
-            
+
         }
     }
 

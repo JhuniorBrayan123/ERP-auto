@@ -77,6 +77,26 @@ async function main(): Promise<void> {
         assert.strictEqual(mod.detectEnvironmentGroup(), 'crt-group');
     });
 
+    console.log('  ── detectEnvironmentFine() ──');
+
+    await it('should return "crt" when APP_ENV is "crt" (fine)', async () => {
+        cleanupEnv();
+        process.env.APP_ENV = 'crt';
+        assert.strictEqual(mod.detectEnvironmentFine(), 'crt');
+    });
+
+    await it('should return "crt-4" when APP_ENV is "crt-4" (fine)', async () => {
+        cleanupEnv();
+        process.env.APP_ENV = 'crt-4';
+        assert.strictEqual(mod.detectEnvironmentFine(), 'crt-4');
+    });
+
+    await it('should return "prd" when APP_ENV is "prd" (fine)', async () => {
+        cleanupEnv();
+        process.env.APP_ENV = 'prd';
+        assert.strictEqual(mod.detectEnvironmentFine(), 'prd');
+    });
+
     console.log('  ── detectAccount() ──');
 
     await it('should export detectAccount as a function', async () => {

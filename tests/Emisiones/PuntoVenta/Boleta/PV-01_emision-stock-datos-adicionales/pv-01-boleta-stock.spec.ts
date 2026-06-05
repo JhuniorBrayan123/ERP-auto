@@ -1,5 +1,6 @@
 import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import {esperarCargaOverlay} from '@utils/wait-helpers';
 
 test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01', {tag: ['@punto-venta', '@boleta', '@stock']}, () => {
 
@@ -171,6 +172,7 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
 
         await test.step('And: abrir Ver comprobante y verificar datos opcionales', async () => {
             const popup = await busquedaComprobantes.abrirVerComprobante();
+            await esperarCargaOverlay(popup);
             await busquedaComprobantes.clickAccionesExtra(popup);
             await busquedaComprobantes.clickDatosOpcionales(popup);
             await busquedaComprobantes.cerrarDrapePopup(popup);
