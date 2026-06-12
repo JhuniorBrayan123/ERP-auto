@@ -1,14 +1,14 @@
-import {test} from "../../fixtures/Logistica/items-fixture";
+import {test} from "@fixtures/Logistica/items-fixture";
 import {expect, Page} from "@playwright/test";
-import {ItemFormBasePage} from "../../pages/Logistica/ItemFormBasePage";
-import {ProductoFormPage} from "../../pages/Logistica/ProductoFormPage";
-import {ComboFormPage} from "../../pages/Logistica/ComboFormPage";
-import {RecetaFormPage} from "../../pages/Logistica/RecetaFormPage";
-import {ListaFormPage} from "../../pages/Logistica/ListaFormPage";
-import {CargaMasivaPage} from "../../pages/Logistica/CargaMasivaPage";
+import {ItemFormBasePage} from "@pages/Logistica/ItemFormBasePage";
+import {ProductoFormPage} from "@pages/Logistica/ProductoFormPage";
+import {ComboFormPage} from "@pages/Logistica/ComboFormPage";
+import {RecetaFormPage} from "@pages/Logistica/RecetaFormPage";
+import {ListaFormPage} from "@pages/Logistica/ListaFormPage";
+import {CargaMasivaPage} from "@pages/Logistica/CargaMasivaPage";
 import type {ComponenteCombo, InsumoReceta, ProductoListaItem, StockConfig,} from "./item-data.types";
-import { getCodigo as resolverCodigo } from "../../factories/item-factory";
-import { buildMassiveExcel, cleanupTempFile } from "./masivo-excel.helper";
+import {getCodigo as resolverCodigo} from "../../factories/item-factory";
+import {buildMassiveExcel, cleanupTempFile} from "./masivo-excel.helper";
 
 export const confirmarCreacionEIrALista = async (
     form: ItemFormBasePage,
@@ -35,7 +35,7 @@ export const prepararProductoBase = async (
     await test.step("Preparar producto base", async () => {
         await productoForm.iniciarCreacionProducto();
         await productoForm.llenarNombre(nombre);
-        
+
         await productoForm.llenarPrecios(precios.venta, precios.compra);
         await productoForm.expandirOpcionesAvanzadas();
         if (opciones?.stockConfig) {
@@ -55,14 +55,14 @@ export const prepararComboBase = async (
     await test.step("Preparar combo base", async () => {
         await comboForm.iniciarCreacionCombo();
         await comboForm.llenarNombre(nombre);
-        
+
         await comboForm.llenarPrecios(precios.venta, precios.compra);
         await comboForm.irATabComponentes();
         for (const comp of componentes) {
-            
+
             const codigoResuelto = resolverCodigo(comp.codigoBusqueda);
             const sufijoId = codigoResuelto.includes("-") ? codigoResuelto.split("-")[1] : "";
-            
+
             const compResuelto = {
                 ...comp,
                 codigoBusqueda: codigoResuelto.replace(/-/g, ""),
@@ -70,7 +70,7 @@ export const prepararComboBase = async (
                 variante: comp.variante && sufijoId ? `${comp.variante} ${sufijoId}` : comp.variante,
                 equivalencia: comp.equivalencia
             };
-            
+
             await comboForm.buscarYAgregarComponente(compResuelto);
         }
         await comboForm.expandirOpcionesAvanzadas();
@@ -86,14 +86,14 @@ export const prepararRecetaBase = async (
 ) => {
     await test.step("Preparar receta base", async () => {
         await recetaForm.iniciarCreacionReceta();
-        
+
         await recetaForm.llenarNombre(nombre);
         await recetaForm.llenarPrecios(precios.venta, precios.compra);
         await recetaForm.irATabInsumos();
         for (const insumo of insumos) {
             const codigoResuelto = resolverCodigo(insumo.codigoBusqueda);
             const sufijoId = codigoResuelto.includes("-") ? codigoResuelto.split("-")[1] : "";
-            
+
             const insumoResuelto = {
                 ...insumo,
                 codigoBusqueda: codigoResuelto.replace(/-/g, ""),
@@ -101,7 +101,7 @@ export const prepararRecetaBase = async (
                 variante: insumo.variante && sufijoId ? `${insumo.variante} ${sufijoId}` : insumo.variante,
                 equivalencia: insumo.equivalencia
             };
-            
+
             await recetaForm.buscarYAgregarInsumo(insumoResuelto);
         }
         await recetaForm.expandirOpcionesAvanzadas();
@@ -118,12 +118,12 @@ export const prepararListaBase = async (
     await test.step("Preparar lista base", async () => {
         await listaForm.iniciarCreacionLista();
         await listaForm.llenarNombre(nombre);
-        
+
         await listaForm.llenarDescripcion(descripcion);
         for (const prod of productos) {
             const codigoResuelto = resolverCodigo(prod.codigoBusqueda);
             const sufijoId = codigoResuelto.includes("-") ? codigoResuelto.split("-")[1] : "";
-            
+
             const prodResuelto = {
                 ...prod,
                 codigoBusqueda: codigoResuelto.replace(/-/g, ""),
@@ -131,7 +131,7 @@ export const prepararListaBase = async (
                 variante: prod.variante && sufijoId ? `${prod.variante} ${sufijoId}` : prod.variante,
                 equivalencia: prod.equivalencia
             };
-            
+
             await listaForm.buscarYAgregarProducto(prodResuelto);
         }
     });

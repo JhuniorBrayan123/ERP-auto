@@ -1,55 +1,68 @@
 import type {DatosCliente, ItemVenta, TipoComprobante} from "./emision.types";
+import type {TipoDocumentoOrigen} from "@screenplay/interactions/notas/VincularComprobante";
 
-export const TIPOS_COMPROBANTE: Record<string, TipoComprobante> = {
+export const TIPOS_COMPROBANTE = {
     BOLETA: "BOLETA",
     FACTURA: "FACTURA",
     NOTA_VENTA: "NOTA DE VENTA",
     COTIZACION: "COTIZACIÓN",
     PEDIDO: "PEDIDO",
+} as const;
+
+export const TIPOS_DOCUMENTO_ORIGEN: Record<string, TipoDocumentoOrigen> = {
+    FACTURA: 'Factura',
+    BOLETA: 'Boleta',
 };
 
 export const CLIENTES = {
-    CONSUMIDOR_FINAL: {
-        tipoDocumento: "DNI",
-        documento: "00000000",
-        nombre: "CLIENTES VARIOS",
-    } as DatosCliente,
+  CONSUMIDOR_FINAL: {
+    tipoDocumento: "DNI",
+    documento: "00000000",
+    nombre: "CLIENTES VARIOS",
+  } as DatosCliente,
 
-    PERSONA_DNI: {
-        tipoDocumento: "DNI",
-        documento: "76975258",
-        nombre: "JHUNIOR BRAYAN GUTIERREZ",
-    } as DatosCliente,
+  PERSONA_DNI: {
+    tipoDocumento: "DNI",
+    documento: "76975258",
+    nombre: "JHUNIOR BRAYAN GUTIERREZ",
+  } as DatosCliente,
 
-    PERSONA_DNI_2: {
-        tipoDocumento: 'DNI',
-        documento: '76958585',
-        nombre: 'MARCELO EDWIN SOLANO GARAY',
-        textoSelector: 'DNIDoc. Nacional de Identidad7695858599999999MARCELO EDWIN SOLANO GARAYArequipa',
-    } as DatosCliente & { textoSelector: string },
+  PERSONA_DNI_2: {
+    tipoDocumento: "DNI",
+    documento: "76958585",
+    nombre: "MARCELO EDWIN SOLANO GARAY",
+    textoSelector:
+      "DNIDoc. Nacional de Identidad7695858599999999MARCELO EDWIN SOLANO GARAYArequipa",
+  } as DatosCliente & { textoSelector: string },
 
-    CLIENTE_SIN_DOC: {
-        tipoDocumento: '',
-        documento: '',
-        nombre: 'Automatizador qa',
-        direccion: 'Arequipa',
-    } as DatosCliente & { direccion: string },
+  CLIENTE_SIN_DOC: {
+    tipoDocumento: "",
+    documento: "",
+    nombre: "Automatizador qa",
+    direccion: "Arequipa",
+  } as DatosCliente & { direccion: string },
 
-    EMPRESA_RUC_AUTO: {
-        tipoDocumento: "RUC",
-        documento: "20759685854",
-        nombre: "automatizacionerp2 cliente RUC",
-        
-        textoSelector:
-            "RUCReg. Único de Contribuyentes2075968585499999999automatizacionerp2 cliente",
-    } as DatosCliente & { textoSelector: string },
+  EMPRESA_RUC_AUTO: {
+    tipoDocumento: "RUC",
+    documento: "20759685854",
+    nombre: "automatizacionerp2 cliente RUC",
 
-    PERSONA_AUTO: {
-        tipoDocumento: "DNI",
-        documento: "76975258",
-        nombre: "Vendedor auto",
-    } as DatosCliente,
+    textoSelector:
+      "RUCReg. Único de Contribuyentes2075968585499999999automatizacionerp2 cliente",
+  } as DatosCliente & { textoSelector: string },
 
+  PERSONA_AUTO: {
+    tipoDocumento: "DNI",
+    documento: "76975258",
+    nombre: "Vendedor auto",
+  } as DatosCliente,
+
+  PERSONA_EXTRANJERIA: {
+    tipoDocumento: "Carnet Extranjeria",
+    documento: "E12345678",
+    nombre: "Cliente Extranjería",
+    direccion: "Dirección automatizado qa",
+  } as DatosCliente,
 };
 
 export const ITEMS_POR_ALMACEN = {

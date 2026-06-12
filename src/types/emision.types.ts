@@ -1,4 +1,11 @@
-export type TipoComprobante = 'BOLETA' | 'FACTURA' | 'NOTA DE VENTA' | 'COTIZACIÓN' | 'PEDIDO';
+export type TipoComprobante =
+    | 'BOLETA'
+    | 'FACTURA'
+    | 'NOTA DE VENTA'
+    | 'COTIZACIÓN'
+    | 'PEDIDO'
+    | 'NOTA DE CRÉDITO'
+    | 'NOTA DE DÉBITO';
 
 export interface DatosCliente {
 

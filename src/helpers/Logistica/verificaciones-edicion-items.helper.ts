@@ -1,9 +1,9 @@
-import {test} from '../../fixtures/Logistica/edicion-clonado-fixture';
+import {test} from '@fixtures/Logistica/edicion-clonado-fixture';
 import {expect, Page} from '@playwright/test';
-import type {EdicionItemPage} from '../../pages/Logistica/EdicionItemPage';
-import type {ListaItemsPage} from '../../pages/Logistica/ListaItemsPage';
-import type {ItemDetailPage} from '../../pages/Logistica/ItemDetailPage';
-import type {ActualizacionMasivaPage} from '../../pages/Logistica/ActualizacionMasivaPage';
+import type {EdicionItemPage} from '@pages/Logistica/EdicionItemPage';
+import type {ListaItemsPage} from '@pages/Logistica/ListaItemsPage';
+import type {ItemDetailPage} from '@pages/Logistica/ItemDetailPage';
+import type {ActualizacionMasivaPage} from '@pages/Logistica/ActualizacionMasivaPage';
 
 export const confirmarActualizacionItem = async (
     edicionItem: EdicionItemPage,
