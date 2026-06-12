@@ -1,10 +1,11 @@
-import {expect, test as base} from '@playwright/test';
+import {expect} from '@playwright/test';
+import {test as validacionTest} from './validacion-fixture';
 import {Facturador} from '@actors/facturador';
 import {PuntoVentaNavigationPage} from '@pages/PuntoVenta/PuntoVentaNavigationPage';
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
 import {CajaPage} from '@pages/PuntoVenta/CajaPage';
-import {KardexApi} from "@services/Logistica/KardexApi";
+import type {KardexApi} from '@services/Logistica/KardexApi';
 
 type ComprobanteNCNDFixtures = {
     facturador: Facturador;
@@ -14,7 +15,7 @@ type ComprobanteNCNDFixtures = {
     kardexApi: KardexApi;
 };
 
-export const test = base.extend<ComprobanteNCNDFixtures>({
+export const test = validacionTest.extend<ComprobanteNCNDFixtures>({
     pvNav: [
         async ({page}, use) => {
             const nav = new PuntoVentaNavigationPage(page);

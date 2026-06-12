@@ -5,10 +5,13 @@ import {ConsultarNotaCredito, VerDetalleNotaCredito} from '@screenplay/tasks/not
 import {ModalPostEmisionVisible} from '@screenplay/questions/notas/ModalPostEmisionVisible';
 import {DetalleNotaCreditoCorrecto} from '@screenplay/questions/notas/DetalleNotaCorrecto';
 import {CLIENTES, ITEMS_PV, TIPOS_DOCUMENTO_ORIGEN, TIPOS_COMPROBANTE} from '@helpers/PuntoVenta/emision-data.helper';
+import {capturarStockNC, validarStockDespuesNC} from '@helpers/PuntoVenta/verificar-stock-nc.helper';
 
 test.describe('Notas de Crédito — Emisión con Vinculación', () => {
 
-    test('Emitir NC por anulación CON retorno de stock desde factura', async ({facturador, postEmision}) => {
+    test('Emitir NC por anulación CON retorno de stock desde factura', async ({facturador, postEmision, kardexApi}) => {
+        const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+
         const origen = await facturador.realizaYObtiene(
             EmitirComprobanteOrigen({
                 tipoComprobante: TIPOS_COMPROBANTE.FACTURA,
@@ -16,6 +19,9 @@ test.describe('Notas de Crédito — Emisión con Vinculación', () => {
                 item: ITEMS_PV.PRODUCTO_GRAVADO,
             })
         );
+
+        const stockDespuesVenta = await capturarStockNC(kardexApi, ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+
         const resultado = await facturador.realizaYObtiene(
             CrearNotaCreditoConVinculacion({
                 vinculacion: {
@@ -34,9 +40,20 @@ test.describe('Notas de Crédito — Emisión con Vinculación', () => {
         expect(resultado.serie).toBeTruthy();
         expect(resultado.correlativo).toBeTruthy();
         await expect(facturador.page.getByText(resultado.numero)).toBeVisible();
+
+        await validarStockDespuesNC({
+            kardexApi,
+            codigoProducto: ITEMS_PV.PRODUCTO_GRAVADO.codigo,
+            stockOriginal,
+            stockDespuesVenta,
+            cantidadDevuelta: ITEMS_PV.PRODUCTO_GRAVADO.cantidad,
+            retornoStock: true,
+        });
     });
 
-    test('Emitir NC por devolución total CON retorno de stock desde boleta', async ({facturador}) => {
+    test('Emitir NC por devolución total CON retorno de stock desde boleta', async ({facturador, kardexApi}) => {
+        const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+
         const origen = await facturador.realizaYObtiene(
             EmitirComprobanteOrigen({
                 tipoComprobante: TIPOS_COMPROBANTE.BOLETA,
@@ -44,6 +61,9 @@ test.describe('Notas de Crédito — Emisión con Vinculación', () => {
                 item: ITEMS_PV.PRODUCTO_GRAVADO,
             })
         );
+
+        const stockDespuesVenta = await capturarStockNC(kardexApi, ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+
         const resultado = await facturador.realizaYObtiene(
             CrearNotaCreditoConVinculacion({
                 vinculacion: {
@@ -59,9 +79,19 @@ test.describe('Notas de Crédito — Emisión con Vinculación', () => {
 
         await facturador.pregunta(ModalPostEmisionVisible());
         expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
+
+        await validarStockDespuesNC({
+            kardexApi,
+            codigoProducto: ITEMS_PV.PRODUCTO_GRAVADO.codigo,
+            stockOriginal,
+            stockDespuesVenta,
+            cantidadDevuelta: ITEMS_PV.PRODUCTO_GRAVADO.cantidad,
+            retornoStock: true,
+        });
     });
 
-    test('Emitir NC por devolución total SIN retorno de stock desde factura', async ({facturador}) => {
+    test('Emitir NC por devolución total SIN retorno de stock desde factura', async ({facturador, kardexApi}) => {
+        const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.PRODUCTO_GRAVADO.codigo);
 
         const origen = await facturador.realizaYObtiene(
             EmitirComprobanteOrigen({
@@ -70,6 +100,9 @@ test.describe('Notas de Crédito — Emisión con Vinculación', () => {
                 item: ITEMS_PV.PRODUCTO_GRAVADO,
             })
         );
+
+        const stockDespuesVenta = await capturarStockNC(kardexApi, ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+
         const resultado = await facturador.realizaYObtiene(
             CrearNotaCreditoConVinculacion({
                 vinculacion: {
@@ -82,12 +115,24 @@ test.describe('Notas de Crédito — Emisión con Vinculación', () => {
                 retornoStock: false,
             })
         );
+
         await facturador.pregunta(ModalPostEmisionVisible());
         expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
         await expect(facturador.page.getByText(resultado.numero)).toBeVisible();
+
+        await validarStockDespuesNC({
+            kardexApi,
+            codigoProducto: ITEMS_PV.PRODUCTO_GRAVADO.codigo,
+            stockOriginal,
+            stockDespuesVenta,
+            cantidadDevuelta: 0,
+            retornoStock: false,
+        });
     });
 
-    test('Emitir NC por devolución por ítem CON retorno de stock desde factura', async ({facturador}) => {
+    test('Emitir NC por devolución por ítem CON retorno de stock desde factura', async ({facturador, kardexApi}) => {
+        const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+
         const origen = await facturador.realizaYObtiene(
             EmitirComprobanteOrigen({
                 tipoComprobante: TIPOS_COMPROBANTE.FACTURA,
@@ -95,6 +140,8 @@ test.describe('Notas de Crédito — Emisión con Vinculación', () => {
                 item: ITEMS_PV.PRODUCTO_GRAVADO,
             })
         );
+
+        const stockDespuesVenta = await capturarStockNC(kardexApi, ITEMS_PV.PRODUCTO_GRAVADO.codigo);
 
         const resultado = await facturador.realizaYObtiene(
             CrearNotaCreditoConVinculacion({
@@ -113,6 +160,15 @@ test.describe('Notas de Crédito — Emisión con Vinculación', () => {
 
         await facturador.pregunta(ModalPostEmisionVisible());
         expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
+
+        await validarStockDespuesNC({
+            kardexApi,
+            codigoProducto: ITEMS_PV.PRODUCTO_GRAVADO.codigo,
+            stockOriginal,
+            stockDespuesVenta,
+            cantidadDevuelta: 1,
+            retornoStock: true,
+        });
     });
 
     test('Consultar NC emitida y verificar detalle en vista comprobante', async ({

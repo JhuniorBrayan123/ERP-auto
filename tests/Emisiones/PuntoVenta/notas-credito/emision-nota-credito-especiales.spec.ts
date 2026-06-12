@@ -8,7 +8,6 @@ test.describe('Notas de Crédito — Motivos Especiales', () => {
 
     test('Emitir NC por anulación SIN retorno de stock desde factura', async ({facturador}) => {
 
-
         const origen = await facturador.realizaYObtiene(
             EmitirComprobanteOrigen({
                 tipoComprobante: TIPOS_COMPROBANTE.FACTURA,
