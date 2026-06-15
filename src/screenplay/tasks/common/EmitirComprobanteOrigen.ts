@@ -8,6 +8,7 @@ export interface DatosComprobanteOrigen {
     tipoComprobante: TipoComprobante;
     cliente: DatosCliente & { textoSelector?: string };
     item: ItemVenta;
+    exportacion?: boolean;
 }
 
 export interface ResultadoComprobanteOrigen {
@@ -25,10 +26,17 @@ export const EmitirComprobanteOrigen = (datos: DatosComprobanteOrigen) => {
 
         await comprobantePage.seleccionarTipoComprobante(datos.tipoComprobante as TipoComprobante);
 
+        if (datos.exportacion) {
+            await page.getByText(/Exportaci.n/i).locator('xpath=..').locator('.slider').first().click();
+            await page.waitForLoadState('networkidle');
+        }
+
         await clientePage.buscarCliente(datos.cliente.documento);
         await clientePage.seleccionarClientePorTexto(
             datos.cliente.textoSelector || datos.cliente.nombre
         );
+        await clientePage.validarClienteSeleccionado(datos.cliente.documento);
+
         await emisionPage.buscarItem(datos.item.codigo);
         await emisionPage.seleccionarItem(datos.item.nombre);
         const resultado = await emisionPage.emitirConEfectivoExacto();

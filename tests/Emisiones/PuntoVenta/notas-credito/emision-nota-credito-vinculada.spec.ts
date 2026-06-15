@@ -4,8 +4,10 @@ import {CrearNotaCreditoConVinculacion} from '@screenplay/tasks/notas-credito/Cr
 import {ConsultarNotaCredito, VerDetalleNotaCredito} from '@screenplay/tasks/notas-credito/ConsultarNotaCredito';
 import {ModalPostEmisionVisible} from '@screenplay/questions/notas/ModalPostEmisionVisible';
 import {DetalleNotaCreditoCorrecto} from '@screenplay/questions/notas/DetalleNotaCorrecto';
-import {CLIENTES, ITEMS_PV, TIPOS_DOCUMENTO_ORIGEN, TIPOS_COMPROBANTE} from '@helpers/PuntoVenta/emision-data.helper';
+import {CLIENTES, ITEMS_PV, TIPOS_COMPROBANTE, TIPOS_DOCUMENTO_ORIGEN} from '@helpers/PuntoVenta/emision-data.helper';
 import {capturarStockNC, validarStockDespuesNC} from '@helpers/PuntoVenta/verificar-stock-nc.helper';
+import {esperarStockDespuesVenta} from "@helpers/PuntoVenta/esperarStockDespuesVenta";
+import {asegurarClienteExtranjeria} from "@helpers/PuntoVenta/asegurar-cliente.helper";
 
 test.describe('Notas de Crédito — Emisión con Vinculación', () => {
 
@@ -20,7 +22,12 @@ test.describe('Notas de Crédito — Emisión con Vinculación', () => {
             })
         );
 
-        const stockDespuesVenta = await capturarStockNC(kardexApi, ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+        const stockDespuesVenta = await esperarStockDespuesVenta({
+            kardexApi,
+            codigoProducto: ITEMS_PV.PRODUCTO_GRAVADO.codigo,
+            stockOriginal,
+            cantidadVendida: ITEMS_PV.PRODUCTO_GRAVADO.cantidad
+        });
 
         const resultado = await facturador.realizaYObtiene(
             CrearNotaCreditoConVinculacion({
@@ -62,7 +69,12 @@ test.describe('Notas de Crédito — Emisión con Vinculación', () => {
             })
         );
 
-        const stockDespuesVenta = await capturarStockNC(kardexApi, ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+        const stockDespuesVenta = await esperarStockDespuesVenta({
+            kardexApi,
+            codigoProducto: ITEMS_PV.PRODUCTO_GRAVADO.codigo,
+            stockOriginal,
+            cantidadVendida: ITEMS_PV.PRODUCTO_GRAVADO.cantidad
+        });
 
         const resultado = await facturador.realizaYObtiene(
             CrearNotaCreditoConVinculacion({
@@ -101,7 +113,12 @@ test.describe('Notas de Crédito — Emisión con Vinculación', () => {
             })
         );
 
-        const stockDespuesVenta = await capturarStockNC(kardexApi, ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+        const stockDespuesVenta = await esperarStockDespuesVenta({
+            kardexApi,
+            codigoProducto: ITEMS_PV.PRODUCTO_GRAVADO.codigo,
+            stockOriginal,
+            cantidadVendida: ITEMS_PV.PRODUCTO_GRAVADO.cantidad
+        });
 
         const resultado = await facturador.realizaYObtiene(
             CrearNotaCreditoConVinculacion({
@@ -141,7 +158,12 @@ test.describe('Notas de Crédito — Emisión con Vinculación', () => {
             })
         );
 
-        const stockDespuesVenta = await capturarStockNC(kardexApi, ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+        const stockDespuesVenta = await esperarStockDespuesVenta({
+            kardexApi,
+            codigoProducto: ITEMS_PV.PRODUCTO_GRAVADO.codigo,
+            stockOriginal,
+            cantidadVendida: ITEMS_PV.PRODUCTO_GRAVADO.cantidad
+        });
 
         const resultado = await facturador.realizaYObtiene(
             CrearNotaCreditoConVinculacion({
@@ -195,17 +217,13 @@ test.describe('Notas de Crédito — Emisión con Vinculación', () => {
                 retornoStock: true,
             })
         );
-
         await facturador.page.getByRole('button', {name: /nueva venta/i}).click();
-
         await facturador.realiza(
             ConsultarNotaCredito(resultado.correlativo)
         );
-
         const popup = await facturador.realizaYObtiene(
             VerDetalleNotaCredito()
         );
-
         await facturador.pregunta(
             DetalleNotaCreditoCorrecto(popup, {
                 tipoDocumento: 'Nota de crédito electrónica',
@@ -215,5 +233,58 @@ test.describe('Notas de Crédito — Emisión con Vinculación', () => {
         );
 
         await popup.getByRole('button', {name: /salir/i}).click();
+    });
+
+    test('Emitir NC vinculada por ajustes de operaciones de exportación', async ({
+                                                                                     facturador,
+                                                                                     busquedaComprobantes
+                                                                                 }) => {
+        const clienteCE = await asegurarClienteExtranjeria(facturador.page, {
+            documento: 'E12345678',
+            nombre: 'Cliente Extranjería',
+            direccion: 'Dirección automatizado qa',
+            telefono: '999999999',
+            email: 'srqapruebaserp2@gmail.com',
+            textoSelector: 'Cliente Extranjería',
+        });
+        const origen = await facturador.realizaYObtiene(
+            EmitirComprobanteOrigen({
+                tipoComprobante: TIPOS_COMPROBANTE.BOLETA,
+                exportacion: true,
+                cliente: clienteCE as any,
+                item: ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL,
+
+            })
+        );
+        const resultado = await facturador.realizaYObtiene(
+            CrearNotaCreditoConVinculacion({
+                vinculacion: {
+                    tipoDocumento: TIPOS_DOCUMENTO_ORIGEN.BOLETA,
+                    serie: origen.serie,
+                    correlativo: origen.correlativo,
+                },
+                motivo: 'Ajustes de operaciones de exportación',
+                textoMotivo: 'Ajuste de operaciones de exportación por automatización',
+                monto: '10.00',
+            })
+        );
+        await facturador.pregunta(ModalPostEmisionVisible());
+        expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
+
+        await facturador.page.getByRole('button', {name: /nueva venta/i}).click();
+        await facturador.realiza(
+            ConsultarNotaCredito(resultado.correlativo)
+        );
+        const popup = await facturador.realizaYObtiene(
+            VerDetalleNotaCredito()
+        );
+        await facturador.pregunta(
+            DetalleNotaCreditoCorrecto(popup, {
+                tipoDocumento: 'Nota de crédito electrónica',
+                tieneComprobanteVinculado: true,
+                clienteEsperado: 'Cliente Extranjería'
+            })
+        );
+      
     });
 });

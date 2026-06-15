@@ -23,7 +23,7 @@ export async function validarStockDespuesNC(datos: DatosStockNC): Promise<void> 
     } = datos;
 
     const stockEsperado = retornoStock
-        ? stockDespuesVenta + cantidadDevuelta
+        ? stockOriginal
         : stockDespuesVenta;
 
     await expect

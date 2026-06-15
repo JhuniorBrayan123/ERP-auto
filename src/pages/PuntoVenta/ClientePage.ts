@@ -1,14 +1,15 @@
-import { expect, type Locator, type Page } from '@playwright/test';
+import {expect, type Locator, type Page} from '@playwright/test';
 
 export class ClientePage {
-    constructor(private readonly page: Page) {}
+    constructor(private readonly page: Page) {
+    }
 
     private get inputBusqueda(): Locator {
-        return this.page.getByRole('textbox', { name: 'Buscar por nombre, razón' });
+        return this.page.getByRole('textbox', {name: 'Buscar por nombre, razón'});
     }
 
     private get btnAgregarCliente(): Locator {
-        return this.page.getByRole('button', { name: 'Agregar cliente' });
+        return this.page.getByRole('button', {name: 'Agregar cliente'});
     }
 
     private get sliderSinDocumento(): Locator {
@@ -43,12 +44,12 @@ export class ClientePage {
 
     async llenarDatosClienteSinDocumento(nombre: string, direccion: string): Promise<void> {
         await this.sliderSinDocumento.click();
-        
-        const inputNombre = this.page.getByRole('textbox', { name: 'Nombre/Razón social' });
+
+        const inputNombre = this.page.getByRole('textbox', {name: 'Nombre/Razón social'});
         await inputNombre.click();
         await inputNombre.fill(nombre);
 
-        const inputDireccion = this.page.getByRole('textbox', { name: 'Dirección' });
+        const inputDireccion = this.page.getByRole('textbox', {name: 'Dirección'});
         await inputDireccion.click();
         await inputDireccion.fill(direccion);
     }
@@ -66,7 +67,7 @@ export class ClientePage {
         await input.fill(numero);
     }
 
-    async seleccionarTipoDocumento(tipo: 'DNI' | 'RUC'): Promise<void> {
+    async seleccionarTipoDocumento(tipo: 'DNI' | 'RUC' | 'Carnet Extranjeria'): Promise<void> {
         await this.page.locator(
             '[id="pv_clientes_form-registro-relacionado-entidad:form_basico:v-select:tipo-documento"]',
         ).nth(5).click();
@@ -74,29 +75,29 @@ export class ClientePage {
     }
 
     async consultarSunatReniec(): Promise<void> {
-        await this.page.getByRole('button', { name: 'Consultar SUNAT/RENIEC' }).click();
+        await this.page.getByRole('button', {name: 'Consultar SUNAT/RENIEC'}).click();
     }
 
     async llenarDireccion(direccion: string): Promise<void> {
-        const input = this.page.getByRole('textbox', { name: 'Ej. Calle Los Manzanos 120,' });
+        const input = this.page.getByRole('textbox', {name: 'Ej. Calle Los Manzanos 120,'});
         await input.click();
         await input.fill(direccion);
     }
 
     async llenarTelefono(telefono: string): Promise<void> {
-        const input = this.page.getByRole('textbox', { name: 'Ej. 987 654' });
+        const input = this.page.getByRole('textbox', {name: 'Ej. 987 654'});
         await input.click();
         await input.fill(telefono);
     }
 
     async llenarEmail(email: string): Promise<void> {
-        const input = this.page.getByRole('textbox', { name: 'Ej. usuario@correo.com' });
+        const input = this.page.getByRole('textbox', {name: 'Ej. usuario@correo.com'});
         await input.click();
         await input.fill(email);
     }
 
     async clickCrearCliente(): Promise<void> {
-        await this.page.getByRole('button', { name: 'Crear cliente' }).click();
+        await this.page.getByRole('button', {name: 'Crear cliente'}).click();
     }
 
     async crearClienteDNI(datos: {
@@ -124,7 +125,28 @@ export class ClientePage {
         await this.abrirFormCrearCliente();
         await this.seleccionarTipoDocumento('RUC');
         await this.llenarDocumento(datos.documento);
-        await this.page.getByRole('textbox', { name: 'Ej. Ladrillería Distribuidora' }).fill(datos.razonSocial);
+        await this.page.getByRole('textbox', {name: 'Ej. Ladrillería Distribuidora'}).fill(datos.razonSocial);
+        await this.llenarDireccion(datos.direccion);
+        await this.llenarTelefono(datos.telefono);
+        await this.llenarEmail(datos.email);
+        await this.clickCrearCliente();
+    }
+
+    async crearClienteExtranjeria(datos: {
+        documento: string;
+        nombre: string;
+        direccion: string;
+        telefono: string;
+        email: string;
+    }): Promise<void> {
+        await this.abrirFormCrearCliente();
+        await this.seleccionarTipoDocumento('Carnet Extranjeria');
+        await this.llenarDocumento(datos.documento);
+        // Intentar llenar el nombre según el label o el placeholder
+        const inputNombre = this.page.getByRole('textbox', {name: 'Ej. Ladrillería Distribuidora'})
+        await inputNombre.first().click();
+        await inputNombre.first().fill(datos.nombre);
+
         await this.llenarDireccion(datos.direccion);
         await this.llenarTelefono(datos.telefono);
         await this.llenarEmail(datos.email);

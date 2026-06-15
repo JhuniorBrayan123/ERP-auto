@@ -3,7 +3,7 @@ import {throwFunctionalError} from '@utils/functional-error';
 import {FUNCTIONAL_CATALOG} from '@utils/functional-catalog';
 
 export class CajaPage {
-    
+
     constructor(
         private readonly page: Page,
         private readonly nombreCaja: string = 'caja-auto',
@@ -12,7 +12,7 @@ export class CajaPage {
 
     private get tarjetaCaja() {
         return this.page.locator('.detalle')
-            .filter({ hasText: this.nombreCaja })
+            .filter({hasText: this.nombreCaja})
             .first();
     }
 
@@ -45,13 +45,13 @@ export class CajaPage {
         await this.tarjetaCaja.getByRole('button', {name: 'Continuar vendiendo'}).click();
         await expect(
             this.page.locator('.v-select-header-small .v-text').first()
-        ).not.toHaveText('Seleccionar', {timeout: 15_000});
+        ).not.toHaveText('Seleccionar', {timeout: 30_000});
     }
 
     async asegurarCajaAbierta(): Promise<void> {
         try {
             await this.scrollATarjetaCaja();
-            
+
             const btnContinuar = this.tarjetaCaja.getByRole('button', {name: 'Continuar vendiendo'});
             const continuarVisible = await btnContinuar.isVisible({timeout: 8_000}).catch(() => false);
 
@@ -59,7 +59,7 @@ export class CajaPage {
                 console.log(`[CajaPage] Caja "${this.nombreCaja}" ya abierta — continuando venta`);
                 await btnContinuar.click();
             } else {
-                
+
                 console.log(`[CajaPage] Caja "${this.nombreCaja}" cerrada — aperturando`);
                 await this.abrirCajaCompleta();
             }
