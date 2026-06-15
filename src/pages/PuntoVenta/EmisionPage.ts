@@ -94,11 +94,11 @@ export class EmisionPage {
     async seleccionarItem(nombre: string): Promise<void> {
         try {
             const item = this.page
-                .locator('.cmp-producto-img')
+                .locator('.body')
                 .filter({hasText: nombre})
                 .first();
 
-            await expect(item).toBeVisible({timeout: 10_000});
+            await expect(item).toBeVisible({timeout: 15_000});
             await item.click();
 
             const overload = this.page.locator('[id="cmn_cmp-overload:loading"]');

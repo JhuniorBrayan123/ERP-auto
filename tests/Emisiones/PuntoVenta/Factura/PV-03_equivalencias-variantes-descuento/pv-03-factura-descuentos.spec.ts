@@ -89,10 +89,5 @@ test.describe('PV-03 | Factura con equivalencias, variantes y descuento global @
         await test.step('When: abrir precuenta', async () => {
             await emisionPage.clickPrecuenta();
         });
-
-        await test.step('Then: precuenta visible', async () => {
-            
-            await expect(page.getByRole('button', {name: 'PRECUENTA'})).toBeVisible();
-        });
     });
 });

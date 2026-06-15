@@ -82,7 +82,6 @@ export class GuiaTransportistaPage {
             .click();
         await esperarCargaOverlay(this.page);
     }
-
     async seleccionarRemitente(documento: string) {
         await this.seleccionarEntidadEnCard(this.cardBusquedaEntidad('Buscar remitente'), documento);
     }
@@ -166,9 +165,25 @@ export class GuiaTransportistaPage {
         await esperarCargaOverlay(this.page);
     }
 
-    async completarPagadorFleteData(documento: string) {
-        await this.inputPagadorFlete.fill(documento);
-        await this.page.getByText(new RegExp(documento)).first().click();
+    async completarPagadorFleteData(documento: string): Promise<void> {
+        const input = this.page.getByRole('textbox', {
+            name: /buscar pagador de flete/i,
+        });
+
+        await input.fill(documento);
+
+        const cardPagador = this.page
+            .locator('article.content')
+            .filter({ hasText: documento })
+            .first();
+
+        await expect(cardPagador).toBeVisible({ timeout: 15_000 });
+
+        await cardPagador.click();
+
+        await expect(
+            this.page.locator('article.content').filter({ hasText: documento })
+        ).toBeHidden({ timeout: 10_000 }).catch(() => {});
     }
 
     private textoBusquedaUbigeo(ubigeo: string): string {

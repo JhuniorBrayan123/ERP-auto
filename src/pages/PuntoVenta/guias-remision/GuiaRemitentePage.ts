@@ -1,5 +1,5 @@
 import {expect, type Locator, type Page, test} from '@playwright/test';
-import {esperarDebounce} from '@utils/wait-helpers';
+import {esperarCargaOverlay, esperarDebounce} from '@utils/wait-helpers';
 
 export class GuiaRemitentePage {
     constructor(public readonly page: Page) {
@@ -82,7 +82,11 @@ export class GuiaRemitentePage {
             .click();
     }
 
+    async esperarFormularioEstable(timeout = 35_000): Promise<void> {
+        await esperarCargaOverlay(this.page, timeout);
+    }
     async seleccionarMotivo(motivo: string) {
+        await this.esperarFormularioEstable();
         await this.seleccionarOpcionDropdown(/^VENTA$/, motivo);
     }
 
@@ -244,6 +248,7 @@ export class GuiaRemitentePage {
     }
 
     async seleccionarTipoOperacion(tipo: 'VENTA' | 'COMPRA') {
+        await this.esperarFormularioEstable();
         await this.seleccionarOpcionDropdown(/^VENTA$/, tipo);
     }
 
