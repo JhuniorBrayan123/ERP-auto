@@ -85,7 +85,6 @@ export class GuiaRemitentePage {
     async esperarFormularioEstable(timeout = 35_000): Promise<void> {
         await esperarCargaOverlay(this.page, timeout);
     }
-
     async seleccionarMotivo(motivo: string) {
         await this.esperarFormularioEstable();
         await this.seleccionarOpcionDropdown(/^VENTA$/, motivo);

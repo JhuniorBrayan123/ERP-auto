@@ -2,6 +2,7 @@ import {Page, test} from '@playwright/test';
 import {GuiaRemitentePage} from '@pages/PuntoVenta/guias-remision/GuiaRemitentePage';
 import {GUIAS_DATA} from '@helpers/PuntoVenta/guias-data.helper';
 import {runFunctionalAction} from '@utils/functional-step';
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 const normalizarMotivo = (motivo: string): string =>
     motivo

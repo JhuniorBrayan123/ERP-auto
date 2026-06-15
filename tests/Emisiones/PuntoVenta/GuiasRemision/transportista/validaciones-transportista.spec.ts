@@ -25,11 +25,11 @@ test.describe('Guías de Remisión Transportista - Validaciones', {tag: ['@guias
         });
     });
 
-    test('GRT-22: Validar fecha de traslado inválida', async () => {
-        // PLACEHOLDER: ERP no valida fecha de traslado anterior a la fecha de emisión actualmente.
-        // El codegen ejecuta el flujo completo pero sin assertions porque el sistema permite emitir.
-        // Pendiente de validación futura cuando ERP implemente la restricción.
-    });
+    // test('GRT-22: Validar fecha de traslado inválida', async () => {
+    //     // PLACEHOLDER: ERP no valida fecha de traslado anterior a la fecha de emisión actualmente.
+    //     // El codegen ejecuta el flujo completo pero sin assertions porque el sistema permite emitir.
+    //     // Pendiente de validación futura cuando ERP implemente la restricción.
+    // });
 
     test('GRT-23: Validar pagador de flete obligatorio', async ({cajero, page}) => {
         await cajero.intentaRealizar(

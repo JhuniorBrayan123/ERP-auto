@@ -21,19 +21,15 @@ test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @P
             await emisionPage.llenarDescuentoItem('5');
             await emisionPage.cerrarEdicionItem();
         });
-
         await test.step('And: emitir con YAPE', async () => {
             await emisionPage.emitirConYape();
         });
-
         await test.step('And: click Nueva Venta', async () => {
             await emisionPage.clickNuevaVenta();
         });
-
         await test.step('Then: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
             await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
         });
-
         const estadoSunat = await test.step('And: validar estado SUNAT desde API de Consultas', async () => {
             return await busquedaComprobantes.validarEstadoSunat();
         });

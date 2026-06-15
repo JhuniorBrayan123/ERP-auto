@@ -48,7 +48,7 @@ test.describe('Guías de Remisión Remitente - Emisión General', {tag: ['@guias
                 items: [
                     {codigoONombre: GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_SIN_CONTROL.codigo}
                 ],
-                proveedorDocumento: GUIAS_DATA.DESTINATARIO.DNI,
+                proveedorDocumento: GUIAS_DATA.DESTINATARIO.NOMBRE_DNI,
                 puntoPartida: GUIAS_DATA.REMITENTE.UBIGEO,
                 puntoLlegada: GUIAS_DATA.DESTINATARIO.UBIGEO,
                 direccionPartida: GUIAS_DATA.REMITENTE.DIRECCION,
