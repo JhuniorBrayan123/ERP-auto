@@ -14,9 +14,9 @@ import {
 } from '@screenplay/questions/notas/ValidacionesNegativas';
 import { CLIENTES, ITEMS_PV, TIPOS_DOCUMENTO_ORIGEN, TIPOS_COMPROBANTE } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Notas de Crédito — Validaciones y Casos Negativos', () => {
+test.describe('Notas de Crédito — Validaciones y Casos Negativos @pv @nota-credito', () => {
 
-  test('Vincular comprobante: datos del cliente y artículos se cargan automáticamente', async ({ facturador }) => {
+  test('Vincular comprobante: datos del cliente y artículos se cargan automáticamente @validacion', async ({ facturador }) => {
     const origen = await facturador.realizaYObtiene(
       EmitirComprobanteOrigen({
         tipoComprobante: TIPOS_COMPROBANTE.FACTURA,
@@ -44,7 +44,7 @@ test.describe('Notas de Crédito — Validaciones y Casos Negativos', () => {
     await expect(facturador.page.getByText(/automatizacionerp2 cliente/i)).toBeVisible();
   });
 
-  test('Al vincular comprobante: ítems se cargan en el grid de NC', async ({ facturador }) => {
+  test('Al vincular comprobante: ítems se cargan en el grid de NC @validacion', async ({ facturador }) => {
     const origen = await facturador.realizaYObtiene(
       EmitirComprobanteOrigen({
         tipoComprobante: TIPOS_COMPROBANTE.FACTURA,
@@ -70,7 +70,7 @@ test.describe('Notas de Crédito — Validaciones y Casos Negativos', () => {
       .toContainText(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
   });
 
-  test('Error: motivo obligatorio al emitir NC', async ({ facturador }) => {
+  test('Error: motivo obligatorio al emitir NC @validacion', async ({ facturador }) => {
     const origen = await facturador.realizaYObtiene(
       EmitirComprobanteOrigen({
         tipoComprobante: TIPOS_COMPROBANTE.FACTURA,
@@ -98,7 +98,7 @@ test.describe('Notas de Crédito — Validaciones y Casos Negativos', () => {
     await expect(NotaCreditoTargets.inputMotivo(facturador.page)).toBeEmpty();
   });
 
-  test('Error: comprobante vinculado obligatorio al emitir NC', async ({ facturador }) => {
+  test('Error: comprobante vinculado obligatorio al emitir NC @validacion', async ({ facturador }) => {
     await new ComprobantePage(facturador.page).seleccionarNotaCredito();
 
     await VincularComprobanteTargets.btnVincularComprobante(facturador.page).click();
@@ -112,7 +112,7 @@ test.describe('Notas de Crédito — Validaciones y Casos Negativos', () => {
     await facturador.page.getByRole('button', { name: /aceptar/i }).click();
   });
 
-  test('Error: monto de descuento global mayor al disponible', async ({ facturador }) => {
+  test('Error: monto de descuento global mayor al disponible @validacion', async ({ facturador }) => {
     const origen = await facturador.realizaYObtiene(
       EmitirComprobanteOrigen({
         tipoComprobante: TIPOS_COMPROBANTE.FACTURA,
@@ -146,7 +146,7 @@ test.describe('Notas de Crédito — Validaciones y Casos Negativos', () => {
     await facturador.pregunta(ErrorMontoMayorAlDisponible());
   });
 
-  test('Error: descuento por ítem sin aplicar descuento a ningún ítem', async ({ facturador }) => {
+  test('Error: descuento por ítem sin aplicar descuento a ningún ítem @validacion', async ({ facturador }) => {
     const origen = await facturador.realizaYObtiene(
       EmitirComprobanteOrigen({
         tipoComprobante: TIPOS_COMPROBANTE.BOLETA,

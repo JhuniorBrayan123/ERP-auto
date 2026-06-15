@@ -9,9 +9,9 @@ import {capturarStockNC, validarStockDespuesNC} from '@helpers/PuntoVenta/verifi
 import {esperarStockDespuesVenta} from "@helpers/PuntoVenta/esperarStockDespuesVenta";
 import {asegurarClienteExtranjeria} from "@helpers/PuntoVenta/asegurar-cliente.helper";
 
-test.describe('Notas de Crédito — Emisión con Vinculación', () => {
+test.describe('Notas de Crédito — Emisión con Vinculación @pv @nota-credito', () => {
 
-    test('Emitir NC por anulación CON retorno de stock desde factura', async ({facturador, postEmision, kardexApi}) => {
+    test('Emitir NC por anulación CON retorno de stock desde factura @emision', async ({facturador, postEmision, kardexApi}) => {
         const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.PRODUCTO_GRAVADO.codigo);
 
         const origen = await facturador.realizaYObtiene(
@@ -58,7 +58,7 @@ test.describe('Notas de Crédito — Emisión con Vinculación', () => {
         });
     });
 
-    test('Emitir NC por devolución total CON retorno de stock desde boleta', async ({facturador, kardexApi}) => {
+    test('Emitir NC por devolución total CON retorno de stock desde boleta @emision', async ({facturador, kardexApi}) => {
         const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.PRODUCTO_GRAVADO.codigo);
 
         const origen = await facturador.realizaYObtiene(
@@ -102,7 +102,7 @@ test.describe('Notas de Crédito — Emisión con Vinculación', () => {
         });
     });
 
-    test('Emitir NC por devolución total SIN retorno de stock desde factura', async ({facturador, kardexApi}) => {
+    test('Emitir NC por devolución total SIN retorno de stock desde factura @emision', async ({facturador, kardexApi}) => {
         const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.PRODUCTO_GRAVADO.codigo);
 
         const origen = await facturador.realizaYObtiene(
@@ -147,7 +147,7 @@ test.describe('Notas de Crédito — Emisión con Vinculación', () => {
         });
     });
 
-    test('Emitir NC por devolución por ítem CON retorno de stock desde factura', async ({facturador, kardexApi}) => {
+    test('Emitir NC por devolución por ítem CON retorno de stock desde factura @emision', async ({facturador, kardexApi}) => {
         const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.PRODUCTO_GRAVADO.codigo);
 
         const origen = await facturador.realizaYObtiene(
@@ -193,7 +193,7 @@ test.describe('Notas de Crédito — Emisión con Vinculación', () => {
         });
     });
 
-    test('Consultar NC emitida y verificar detalle en vista comprobante', async ({
+    test('Consultar NC emitida y verificar detalle en vista comprobante @consulta', async ({
                                                                                      facturador,
                                                                                      busquedaComprobantes
                                                                                  }) => {
@@ -235,7 +235,7 @@ test.describe('Notas de Crédito — Emisión con Vinculación', () => {
         await popup.getByRole('button', {name: /salir/i}).click();
     });
 
-    test('Emitir NC vinculada por ajustes de operaciones de exportación', async ({
+    test('Emitir NC vinculada por ajustes de operaciones de exportación @emision', async ({
                                                                                      facturador,
                                                                                      busquedaComprobantes
                                                                                  }) => {

@@ -4,9 +4,9 @@ import {CrearNotaCreditoSinReferencia} from '@screenplay/tasks/notas-credito/Cre
 import {ModalPostEmisionVisible} from '@screenplay/questions/notas/ModalPostEmisionVisible';
 import {CLIENTES, ITEMS_PV, TIPOS_COMPROBANTE} from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Notas de Crédito — Emisión Sin Referencia', () => {
+test.describe('Notas de Crédito — Emisión Sin Referencia @pv @nota-credito', () => {
 
-    test('Emitir NC sin referencia con factura referenciada manualmente', async ({facturador, postEmision: _p}) => {
+    test('Emitir NC sin referencia con factura referenciada manualmente @emision', async ({facturador, postEmision: _p}) => {
 
         const resultado = await facturador.realizaYObtiene(
             CrearNotaCreditoSinReferencia({

@@ -4,9 +4,9 @@ import { CrearNotaDebitoConVinculacion } from '@screenplay/tasks/notas-debito/Cr
 import { ModalPostEmisionVisible } from '@screenplay/questions/notas/ModalPostEmisionVisible';
 import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Notas de Débito — Aumento en el Valor', () => {
+test.describe('Notas de Débito — Aumento en el Valor @pv @nota-debito', () => {
 
-  test('Emitir ND por aumento en el valor desde boleta', async ({ facturador }) => {
+  test('Emitir ND por aumento en el valor desde boleta @emision', async ({ facturador }) => {
     const origen = await facturador.realizaYObtiene(
       EmitirComprobanteOrigen({
         tipoComprobante: 'BOLETA',
@@ -31,7 +31,7 @@ test.describe('Notas de Débito — Aumento en el Valor', () => {
     await expect(facturador.page.getByText(resultado.numero)).toBeVisible();
   });
 
-  test('Emitir ND por aumento en el valor desde factura', async ({ facturador }) => {
+  test('Emitir ND por aumento en el valor desde factura @emision', async ({ facturador }) => {
     const origen = await facturador.realizaYObtiene(
       EmitirComprobanteOrigen({
         tipoComprobante: 'FACTURA',

@@ -5,9 +5,9 @@ import {ConsultarNotaDebito, VerDetalleNotaDebito} from '@screenplay/tasks/notas
 import {DetalleNotaDebitoCorrecto} from '@screenplay/questions/notas/DetalleNotaCorrecto';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Notas de Débito — Penalidades / Otros Conceptos', () => {
+test.describe('Notas de Débito — Penalidades / Otros Conceptos @pv @nota-debito', () => {
 
-    test('Emitir ND por penalidades desde factura y verificar en detalle', async ({facturador}) => {
+    test('Emitir ND por penalidades desde factura y verificar en detalle @consulta', async ({facturador}) => {
         const origen = await facturador.realizaYObtiene(
             EmitirComprobanteOrigen({
                 tipoComprobante: 'FACTURA',

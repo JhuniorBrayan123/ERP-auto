@@ -1,5 +1,5 @@
 import {expect, type Locator, type Page, test} from '@playwright/test';
-import {esperarDebounce} from '@utils/wait-helpers';
+import {esperarCargaOverlay, esperarDebounce} from '@utils/wait-helpers';
 
 export class GuiaRemitentePage {
     constructor(public readonly page: Page) {
@@ -82,7 +82,12 @@ export class GuiaRemitentePage {
             .click();
     }
 
+    async esperarFormularioEstable(timeout = 35_000): Promise<void> {
+        await esperarCargaOverlay(this.page, timeout);
+    }
+
     async seleccionarMotivo(motivo: string) {
+        await this.esperarFormularioEstable();
         await this.seleccionarOpcionDropdown(/^VENTA$/, motivo);
     }
 
@@ -244,6 +249,7 @@ export class GuiaRemitentePage {
     }
 
     async seleccionarTipoOperacion(tipo: 'VENTA' | 'COMPRA') {
+        await this.esperarFormularioEstable();
         await this.seleccionarOpcionDropdown(/^VENTA$/, tipo);
     }
 
@@ -274,7 +280,12 @@ export class GuiaRemitentePage {
         const inputProveedor = this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-inicio:form-inicio-proveedor_v-input:filtrar-entidad"]');
         await inputProveedor.click();
         await inputProveedor.fill(documento);
-        await this.page.getByText(new RegExp(documento)).first().click();
+        const resultado = this.page
+            .locator('[id*="form-inicio-proveedor"][id*="seleccion-entidad"]')
+            .filter({hasText: new RegExp(documento, 'i')})
+            .first();
+        await expect(resultado).toBeVisible({ timeout: 10_000 });
+        await resultado.click();
     }
 
     async emitirGuia() {
