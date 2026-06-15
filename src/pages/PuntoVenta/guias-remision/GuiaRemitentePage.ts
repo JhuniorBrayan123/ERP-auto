@@ -279,7 +279,12 @@ export class GuiaRemitentePage {
         const inputProveedor = this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-inicio:form-inicio-proveedor_v-input:filtrar-entidad"]');
         await inputProveedor.click();
         await inputProveedor.fill(documento);
-        await this.page.getByText(new RegExp(documento)).first().click();
+        const resultado = this.page
+            .locator('[id*="form-inicio-proveedor"][id*="seleccion-entidad"]')
+            .filter({hasText: new RegExp(documento, 'i')})
+            .first();
+        await expect(resultado).toBeVisible({ timeout: 10_000 });
+        await resultado.click();
     }
 
     async emitirGuia() {

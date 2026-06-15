@@ -24,4 +24,4 @@ exploration.md
 coverage/
 openspec/
 config/environment.env
-docs/
+_codegen/

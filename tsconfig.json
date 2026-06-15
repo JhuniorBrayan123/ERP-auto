@@ -47,6 +47,15 @@
       ],
       "@interactions/*": [
         "src/interactions/*"
+      ],
+      "@screenplay/*": [
+        "src/screenplay/*"
+      ],
+      "@actors/*": [
+        "src/actors/*"
+      ],
+      "@abilities/*": [
+        "src/abilities/*"
       ]
     }
   },

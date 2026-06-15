@@ -18,7 +18,6 @@ test.describe('Guías de Remisión Remitente - Emisión General', {tag: ['@guias
             kardexApi,
             GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo
         );
-
         await cajero.intentaRealizar(
             EmitirGuiaRemitenteTask({
                 motivo: GUIAS_DATA.MOTIVOS_TRASLADO.VENTA,
@@ -29,12 +28,10 @@ test.describe('Guías de Remisión Remitente - Emisión General', {tag: ['@guias
                 ]
             })
         );
-
         await test.step('Verificar que la guía se emite exitosamente', async () => {
             await listadoGuiasPage.validarGuiaEmitidaExito();
             await listadoGuiasPage.validarElementosDeEnvioVisibles();
         });
-
         await verificarStockSinCambio(
             kardexApi,
             GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo,
