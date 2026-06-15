@@ -88,9 +88,11 @@ export const EmitirGuiaTransportistaTask = (data: EmitirGuiaTransportistaData) =
                     await guiaPage.seleccionarPagadorFlete(data.pagadorFlete!);
                 });
             }
-            if (data.pagadorFleteData) {
+            const pagadorFleteData = data.pagadorFleteData;
+
+            if (pagadorFleteData) {
                 await test.step('Completar datos del pagador flete', async () => {
-                    await guiaPage.completarPagadorFleteData(data.pagadorFleteData.documento);
+                    await guiaPage.completarPagadorFleteData(pagadorFleteData.documento);
                 });
             }
 
@@ -100,9 +102,11 @@ export const EmitirGuiaTransportistaTask = (data: EmitirGuiaTransportistaData) =
                 });
             }
 
-            if (data.subcontratador) {
-                await test.step(`Seleccionar subcontratador: ${data.subcontratador.documento}`, async () => {
-                    await guiaPage.seleccionarSubcontratador(data.subcontratador.documento);
+            const subcontratador = data.subcontratador;
+
+            if (subcontratador) {
+                await test.step(`Seleccionar subcontratador: ${subcontratador.documento}`, async () => {
+                    await guiaPage.seleccionarSubcontratador(subcontratador.documento);
                 });
             }
 
@@ -116,11 +120,13 @@ export const EmitirGuiaTransportistaTask = (data: EmitirGuiaTransportistaData) =
                     );
                 });
             }
-            if (data.autorizacionEspecial) {
+            const autorizacionEspecial = data.autorizacionEspecial;
+
+            if (autorizacionEspecial) {
                 await test.step('Completar autorización especial', async () => {
                     await guiaPage.completarAutorizacionEspecial(
-                        data.autorizacionEspecial.numeroAutorizacion,
-                        data.autorizacionEspecial.tuce
+                        autorizacionEspecial.numeroAutorizacion,
+                        autorizacionEspecial.tuce
                     );
                 });
             }

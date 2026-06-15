@@ -10,6 +10,8 @@ const TIPO_COMPROBANTE_ID: Record<TipoComprobante, number> = {
     'NOTA DE VENTA': 2016,
     'COTIZACIÓN': 3007,
     'PEDIDO': 2011,
+    'NOTA DE CRÉDITO': 1005,
+    'NOTA DE DÉBITO': 1006
 };
 
 export class ComprobantePage {
@@ -23,7 +25,7 @@ export class ComprobantePage {
     async seleccionarTipoComprobante(tipo: TipoComprobante): Promise<void> {
         try {
             const id = TIPO_COMPROBANTE_ID[tipo];
-            
+
             const optionLocator = this.page.locator(
                 `[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-header_v-select:tipo-comprobante_v-option:opcion-${id}"]`,
             );
@@ -62,5 +64,15 @@ export class ComprobantePage {
     async seleccionarPedido(): Promise<void> {
         await esperarCargaOverlay(this.page);
         await this.seleccionarTipoComprobante('PEDIDO');
+    }
+
+    async seleccionarNotaCredito(): Promise<void> {
+        await esperarCargaOverlay(this.page);
+        await this.seleccionarTipoComprobante('NOTA DE CRÉDITO');
+    }
+
+    async seleccionarNotaDebito(): Promise<void> {
+        await esperarCargaOverlay(this.page);
+        await this.seleccionarTipoComprobante('NOTA DE DÉBITO');
     }
 }

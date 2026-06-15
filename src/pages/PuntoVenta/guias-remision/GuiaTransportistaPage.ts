@@ -168,7 +168,12 @@ export class GuiaTransportistaPage {
 
     async completarPagadorFleteData(documento: string) {
         await this.inputPagadorFlete.fill(documento);
-        await this.page.getByText(new RegExp(documento)).first().click();
+        const resultado = this.page.locator('.v-input-dropdown.is-open article')
+            .filter({hasText: new RegExp(documento, 'i')})
+            .first();
+        await expect(resultado).toBeVisible({ timeout: 10_000 });
+        await resultado.click();
+        await esperarCargaOverlay(this.page);
     }
 
     private textoBusquedaUbigeo(ubigeo: string): string {

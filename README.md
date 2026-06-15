@@ -30,7 +30,7 @@ El foco principal actual de la automatización cubre los módulos de:
 
 - **Logística**: Movimientos de almacén, ingresos, ajustes, traslados, edición, clonación, carga masiva.
 - **Productos - Stock**: Creación de ítems, edición, clonación, exportación y actualización masiva mediante Excel.
-- **Punto de Venta**: Emisión de comprobantes (Boleta, Factura, Nota de Venta), con setup automático de datos.
+- **Punto de Venta**: Emisión de comprobantes (Boleta, Factura, Nota de Venta), **Guías de Remisión** (GRR + GRT), **Cotizaciones**, **Pedidos**, con setup automático de datos y validación de stock vía ApiKardex.
 - **Login / Autenticación**: Acceso al sistema.
 
 **Propósito general**: Validar de manera automatizada y robusta la integridad de las operaciones logísticas, de
@@ -86,16 +86,61 @@ como capa de composición adicional en Punto de Venta para mejorar la legibilida
 
 ### 🛒 Punto de Venta — Emisiones
 
-| ID      | Descripción                                                       | Comprobantes    | Tag      |
-|:--------|:------------------------------------------------------------------|:----------------|:---------|
-| `PV-01` | Emisión con control de stock, datos adicionales, validación SUNAT | Boleta, Factura | `@PV-01` |
-| `PV-03` | Equivalencias, variantes y descuentos por ítem                    | Boleta, Factura | `@PV-03` |
-| `PV-04` | Nota de venta con descuento por ítem                              | Nota de Venta   | `@PV-04` |
-| `PV-14` | Retención                                                         | Factura         | `@PV-14` |
-| `PV-15` | Adelanto                                                          | —               | `@PV-15` |
-| `PV-16` | Exportación con receta                                            | Factura         | `@PV-16` |
-| `PV-17` | Detracción                                                        | —               | `@PV-17` |
-| `PV-18` | Selección y edición de ítem en caja                               | —               | `@PV-18` |
+| ID      | Descripción                                                       | Comprobantes    | Tag             |
+|:--------|:------------------------------------------------------------------|:----------------|:----------------|
+| `PV-01` | Emisión con control de stock, datos adicionales, validación SUNAT | Boleta, Factura | `@PV-01`        |
+| `PV-03` | Equivalencias, variantes y descuentos por ítem                    | Boleta, Factura | `@PV-03`        |
+| `PV-04` | Nota de venta con descuento por ítem                              | Nota de Venta   | `@PV-04`        |
+| `PV-14` | Retención                                                         | Factura         | `@PV-14`        |
+| `PV-15` | Adelanto                                                          | —               | `@PV-15`        |
+| `PV-16` | Exportación con receta                                            | Factura         | `@PV-16`        |
+| `PV-17` | Detracción                                                        | —               | `@PV-17`        |
+| `PV-18` | Selección y edición de ítem en caja                               | —               | `@PV-18`        |
+| `PV-19` | **Cotizaciones**: emisión, cliente sin doc, imagen, vigencia      | Cotización      | `@cotizacion`   |
+| `PV-20` | **Pedidos**: emisión, búsqueda, compartir, lista                  | Pedido          | `@pedido`       |
+
+---
+
+### 📄 Guías de Remisión
+
+| ID      | Descripción                                                           | Módulo         | Tag        |
+|:--------|:----------------------------------------------------------------------|:---------------|:-----------|
+| `GRR-01` | Emitir guía con modalidad pública + **stock no se descuenta** ✅     | Remitente      | `@guias`   |
+| `GRR-02` | Emitir guía por exportación + **stock no se descuenta** ✅           | Remitente      | `@guias`   |
+| `GRR-03` | Validar datos obligatorios de exportación (DAM, bultos)               | Remitente      | `@guias`   |
+| `GRR-03a`| Destinatario mismo emisor (tipo COMPRA)                               | Remitente      | `@guias`   |
+| `GRR-06` | Guardar guía en modalidad privada (borrador)                          | Remitente      | `@guias`   |
+| `GRR-10` | Traslado de mercancía extranjera sin contenedor                       | Remitente      | `@guias`   |
+| `GRR-11` | Traslado de mercancía extranjera con contenedor + **stock no se descuenta** ✅ | Remitente | `@guias` |
+| `GRR-12` | Traslado de vehículos categoría M1 o L + **stock no se descuenta** ✅ | Remitente      | `@guias`   |
+| `GRR-13` | Validar datos obligatorios mercancía extranjera                        | Remitente      | `@guias`   |
+| `GRR-14` | Validar contenedor y precinto obligatorios                             | Remitente      | `@guias`   |
+| `GRR-15` | Emitir guía vinculando un comprobante + **stock no se descuenta** ✅  | Remitente      | `@guias`   |
+| `GRR-16` | Venta con entrega a terceros (pública)                                 | Remitente      | `@guias`   |
+| `GRR-17` | Venta con entrega a terceros (privada)                                 | Remitente      | `@guias`   |
+| `GRR-18` | Validar destinatario obligatorio en venta a terceros                   | Remitente      | `@guias`   |
+| `GRR-04` | Validar campos obligatorios generales (motivo, modalidad, etc.)        | Remitente      | `@guias`   |
+| `GRR-05` | Validar serie y número de guía en listado                              | Remitente      | `@guias`   |
+| `GRR-07` | Validar datos de exportación (DAM + bultos)                            | Remitente      | `@guias`   |
+| `GRR-08` | Validar destinatario en venta a terceros                               | Remitente      | `@guias`   |
+| `GRR-09` | Validar que QUEDAN datos al cambiar de público a privado               | Remitente      | `@guias`   |
+| `GRT-17` | Emitir guía transportista modalidad pública                            | Transportista  | `@guias`   |
+| `GRT-18` | Emitir guía transportista modalidad privada                            | Transportista  | `@guias`   |
+| `GRT-19` | Emitir guía transportista con retorno subcontratado + **stock no se descuenta** ✅ | Transportista | `@guias` |
+| `GRT-20` | Emitir guía transportista con autorización especial + **stock no se descuenta** ✅ | Transportista | `@guias` |
+| `GRT-21` | Validar campos obligatorios transportista (datos obligatorios)         | Transportista  | `@guias`   |
+| `GRT-22` | Validar remitente y destinatario obligatorios                          | Transportista  | `@guias`   |
+| `GRT-23` | Validar conductor obligatorio                                          | Transportista  | `@guias`   |
+| `GRT-24` | Validar transportista obligatorio                                      | Transportista  | `@guias`   |
+| `GRT-25` | Validar punto de partida y llegada obligatorios                        | Transportista  | `@guias`   |
+| `GRT-26` | Validar items obligatorios                                             | Transportista  | `@guias`   |
+| `GRT-27` | Validar peso obligatorio                                               | Transportista  | `@guias`   |
+
+> ✅ **Stock validado via ApiKardex**: Los tests marcados verifican via API que el stock del producto **no se descuenta** al emitir una guía de remisión (la guía no es un comprobante de venta, solo traslada mercancía).
+>
+> 🌐 **Trazabilidad**: Cada acción individual (seleccionar motivo, completar DAM, elegir transportista, etc.) está envuelta en `test.step()` con nombre descriptivo. Si algo falla, se sabe exactamente qué campo falló.
+>
+> Para ejecutar solo guías: `npx playwright test --grep @guias`
 
 ---
 
@@ -220,8 +265,13 @@ erpperu2-automation/
 │       │   ├── punto-venta-datos.setup.ts  # 📦 Setup: vendedor, campos, clientes
 │       │   └── punto-venta-items.setup.ts  # 📦 Setup: ítems ISC, ICBPER, recetas
 │       ├── Boleta/                   # PV-01 al PV-03
-│       ├── Factura/                  # PV-14 al PV-16
+│       ├── Factura/                  # PV-14 al PV-17
 │       ├── NotaVenta/                # PV-03 al PV-15
+│       ├── Cotizacion/               # PV-19: Cotizaciones (emisión, imagen, vigencia)
+│       ├── Pedido/                   # PV-20: Pedidos (emisión, búsqueda, compartir, lista)
+│       ├── GuiasRemision/            # GRR + GRT: Guías de Remisión (27 tests)
+│       │   ├── remitente/            # GRR-01 al GRR-18
+│       │   └── transportista/        # GRT-17 al GRT-27
 │       └── General/                  # PV-17 al PV-18
 ├── scripts/                          # Scripts de utilidad
 │   ├── test-runner.ts                # Menú interactivo de ejecución
@@ -341,12 +391,22 @@ npx playwright test --grep "@productos-stock"
 # ── Todo Punto de Venta ────────────────────────────────────────────
 npx playwright test --grep "@punto-venta"
 
+# ── Solo Guías de Remisión (GRR + GRT) ────────────────────────────
+npx playwright test --grep "@guias"
+
+# ── Solo Cotizaciones ─────────────────────────────────────────────
+npx playwright test --grep "@cotizacion"
+
+# ── Solo Pedidos ──────────────────────────────────────────────────
+npx playwright test --grep "@pedido"
+
 # ── Solo Boletas ───────────────────────────────────────────────────
 npx playwright test --grep "@boleta"
 
 # ── Un caso específico ─────────────────────────────────────────────
 npx playwright test --grep "@MS-1"
 npx playwright test --grep "@PV-01"
+npx playwright test --grep "@guias" --grep "GRR-01"
 
 # ── Un archivo específico ──────────────────────────────────────────
 npx playwright test tests/Logistica/Movimientos/MS-1_ingreso/MS-1-ingreso.spec.ts
@@ -614,7 +674,10 @@ El proyecto utiliza **dos patrones de diseño** que coexisten de forma complemen
 | Módulo | Patrón | Estado | Rationale |
 |--------|--------|--------|-----------|
 | **Logística** | POM puro | ✅ Maduro y estable | Ya funcionaba bien, no requiere cambio |
-| **Punto de Venta** | POM como base + Screenplay como capa de composición | 🔄 En evolución | Screenplay mejora legibilidad en flujos complejos de emisión |
+| **Punto de Venta** | POM como base + Screenplay como capa de composición | ✅ Estable | Screenplay mejora legibilidad en flujos complejos de emisión |
+| **Guías de Remisión** | POM + Screenplay (tasks + actor) | ✅ Estable | Tasks reutilizables con validación de stock vía ApiKardex |
+| **Cotizaciones** | Screenplay puro | ✅ Estable | Actor + tasks + questions para validación visual |
+| **Pedidos** | Screenplay puro | 🚧 En desarrollo | Flujos de emisión, búsqueda y lista de pedidos |
 
 **¿Por qué dos patrones?** POM fue la base original y sigue siendo la mejor opción para encapsular selectores y acciones de UI. Screenplay se agregó como capa superior en Punto de Venta para crear abstracciones de negocio reutilizables (tasks) que componen múltiples POMs, mejorando la legibilidad de los tests a nivel de escenario.
 
@@ -691,4 +754,4 @@ En la carpeta `test-results/` y visibles en `npx playwright show-report`.
 
 ---
 
-*Última actualización: Mayo 2026 — Equipo QA Automatización ERP Perú 2*
+*Última actualización: Junio 2026 — Equipo QA Automatización ERP Perú 2*

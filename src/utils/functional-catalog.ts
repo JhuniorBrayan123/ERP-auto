@@ -6,7 +6,7 @@ export type FunctionalPreset = {
     flowStep: string;
     userMessage: string;
     technicalDetail: string;
-    
+
     failureCategory: FailureCategory;
 };
 
@@ -170,5 +170,13 @@ export const FUNCTIONAL_CATALOG = {
             technicalDetail: 'Timeout o estado inesperado en la consulta de SUNAT.',
             failureCategory: 'AMBIENTE',
         },
+        incrementarCantidadImagen: {
+            module: 'PuntoVenta',
+            screen: 'Validar Stock',
+            flowStep: 'Validar falta de stock en item hijo',
+            userMessage: 'El combo se agrego a pesar que no tiene stock un item',
+            technicalDetail: 'Timeout o estado inesperdao en cajaT.',
+            failureCategory: 'AMBIENTE',
+        }
     },
 } as const satisfies Record<string, Record<string, FunctionalPreset>>;

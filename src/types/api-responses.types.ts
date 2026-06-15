@@ -1,4 +1,3 @@
-0
 
 export interface CajaVentaRaw {
     Id: number;
