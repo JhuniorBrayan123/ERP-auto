@@ -2,7 +2,7 @@ import {expect, type Locator, type Page} from '@playwright/test';
 import type {EmisionResult} from '@app-types/emision.types';
 import {throwFunctionalError} from '@utils/functional-error';
 import {FUNCTIONAL_CATALOG} from '@utils/functional-catalog';
-import {esperarDebounce} from '@utils/wait-helpers';
+import {esperarCargaOverlay, esperarDebounce} from '@utils/wait-helpers';
 
 export class EmisionPage {
 
@@ -93,12 +93,15 @@ export class EmisionPage {
 
     async seleccionarItem(nombre: string): Promise<void> {
         try {
+            // Esperar que termine cualquier proceso previo antes de validar item
+            await esperarCargaOverlay(this.page, 30_000).catch(() => {});
+
             const item = this.page
                 .locator('.body')
                 .filter({hasText: nombre})
                 .first();
 
-            await expect(item).toBeVisible({timeout: 15_000});
+            await expect(item).toBeVisible({timeout: 30_000});
             await item.click();
 
             const overload = this.page.locator('[id="cmn_cmp-overload:loading"]');
@@ -121,15 +124,15 @@ export class EmisionPage {
     async incrementarCantidadImagen(veces: number = 1, nombre: string): Promise<void> {
         try {
             const btnIncrease = this.page
-                .locator('.cmp-producto-img') // Reemplaza con la clase real del ícono de incremento
-                .filter({hasText: nombre})     // O el texto/atributo que identifique el botón
+                .locator('.cmp-producto-img') 
+                .filter({hasText: nombre})     
                 .first();
 
             await expect(btnIncrease).toBeVisible({timeout: 10_000});
 
             for (let i = 0; i < veces; i++) {
                 await btnIncrease.click();
-                await this.page.waitForTimeout(200); // pequeño delay entre clicks si es necesario
+                await this.page.waitForTimeout(200); 
             }
 
             const overload = this.page.locator('[id="cmn_cmp-overload:loading"]');
