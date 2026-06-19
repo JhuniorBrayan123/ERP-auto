@@ -34,7 +34,7 @@ export class CotizacionOpcionesPage {
     }
 
     private get selectorVigencia(): Locator {
-        return this.page.locator('div').filter({ hasText: /^1 día$/ }).nth(1);
+        return this.page.locator('div').filter({ hasText: /^(0 días|1 día)$/ }).nth(1);
     }
 
     async seleccionarVigencia(dias: string): Promise<void> {
