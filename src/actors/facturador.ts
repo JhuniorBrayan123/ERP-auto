@@ -5,23 +5,6 @@ type TaskFn = ((page: Page) => Promise<void>);
 type TaskFnConRetorno<T> = ((page: Page) => Promise<T>);
 type QuestionFn<T> = ((page: Page) => Promise<T>);
 
-/**
- * Actor: Facturador
- *
- * Representa a un usuario del módulo de facturación/comprobantes.
- * Puede emitir notas de crédito, notas de débito, facturas, boletas y
- * consultar el estado de comprobantes.
- *
- * Extiende el patrón del Actor Cajero existente, adaptado para el
- * dominio de comprobantes electrónicos.
- *
- * Uso:
- * ```ts
- * const facturador = Facturador.con(page);
- * await facturador.realiza(CrearNotaCreditoConVinculacion({ ... }));
- * const numero = await facturador.realizaYObtiene(NotaCreditoEmitida());
- * ```
- */
 export class Facturador {
     private readonly _usarNavegador: UsarNavegador;
 

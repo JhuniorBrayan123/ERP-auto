@@ -17,9 +17,9 @@ export class CajaPage {
     }
 
     async scrollATarjetaCaja(): Promise<void> {
-        await this.tarjetaCaja.waitFor({state: 'attached', timeout: 15_000}).catch(() => {
+        await this.tarjetaCaja.waitFor({state: 'attached', timeout: 20_000}).catch(() => {
         });
-        await this.tarjetaCaja.scrollIntoViewIfNeeded({timeout: 10_000}).catch(() => {
+        await this.tarjetaCaja.scrollIntoViewIfNeeded({timeout: 15_000}).catch(() => {
         });
     }
 

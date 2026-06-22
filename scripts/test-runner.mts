@@ -4,9 +4,11 @@ import type { ChildProcess } from 'node:child_process';
 import { spawn as nodeSpawn } from 'node:child_process';
 import { checkbox, input, select } from '@inquirer/prompts';
 import crossSpawn from 'cross-spawn';
-import {getSetupStateSummary, areAllSetupsComplete, forceCompleteAllSetups, PV_SETUP_NAMES, LOG_SETUP_NAMES} from '@utils/setup-state';
-import { getFailedTests, type FailedTestGroup } from './analyze-results';
-import { cargarMapaDesdeCache, guardarMapaEnCache, cargarMapaCodigos } from '../src/factories/item-factory';
+import type { FailedTestGroup } from './analyze-results.js';
+
+const { getSetupStateSummary, areAllSetupsComplete, forceCompleteAllSetups, PV_SETUP_NAMES, LOG_SETUP_NAMES } = await import('@utils/setup-state.js');
+const { getFailedTests } = await import('./analyze-results.js');
+const { cargarMapaDesdeCache, guardarMapaEnCache, cargarMapaCodigos } = await import('../src/factories/item-factory.js');
 import Fuse from 'fuse.js';
 
 const ROOT_DIR = process.cwd();

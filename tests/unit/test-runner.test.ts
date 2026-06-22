@@ -27,7 +27,7 @@ async function main(): Promise<void> {
     let applySetupSelections: (selected: string[]) => void;
 
     try {
-        const mod = await import('../../scripts/test-runner');
+        const mod = await import('../../scripts/test-runner.mjs');
         applySetupSelections = mod.applySetupSelections;
     } catch {
         console.log('  (Module not yet exported — waiting for implementation)\n');

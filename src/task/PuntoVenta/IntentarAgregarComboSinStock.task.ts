@@ -7,7 +7,7 @@ export const IntentarAgregarComboSinStock = (item: ItemVenta) => {
         const emision = new EmisionPage(page);
         await emision.buscarItem(item.codigo);
         await emision.seleccionarItem(item.nombre);
-        await emision.incrementarCantidadImagen(3);
+        await emision.incrementarCantidadImagen(3, item.nombre);
 
 
     };

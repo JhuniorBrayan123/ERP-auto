@@ -1,7 +1,7 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
 export class PostEmisionPage {
-    constructor(private readonly page: Page) {}
+    constructor(private readonly page: Page) { }
 
     private get btnWhatsApp(): Locator {
         return this.page.locator('div').filter({ hasText: 'Enviar por WhatsApp' }).first();
@@ -19,7 +19,7 @@ export class PostEmisionPage {
     }
 
     private get btnDescargarXML(): Locator {
-        return this.page.getByText( 'Descargar XML' ).first();
+        return this.page.getByText('Descargar XML').first();
     }
 
     private get btnDescargarPDF(): Locator {

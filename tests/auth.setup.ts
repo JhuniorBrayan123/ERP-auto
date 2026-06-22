@@ -87,6 +87,9 @@ setup('authenticate', async ({page}) => {
         .click();
 
     await expect(page).not.toHaveURL(/auth\/login/, {timeout: 15000});
+    
+    // Esperar a que el Home cargue completamente para asegurar que los tokens (JWT, etc) se guarden
+    await page.waitForLoadState('networkidle');
 
     const authFile = resolveStorageStatePath();
     await page.context().storageState({path: authFile});

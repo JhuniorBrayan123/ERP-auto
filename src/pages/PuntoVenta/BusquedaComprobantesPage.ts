@@ -1,9 +1,10 @@
-import {expect, type Page} from '@playwright/test';
+import {expect, type Locator, type Page} from '@playwright/test';
 import type {EmisionResult} from '../../helpers/PuntoVenta/emision.types';
 import {EstadoSunat} from '../../helpers/PuntoVenta/sunat-estados.helper';
 import {throwFunctionalError} from '../../utils/functional-error';
 import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
 import {esperarCargaOverlay} from "@utils/wait-helpers";
+import type {BcCategoria, BcPresetFecha, DatosOpcionales} from '../../helpers/PuntoVenta/busqueda-comprobantes.data';
 
 const ESTADOS_EXITOSOS = [EstadoSunat.ACEPTADA, EstadoSunat.ACEPTADA_OBSERVADA];
 const ESTADOS_TRANSITORIOS = [EstadoSunat.PENDIENTE_ENVIO, EstadoSunat.PENDIENTE_RESPUESTA, EstadoSunat.NO_DISPONIBLE];
@@ -49,7 +50,7 @@ export class BusquedaComprobantesPage {
         );
         await inputCorrelativo.click();
         await inputCorrelativo.fill(correlativo);
-        await inputCorrelativo.press('Enter'); 
+        await inputCorrelativo.press('Enter');
 
         try {
             const response = await consultaPromise;
@@ -213,9 +214,9 @@ export class BusquedaComprobantesPage {
     }
 
     private static readonly BITACORA_POLL = {
-        
+
         interval: 5_000,
-        
+
         timeout: 90_000,
     };
 
@@ -270,7 +271,7 @@ export class BusquedaComprobantesPage {
     }
 
     async validarSinDescargoInventarios(): Promise<void> {
-        
+
         await new Promise(r => setTimeout(r, 10_000));
         await this.cerrarBitacora();
         await this.abrirBitacoraDelPrimerComprobante();
@@ -359,4 +360,329 @@ export class BusquedaComprobantesPage {
     async cerrarDrapePopup(popupPage: Page): Promise<void> {
         await popupPage.locator('.drape.is-open > .button-close > .icon').click();
     }
+
+    async abrirDatosOpcionalesEnPopup(popupPage: Page): Promise<void> {
+        await popupPage.locator(
+            '[id="pv_cmp-ver-comprobante_common:cmp-ver-comprobante-acciones_acciones-extra:v-button"]',
+        ).click();
+        await popupPage.getByText('Datos opcionales').click();
+    }
+
+    async validarDatosOpcionalesEnPopup(popupPage: Page, datos: DatosOpcionales): Promise<void> {
+        const drape = popupPage.locator('.drape.is-open');
+        await expect(drape).toContainText(datos.vendedorNombre);
+        const detalle = drape.locator('.extra-content-detalle');
+        await expect(detalle.filter({hasText: 'Orden de compra'}).locator('input.erp-input')).toHaveValue(datos.ordenCompra);
+        await expect(detalle.filter({hasText: 'Contrato'}).locator('input.erp-input')).toHaveValue(datos.contrato);
+        await expect(detalle.filter({hasText: 'Observaciones'}).locator('input.erp-input')).toHaveValue(datos.comentarios);
+        const campoOpcional = drape.locator('.campo-opcional');
+        await expect(campoOpcional.filter({hasText: 'tipo de comprobante'}).locator('input.erp-input')).toHaveValue(datos.campoTexto0);
+        await expect(campoOpcional.filter({hasText: 'numero-comprobante'}).locator('input.erp-input')).toHaveValue(datos.campoNumero0);
+    }
+
+    async abrirBitacoraDesdePopup(popupPage: Page): Promise<void> {
+        await popupPage.locator(
+            '[id="pv_cmp-ver-comprobante_common:cmp-ver-comprobante-acciones_acciones-extra:v-button"]',
+        ).click();
+        await popupPage.getByRole('button', {name: 'Ver bitácora'}).click().catch(async () => {
+            await popupPage.locator('[class*="bitacora"], [class*="bitácora"]').click();
+        });
+    }
+
+    async seleccionarCategoria(categoria: BcCategoria): Promise<void> {
+        await this.page.locator(
+            `[id="pv_comprobantes_cmp-header-comprobantes_categorias:pill-${categoria}"]`,
+        ).click();
+        await esperarCargaOverlay(this.page);
+    }
+
+    async abrirFiltrosAvanzados(): Promise<void> {
+        const btn = this.page.getByRole('button', {name: /ver filtros avanzados/i});
+        try {
+            await btn.waitFor({state: 'visible', timeout: 10_000});
+            await btn.click();
+        } catch {
+            // Si el botón no aparece, asumir que los filtros ya están abiertos
+        }
+    }
+
+    async aplicarFiltros(): Promise<void> {
+        await this.page.getByRole('button', {name: 'Aplicar filtros'}).click();
+        await esperarCargaOverlay(this.page);
+    }
+
+    async borrarFiltros(): Promise<void> {
+        await this.page.getByRole('button', {name: 'Borrar filtros'}).click();
+        await esperarCargaOverlay(this.page);
+    }
+
+    async filtrarPorRangoFecha(preset: BcPresetFecha): Promise<void> {
+        await this.page.locator(
+            '[id="pv_comprobantes_cmp-filtros-basicos-comprobantes:state_v-datepicker-range:rango-fecha"]',
+        ).click();
+        await this.page.getByRole('button', {name: preset, exact: true}).click();
+        await this.aplicarFiltros();
+    }
+
+    async filtrarPorTipo(tipo: string): Promise<void> {
+        await this.page.getByText('Tipo de comprobante').first().click();
+        await this.page.getByText(tipo, {exact: true}).click();
+        await esperarCargaOverlay(this.page);
+    }
+
+    async filtrarPorSerie(serie: string): Promise<void> {
+        await this.page.locator('div').filter({hasText: /^Serie$/}).nth(2).click();
+        await this.page.locator('thead').getByText(serie).click();
+        await esperarCargaOverlay(this.page);
+    }
+
+    async filtrarPorMoneda(moneda: string): Promise<void> {
+        await this.page.getByText('Moneda').first().click();
+        await this.page.locator('thead').getByText(moneda).click();
+        await esperarCargaOverlay(this.page);
+    }
+
+    async filtrarPorCorrelativos(correlativo: string): Promise<void> {
+        const consultaPromise = this.page.waitForResponse(
+            (resp) => resp.url().includes('DocumentosContables/Consultas') && resp.status() === 200,
+            {timeout: 30_000},
+        );
+        const input = this.page.getByRole('textbox', {name: 'Correlativo'});
+        await input.click();
+        await input.fill(correlativo.replace(/^0+/, ''));
+        await input.press('Enter');
+        await consultaPromise.catch(() => {/* si el input aplica sin red, continuar */
+        });
+        await esperarCargaOverlay(this.page);
+    }
+
+    async filtrarPorNombreCliente(nombre: string): Promise<void> {
+        const input = this.page.getByRole('textbox', {name: 'Nombre / Razón Social'});
+        await input.click();
+        await input.fill(nombre);
+        await input.press('Enter');
+        await esperarCargaOverlay(this.page);
+    }
+
+    async filtrarPorNumDocCliente(documento: string): Promise<void> {
+        const input = this.page.getByRole('textbox', {name: 'N° de Documento'});
+        await input.click();
+        await input.fill(documento);
+        await input.press('Enter');
+        await esperarCargaOverlay(this.page);
+    }
+
+    async filtrarPorMontoTotal(comparador: string, valor: string): Promise<void> {
+        // Click en el input "Buscar monto total" del header de la grilla
+        await this.page.locator(
+            '[id="pv_comprobantes_cmp-grid-comprobantes-header:grid-header_v-input:MontoTotalFormateado"]',
+        ).click();
+        // Seleccionar el comparador (Mayor que, Menor que, etc.)
+        await this.page.getByText(comparador, {exact: true}).click();
+        // Ingresar el valor en el input de Valor
+        const inputValor = this.page.locator(
+            '[id="pv_common_cmp-card-filter-number:filtro_v-input:valor"]',
+        );
+        await inputValor.fill(valor);
+        await inputValor.press('Enter');
+        await esperarCargaOverlay(this.page);
+    }
+
+    obtenerFilaPorNumero(numeroCompleto: string): Locator {
+        // Buscar solo por el correlativo (parte tras el guión) tal cual aparece en la grilla
+        const partes = numeroCompleto.split('-');
+        const textoBusqueda = partes.length >= 2 ? partes[1].replace(/^0+/, '') : numeroCompleto;
+        return this.page.locator('tr').filter({hasText: textoBusqueda}).first();
+    }
+
+    async validarSinResultados(): Promise<void> {
+        await expect(
+            this.page.getByRole('cell').filter({hasText: /no encontramos resultados/i}).first(),
+        ).toBeVisible({timeout: 10_000});
+    }
+
+    async obtenerColumnasVisibles(): Promise<string[]> {
+        const headers = await this.page.locator('thead th').all();
+        const textos: string[] = [];
+        for (const th of headers) {
+            const texto = (await th.textContent())?.trim() ?? '';
+            if (texto) textos.push(texto);
+        }
+        return textos;
+    }
+
+    async obtenerValoresColumna(nombreColumna: string): Promise<string[]> {
+        const headers = await this.page.locator('thead th').all();
+        let colIndex = -1;
+        for (let i = 0; i < headers.length; i++) {
+            const texto = (await headers[i].textContent())?.trim() ?? '';
+            if (texto.toLowerCase().includes(nombreColumna.toLowerCase())) {
+                colIndex = i;
+                break;
+            }
+        }
+        if (colIndex === -1) throw new Error(`Columna "${nombreColumna}" no encontrada en la grilla`);
+        const celdas = await this.page.locator(`tbody tr td:nth-child(${colIndex + 1})`).all();
+        const valores: string[] = [];
+        for (const celda of celdas) {
+            valores.push((await celda.textContent())?.trim() ?? '');
+        }
+        return valores;
+    }
+
+    async obtenerIdentificadoresPrimeraPagina(): Promise<string[]> {
+        const filas = await this.page.locator('tbody tr').all();
+        const ids: string[] = [];
+        for (const fila of filas) {
+            const serie = await fila.locator('td').nth(3).textContent() ?? '';
+            const correlativo = await fila.locator('td').nth(4).textContent() ?? '';
+            if (serie.trim() && correlativo.trim()) {
+                ids.push(`${serie.trim()}-${correlativo.trim()}`);
+            }
+        }
+        return ids;
+    }
+
+    async ordenarPorColumna(nombreColumna: string): Promise<void> {
+        const header = this.page.locator('thead th').filter({hasText: nombreColumna}).first();
+        await header.click();
+        await esperarCargaOverlay(this.page);
+    }
+
+    get btnSiguiente(): Locator {
+        return this.page.getByText('Siguiente').first();
+    }
+
+    async irAPaginaSiguiente(): Promise<boolean> {
+        const habilitado = await this.btnSiguiente.isEnabled({timeout: 5_000}).catch(() => false);
+        if (!habilitado) return false;
+        await this.btnSiguiente.click();
+        await esperarCargaOverlay(this.page);
+        return true;
+    }
+
+    async abrirAccionesDeComprobante(numeroCompleto: string): Promise<void> {
+        const fila = this.obtenerFilaPorNumero(numeroCompleto);
+        await fila.waitFor({state: 'visible', timeout: 10_000});
+        await fila.locator('.cmp-dropdown').click();
+    }
+
+    async seleccionarAccion(nombreAccion: string): Promise<void> {
+        await this.page.getByText(nombreAccion, {exact: true}).click();
+    }
+
+    async validarAccionVisible(nombreAccion: string): Promise<void> {
+        await expect(
+            this.page.getByText(nombreAccion, {exact: true}),
+        ).toBeVisible({timeout: 5_000});
+    }
+
+    async validarAccionOculta(nombreAccion: string): Promise<void> {
+        await expect(
+            this.page.getByText(nombreAccion, {exact: true}),
+        ).not.toBeVisible({timeout: 3_000});
+    }
+
+    async validarOpcionesGenerarComprobante(opciones: string[]): Promise<void> {
+        for (const opcion of opciones) {
+            await expect(this.page.getByText(opcion, {exact: true})).toBeVisible({timeout: 5_000});
+        }
+    }
+
+    async abrirGenerarComprobante(tipoComprobante: string, nombreCaja: string): Promise<Page> {
+        const normalized = tipoComprobante.toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .replace(/\bde\b/g, '')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+        const optionId = `pv_comprobantes_cmp-grid-comprobantes_cmp-grid-comprobantes-body_cmp-grid-comprobantes-body-options_generar-comprobante_li:${normalized}`;
+        await this.page.locator(`[id="${optionId}"]`).click();
+        await this.page.locator('.cmp-card-caja').filter({hasText: nombreCaja}).click();
+        const popupPromise = this.page.waitForEvent('popup');
+        await this.page.getByRole('button', {name: 'Continuar'}).click();
+        return popupPromise;
+    }
+
+    async abrirConfiguracionColumnas(): Promise<void> {
+        await this.page.locator('.v-icon-head-plus > .icon').click();
+    }
+
+    async configurarColumna(categoria: string, campoId: string, activar: boolean): Promise<void> {
+        const itemId = `pv_cmp-comprobantes:cmp-grid-comprobantes-header-options_select-columns:item-${categoria}-${campoId}`;
+        const checkbox = this.page.locator(`[id="${itemId}"]`).locator('label');
+        const isChecked = await this.page.locator(`[id="${itemId}"] input`).isChecked().catch(() => false);
+
+        if (activar && !isChecked) await checkbox.click();
+        if (!activar && isChecked) await checkbox.click();
+    }
+
+    async guardarConfiguracionColumnas(): Promise<void> {
+        await this.page.locator(
+            '[id="pv_cmp-comprobantes:cmp-grid-comprobantes-header-options_v-button:guardar-configuracion"]',
+        ).click();
+        await esperarCargaOverlay(this.page);
+        // El panel se cierra automáticamente al guardar + overlay
+    }
+
+    async abrirVerComprobanteDesdeMenu(): Promise<Page> {
+        const popupPromise = this.page.waitForEvent('popup');
+        await this.page.getByRole('link', {name: 'Ver comprobante'}).click();
+        const popupPage = await popupPromise;
+        await esperarCargaOverlay(popupPage);
+        return popupPage;
+    }
+
+    async emitirGuiaRemisionGuardada(): Promise<void> {
+        await this.page.getByText('Emitir', {exact: true}).click();
+        await this.page.getByRole('button', {name: 'Emitir'}).click();
+        await esperarCargaOverlay(this.page);
+    }
+
+    async confirmarEliminacion(motivo: string): Promise<void> {
+        await this.page.locator('div').filter({hasText: /^Seleccionar$/}).nth(3).click();
+        await this.page.getByText(motivo).click();
+        await this.page.getByRole('button', {name: 'Anular'}).click();
+        await esperarCargaOverlay(this.page);
+    }
+
+    async cerrarModalExito(): Promise<void> {
+        await this.page.locator('.v-modal > .icon').click();
+    }
+
+    async clonarHaciaCaja(nombreCaja: string): Promise<void> {
+        await this.seleccionarAccion('Clonar comprobante');
+        await this.page.getByText(nombreCaja, {exact: true}).click();
+    }
+
+    async validarBitacoraContiene(comprobante: import('@helpers/PuntoVenta/busqueda-comprobantes.data').ComprobanteInfo, eventos: string[]): Promise<void> {
+        await this.abrirAcciones(comprobante);
+        await this.abrirBitacora();
+        for (const evento of eventos) {
+            await import('@playwright/test').then(({expect}) =>
+                expect(this.page.locator('body')).toContainText(evento, {timeout: 25_000}),
+            );
+        }
+        await this.cerrarBitacora();
+    }
+
+    async ir(): Promise<void> {
+        await this.page.goto('/punto-venta/comprobantes');
+        await esperarCargaOverlay(this.page);
+    }
+
+    async buscarPorSerieCorrelativo(comprobante: import('../../helpers/PuntoVenta/busqueda-comprobantes.data').ComprobanteInfo): Promise<void> {
+        await this.abrirFiltrosAvanzados();
+        await this.filtrarPorCorrelativos(comprobante.correlativo);
+    }
+
+    async abrirAcciones(comprobante: import('../../helpers/PuntoVenta/busqueda-comprobantes.data').ComprobanteInfo): Promise<void> {
+        const row = this.page.locator('tr').filter({hasText: comprobante.numeroCompleto});
+        await row.locator('.dropdown-toggle, [class*="v-dropdown"]').first().click();
+    }
+
+    estadoDe(comprobante: import('../../helpers/PuntoVenta/busqueda-comprobantes.data').ComprobanteInfo) {
+        const row = this.page.locator('tr').filter({hasText: comprobante.numeroCompleto});
+        return row.locator('td.celda-estado .chip-text, td:nth-child(8) .chip-text').first();
+    }
 }
+
