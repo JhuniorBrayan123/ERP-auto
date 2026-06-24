@@ -26,7 +26,7 @@ export const VincularComprobanteTargets = {
         page.getByText(/datos del comprobante a/i),
 
     btnVincularYCrearNC: (page: Page) =>
-        page.locator('[id="pv_cmp-nota-credito_modals_cmp-vincular-comprobante_cmp-resumen-comprobante_v-button:vincular"]').click(),
+        page.locator('[id="pv_cmp-nota-credito_modals_cmp-vincular-comprobante_cmp-resumen-comprobante_v-button:vincular"]'),
 
     mensajeNoEncontrado: (page: Page) =>
         page.getByText(/no se encontró el comprobante con los datos ingresados/i),

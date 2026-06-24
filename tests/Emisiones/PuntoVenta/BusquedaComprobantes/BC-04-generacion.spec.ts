@@ -82,7 +82,7 @@ test.describe('BC-12 | Generar nota de crédito desde una factura', () => {
             );
 
             await test.step('And: vincular la factura original en el popup', async () => {
-                await VincularComprobanteTargets.btnVincularYCrearNC(popupPage);
+                await VincularComprobanteTargets.btnVincularYCrearNC(popupPage).click();
                 await expect(VincularComprobanteTargets.datosComprobanteCargado(popupPage))
                     .toBeVisible({timeout: 15_000});
             });
