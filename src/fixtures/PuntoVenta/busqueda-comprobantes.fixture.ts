@@ -23,7 +23,7 @@ export function resolveActiveStorageState(): string {
     if (existsSync(authDir)) {
         const files = readdirSync(authDir).filter(
             f => f.endsWith('.json')
-                && f.startsWith('user.')                         // solo archivos de auth
+                && f.startsWith('user.')                         
                 && !f.includes('placeholder')
                 && !f.endsWith('{}.json'),
         );
@@ -115,7 +115,7 @@ export async function crearBoletaConDatosOpcionales(page: Page): Promise<Comprob
     await emisionPage.buscarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
     await emisionPage.seleccionarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
 
-    // Llenar datos opcionales antes de emitir (como en PV-01.5)
+    
     await datosOpcionalesPage.abrirDatosOpcionales();
     await datosOpcionalesPage.llenarDatosOpcionales(CLIENTES.PERSONA_AUTO);
     await esperarCargaOverlay(page);

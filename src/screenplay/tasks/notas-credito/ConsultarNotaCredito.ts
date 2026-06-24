@@ -2,23 +2,15 @@ import { expect, type Page } from '@playwright/test';
 import { BusquedaComprobantesTargets } from '../../targets/common/BusquedaComprobantesTargets';
 
 export interface ResultadoConsultaNC {
-  /** Número de comprobante encontrado en la grilla */
+  
   visible: boolean;
-  /** Tipo confirmado en detalle */
+  
   tipoDocumento: string;
-  /** Tiene comprobante vinculado */
+  
   tieneComprobanteVinculado: boolean;
 }
 
-/**
- * Task: Consultar Nota de Crédito en Búsqueda de Comprobantes
- *
- * Navega a la pantalla de búsqueda, filtra por tipo NC y correlativo,
- * y retorna información básica del resultado.
- *
- * Usa el BusquedaComprobantesPage existente para la navegación
- * (reutilización inteligente de lo ya construido).
- */
+
 export const ConsultarNotaCredito = (correlativo: string) => {
   const fn = async (page: Page): Promise<void> => {
 
@@ -46,10 +38,7 @@ export const ConsultarNotaCredito = (correlativo: string) => {
   return fn;
 };
 
-/**
- * Task: Ver Detalle de Nota de Crédito (abre popup)
- * Retorna la instancia de la página popup para hacer assertions.
- */
+
 export const VerDetalleNotaCredito = () => {
   const fn = async (page: Page): Promise<Page> => {
     await BusquedaComprobantesTargets.dropdownPrimerComprobante(page).click();

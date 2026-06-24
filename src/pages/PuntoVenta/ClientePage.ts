@@ -142,7 +142,7 @@ export class ClientePage {
         await this.abrirFormCrearCliente();
         await this.seleccionarTipoDocumento('Carnet Extranjeria');
         await this.llenarDocumento(datos.documento);
-        // Intentar llenar el nombre según el label o el placeholder
+        
         const inputNombre = this.page.getByRole('textbox', {name: 'Ej. Ladrillería Distribuidora'})
         await inputNombre.first().click();
         await inputNombre.first().fill(datos.nombre);

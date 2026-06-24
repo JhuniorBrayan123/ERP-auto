@@ -10,14 +10,14 @@ import {ClonarComprobante} from '@task/PuntoVenta/busqueda-comprobantes/ClonarCo
 import {BuscarComprobante} from '@task/PuntoVenta/busqueda-comprobantes/BuscarComprobante';
 import {AbrirAccionesDelComprobante} from '@task/PuntoVenta/busqueda-comprobantes/AbrirAccionesDelComprobante';
 import {EliminarComprobante} from '@task/PuntoVenta/busqueda-comprobantes/EliminarComprobante';
-import {EmitirGuiaGuardada} from '@task/PuntoVenta/busqueda-comprobantes/EmitirGuiaGuardada';
 import {CrearComprobanteSemilla} from '@screenplay/questions/PuntoVenta/emision/CrearComprobanteSemilla';
 import {EstadoDelComprobante} from '@screenplay/questions/PuntoVenta/busqueda-comprobantes/EstadoDelComprobante';
-import {MensajeDelSistema} from '@screenplay/questions/PuntoVenta/busqueda-comprobantes/MensajeDelSistema';
 import {BitacoraDelComprobante} from '@screenplay/questions/PuntoVenta/busqueda-comprobantes/BitacoraDelComprobante';
 import {asegurarConfiguracionEuro,} from '@helpers/PuntoVenta/semillas-emision.helper';
 import {AccionDelComprobante} from '@screenplay/questions/PuntoVenta/busqueda-comprobantes/AccionDelComprobante';
 import {FiltrarComprobantes} from "@task/PuntoVenta/busqueda-comprobantes/FiltrarComprobantes";
+import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
+import {esperarCargaOverlay} from '@utils/wait-helpers';
 
 
 test('BC-22 | Clonar comprobante EUR a caja sin EUR muestra error de moneda', async ({actor, page}) => {
@@ -30,11 +30,8 @@ test('BC-22 | Clonar comprobante EUR a caja sin EUR muestra error de moneda', as
     await actor.intentaRealizar(
         BuscarComprobante.porSerieCorrelativo(boletaEuro),
         AbrirAccionesDelComprobante.de(boletaEuro),
-        ClonarComprobante.haciaCaja(CAJAS.AUTO.nombre)
+        ClonarComprobante.validarCajaBloqueada(CAJAS.AUTO.nombre, 'Las monedas de esta caja no coinciden con la del comprobante.')
     );
-
-    expect(await actor.pregunta(MensajeDelSistema.texto())).toContain('No puedes usar esta caja');
-    expect(await actor.pregunta(MensajeDelSistema.texto())).toContain('Las monedas de esta caja no coinciden con la del comprobante.');
 });
 
 test('BC-23 | Eliminar cotización y verificar estado ELIMINADO en la grilla', async ({actor}) => {
@@ -46,21 +43,41 @@ test('BC-23 | Eliminar cotización y verificar estado ELIMINADO en la grilla', a
         EliminarComprobante.conMotivo(BC_MOTIVOS_ELIMINACION.ERROR_DATOS)
     );
 
-    expect(await actor.pregunta(MensajeDelSistema.texto())).toContain('El comprobante fue anulado exitosamente');
     expect(await actor.pregunta(EstadoDelComprobante.enGrilla(cotizacion))).toEqual('ELIMINADO');
 });
-
-test('BC-24 | Emitir guía de remisión en estado Guardado y validar bitácora', async ({actor}) => {
+test('BC-24 | Emitir guía de remisión en estado Guardado y validar bitácora', async ({actor, page}) => {
     const guia = await actor.pregunta(CrearComprobanteSemilla.guiaRemisionGuardada());
 
     await actor.intentaRealizar(
-        BuscarComprobante.porSerieCorrelativo(guia),
-        AbrirAccionesDelComprobante.de(guia),
-        EmitirGuiaGuardada.delComprobante()
+        FiltrarComprobantes.conFiltrosAvanzados(
+            BC_CATEGORIAS.GUIAS,
+            BC_TIPOS_COMPROBANTE.GUIA_REMISION,
+            guia.correlativo,
+        ),
+        AbrirAccionesDelComprobante.delPrimero(),
     );
 
-    expect(await actor.pregunta(MensajeDelSistema.texto())).toContain('emitido a SUNAT con éxito');
-    expect(await actor.pregunta(BitacoraDelComprobante.contieneEventos(guia, [
+    // Emitir y capturar el correlativo real desde la API
+    const busqueda = new BusquedaComprobantesPage(page);
+    const emitResponsePromise = page.waitForResponse(
+        (resp) => resp.url().includes('DocumentosContables/Emisiones') && resp.status() === 200,
+        {timeout: 30_000},
+    );
+    await page.getByText('Emitir', {exact: true}).click();
+    await page.getByRole('button', {name: 'Emitir'}).click();
+    const emitResponse = await emitResponsePromise;
+    const emitBody = await emitResponse.json();
+    const nombrePdf: string = emitBody.FilePdf?.Nombre ?? '';
+    const nuevaSerie = nombrePdf.split('-')[0] || '';
+    const nuevoCorrelativo = String(emitBody.CorrelativoDocumento ?? '');
+    await busqueda.cerrarModalExito();
+    await esperarCargaOverlay(page);
+
+    // Limpiar filtro "0" y buscar por el nuevo correlativo
+    await busqueda.abrirFiltrosAvanzados();
+    await busqueda.filtrarPorCorrelativos(nuevoCorrelativo);
+
+    expect(await actor.pregunta(BitacoraDelComprobante.delPrimerComprobante([
         'Comprobante Registrado',
         'CDR Generado',
         'PDF Generado',

@@ -15,4 +15,17 @@ export class BitacoraDelComprobante {
         };
         return fn;
     }
+
+    static delPrimerComprobante(eventos: string[]) {
+        const fn = async (page: Page): Promise<boolean> => {
+            const busqueda = new BusquedaComprobantesPage(page);
+            try {
+                await busqueda.validarBitacoraDelPrimerComprobante(eventos);
+                return true;
+            } catch {
+                return false;
+            }
+        };
+        return fn;
+    }
 }

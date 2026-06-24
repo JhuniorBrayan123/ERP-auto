@@ -1,29 +1,15 @@
-/**
- * Factories de semillas para los tests de Búsqueda de Comprobantes.
- *
- * Responsabilidad única: crear comprobantes en el estado correcto y
- * retornar un objeto ComprobanteInfo que el spec usa como fuente de verdad.
- *
- * Las funciones aquí NO pertenecen a ningún Page Object porque combinan
- * múltiples POs para completar un flujo de negocio de preparación.
- * Son helpers de setup, no de producción.
- */
-
 import {type Page} from '@playwright/test';
 import {CajaPage} from '@pages/PuntoVenta/CajaPage';
 import {ComprobantePage} from '@pages/PuntoVenta/ComprobantePage';
 import {ClientePage} from '@pages/PuntoVenta/ClientePage';
 import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
+import {GuiaRemitentePage} from '@pages/PuntoVenta/guias-remision/GuiaRemitentePage';
+import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 import {CAJAS, CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {esperarCargaOverlay} from '@utils/wait-helpers';
 import type {ComprobanteInfo} from '@helpers/PuntoVenta/busqueda-comprobantes.data';
 
-// ---------------------------------------------------------------------------
-// Helpers internos
-// ---------------------------------------------------------------------------
-
-/** Navega al PV de una caja y se asegura de que esté abierta. */
 async function irACaja(page: Page, caja: CajaPage): Promise<void> {
     await page.goto('/');
     await page.getByText('Ventas y compras').click();
@@ -31,22 +17,18 @@ async function irACaja(page: Page, caja: CajaPage): Promise<void> {
     await caja.asegurarCajaAbierta();
 }
 
-/** Extrae serie y correlativo del número completo y construye el objeto base. */
+
 function buildInfo(tipo: string, numeroCompleto: string, cliente: string, estado?: string): ComprobanteInfo {
     const [serie, correlativo] = numeroCompleto.split('-');
     return {tipo, serie: serie ?? '', correlativo: correlativo ?? '', numeroCompleto, cliente, estado};
 }
 
-// ---------------------------------------------------------------------------
-// Semilla: Cotización (para BC-23 – eliminar)
-// ---------------------------------------------------------------------------
-
 export async function crearCotizacionSemilla(page: Page): Promise<ComprobanteInfo> {
-    const caja        = new CajaPage(page, CAJAS.VENTA.nombre);
+    const caja = new CajaPage(page, CAJAS.VENTA.nombre);
     const comprobante = new ComprobantePage(page);
-    const cliente     = new ClientePage(page);
-    const emision     = new EmisionPage(page);
-    const post        = new PostEmisionPage(page);
+    const cliente = new ClientePage(page);
+    const emision = new EmisionPage(page);
+    const post = new PostEmisionPage(page);
 
     await irACaja(page, caja);
     await comprobante.seleccionarCotizacion();
@@ -56,22 +38,18 @@ export async function crearCotizacionSemilla(page: Page): Promise<ComprobanteInf
         CLIENTES.PERSONA_DNI.documento,
         `DNIDoc. Nacional de Identidad${CLIENTES.PERSONA_DNI.documento}99999999${CLIENTES.PERSONA_DNI.nombre}`,
     );
-    await emision.guardarPedido();
+    await emision.clickPagar();
     const num = await post.obtenerCorrelativoDinamico();
     await emision.clickNuevaVenta();
     return buildInfo('Cotización', num, CLIENTES.PERSONA_DNI.nombre);
 }
 
-// ---------------------------------------------------------------------------
-// Semilla: Boleta emitida (para BC-25 – validar que "Emitir" NO aparece)
-// ---------------------------------------------------------------------------
-
 export async function crearBoletaEmitidaSemilla(page: Page): Promise<ComprobanteInfo> {
-    const caja        = new CajaPage(page, CAJAS.VENTA.nombre);
+    const caja = new CajaPage(page, CAJAS.VENTA.nombre);
     const comprobante = new ComprobantePage(page);
-    const cliente     = new ClientePage(page);
-    const emision     = new EmisionPage(page);
-    const post        = new PostEmisionPage(page);
+    const cliente = new ClientePage(page);
+    const emision = new EmisionPage(page);
+    const post = new PostEmisionPage(page);
 
     await irACaja(page, caja);
     await comprobante.seleccionarBoleta();
@@ -87,100 +65,70 @@ export async function crearBoletaEmitidaSemilla(page: Page): Promise<Comprobante
     return buildInfo('Boleta', num, CLIENTES.PERSONA_DNI.nombre, 'EMITIDO');
 }
 
-// ---------------------------------------------------------------------------
-// Semilla: Guía de Remisión guardada (para BC-24 y BC-25b)
-// ---------------------------------------------------------------------------
-
-/** Datos del conductor de prueba configurado en el ambiente. */
-const CONDUCTOR_DNI      = '75652545';
+const CONDUCTOR_DNI = '75652545';
 const CONDUCTOR_SELECTOR = 'DNI75652545Conductor automatizado qa';
-const PLACA_VEHICULO     = 'ABC123';
-const LICENCIA_VEHICULO  = 'A12345678';
-const REGISTRO_MTC       = 'MTC123';
-const DNI_DESTINATARIO   = '76975258';
+const PLACA_VEHICULO = 'ABC123';
+const LICENCIA_VEHICULO = 'A12345678';
+const REGISTRO_MTC = 'MTC123';
+const DNI_DESTINATARIO = '76975258';
 
 export async function crearGuiaRemisionGuardada(page: Page): Promise<ComprobanteInfo> {
-    const caja        = new CajaPage(page, CAJAS.VENTA.nombre);
+    const caja = new CajaPage(page, CAJAS.VENTA.nombre);
     const comprobante = new ComprobantePage(page);
-    const emision     = new EmisionPage(page);
-    const post        = new PostEmisionPage(page);
+    const emision = new EmisionPage(page);
+    const post = new PostEmisionPage(page);
+    const guia = new GuiaRemitentePage(page);
 
     await irACaja(page, caja);
+    await esperarCargaOverlay(page);
 
-    await page.locator('.v-select-small-value').first().click(); // Click on the active type to open the dropdown
+    await comprobante.abrirSelectorTipo();
     await page.locator(
         '[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-header_v-select:tipo-comprobante_v-option:opcion-3005"]',
     ).click();
+    await guia.esperarFormularioEstable();
+
+    await guia.seleccionarDestinatario(DNI_DESTINATARIO, DNI_DESTINATARIO);
+
+    await guia.completarPuntoPartidaYLlegada(
+        'arequipa - Arequipa - Arequipa',
+        'juliaca - San Roman - Puno',
+        'arequipa-automatización',
+        'juliaca-automatización',
+    );
+
+    await guia.seleccionarConductor(CONDUCTOR_DNI);
+    await guia.completarPlacaYLicencia(PLACA_VEHICULO, LICENCIA_VEHICULO);
+
+    await guia.seleccionarTransportista(CLIENTES.EMPRESA_RUC_AUTO.documento);
+    await guia.completarMTC(REGISTRO_MTC);
+
+    await guia.buscarYSeleccionarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
+    await guia.definirPesoTotal('Kg', '10');
+
+    
+    await guia.guardarGuia();
     await esperarCargaOverlay(page);
-
-    // Destinatario
-    await page.locator(
-        '[id="pv_cmp-guia-remision-remitente_cmp-card-destinatario:form-destino_v-input:filtrar-entidad"]',
-    ).fill(DNI_DESTINATARIO);
-    await page.locator(
-        '[id="pv_cmp-guia-remision-remitente_cmp-card-destinatario:form-destino_item:seleccion-entidad_div-0"]',
-    ).click();
-
-    // Ubigeo inicio
-    await page.getByRole('article').filter({hasText: 'Datos de inicio de'}).locator('input[type="text"]').fill('arequipa');
-    await page.getByText('- Arequipa - Arequipa - Arequipa').click();
-
-    // Ubigeo destino
-    await page.getByRole('textbox', {name: 'Busca por distrito, ciudad,'}).fill('juliaca');
-    await page.getByText('- Juliaca - San Roman - Puno').click();
-
-    // Dirección destino
-    await page.locator(
-        '[id="pv_cmp-guia-remision-remitente_cmp-card-destinatario:form-destino_v-input:direccion-destino"]',
-    ).fill('juliaca-automatización');
-
-    // Conductor
-    await page.locator(
-        '[id="pv_cmp-guia-remision-remitente_cmp-card-transporte:form-transporte-conductor_v-input:filtrar-entidad"]',
-    ).fill(CONDUCTOR_DNI);
-    await page.getByText(CONDUCTOR_SELECTOR).click();
-
-    // Vehículo
-    await page.getByRole('textbox', {name: 'Ej. A1A000'}).fill(PLACA_VEHICULO);
-    await page.getByRole('textbox', {name: 'Ej. A23456723'}).fill(LICENCIA_VEHICULO);
-
-    // Transportista
-    await page.getByRole('textbox', {name: 'Digite N° de documento'}).fill(CLIENTES.EMPRESA_RUC_AUTO.documento);
-    await page.getByText(CLIENTES.EMPRESA_RUC_AUTO.textoSelector).click();
-
-    // Registro MTC
-    await page.locator(
-        '[id="pv_cmp-guia-remision-remitente_cmp-card-transporte:form-transporte_v-input:registro-mtc"]',
-    ).fill(REGISTRO_MTC);
-
-    // Producto y peso
-    await emision.buscarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
-    await emision.seleccionarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
-    await page.getByRole('textbox', {name: 'Kg'}).fill('10');
-
-    // GUARDAR (no emitir) → estado Guardado
-    await page.getByRole('button', {name: 'Guardar', exact: true}).click();
+    await page.waitForURL('**/punto-venta/comprobantes', {timeout: 20_000});
     await esperarCargaOverlay(page);
+    await page.locator('tbody tr').first().waitFor({state: 'visible', timeout: 15_000});
 
-    const num = await post.obtenerCorrelativoDinamico();
-    return buildInfo('Guía de Remisión', num, CLIENTES.PERSONA_DNI.nombre, 'GUARDADO');
+    const busqueda = new BusquedaComprobantesPage(page);
+    const ids = await busqueda.obtenerIdentificadoresPrimeraPagina();
+    const numero = ids.length > 0 ? ids[0] : '0-0';
+
+    return buildInfo('Guía de Remisión', numero, CLIENTES.PERSONA_DNI.nombre, 'GUARDADO');
 }
 
-// ---------------------------------------------------------------------------
-// Semilla: Boleta en EURO (para BC-22 – clonar a caja sin EUR)
-// ---------------------------------------------------------------------------
 
-/**
- * Asegura que la moneda EURO existe en el sistema y que la caja de venta
- * la tiene habilitada. Es idempotente (no falla si ya existe).
- */
 export async function asegurarConfiguracionEuro(page: Page, codigoItemPV: string): Promise<void> {
-    // 1. Ir a Impuestos y monedas
+
     await page.goto('/configuracion/sistema/sucursales');
-    await page.getByRole('link', {name: 'Impuestos y monedas'}).click();
     await esperarCargaOverlay(page);
 
-    // 2. Crear EURO si no existe
+    await page.locator('[id="cfg_cmp-menu-configuracion.v-button:menu-1-0"]').click();
+    await esperarCargaOverlay(page);
+
     const eurVisible = await page.getByText('EUROS', {exact: true}).isVisible({timeout: 3_000}).catch(() => false);
     if (!eurVisible) {
         await page.getByRole('button', {name: 'Crear moneda'}).click();
@@ -190,19 +138,26 @@ export async function asegurarConfiguracionEuro(page: Page, codigoItemPV: string
         await page.locator('.v-modal > div').first().click();
     }
 
-    // 3. Habilitar EURO en la caja de venta
-    await page.getByRole('link', {name: 'Caja de ventas'}).click();
+    await page.locator('[id="cfg_cmp-menu-configuracion.v-button:menu-1-2"]').click();
     await esperarCargaOverlay(page);
-    await page.locator('[id*="cmp_dropdown:opciones-0-0"]').first().click();
-    await page.locator('[id*="editar-caja-0-0"]').click();
-    await esperarCargaOverlay(page);
-    await page.locator('div').filter({hasText: /^Monedas$/}).click();
-    const switchEuro = page.locator('tr:nth-child(3) > .celda.celda-activar .slider');
-    if (await switchEuro.isVisible()) await switchEuro.click();
-    await page.getByRole('button', {name: 'Editar caja de ventas'}).click();
-    await page.locator('.v-modal > div').first().click();
 
-    // 4. Crear lista de precios EURO en el producto y asignar precio
+    await page.locator('[id="lgt_reg-item_v-tab:variantes-item_cmp-dropdown:opciones-0-0"]').first().click();
+    await page.locator('[id="config_cmp-configuracion-caja-item:caja-venta_cmp_dropdown:editar-caja-0-0"]').click();
+    await esperarCargaOverlay(page);
+
+    await page.locator('[id="config_cmp-configuracion-caja-ventas_drapes_registro-configuracion-caja.card-moneda"]').click();
+
+    const euroRow = page.locator('.fila.fila-body').filter({hasText: 'EUROS'});
+    const euroSwitchCheckbox = euroRow.locator('.v-switch input[type="checkbox"]');
+    const isActive = await euroSwitchCheckbox.isChecked();
+    if (!isActive) {
+        await euroRow.locator('.slider').click();
+    }
+
+    await page.locator('[id="config_registro-configuracion-caja:caja-venta_v_button:registrar-caja"]').click();
+    await esperarCargaOverlay(page);
+    await page.locator('.v-modal.is-open > .icon').click();
+
     await page.getByText('Productos y servicios').click();
     await page.locator('[id*="select-module-203-item-2007"]').click();
     await esperarCargaOverlay(page);
@@ -222,7 +177,7 @@ export async function asegurarConfiguracionEuro(page: Page, codigoItemPV: string
         await page.locator('.v-modal > div').first().click();
     }
 
-    // Asignar precio EUR al producto
+    
     const inputPrecioEur = page.getByRole('textbox', {name: 'Monto final'}).nth(2);
     await inputPrecioEur.click();
     await inputPrecioEur.fill('15.42');
@@ -230,20 +185,15 @@ export async function asegurarConfiguracionEuro(page: Page, codigoItemPV: string
     await page.locator('.v-modal > div').first().click();
 }
 
-/**
- * Emite una boleta en EURO desde la caja de venta.
- * Precondición: `asegurarConfiguracionEuro` debe haberse ejecutado antes.
- */
 export async function crearBoletaEnEuro(page: Page): Promise<ComprobanteInfo> {
-    const caja        = new CajaPage(page, CAJAS.VENTA.nombre);
+    const caja = new CajaPage(page, CAJAS.VENTA.nombre);
     const comprobante = new ComprobantePage(page);
-    const cliente     = new ClientePage(page);
-    const emision     = new EmisionPage(page);
-    const post        = new PostEmisionPage(page);
+    const cliente = new ClientePage(page);
+    const emision = new EmisionPage(page);
+    const post = new PostEmisionPage(page);
 
     await irACaja(page, caja);
 
-    // Cambiar lista de precios a EURO
     await page.getByText('Precio estándar (S/)').first().click();
     await page.getByText('Precio euros (€)').click();
 

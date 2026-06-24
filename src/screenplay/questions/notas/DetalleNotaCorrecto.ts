@@ -1,15 +1,7 @@
 import {expect, type Page} from '@playwright/test';
 import {BusquedaComprobantesTargets} from '../../targets/common/BusquedaComprobantesTargets';
 
-/**
- * Question: ¿El comprobante emitido aparece en la búsqueda con los datos correctos?
- *
- * Verifica en la vista detalle del comprobante que:
- * - El tipo de documento es correcto (NC o ND)
- * - Tiene el texto de comprobante vinculado (o SIN REFERENCIA)
- * - El motivo aparece correctamente
- * - El cliente correcto
- */
+
 export interface DatosEsperadosDetalleNC {
     tipoDocumento: 'Nota de crédito electrónica';
     tieneComprobanteVinculado?: boolean;

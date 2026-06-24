@@ -26,7 +26,7 @@ export const test = validacionTest.extend<ComprobanteNCNDFixtures>({
     },
 });
 
-// Asegurar caja abierta antes de cada test (el pvNav auto del fixture padre ya navegó a POS)
+
 test.beforeEach(async ({cajaPage}) => {
     await cajaPage.asegurarCajaAbierta();
 });

@@ -6,9 +6,18 @@ export class AbrirAccionesDelComprobante {
     static de(comprobante: ComprobanteInfo) {
         const fn = async (page: Page) => {
             const busqueda = new BusquedaComprobantesPage(page);
-            await busqueda.abrirAcciones(comprobante);
+            await busqueda.abrirAccionesDeComprobante(comprobante.numeroCompleto);
         };
         fn.displayName = `Abrir acciones del comprobante ${comprobante.numeroCompleto}`;
+        return fn;
+    }
+
+    static delPrimero() {
+        const fn = async (page: Page) => {
+            const busqueda = new BusquedaComprobantesPage(page);
+            await busqueda.abrirAccionesDelPrimerComprobante();
+        };
+        fn.displayName = 'Abrir acciones del primer comprobante';
         return fn;
     }
 }

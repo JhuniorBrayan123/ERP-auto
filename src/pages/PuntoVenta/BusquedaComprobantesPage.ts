@@ -402,7 +402,7 @@ export class BusquedaComprobantesPage {
             await btn.waitFor({state: 'visible', timeout: 10_000});
             await btn.click();
         } catch {
-            // Si el botón no aparece, asumir que los filtros ya están abiertos
+
         }
     }
 
@@ -449,7 +449,8 @@ export class BusquedaComprobantesPage {
         );
         const input = this.page.getByRole('textbox', {name: 'Correlativo'});
         await input.click();
-        await input.fill(correlativo.replace(/^0+/, ''));
+        const valorFiltro = correlativo.replace(/^0+/, '') || '0';
+        await input.fill(valorFiltro);
         await input.press('Enter');
         await consultaPromise.catch(() => {/* si el input aplica sin red, continuar */
         });
@@ -473,13 +474,13 @@ export class BusquedaComprobantesPage {
     }
 
     async filtrarPorMontoTotal(comparador: string, valor: string): Promise<void> {
-        // Click en el input "Buscar monto total" del header de la grilla
+
         await this.page.locator(
             '[id="pv_comprobantes_cmp-grid-comprobantes-header:grid-header_v-input:MontoTotalFormateado"]',
         ).click();
-        // Seleccionar el comparador (Mayor que, Menor que, etc.)
+
         await this.page.getByText(comparador, {exact: true}).click();
-        // Ingresar el valor en el input de Valor
+
         const inputValor = this.page.locator(
             '[id="pv_common_cmp-card-filter-number:filtro_v-input:valor"]',
         );
@@ -489,10 +490,22 @@ export class BusquedaComprobantesPage {
     }
 
     obtenerFilaPorNumero(numeroCompleto: string): Locator {
-        // Buscar solo por el correlativo (parte tras el guión) tal cual aparece en la grilla
         const partes = numeroCompleto.split('-');
-        const textoBusqueda = partes.length >= 2 ? partes[1].replace(/^0+/, '') : numeroCompleto;
-        return this.page.locator('tr').filter({hasText: textoBusqueda}).first();
+        if (partes.length >= 2) {
+            const correlativo = partes[1].replace(/^0+/, '');
+            // Correlativo real con dígitos → buscar por él (ej: "200" en "F001-00000200")
+            if (correlativo) {
+                return this.page.locator('tr').filter({hasText: correlativo}).first();
+            }
+            // Correlativo todo ceros ("0", "00000000") → buscar por la serie
+            // La grilla muestra serie y correlativo en columnas separadas (sin guión)
+            const serie = partes[0];
+            if (serie && serie !== '0') {
+                return this.page.locator('tr').filter({hasText: serie}).first();
+            }
+        }
+        // Fallback: primera fila visible (ya filtramos por tipo + categoría)
+        return this.page.locator('tbody tr').first();
     }
 
     async validarSinResultados(): Promise<void> {
@@ -562,13 +575,49 @@ export class BusquedaComprobantesPage {
     }
 
     async abrirAccionesDeComprobante(numeroCompleto: string): Promise<void> {
-        const fila = this.obtenerFilaPorNumero(numeroCompleto);
-        await fila.waitFor({state: 'visible', timeout: 10_000});
-        await fila.locator('.cmp-dropdown').click();
+        const partes = numeroCompleto.split('-');
+        const textoBusqueda = partes.length >= 2
+            ? (partes[1].replace(/^0+/, '') || partes[0] || numeroCompleto)
+            : numeroCompleto;
+
+        const filas = this.page.locator('tbody tr');
+        const dropdowns = this.page.locator(
+            '[id^="pv_comprobantes_cmp-grid-comprobantes_cmp-grid-comprobantes-body_cmp-grid-comprobantes-body-options_cmp-dropdown:"]',
+        );
+        const total = await filas.count();
+        for (let i = 0; i < total; i++) {
+            if ((await filas.nth(i).textContent() ?? '').includes(textoBusqueda)) {
+                await dropdowns.nth(i).waitFor({state: 'visible', timeout: 10_000});
+                await dropdowns.nth(i).click();
+                return;
+            }
+        }
+    }
+
+    async abrirAccionesDelPrimerComprobante(): Promise<void> {
+        const dropdown = this.page.locator(
+            '[id^="pv_comprobantes_cmp-grid-comprobantes_cmp-grid-comprobantes-body_cmp-grid-comprobantes-body-options_cmp-dropdown:"]',
+        ).first();
+        await dropdown.waitFor({state: 'visible', timeout: 10_000});
+        await dropdown.click();
+    }
+
+    async validarBitacoraDelPrimerComprobante(eventos: string[]): Promise<void> {
+        await this.abrirAccionesDelPrimerComprobante();
+        await this.abrirBitacora();
+        for (const evento of eventos) {
+            const {expect} = await import('@playwright/test');
+            await expect(this.page.locator('body')).toContainText(evento, {timeout: 25_000});
+        }
+        await this.cerrarBitacora();
     }
 
     async seleccionarAccion(nombreAccion: string): Promise<void> {
         await this.page.getByText(nombreAccion, {exact: true}).click();
+    }
+
+    async seleccionarAccionPorId(idAccion: string): Promise<void> {
+        await this.page.locator(`[id="${idAccion}"]`).click();
     }
 
     async validarAccionVisible(nombreAccion: string): Promise<void> {
@@ -621,7 +670,7 @@ export class BusquedaComprobantesPage {
             '[id="pv_cmp-comprobantes:cmp-grid-comprobantes-header-options_v-button:guardar-configuracion"]',
         ).click();
         await esperarCargaOverlay(this.page);
-        // El panel se cierra automáticamente al guardar + overlay
+
     }
 
     async abrirVerComprobanteDesdeMenu(): Promise<Page> {
@@ -651,11 +700,17 @@ export class BusquedaComprobantesPage {
 
     async clonarHaciaCaja(nombreCaja: string): Promise<void> {
         await this.seleccionarAccion('Clonar comprobante');
-        await this.page.getByText(nombreCaja, {exact: true}).click();
+        await this.page.locator('.cmp-card-caja').filter({hasText: nombreCaja}).click();
+    }
+
+    async validarCajaBloqueada(nombreCaja: string, mensaje: string): Promise<void> {
+        await this.seleccionarAccion('Clonar comprobante');
+        const card = this.page.locator('.cmp-card-caja.blocked').filter({hasText: nombreCaja});
+        await expect(card.locator('.blocked-caja')).toContainText(mensaje, {timeout: 10_000});
     }
 
     async validarBitacoraContiene(comprobante: import('@helpers/PuntoVenta/busqueda-comprobantes.data').ComprobanteInfo, eventos: string[]): Promise<void> {
-        await this.abrirAcciones(comprobante);
+        await this.abrirAccionesDeComprobante(comprobante.numeroCompleto);
         await this.abrirBitacora();
         for (const evento of eventos) {
             await import('@playwright/test').then(({expect}) =>
@@ -675,14 +730,9 @@ export class BusquedaComprobantesPage {
         await this.filtrarPorCorrelativos(comprobante.correlativo);
     }
 
-    async abrirAcciones(comprobante: import('../../helpers/PuntoVenta/busqueda-comprobantes.data').ComprobanteInfo): Promise<void> {
-        const row = this.page.locator('tr').filter({hasText: comprobante.numeroCompleto});
-        await row.locator('.dropdown-toggle, [class*="v-dropdown"]').first().click();
-    }
-
     estadoDe(comprobante: import('../../helpers/PuntoVenta/busqueda-comprobantes.data').ComprobanteInfo) {
-        const row = this.page.locator('tr').filter({hasText: comprobante.numeroCompleto});
-        return row.locator('td.celda-estado .chip-text, td:nth-child(8) .chip-text').first();
+        const row = this.obtenerFilaPorNumero(comprobante.numeroCompleto);
+        return row.locator('.label-estado-comprobante span').first();
     }
 }
 

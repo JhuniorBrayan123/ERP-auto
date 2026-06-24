@@ -15,12 +15,12 @@ export class Facturador {
         this._usarNavegador = usarNavegador;
     }
 
-    /** Factory principal: crea un Facturador con la habilidad de navegar */
+    
     static con(page: Page): Facturador {
         return new Facturador('Facturador', UsarNavegador.con(page));
     }
 
-    /** Named constructor para tests con nombre explícito */
+    
     static llamado(nombre: string): { con: (page: Page) => Facturador } {
         return {
             con: (page: Page) => new Facturador(nombre, UsarNavegador.con(page)),
@@ -31,10 +31,7 @@ export class Facturador {
         return this._usarNavegador.page;
     }
 
-    /**
-     * Ejecuta una o más tareas de negocio en secuencia.
-     * Cada tarea aparece como un test.step con su displayName.
-     */
+    
     async realiza(...tasks: Array<TaskFn>): Promise<void> {
         for (const task of tasks) {
             const nombre =
@@ -48,9 +45,7 @@ export class Facturador {
         }
     }
 
-    /**
-     * Ejecuta una tarea que retorna un valor (ej. número de comprobante emitido).
-     */
+    
     async realizaYObtiene<T>(task: TaskFnConRetorno<T>): Promise<T> {
         const nombre =
             (task as { displayName?: string }).displayName ||
@@ -62,10 +57,7 @@ export class Facturador {
         });
     }
 
-    /**
-     * Responde una pregunta sobre el estado del sistema.
-     * Retorna el valor leído (string, boolean, Record, etc.).
-     */
+    
     async pregunta<T>(question: QuestionFn<T>): Promise<T> {
         const nombre =
             (question as { displayName?: string }).displayName ||

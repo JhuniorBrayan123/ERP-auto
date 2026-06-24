@@ -4,14 +4,7 @@ import type { ResultadoEmisionNota } from './EmitirNotaCredito';
 
 export type { ResultadoEmisionNota };
 
-/**
- * Interaction: Emitir Nota de Débito con pago normal.
- *
- * Hace click en Emitir, selecciona Monto exacto, y confirma "Realizar Pago".
- * ND usa "Realizar Pago" (no "Realizar devolución y emitir" como NC).
- *
- * Retorna los datos del comprobante emitido capturados desde la API.
- */
+
 export const EmitirNotaDebitoConPago = () => {
   const fn = async (page: Page): Promise<ResultadoEmisionNota> => {
 

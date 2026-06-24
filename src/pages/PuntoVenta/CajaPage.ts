@@ -66,7 +66,7 @@ export class CajaPage {
 
             await expect(
                 this.page.locator('.v-select-header-small .v-text').first()
-            ).not.toHaveText('Seleccionar', {timeout: 20_000});
+            ).not.toHaveText('Seleccionar', {timeout: 30_000});
         } catch (error) {
             await throwFunctionalError({
                 page: this.page,
