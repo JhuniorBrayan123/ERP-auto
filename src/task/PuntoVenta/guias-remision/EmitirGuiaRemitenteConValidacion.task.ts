@@ -123,17 +123,19 @@ export const EmitirGuiaRemitenteConValidacionTask = (data: EmitirGuiaRemitenteCo
                 });
             }
 
-            if (data.items) {
-                for (let i = 0; i < data.items.length; i++) {
-                    await test.step(`Buscar y seleccionar ítem ${i + 1}: ${data.items[i].codigoONombre}`, async () => {
-                        await guiaPage.buscarYSeleccionarItem(data.items[i].codigoONombre);
+            const items = data.items;
+            if (items) {
+                for (let i = 0; i < items.length; i++) {
+                    await test.step(`Buscar y seleccionar ítem ${i + 1}: ${items[i].codigoONombre}`, async () => {
+                        await guiaPage.buscarYSeleccionarItem(items[i].codigoONombre);
                     });
                 }
             }
 
-            if (data.peso) {
-                await test.step(`Definir peso total: ${data.peso}`, async () => {
-                    await guiaPage.definirPesoTotal(data.peso.includes('.') ? 'Kg' : 'Tn', data.peso!);
+            const peso = data.peso;
+            if (peso) {
+                await test.step(`Definir peso total: ${peso}`, async () => {
+                    await guiaPage.definirPesoTotal(peso.includes('.') ? 'Kg' : 'Tn', data.peso!);
                 });
             }
 

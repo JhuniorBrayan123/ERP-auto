@@ -6,36 +6,23 @@ import { LlenarMotivoNotaCredito } from '../../interactions/notas/LlenarMotivoTe
 import { EmitirNotaCreditoConDevolucion, type ResultadoEmisionNota } from '../../interactions/notas/EmitirNotaCredito';
 
 export interface DatosCrearNotaCreditoSinReferencia {
-  /** Cliente al que se le emitirá la nota sin referencia */
+  
   cliente: DatosCliente & { textoSelector?: string };
-  /** Ítem que se agregará a la nota */
+  
   item: ItemVenta;
-  /** Texto libre del motivo */
+  
   textoMotivo: string;
-  /** Tipo de comprobante a referenciar manualmente (Factura/Boleta) */
+  
   tipoComprobanteReferencia: 'Factura' | 'Boleta';
-  /** Serie del comprobante de referencia */
+  
   serieReferencia: string;
-  /** Correlativo del comprobante de referencia */
+  
   correlativoReferencia: string;
-  /** Observaciones adicionales (opcional) */
+  
   observaciones?: string;
 }
 
-/**
- * Task: Crear Nota de Crédito SIN Referencia
- *
- * Flujo alternativo al de vinculación:
- * 1. Selecciona tipo comprobante → Nota de Crédito
- * 2. Elige "Emitir nota sin referencia"
- * 3. Llena el motivo
- * 4. Selecciona tipo de comprobante de referencia manual
- * 5. Ingresa serie y correlativo de referencia
- * 6. Emite con retorno
- *
- * NOTA: Este flujo requiere que el cliente ya esté seleccionado en el carrito
- * y que haya ítems agregados ANTES de llamar a este Task.
- */
+
 export const CrearNotaCreditoSinReferencia = (datos: DatosCrearNotaCreditoSinReferencia) => {
   const fn = async (page: Page): Promise<ResultadoEmisionNota> => {
 
@@ -50,7 +37,7 @@ export const CrearNotaCreditoSinReferencia = (datos: DatosCrearNotaCreditoSinRef
     const inputCliente = NotaCreditoTargets.inputBusquedaClienteSinRef(page);
     await inputCliente.click();
     await inputCliente.fill(datos.cliente.documento);
-    await page.waitForTimeout(800); // Wait for debounce
+    await page.waitForTimeout(800); 
     await page.getByText(datos.cliente.textoSelector || datos.cliente.nombre).click();
 
 
@@ -69,7 +56,7 @@ export const CrearNotaCreditoSinReferencia = (datos: DatosCrearNotaCreditoSinRef
     const inputItem = NotaCreditoTargets.inputBusquedaItemSinRef(page);
     await inputItem.click();
     await inputItem.fill(datos.item.codigo);
-    await page.waitForTimeout(800); // Wait for debounce
+    await page.waitForTimeout(800); 
     await page.getByText(datos.item.nombre).click();
 
     return EmitirNotaCreditoConDevolucion()(page);

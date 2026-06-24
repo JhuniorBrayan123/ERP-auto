@@ -6,12 +6,7 @@ export type MotivoNotaDebito =
   | 'Aumento en el valor'
   | 'Penalidades/ otros conceptos';
 
-/**
- * Interaction: Seleccionar Motivo de Nota de Débito.
- *
- * Abre el selector de tipo de ND y elige el motivo indicado.
- * Responsabilidad única: operar el dropdown de tipo de ND.
- */
+
 export const SeleccionarMotivoNotaDebito = (motivo: MotivoNotaDebito) => {
   const fn = async (page: Page): Promise<void> => {
 

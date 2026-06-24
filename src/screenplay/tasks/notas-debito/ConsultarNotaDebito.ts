@@ -1,9 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 import { BusquedaComprobantesTargets } from '../../targets/common/BusquedaComprobantesTargets';
 
-/**
- * Task: Consultar Nota de Débito en Búsqueda de Comprobantes.
- */
+
 export const ConsultarNotaDebito = (correlativo: string) => {
   const fn = async (page: Page): Promise<void> => {
     await page.locator('.icon').first().click();
@@ -28,9 +26,7 @@ export const ConsultarNotaDebito = (correlativo: string) => {
   return fn;
 };
 
-/**
- * Task: Ver Detalle de Nota de Débito (abre popup).
- */
+
 export const VerDetalleNotaDebito = () => {
   const fn = async (page: Page): Promise<Page> => {
     await BusquedaComprobantesTargets.dropdownPrimerComprobante(page).click();

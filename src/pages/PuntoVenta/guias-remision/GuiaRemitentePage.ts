@@ -133,7 +133,7 @@ export class GuiaRemitentePage {
         if (await enSeccionLlegada.isVisible().catch(() => false)) {
             return enSeccionLlegada;
         }
-        // Flujo COMPRA: el ubigeo de llegada puede quedar como único textbox visible
+        
         return this.page.getByRole('textbox', {name: this.nombreInputUbigeo}).last();
     }
 

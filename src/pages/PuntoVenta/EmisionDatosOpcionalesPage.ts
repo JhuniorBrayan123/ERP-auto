@@ -12,7 +12,6 @@ export class EmisionDatosOpcionalesPage {
         
         const inputVendedor = this.page.getByRole("textbox", {name: "Nombre del vendedor"});
         await inputVendedor.click();
-
         await inputVendedor.fill(cliente.documento);
         await this.page.locator(".card-entidad-cliente").filter({hasText: cliente.nombre}).first().click();
 

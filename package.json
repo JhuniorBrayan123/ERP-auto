@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npx playwright test",
-    "test:menu": "tsx scripts/test-runner.ts",
+    "test:menu": "tsx scripts/test-runner.mts",
     "setup:items": "npx playwright test punto-venta-items.setup.ts --project=setup,pv-items-setup"
   },
   "keywords": [],

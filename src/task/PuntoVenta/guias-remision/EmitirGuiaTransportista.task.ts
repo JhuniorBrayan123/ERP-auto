@@ -27,7 +27,7 @@ export type EmitirGuiaTransportistaData = {
     };
     decrementarCantidad?: boolean;
     fechaInicioTraslado?: string;
-    // Skip flags para validaciones — omiten el paso correspondiente
+    
     skipConductor?: boolean;
     skipTransportista?: boolean;
     skipPuntoPartida?: boolean;

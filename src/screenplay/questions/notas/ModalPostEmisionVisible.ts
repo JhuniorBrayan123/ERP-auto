@@ -1,12 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 import { PostEmisionTargets } from '../../targets/common/PostEmisionTargets';
 
-/**
- * Question: ¿Se mostró el modal de post-emisión con todas las opciones?
- *
- * Valida que el modal de "¡Buen trabajo!" muestra las opciones
- * de compartir e imprimir esperadas.
- */
+
 export const ModalPostEmisionVisible = () => {
   const fn = async (page: Page): Promise<void> => {
     await expect(PostEmisionTargets.mensajeExito(page)).toBeVisible();
@@ -22,14 +17,10 @@ export const ModalPostEmisionVisible = () => {
   return fn;
 };
 
-/**
- * Question: ¿El comprobante emitido tiene el número esperado?
- *
- * Busca el número de comprobante visible en el modal post-emisión.
- */
+
 export const NumeroComprobanteEmitido = () => {
   const fn = async (page: Page): Promise<string> => {
-    // Extraer el número del texto visible en el modal
+    
     const regex = /[A-Z]{1,4}\d{1,4}-\d+/;
     const locator = page.getByText(regex).last();
     const texto = await locator.innerText();

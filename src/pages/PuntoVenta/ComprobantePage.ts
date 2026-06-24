@@ -1,8 +1,8 @@
-import {type Page} from '@playwright/test';
-import type {TipoComprobante} from '@app-types/emision.types';
-import {throwFunctionalError} from '@utils/functional-error';
-import {FUNCTIONAL_CATALOG} from '@utils/functional-catalog';
-import {esperarCargaOverlay, recargarSiHayError} from "@utils/wait-helpers";
+import { type Page } from '@playwright/test';
+import type { TipoComprobante } from '@app-types/emision.types';
+import { throwFunctionalError } from '@utils/functional-error';
+import { FUNCTIONAL_CATALOG } from '@utils/functional-catalog';
+import { esperarCargaOverlay, recargarSiHayError } from "@utils/wait-helpers";
 
 const TIPO_COMPROBANTE_ID: Record<TipoComprobante, number> = {
     'BOLETA': 1004,

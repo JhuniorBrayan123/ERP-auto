@@ -173,7 +173,7 @@ export class KardexVerificacionPage {
 
             const nombreNormalizado = strip(nombreAlmacen).trim().toLowerCase();
 
-            await this.esperarKardexListo();//nuevo agregado para esperar que los datos del kardex esten listos
+            await this.esperarKardexListo();
 
             const cards = this.page.locator('.cmp-cards-almacen');
             await this.page.waitForFunction(() => {

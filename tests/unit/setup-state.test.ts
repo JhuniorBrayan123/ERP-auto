@@ -23,7 +23,7 @@ function cleanupEnv(): void {
 async function main(): Promise<void> {
     console.log('\n=== setup-state.ts — Unit Tests ===\n');
 
-    const mod = await import('@utils/setup-state');
+    const mod = await import('@utils/setup-state.js');
 
     console.log('  ── PV_SETUP_NAMES / LOG_SETUP_NAMES ──');
 
@@ -134,7 +134,7 @@ async function main(): Promise<void> {
         process.env.APP_ENV = 'prd';
         process.env.USER_EMAIL = 'test@test.com';
         
-        const mod2 = await import('@utils/setup-state');
+        const mod2 = await import('@utils/setup-state.js');
         const summary = mod2.getSetupStateSummary();
         assert.ok(summary.includes('Ambiente:'), 'Debe mostrar Ambiente');
         assert.ok(summary.includes('Cuenta:'), 'Debe mostrar Cuenta');

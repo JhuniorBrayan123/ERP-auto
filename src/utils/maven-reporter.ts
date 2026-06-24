@@ -43,7 +43,7 @@ class MavenReporter implements Reporter {
     private activeTestInfo: { title: string; attempt: number; isRetry: boolean } | null = null;
     private currentTestPrinted = false;
 
-    /** Identifica tests de setup (excluye auth.setup.ts que es el login y debe mostrarse) */
+    
     private isSetupTest(test: TestCase): boolean {
         const file = test.location?.file ?? '';
         return file.includes('.setup.ts') && !file.includes('auth.setup.ts');
@@ -257,7 +257,7 @@ class MavenReporter implements Reporter {
     }
 
     private cleanAnsi(text: string): string {
-        // eslint-disable-next-line no-control-regex
+        
         return text.replace(/\x1b\[[0-9;]*m/g, '').trim();
     }
 

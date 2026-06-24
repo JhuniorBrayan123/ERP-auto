@@ -8,41 +8,23 @@ import { EmitirNotaDebitoConPago, type ResultadoEmisionNota } from '../../intera
 export type { ResultadoEmisionNota };
 
 export interface DatosCrearNotaDebitoVinculada {
-  /** Tipo de documento a vincular */
+  
   tipoDocumento: 'Factura' | 'Boleta';
-  /** Serie del comprobante a buscar */
+  
   serie: string;
-  /** Correlativo del comprobante a buscar */
+  
   correlativo: string;
-  /** Motivo de la nota de débito */
+  
   motivo: MotivoNotaDebito;
-  /** Texto libre del motivo */
+  
   textoMotivo: string;
-  /** Monto de la nota de débito (para Intereses/Penalidades) */
+  
   monto?: string;
-  /** Monto por ítem (para Aumento en el valor) */
+  
   montoPorItem?: string;
 }
 
-/**
- * Task: Crear Nota de Débito con Vinculación de Comprobante
- *
- * ND tiene un flujo diferente a NC:
- * - El formulario ND muestra directamente el selector de tipo/serie/correlativo
- *   (no hay modal separado como en NC)
- * - El monto se ingresa directamente en el header o en el grid de ítems
- * - Se paga con "Realizar Pago" (no "devolución")
- *
- * Orquesta:
- * 1. Selecciona tipo comprobante → Nota de Débito
- * 2. Selecciona tipo de documento origen (Factura/Boleta)
- * 3. Selecciona serie y correlativo
- * 4. Busca el comprobante
- * 5. Selecciona motivo
- * 6. Llena texto de motivo
- * 7. Llena monto o edita ítem según tipo de motivo
- * 8. Emite
- */
+
 export const CrearNotaDebitoConVinculacion = (datos: DatosCrearNotaDebitoVinculada) => {
   const fn = async (page: Page): Promise<ResultadoEmisionNota> => {
 

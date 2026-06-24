@@ -93,7 +93,7 @@ export class EmisionPage {
 
     async seleccionarItem(nombre: string): Promise<void> {
         try {
-            // Esperar que termine cualquier proceso previo antes de validar item
+            
             await esperarCargaOverlay(this.page, 30_000).catch(() => {});
 
             const item = this.page

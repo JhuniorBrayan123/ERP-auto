@@ -39,7 +39,7 @@ export class GuiaTransportistaPage {
     }
 
     get inputTUCE() {
-        return this.page.getByRole('textbox', {name: /Ej\. 1234567891\//});
+        return this.page.getByRole('textbox', {name: /Ej\. 1234567891\
     }
 
     get inputBuscarItem() {
