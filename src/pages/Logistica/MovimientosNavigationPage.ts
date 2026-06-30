@@ -52,9 +52,14 @@ export class MovimientosNavigationPage {
         await runFunctionalAction(this.page, FUNCTIONAL_CATALOG.kardex.buscarProducto, async () => {
             await this.clickProductosYServicios();
             await this.page.getByText('Kardex total').click();
+
+            // Esperar a que el navegador se estabilice y la red deje de hacer peticiones.
+            // Esto asegura que el robot "Estamos cargando tus items..." y el overload
+            // terminen de procesar toda la data del backend sin poner tiempos fijos.
+            await this.page.waitForLoadState('networkidle');
+
             await esperarCargaOverlay(this.page);
         });
-
     }
 
     async navegarAItemsProductos(): Promise<void> {
