@@ -71,20 +71,20 @@ export class KardexApi {
 
             if (response.ok()) {
                 body = await response.json();
-                break; // Éxito, salimos del bucle
+                break; 
             }
 
             const status = response.status();
 
-            // Reintentar solo si es un error 5xx y no hemos superado el límite de reintentos
+            
             if (status >= 500 && status < 600 && attempt < maxRetries) {
                 console.warn(`⚠ [KardexApi] Error ${status} al consultar saldo de "${codigoProducto}". Reintento ${attempt} en 2s...`);
-                // Esperamos 2 segundos antes de reintentar
+                
                 await new Promise(resolve => setTimeout(resolve, 2000));
                 continue;
             }
 
-            // Si es un error del cliente (ej. 400, 401, 404) o agotamos intentos, lanzamos error
+            
             throw new Error(
                 `KardexApi: La petición falló con status ${status} – ${response.statusText()}`,
             );

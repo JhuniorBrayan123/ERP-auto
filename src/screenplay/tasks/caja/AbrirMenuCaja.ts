@@ -1,11 +1,7 @@
 import {expect, type Page} from '@playwright/test';
 import {MenuCajaTargets} from '@screenplay/targets/caja/MenuCajaTargets';
 
-// ─── Task: AbrirMenuCaja ──────────────────────────────────────────────────────
-/**
- * Abre el menú lateral de caja haciendo clic en el ícono de menú.
- * Precondición: el actor debe estar dentro de una caja abierta.
- */
+
 export const AbrirMenuCaja = () => {
     const fn = async (page: Page): Promise<void> => {
         const isMenuOpen = await page.locator('.cmp-overscreen.is-open').isVisible();
@@ -20,10 +16,7 @@ export const AbrirMenuCaja = () => {
     return fn;
 };
 
-// ─── Task: CerrarMenuCaja ─────────────────────────────────────────────────────
-/**
- * Cierra el menú lateral si está abierto, regresando a "Nueva venta".
- */
+
 export const RegresarANuevaVenta = () => {
     const fn = async (page: Page): Promise<void> => {
         const isMenuOpen = await page.locator('.cmp-overscreen.is-open').isVisible();

@@ -13,7 +13,7 @@ export interface FiltrosNotaCredito {
     correlativo?: string;
 }
 
-// ─── Task: ConsultarAnulaciones ───────────────────────────────────────────────
+
 export const ConsultarAnulaciones = () => {
     const fn = async (page: Page): Promise<void> => {
         await CierreCajaTargets.tabAnulacionesNC(page).click();
@@ -25,7 +25,7 @@ export const ConsultarAnulaciones = () => {
     return fn;
 };
 
-// ─── Task: BuscarAnulacionEnCierre ────────────────────────────────────────────
+
 export const BuscarAnulacionEnCierre = (filtros: FiltrosAnulacion) => {
     const fn = async (page: Page): Promise<void> => {
         await AnulacionesNCTargets.btnFiltrosAvanzadosAnulaciones(page).click();
@@ -48,7 +48,7 @@ export const BuscarAnulacionEnCierre = (filtros: FiltrosAnulacion) => {
     return fn;
 };
 
-// ─── Task: BuscarNotaCreditoEnCierre ─────────────────────────────────────────
+
 export const BuscarNotaCreditoEnCierre = (filtros: FiltrosNotaCredito) => {
     const fn = async (page: Page): Promise<void> => {
         await AnulacionesNCTargets.btnFiltrosAvanzadosNC(page).click();
@@ -68,11 +68,7 @@ export const BuscarNotaCreditoEnCierre = (filtros: FiltrosNotaCredito) => {
     return fn;
 };
 
-// ─── Task: AnularComprobanteDesdeMenu ─────────────────────────────────────────
-/**
- * Anula un comprobante usando el menú lateral de caja (Anular comprobante).
- * Requiere estar en el menú de caja (no en cierre de caja).
- */
+
 export interface DatosAnulacion {
     tipoComprobante: 'BOLETA DE VENTA' | 'FACTURA' | 'NOTA DE VENTA' | 'NOTA DE CRÉDITO' | 'NOTA DE DÉBITO';
     serie: string;
@@ -82,32 +78,32 @@ export interface DatosAnulacion {
 
 export const AnularComprobanteDesdeMenu = (datos: DatosAnulacion) => {
     const fn = async (page: Page): Promise<void> => {
-        // Navegar a Anular comprobante desde el menú
+        
         await AnulacionesNCTargets.selectorTipoAnulacion(page).click();
-        // Usar selector de dropdown abierto para evitar strict mode violation y timeouts
+        
         await AnulacionesNCTargets.opcionDropdownAbierto(page, datos.tipoComprobante).click();
 
-        // Seleccionar serie si aplica
+        
         if (datos.tipoComprobante !== 'NOTA DE VENTA') {
-            await page.getByText('Seleccionar').click(); // Abre el dropdown de serie
+            await page.getByText('Seleccionar').click(); 
             await AnulacionesNCTargets.opcionDropdownAbierto(page, datos.serie).click();
         }
 
-        // Ingresar correlativo y buscar
+        
         await AnulacionesNCTargets.inputCorrelativoAnulacion(page).click();
         await AnulacionesNCTargets.inputCorrelativoAnulacion(page).fill(datos.correlativo);
         await AnulacionesNCTargets.btnBuscarAnulacion(page).click();
 
-        // Confirmar que encontró el comprobante
+        
         await expect(
             page.getByText(new RegExp(`${datos.serie}.*${datos.correlativo.padStart(8, '0')}`))
         ).toBeVisible({ timeout: 10_000 });
 
-        // Seleccionar motivo de anulación
+        
         await AnulacionesNCTargets.selectorMotivoAnulacion(page).click();
         await page.getByText(datos.motivoAnulacion).click();
 
-        // Anular
+        
         await AnulacionesNCTargets.btnAnular(page).click();
         await expect(AnulacionesNCTargets.toastAnulacionExitosa(page)).toBeVisible({ timeout: 15_000 });
         await AnulacionesNCTargets.btnCerrarModalAnulacion(page).click();

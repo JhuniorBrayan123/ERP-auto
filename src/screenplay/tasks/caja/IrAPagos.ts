@@ -5,20 +5,16 @@ import { capturarIdDocFinancieroPago } from '@services/PuntoVenta/CajaMovimiento
 import { esperarCargaOverlay } from '@utils/wait-helpers';
 
 export interface DatosPago {
-    /** Estado de pago a filtrar, ej: "PAGO PENDIENTE" */
-    estadoFiltro?: string;
-    /** Tipo de comprobante a filtrar, ej: "Boleta de Venta" */
-    tipoComprobante?: string;
-    /** Monto a pagar */
-    monto: string;
+        estadoFiltro?: string;
+        tipoComprobante?: string;
+        monto: string;
 }
 
 export interface ResultadoPago {
-    /** IdDocFinanciero del recibo de pago */
-    idDocFinanciero: number;
+        idDocFinanciero: number;
 }
 
-// ─── Task: IrAPagos ──────────────────────────────────────────────────────────
+
 export const IrAPagos = () => {
     const fn = async (page: Page): Promise<void> => {
         await MenuCajaTargets.btnAbrirMenu(page).click();
@@ -32,14 +28,10 @@ export const IrAPagos = () => {
     return fn;
 };
 
-// ─── Task: RegistrarPagoProveedor ─────────────────────────────────────────────
-/**
- * Filtra comprobantes pendientes de pago y registra el pago del primero.
- * Captura el IdDocFinanciero vía intercepción del POST a pagos/documentos.
- */
+
 export const RegistrarPagoProveedor = (datos: DatosPago) => {
     const fn = async (page: Page): Promise<ResultadoPago> => {
-        // Filtrar por estado PAGO PENDIENTE
+        
         await CobrosPagosTargets.selectorEstadoPago(page).click();
         await page.getByText('Todos').nth(1).click();
         await CobrosPagosTargets.opcionPagoPendiente(page).click();
@@ -52,7 +44,7 @@ export const RegistrarPagoProveedor = (datos: DatosPago) => {
 
         await CobrosPagosTargets.btnBuscarCobros(page).click();
 
-        // Iniciar el pago
+        
         await CobrosPagosTargets.btnPagar(page).click();
         await CobrosPagosTargets.btnAgregarCuota(page).click();
         await CobrosPagosTargets.btnGuardarCuota(page).click();
@@ -60,7 +52,7 @@ export const RegistrarPagoProveedor = (datos: DatosPago) => {
         await CobrosPagosTargets.inputMontoPago(page).click();
         await CobrosPagosTargets.inputMontoPago(page).fill(datos.monto);
 
-        // Interceptar POST y confirmar pago
+        
         const [idDocFinanciero] = await Promise.all([
             capturarIdDocFinancieroPago(page),
             CobrosPagosTargets.btnAceptarPago(page).click(),

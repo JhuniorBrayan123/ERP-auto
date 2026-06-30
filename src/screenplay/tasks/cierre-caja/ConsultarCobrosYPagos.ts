@@ -4,7 +4,7 @@ import { CobrosPagosTargets } from '@screenplay/targets/cierre-caja/CobrosPagosT
 import { obtenerMovimientoPorId, type MovimientoCaja } from '@services/PuntoVenta/CajaMovimientosApi';
 import { esperarCargaOverlay } from '@utils/wait-helpers';
 
-// ─── Task: ConsultarCobrosYPagos ─────────────────────────────────────────────
+
 export const ConsultarCobrosYPagos = () => {
     const fn = async (page: Page): Promise<void> => {
         await CierreCajaTargets.tabCobrosPagos(page).click();
@@ -17,13 +17,7 @@ export const ConsultarCobrosYPagos = () => {
     return fn;
 };
 
-// ─── Task: BuscarCobroEnCierre ────────────────────────────────────────────────
-/**
- * Busca un cobro específico en la pestaña "Cobros y pagos" usando el IdDocFinanciero
- * capturado al momento de crear el cobro.
- *
- * El ERP devuelve el correlativo del recibo (ej: RC01-497) en el endpoint de movimientos.
- */
+
 export const BuscarCobroEnCierre = (idDocFinanciero: number) => {
     const fn = async (page: Page): Promise<MovimientoCaja> => {
         const input = CobrosPagosTargets.inputBuscarSerieCorrelativo(page);
@@ -36,7 +30,7 @@ export const BuscarCobroEnCierre = (idDocFinanciero: number) => {
             input.press('Enter'),
         ]);
 
-        // 2. Ahora que tenemos el correlativo (ej: 512), lo buscamos en el input para que la UI lo muestre
+        
         await input.click();
         await input.fill(movimiento.CorrelativoDocFinanciero.toString());
         await input.press('Enter');
@@ -50,10 +44,7 @@ export const BuscarCobroEnCierre = (idDocFinanciero: number) => {
     return fn;
 };
 
-// ─── Task: BuscarPagoEnCierre ─────────────────────────────────────────────────
-/**
- * Busca un pago registrado en la sección "Pagos" de la pestaña Cobros y pagos.
- */
+
 export const BuscarPagoEnCierre = (idDocFinanciero: number) => {
     const fn = async (page: Page): Promise<MovimientoCaja> => {
         const input = CobrosPagosTargets.inputBuscarSerieCorrelativo(page);

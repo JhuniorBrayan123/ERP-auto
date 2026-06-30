@@ -22,7 +22,7 @@ test('BC-09 | Validar columnas visibles y ocultas de la grilla', async ({busqued
         for (const campoId of BC_COLUMNAS_DESACTIVAR_EN_BC09) {
             await busquedaPage.configurarColumna('TODOS', campoId, false);
         }
-        // Asegurar que las columnas de fecha estén activas
+        
         await busquedaPage.configurarColumna('TODOS', BC_COLUMN_IDS.FECHA_CREACION, true);
         await busquedaPage.configurarColumna('TODOS', BC_COLUMN_IDS.FECHA_EMISION, true);
         await busquedaPage.guardarConfiguracionColumnas();

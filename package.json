@@ -20,6 +20,7 @@
     "cross-spawn": "^7.0.6",
     "exceljs": "^3.4.0",
     "madge": "^8.0.0",
+    "strip-comments": "^2.0.1",
     "tsx": "^4.21.0"
   },
   "dependencies": {

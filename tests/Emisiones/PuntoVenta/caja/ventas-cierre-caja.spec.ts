@@ -18,10 +18,10 @@ test.describe('Ventas en Cierre de Caja', () => {
                                                                           cajero,
                                                                           boletaEmitida,
                                                                       }) => {
-        // ── Arrange ─────────────────────────────────────────────────────────
+        
         const comprobante = boletaEmitida;
 
-        // ── Act ──────────────────────────────────────────────────────────────
+        
         await cajero.realiza(
             IrACierreDeCaja(),
             ConsultarVentasDeCaja(),
@@ -31,7 +31,7 @@ test.describe('Ventas en Cierre de Caja', () => {
             }),
         );
 
-        // ── Assert ───────────────────────────────────────────────────────────
+        
         const visible = await cajero.pregunta(
             ComprobanteVisibleEnVentas({
                 tipoDocumento: 'BOLETA DE VENTA',
@@ -41,7 +41,7 @@ test.describe('Ventas en Cierre de Caja', () => {
         );
         expect(visible).toBe(true);
 
-        // Validar totales visibles
+        
         const page = cajero.habilidad(UsarNavegador).page;
         await expect(
             CierreCajaTargets.contenedorPrincipal(page).getByText(/Total monto:/i),
@@ -54,10 +54,10 @@ test.describe('Ventas en Cierre de Caja', () => {
                                                                            cajero,
                                                                            facturaEmitida,
                                                                        }) => {
-        // ── Arrange ─────────────────────────────────────────────────────────
+        
         const comprobante = facturaEmitida;
 
-        // ── Act ──────────────────────────────────────────────────────────────
+        
         await cajero.realiza(
             IrACierreDeCaja(),
             ConsultarVentasDeCaja(),
@@ -67,7 +67,7 @@ test.describe('Ventas en Cierre de Caja', () => {
             }),
         );
 
-        // ── Assert ───────────────────────────────────────────────────────────
+        
         const visible = await cajero.pregunta(
             ComprobanteVisibleEnVentas({
                 tipoDocumento: 'FACTURA',
@@ -85,10 +85,10 @@ test.describe('Ventas en Cierre de Caja', () => {
                                                                                   cajero,
                                                                                   boletaEmitida,
                                                                               }) => {
-        // ── Arrange ─────────────────────────────────────────────────────────
+        
         const comprobante = boletaEmitida;
 
-        // ── Act ──────────────────────────────────────────────────────────────
+        
         await cajero.realiza(
             IrACierreDeCaja(),
             ConsultarVentasDeCaja(),
@@ -99,7 +99,7 @@ test.describe('Ventas en Cierre de Caja', () => {
             }),
         );
 
-        // ── Assert ───────────────────────────────────────────────────────────
+        
         const page = cajero.habilidad(UsarNavegador).page;
         await expect(
             CierreCajaTargets.contenedorPrincipal(page).getByText(/EMITIDO/i).first(),

@@ -10,7 +10,7 @@ import type {ResultadoComprobanteOrigen} from '@screenplay/tasks/common/EmitirCo
 import {EmitirComprobanteOrigen} from '@screenplay/tasks/common/EmitirComprobanteOrigen';
 import {esperarCargaOverlay} from "@utils/wait-helpers";
 
-// ─── Tipos de fixtures de Caja ────────────────────────────────────────────────
+
 
 type CajaFixtures = {
     cajero: Cajero;
@@ -58,11 +58,7 @@ export const test = base.extend<CajaFixtures>({
         await use(resultado);
     },
 
-    /**
-     * Emite una Boleta a CRÉDITO.
-     * NO usa EmitirComprobanteOrigen porque el flujo de pago es diferente.
-     */
-    ventaCreditoBoleta: async ({page}, use) => {
+        ventaCreditoBoleta: async ({page}, use) => {
         const emisionPage = new EmisionPage(page);
         const clientePage = new ClientePage(page);
         const comprobantePage = new ComprobantePage(page);
@@ -73,12 +69,12 @@ export const test = base.extend<CajaFixtures>({
         await emisionPage.buscarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
         await emisionPage.seleccionarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
 
-        // Pago a crédito
+        
         await page.getByRole('button', {name: /PAGAR/i}).click();
         await page.locator('[id="pv_ventas_cmp-punto-venta_v-modal:cmp-realizar-pago_cmp-metodos-pago_v-button:otros-metodos-1"]').click();
-        // Botón Guardar (plan de cuotas)
+        
         await page.locator('[id="pv_ventas_cmp-punto-venta_v-modal:cmp-realizar-pago:cmp-informacion-pago:cmp-pago-credito_v-button:guardar"]').click();
-        // Botón Guardar (confirmación de cuotas)
+        
         await page.locator('[id="pv_ventas_cmp-punto-venta_v-modal:cmp-realizar-pago:cmp-informacion-pago:cmp-pago-credito_v-button:guardar"]').click();
         const responsePromise = page.waitForResponse(
             (resp) => resp.url().includes('DocumentosContables/Emisiones') && resp.status() === 200,
@@ -87,7 +83,7 @@ export const test = base.extend<CajaFixtures>({
 
         await page.getByRole('button', {name: /Realizar Pago/i}).click();
 
-        // Extraer datos de la API
+        
         const response = await responsePromise;
         const body = await response.json();
         const correlativo = String(body.CorrelativoDocumento ?? '0');
@@ -105,10 +101,7 @@ export const test = base.extend<CajaFixtures>({
         });
     },
 
-    /**
-     * Igual que ventaCreditoBoleta pero para Factura a crédito.
-     */
-    ventaCreditoFactura: async ({page}, use) => {
+        ventaCreditoFactura: async ({page}, use) => {
         const emisionPage = new EmisionPage(page);
         const clientePage = new ClientePage(page);
         const comprobantePage = new ComprobantePage(page);
@@ -121,9 +114,9 @@ export const test = base.extend<CajaFixtures>({
 
         await page.getByRole('button', {name: /PAGAR/i}).click();
         await page.locator('[id="pv_ventas_cmp-punto-venta_v-modal:cmp-realizar-pago_cmp-metodos-pago_v-button:otros-metodos-1"]').click();
-        // Botón Guardar (plan de cuotas)
+        
         await page.locator('[id="pv_ventas_cmp-punto-venta_v-modal:cmp-realizar-pago:cmp-informacion-pago:cmp-pago-credito_v-button:guardar"]').click();
-        // Botón Guardar (confirmación de cuotas)
+        
         await page.locator('[id="pv_ventas_cmp-punto-venta_v-modal:cmp-realizar-pago:cmp-informacion-pago:cmp-pago-credito_v-button:guardar"]').click();
         const responsePromise = page.waitForResponse(
             (resp) => resp.url().includes('DocumentosContables/Emisiones') && resp.status() === 200,
@@ -132,7 +125,7 @@ export const test = base.extend<CajaFixtures>({
 
         await page.getByRole('button', {name: /Realizar Pago/i}).click();
 
-        // Extraer datos de la API
+        
         const response = await responsePromise;
         const body = await response.json();
         const correlativo = String(body.CorrelativoDocumento ?? '0');

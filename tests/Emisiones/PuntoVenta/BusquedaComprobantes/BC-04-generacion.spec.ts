@@ -171,7 +171,7 @@ test.describe('BC-13 | Generar nota de venta desde una boleta', () => {
     });
 });
 
-// ── BC-14 | Generar factura desde una nota de venta ──
+
 test.describe('BC-14 | Generar factura desde una NV', () => {
     let semilla: ComprobanteInfo;
 
@@ -318,7 +318,7 @@ test.describe('BC-15 | Generar pedido desde una cotización', () => {
     });
 });
 
-// ── BC-16 | Generar boleta desde un pedido guardado ──
+
 test.describe('BC-16 | Generar boleta desde un pedido', () => {
     let semilla: ComprobanteInfo;
 

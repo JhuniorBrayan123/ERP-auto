@@ -1,15 +1,3 @@
-/**
- * Spec: cobros-pagos-cierre.spec.ts
- *
- * Cubre:
- * - Registrar cobro de venta a crédito y verificar reflejo en Cierre de Caja
- * - Verificar que el estado pase a COBRADO y monto adeudado = 0.00
- *
- * Estrategia de captura dinámica:
- * - POST /PuntoVenta/api/v1/cobros/documentos → cobro.Hojas[0].Id = idDocFinanciero
- * - GET /Finanzas/api/v2/cajas/{id}/movimientos → buscar por idDocFinanciero
- * - Sin correlativos hardcodeados
- */
 
 import { expect } from '@playwright/test';
 import { test } from '@fixtures/PuntoVenta/caja.fixture';
@@ -30,10 +18,10 @@ test.describe('Cobros y Pagos en Cierre de Caja', () => {
         cajero,
         ventaCreditoBoleta,
     }) => {
-        // ── Arrange ─────────────────────────────────────────────────────────
-        // ventaCreditoBoleta crea una boleta a crédito con deuda pendiente
+        
+        
 
-        // ── Act: ir a Cobros y registrar el cobro ────────────────────────────
+        
         await cajero.realiza(IrACobros());
 
         const { idDocFinanciero } = await cajero.realizaYObtiene(
@@ -43,10 +31,10 @@ test.describe('Cobros y Pagos en Cierre de Caja', () => {
             }),
         );
 
-        // ── Act: verificar "Ver cobro" muestra monto adeudado = 0.00 ─────────
+        
         const page = cajero.habilidad(UsarNavegador).page;
 
-        // Resetear filtros y buscar el cobro
+        
         await page.locator('.cmp-grid-pc-options-icon').first().click();
         await page.getByText('Ver cobro', { exact: true }).click();
 
@@ -55,7 +43,7 @@ test.describe('Cobros y Pagos en Cierre de Caja', () => {
 
         await page.locator('.drape.is-open > .button-close').click();
 
-        // ── Act: ir a cierre de caja y buscar el cobro por IdDocFinanciero ───
+        
         await cajero.realiza(
             IrACierreDeCaja(),
             ConsultarCobrosYPagos(),
@@ -65,7 +53,7 @@ test.describe('Cobros y Pagos en Cierre de Caja', () => {
             BuscarCobroEnCierre(idDocFinanciero),
         );
 
-        // ── Assert ───────────────────────────────────────────────────────────
+        
         expect(movimiento.CorrelativoDocFinanciero).toBeGreaterThan(0);
         expect(movimiento.SerieFinal).toMatch(/RC01/i);
 
@@ -81,7 +69,7 @@ test.describe('Cobros y Pagos en Cierre de Caja', () => {
         cajero,
         ventaCreditoFactura,
     }) => {
-        // ── Arrange + Act ────────────────────────────────────────────────────
+        
         await cajero.realiza(IrACobros());
 
         const { idDocFinanciero } = await cajero.realizaYObtiene(
@@ -100,13 +88,13 @@ test.describe('Cobros y Pagos en Cierre de Caja', () => {
             BuscarCobroEnCierre(idDocFinanciero),
         );
 
-        // ── Assert ───────────────────────────────────────────────────────────
-        // El movimiento tiene todos los datos necesarios para trazabilidad
+        
+        
         expect(movimiento.IdDocFinanciero).toBe(idDocFinanciero);
         expect(movimiento.CorrelativoDocFinanciero).toBeGreaterThan(0);
         expect(movimiento.SerieFinal).toBeDefined();
 
-        // Verificar receptor (cliente que pagó)
+        
         if (movimiento.ReceptorRazonSocial) {
             const page = cajero.habilidad(UsarNavegador).page;
             await expect(

@@ -18,7 +18,7 @@ test.describe('Guías de Remisión Remitente - Mercancía Extranjera', { tag: ['
     test('GRR-10: Emitir guía por traslado de mercancía extranjera sin contenedor', async ({ cajero, listadoGuiasPage }) => {
         await cajero.intentaRealizar(
             EmitirGuiaRemitenteTask({
-                motivo: GUIAS_DATA.MOTIVOS_TRASLADO.TRASLADO_BIENES_TRANSFORMACION, // Note: en GRR-10 usaba TRASLADO_BIENES_TRANSFORMACION
+                motivo: GUIAS_DATA.MOTIVOS_TRASLADO.TRASLADO_BIENES_TRANSFORMACION, 
                 modalidad: GUIAS_DATA.MODALIDADES.PUBLICA,
                 peso: '10',
                 items: [
@@ -129,7 +129,7 @@ test.describe('Guías de Remisión Remitente - Mercancía Extranjera', { tag: ['
         await guiaPage.buscarYSeleccionarItem(GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_SIN_CONTROL.codigo);
         await guiaPage.definirPesoTotal('Kg', '10');
 
-        // Activar contenedor pero dejar campos vacíos
+        
         await guiaPage.activarContenedorSinDatos();
 
         await guiaPage.emitirGuia();

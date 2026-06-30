@@ -3,10 +3,7 @@ import { CierreCajaTargets } from '@screenplay/targets/cierre-caja/CierreCajaTar
 import { IngresosEgresosTargets } from '@screenplay/targets/cierre-caja/IngresosEgresosTargets';
 import { obtenerMovimientoPorId, type MovimientoCaja } from '@services/PuntoVenta/CajaMovimientosApi';
 
-// ─── Task: ConsultarIngresosYEgresos ─────────────────────────────────────────
-/**
- * Navega a la pestaña "Ingresos y egresos" en Cierre de Caja.
- */
+
 export const ConsultarIngresosYEgresos = () => {
     const fn = async (page: Page): Promise<void> => {
         await CierreCajaTargets.tabIngresosEgresos(page).click();
@@ -16,22 +13,16 @@ export const ConsultarIngresosYEgresos = () => {
     return fn;
 };
 
-// ─── Task: BuscarMovimientoEnCierre ──────────────────────────────────────────
-/**
- * Busca un movimiento específico (ingreso o egreso) por su IdDocFinanciero
- * usando intercepción de la respuesta del endpoint de movimientos.
- *
- * Retorna el movimiento encontrado con serie y correlativo.
- */
+
 export const BuscarMovimientoEnCierre = (idDocFinanciero: number) => {
     const fn = async (page: Page): Promise<MovimientoCaja> => {
-        // Limpiar el campo de búsqueda y escribir algo para forzar la carga
+        
         const input = IngresosEgresosTargets.inputBuscarSerieCorrelativo(page);
         await input.click();
         await input.fill('');
         await input.press('Enter');
 
-        // Interceptar la llamada a movimientos y encontrar el movimiento por ID
+        
         const [movimiento] = await Promise.all([
             obtenerMovimientoPorId(page, idDocFinanciero),
             input.press('Enter'),
@@ -44,10 +35,10 @@ export const BuscarMovimientoEnCierre = (idDocFinanciero: number) => {
     return fn;
 };
 
-// ─── Task: BuscarMovimientoEnCierrePorConcepto ───────────────────────────────
+
 export const BuscarMovimientoEnCierrePorConcepto = (concepto: string) => {
     const fn = async (page: Page): Promise<MovimientoCaja> => {
-        // Limpiar el campo de búsqueda y mandar Enter para forzar carga
+        
         const input = IngresosEgresosTargets.inputBuscarSerieCorrelativo(page);
         await input.click();
         await input.fill('');
@@ -65,11 +56,7 @@ export const BuscarMovimientoEnCierrePorConcepto = (concepto: string) => {
     return fn;
 };
 
-// ─── Task: BuscarEnIngresosEgresos ─────────────────────────────────────────────
-/**
- * Búsqueda simple por texto en el campo serie/correlativo de Ingresos y Egresos.
- * Para búsquedas donde solo se necesita visibilidad, no IdDocFinanciero.
- */
+
 export const BuscarEnIngresosEgresos = (textoBusqueda: string) => {
     const fn = async (page: Page): Promise<void> => {
         const input = IngresosEgresosTargets.inputBuscarSerieCorrelativo(page);
@@ -77,7 +64,7 @@ export const BuscarEnIngresosEgresos = (textoBusqueda: string) => {
         await input.fill(textoBusqueda);
         await input.press('Enter');
         
-        // Esperar que la tabla cargue (overload)
+        
         const { esperarCargaOverlay } = require('@utils/wait-helpers');
         await esperarCargaOverlay(page);
     };

@@ -16,7 +16,7 @@ test.describe('Guías de Remisión Remitente - Vinculación', { tag: ['@guias', 
     });
 
     test('GRR-15: Emitir guía vinculando un comprobante', async ({page, listadoGuiasPage, kardexApi}) => {
-        // 1. Emitir Factura como precondición usando flujo de emisión estándar
+        
         const resultado = await ejecutarEmisionBasica(
             {
                 comprobantePage: new ComprobantePage(page),
@@ -41,22 +41,22 @@ test.describe('Guías de Remisión Remitente - Vinculación', { tag: ['@guias', 
             }
         );
 
-        // 2. Navegar a Guía de Remisión Remitente
+        
         await page.getByRole('button', { name: 'Nueva Venta' }).click();
         const navigateTask = NavegarAGuiaRemitente();
         await navigateTask(page);
 
-        // 3. Vincular comprobante emitido a la guía
+        
         const guiaPage = new GuiaRemitentePage(page);
         await guiaPage.vincularComprobanteEnModal(resultado.serie, resultado.correlativo);
 
-        // 4. Capturar stock ANTES de emitir guía (la factura ya descontó, la guía no debe)
+        
         const saldoAntes = await capturarSaldoAnterior(
             kardexApi,
             GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo
         );
 
-        // 5. Completar datos de la guía
+        
         await guiaPage.completarPuntoPartidaYLlegada(
             GUIAS_DATA.REMITENTE.UBIGEO,
             GUIAS_DATA.DESTINATARIO.UBIGEO,
@@ -71,12 +71,12 @@ test.describe('Guías de Remisión Remitente - Vinculación', { tag: ['@guias', 
         await guiaPage.definirPesoTotal('Kg', '10.45');
         await guiaPage.emitirGuia();
 
-        // 6. Validar emisión exitosa
+        
         await test.step('Validar emisión exitosa de guía vinculada', async () => {
             await listadoGuiasPage.validarGuiaEmitidaExito();
         });
 
-        // 7. Verificar que la guía NO descontó stock
+        
         await verificarStockSinCambio(
             kardexApi,
             GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo,

@@ -1,12 +1,3 @@
-/**
- * Spec: anulaciones-notas-credito.spec.ts
- *
- * Cubre:
- * - Anulación de Boleta → reflejo en pestaña Anulaciones
- * - Anulación de Factura → reflejo en pestaña Anulaciones
- * - Búsqueda de nota de crédito con filtros avanzados
- * - Acciones disponibles en nota de crédito
- */
 
 import { expect } from '@playwright/test';
 import { test } from '@fixtures/PuntoVenta/caja.fixture';
@@ -28,11 +19,11 @@ test.describe('Anulaciones y Notas de Crédito en Cierre de Caja', () => {
         cajero,
         boletaEmitida,
     }) => {
-        // ── Arrange ─────────────────────────────────────────────────────────
+        
         const comprobante = boletaEmitida;
         const page = cajero.habilidad(UsarNavegador).page;
 
-        // ── Act: anular la boleta desde el menú ──────────────────────────────
+        
         await MenuCajaTargets.btnAbrirMenu(page).click();
         await MenuCajaTargets.opcionAnularComprobante(page).click();
 
@@ -45,7 +36,7 @@ test.describe('Anulaciones y Notas de Crédito en Cierre de Caja', () => {
             }),
         );
 
-        // ── Act: ir a cierre y verificar anulación ───────────────────────────
+        
         await cajero.realiza(
             IrACierreDeCaja(),
             ConsultarAnulaciones(),
@@ -55,7 +46,7 @@ test.describe('Anulaciones y Notas de Crédito en Cierre de Caja', () => {
             }),
         );
 
-        // ── Assert ───────────────────────────────────────────────────────────
+        
         await expect(AnulacionesNCTargets.estadoDadoDeBaja(page)).toBeVisible({ timeout: 10_000 });
 
         await cajero.realiza(RegresarANuevaVenta());
@@ -65,11 +56,11 @@ test.describe('Anulaciones y Notas de Crédito en Cierre de Caja', () => {
         cajero,
         facturaEmitida,
     }) => {
-        // ── Arrange ─────────────────────────────────────────────────────────
+        
         const comprobante = facturaEmitida;
         const page = cajero.habilidad(UsarNavegador).page;
 
-        // ── Act: anular la factura desde el menú ─────────────────────────────
+        
         await MenuCajaTargets.btnAbrirMenu(page).click();
         await MenuCajaTargets.opcionAnularComprobante(page).click();
 
@@ -82,7 +73,7 @@ test.describe('Anulaciones y Notas de Crédito en Cierre de Caja', () => {
             }),
         );
 
-        // ── Act: verificar en cierre ─────────────────────────────────────────
+        
         await cajero.realiza(
             IrACierreDeCaja(),
             ConsultarAnulaciones(),
@@ -92,7 +83,7 @@ test.describe('Anulaciones y Notas de Crédito en Cierre de Caja', () => {
             }),
         );
 
-        // ── Assert ───────────────────────────────────────────────────────────
+        
         await expect(AnulacionesNCTargets.estadoDadoDeBaja(page)).toBeVisible({ timeout: 10_000 });
 
         await cajero.realiza(RegresarANuevaVenta());

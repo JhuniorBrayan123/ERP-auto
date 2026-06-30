@@ -3,12 +3,7 @@ import { CierreCajaTargets } from '@screenplay/targets/cierre-caja/CierreCajaTar
 import { IngresosEgresosTargets } from '@screenplay/targets/cierre-caja/IngresosEgresosTargets';
 import type { MovimientoCaja } from '@services/PuntoVenta/CajaMovimientosApi';
 
-// ─── Question: MovimientoVisibleEnCierre ──────────────────────────────────────
-/**
- * Verifica si un movimiento (ingreso o egreso) está visible en la pestaña
- * Ingresos y Egresos del Cierre de Caja, usando los datos del movimiento
- * capturado vía API.
- */
+
 export const MovimientoVisibleEnCierre = (movimiento: MovimientoCaja) => {
     const fn = async (page: Page): Promise<boolean> => {
         const contenedor = CierreCajaTargets.contenedorPrincipal(page);
@@ -26,10 +21,7 @@ export const MovimientoVisibleEnCierre = (movimiento: MovimientoCaja) => {
     return fn;
 };
 
-// ─── Question: TotalIngresosVisible ───────────────────────────────────────────
-/**
- * Lee el texto del total de Ingresos de la pantalla.
- */
+
 export const TotalIngresosVisible = () => {
     const fn = async (page: Page): Promise<string> => {
         const texto = await IngresosEgresosTargets.seccionIngresos(page).textContent() ?? '';
@@ -39,10 +31,7 @@ export const TotalIngresosVisible = () => {
     return fn;
 };
 
-// ─── Question: TotalEgresosVisible ────────────────────────────────────────────
-/**
- * Lee el texto del total de Egresos de la pantalla.
- */
+
 export const TotalEgresosVisible = () => {
     const fn = async (page: Page): Promise<string> => {
         const texto = await IngresosEgresosTargets.seccionEgresos(page).textContent() ?? '';
@@ -52,10 +41,7 @@ export const TotalEgresosVisible = () => {
     return fn;
 };
 
-// ─── Question: CobroVisibleEnCierre ───────────────────────────────────────────
-/**
- * Verifica si el recibo de cobranza está visible en la pestaña Cobros y Pagos.
- */
+
 export const CobroVisibleEnCierre = (movimiento: MovimientoCaja) => {
     const fn = async (page: Page): Promise<boolean> => {
         const contenedor = CierreCajaTargets.contenedorPrincipal(page);
@@ -79,10 +65,7 @@ export const CobroVisibleEnCierre = (movimiento: MovimientoCaja) => {
     return fn;
 };
 
-// ─── Question: PagoVisibleEnCierre ────────────────────────────────────────────
-/**
- * Verifica si el recibo de pago está visible en la pestaña Cobros y Pagos.
- */
+
 export const PagoVisibleEnCierre = (movimiento: MovimientoCaja) => {
     const fn = async (page: Page): Promise<boolean> => {
         const contenedor = CierreCajaTargets.contenedorPrincipal(page);
@@ -96,10 +79,7 @@ export const PagoVisibleEnCierre = (movimiento: MovimientoCaja) => {
     return fn;
 };
 
-// ─── Question: ItemVendidoVisible ─────────────────────────────────────────────
-/**
- * Verifica si un ítem aparece en la pestaña "Items vendidos".
- */
+
 export const ItemVendidoVisible = (nombreItem: string) => {
     const fn = async (page: Page): Promise<boolean> => {
         return page
@@ -112,10 +92,7 @@ export const ItemVendidoVisible = (nombreItem: string) => {
     return fn;
 };
 
-// ─── Question: ArchivoDescargado ─────────────────────────────────────────────
-/**
- * Verifica que el nombre de archivo descargado tenga la extensión esperada.
- */
+
 export const ArchivoDescargado = (nombreArchivo: string, extension: 'xlsx' | 'pdf') => {
     const fn = async (_page: Page): Promise<boolean> => {
         return new RegExp(`\\.${extension}$`, 'i').test(nombreArchivo);

@@ -1,6 +1,6 @@
 import type { Page, Response } from '@playwright/test';
 
-// ─── Tipos de respuesta de API ────────────────────────────────────────────────
+
 
 export interface CobroCreado {
     Id: number;
@@ -33,18 +33,8 @@ export interface MovimientosResponse {
     Data: MovimientoCaja[];
 }
 
-// ─── Helpers de intercepción de red ──────────────────────────────────────────
 
-/**
- * Captura el IdDocFinanciero (Hojas[0].Id) de la respuesta de creación de un cobro.
- * Usar ANTES de hacer click en el botón que dispara el POST.
- *
- * @example
- * const [idDocFinanciero] = await Promise.all([
- *   capturarIdDocFinancieroCobro(page),
- *   page.getByRole('button', { name: 'Aceptar' }).click(),
- * ]);
- */
+
 export async function capturarIdDocFinancieroCobro(page: Page): Promise<number> {
     const response = await page.waitForResponse(
         (resp: Response) =>
@@ -60,9 +50,6 @@ export async function capturarIdDocFinancieroCobro(page: Page): Promise<number> 
     return idDocFinanciero;
 }
 
-/**
- * Captura el IdDocFinanciero (Hojas[0].Id) de la respuesta de creación de un pago a proveedor.
- */
 export async function capturarIdDocFinancieroPago(page: Page): Promise<number> {
     const response = await page.waitForResponse(
         (resp: Response) =>
@@ -80,11 +67,6 @@ export async function capturarIdDocFinancieroPago(page: Page): Promise<number> {
 
 
 
-/**
- * Busca un movimiento de caja por IdDocFinanciero interceptando la llamada a /movimientos.
- * Usar después de hacer cualquier acción que dispare el endpoint de movimientos
- * (ej: click en "Buscar" dentro de cierre de caja > Cobros y pagos).
- */
 export async function obtenerMovimientoPorId(
     page: Page,
     idDocFinanciero: number,
@@ -118,9 +100,6 @@ export async function obtenerMovimientoPorId(
     return movimiento;
 }
 
-/**
- * Busca un movimiento de caja por Concepto interceptando la llamada a /movimientos.
- */
 export async function obtenerMovimientoPorConcepto(
     page: Page,
     concepto: string,
@@ -154,10 +133,6 @@ export async function obtenerMovimientoPorConcepto(
     return movimiento;
 }
 
-/**
- * Forma el número de recibo a partir de un movimiento.
- * Ej: "RC01-497"
- */
 export function formarNumeroRecibo(movimiento: MovimientoCaja): string {
     return `${movimiento.SerieFinal}-${movimiento.CorrelativoDocFinanciero}`;
 }

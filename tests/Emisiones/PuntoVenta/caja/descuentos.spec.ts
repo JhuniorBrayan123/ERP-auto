@@ -1,14 +1,3 @@
-/**
- * Spec: descuentos.spec.ts
- *
- * Cubre:
- * - Validar que un comprobante emitido con descuento aparece en la pestaña "Descuentos"
- * - Verificar monto de descuento global
- *
- * Estrategia:
- * - Emitir una boleta con descuento de ítem y descuento global
- * - Buscar por correlativo dinámico (extraído del texto de confirmación)
- */
 
 import { expect } from '@playwright/test';
 import { test } from '@fixtures/PuntoVenta/caja.fixture';
@@ -28,7 +17,7 @@ import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 test.describe('Descuentos en Cierre de Caja', () => {
 
     test('validar comprobante con descuento global aparece en pestaña Descuentos', async ({ cajero, page }) => {
-        // ── Arrange: emitir boleta con descuento global ───────────────────────
+        
         const emisionPage = new EmisionPage(page);
         const clientePage = new ClientePage(page);
         const comprobantePage = new ComprobantePage(page);
@@ -39,35 +28,35 @@ test.describe('Descuentos en Cierre de Caja', () => {
         await emisionPage.buscarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
         await emisionPage.seleccionarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
 
-        // Aplicar descuento de ítem
+        
         await page.locator('[id="pv_cmp-punto-venta_cmp-venta-pedido:pedido_cmp-pedido-body:acciones_dv:btn-editar"]').click();
         await page.locator('[id="pv_cmp-punto-venta_cmp-venta-pedido:pedido_cmp-pedido-item:item_v-input:descuento"]').fill('10');
         await page.locator('[id="pv_cmp-punto-venta_cmp-venta-pedido:pedido_cmp-pedido-body:acciones_dv:btn-editar"]').click();
 
-        // Aplicar descuento global de S/2.50
+        
         await emisionPage.abrirDescuentoGlobal();
-        // Abrir el selector de tipo de descuento (que por defecto muestra "%")
+        
         await page.locator('.v-popup').locator('.preaddon-select').first().click();
-        // Seleccionar la opción "Monto" de la lista
+        
         await page.getByText('Monto', { exact: true }).last().click();
         
         await emisionPage.llenarDescuentoGlobal('2.5');
         await emisionPage.aplicarDescuentoGlobal();
 
-        // Pagar con monto exacto
+        
         const resultado = await emisionPage.emitirConEfectivoExacto();
         await emisionPage.clickNuevaVenta();
 
         const correlativo = resultado.correlativo;
 
-        // ── Act ──────────────────────────────────────────────────────────────
+        
         await cajero.realiza(
             IrACierreDeCaja(),
             ConsultarDescuentos(),
             BuscarDescuentoPorCorrelativo(correlativo),
         );
 
-        // ── Assert ───────────────────────────────────────────────────────────
+        
         await expect(
             DescuentosTargets.textoTotalDescuentoGlobal(page),
         ).toBeVisible({ timeout: 10_000 });

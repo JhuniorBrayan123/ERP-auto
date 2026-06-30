@@ -1,11 +1,3 @@
-/**
- * Spec: descargas-cierre-caja.spec.ts
- *
- * Cubre:
- * - Descargar Excel del cierre de caja
- * - Descargar PDF del cierre de caja
- * - Verificar que el archivo descargado tenga la extensión correcta y no esté vacío
- */
 
 import { expect } from '@playwright/test';
 import { test } from '@fixtures/PuntoVenta/caja.fixture';
@@ -20,12 +12,12 @@ import { ArchivoDescargado } from '@screenplay/questions/cierre-caja/MovimientoV
 test.describe('Descargas del Cierre de Caja', () => {
 
     test('descargar Excel del cierre de caja y verificar extensión', async ({ cajero }) => {
-        // ── Act ──────────────────────────────────────────────────────────────
+        
         await cajero.realiza(IrACierreDeCaja());
 
         const nombreArchivo = await cajero.realizaYObtiene(DescargarCierreCajaExcel());
 
-        // ── Assert ───────────────────────────────────────────────────────────
+        
         const esExcel = await cajero.pregunta(ArchivoDescargado(nombreArchivo, 'xlsx'));
         expect(esExcel).toBe(true);
 
@@ -33,12 +25,12 @@ test.describe('Descargas del Cierre de Caja', () => {
     });
 
     test('descargar PDF del cierre de caja y verificar extensión', async ({ cajero }) => {
-        // ── Act ──────────────────────────────────────────────────────────────
+        
         await cajero.realiza(IrACierreDeCaja());
 
         const nombreArchivo = await cajero.realizaYObtiene(DescargarCierreCajaPDF());
 
-        // ── Assert ───────────────────────────────────────────────────────────
+        
         const esPDF = await cajero.pregunta(ArchivoDescargado(nombreArchivo, 'pdf'));
         expect(esPDF).toBe(true);
 

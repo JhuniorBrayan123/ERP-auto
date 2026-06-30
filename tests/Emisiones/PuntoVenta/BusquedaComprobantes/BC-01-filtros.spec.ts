@@ -104,7 +104,7 @@ test('BC-05 | Buscar comprobantes por nombre de cliente', async ({busquedaPage})
 
     await test.step('When: filtra por nombre parcial del cliente de la semilla', async () => {
         await busquedaPage.filtrarPorTipo(BC_TIPOS_COMPROBANTE.BOLETA);
-        // Usar primeras letras del nombre para búsqueda flexible
+        
         const nombreParcial = semilla.cliente.split(' ')[0];
         await busquedaPage.filtrarPorNombreCliente(nombreParcial);
     });
@@ -112,7 +112,7 @@ test('BC-05 | Buscar comprobantes por nombre de cliente', async ({busquedaPage})
     await test.step('Then: la grilla muestra comprobantes del cliente', async () => {
         const page = busquedaPage['page'];
         await expect(page.locator('tbody').first()).toContainText(semilla.cliente, {timeout: 15_000});
-        // La grilla muestra el correlativo sin ceros a la izquierda (176, no 00000176)
+        
         await expect(page.locator('tbody').first()).toContainText(semilla.correlativo.replace(/^0+/, ''));
     });
 });
@@ -146,7 +146,7 @@ test('BC-06 | Buscar comprobantes combinando tipo + documento de cliente', async
     await test.step('Then: la grilla muestra solo facturas del cliente RUC', async () => {
         const page = busquedaPage['page'];
         await expect(page.locator('tbody').first()).toContainText('FACTURA', {timeout: 15_000});
-        // Validar que el cliente correcto aparece en los resultados
+        
         await expect(page.locator('tbody').first()).toContainText(CLIENTES.EMPRESA_RUC_AUTO.nombre);
     });
 });
