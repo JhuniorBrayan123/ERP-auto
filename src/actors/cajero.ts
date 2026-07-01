@@ -2,6 +2,7 @@ import {Page, test} from '@playwright/test';
 import {UsarNavegador} from '../abilities/usarnavegador';
 
 type TaskType = ((actor: Cajero) => Promise<void>) | ((page: Page) => Promise<void>);
+type TaskWithReturnType<T> = ((actor: Cajero) => Promise<T>) | ((page: Page) => Promise<T>);
 type QuestionType<T> = ((actor: Cajero) => Promise<T>) | ((page: Page) => Promise<T>);
 
 export class Cajero {
@@ -45,6 +46,22 @@ export class Cajero {
                 }
             });
         }
+    }
+
+    async realiza(...tasks: Array<TaskType>): Promise<void> {
+        return await this.intentaRealizar(...tasks);
+    }
+
+    async realizaYObtiene<T>(task: TaskWithReturnType<T>): Promise<T> {
+        const nombre = (task as any).displayName || task.name || 'Paso';
+        return await test.step(nombre, async () => {
+            if (task.length === 1 && task.toString().includes('actor')) {
+                return await (task as (actor: Cajero) => Promise<T>)(this);
+            } else {
+                const navegador = this.habilidad(UsarNavegador);
+                return await (task as (page: Page) => Promise<T>)(navegador.page);
+            }
+        });
     }
     
     async pregunta<T>(question: QuestionType<T>): Promise<T> {

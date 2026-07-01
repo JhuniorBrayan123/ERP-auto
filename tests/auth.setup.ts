@@ -36,7 +36,7 @@ function tieneSesionReal(): boolean {
     }
 }
 
-/** Elimina storage states de CRT anteriores, conservando solo el actual y PRD */
+
 function limpiarCrtAnteriores(actual: string): void {
     if (!fs.existsSync(authDir)) return;
     const actualName = path.basename(actual);
@@ -47,7 +47,7 @@ function limpiarCrtAnteriores(actual: string): void {
             fs.unlinkSync(fullPath);
             console.log(`[setup-state] Storage state CRT anterior eliminado: ${file}`);
         } catch {
-            // no crítico
+            
         }
     }
 }
@@ -88,7 +88,7 @@ setup('authenticate', async ({page}) => {
 
     await expect(page).not.toHaveURL(/auth\/login/, {timeout: 15000});
     
-    // Esperar a que el Home cargue completamente para asegurar que los tokens (JWT, etc) se guarden
+    
     await page.waitForLoadState('networkidle');
 
     const authFile = resolveStorageStatePath();

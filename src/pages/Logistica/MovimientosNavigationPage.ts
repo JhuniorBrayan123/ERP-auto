@@ -52,9 +52,14 @@ export class MovimientosNavigationPage {
         await runFunctionalAction(this.page, FUNCTIONAL_CATALOG.kardex.buscarProducto, async () => {
             await this.clickProductosYServicios();
             await this.page.getByText('Kardex total').click();
+
+            
+            
+            
+            await this.page.waitForLoadState('networkidle');
+
             await esperarCargaOverlay(this.page);
         });
-
     }
 
     async navegarAItemsProductos(): Promise<void> {

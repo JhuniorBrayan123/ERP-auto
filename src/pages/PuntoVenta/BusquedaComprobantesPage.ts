@@ -452,7 +452,7 @@ export class BusquedaComprobantesPage {
         const valorFiltro = correlativo.replace(/^0+/, '') || '0';
         await input.fill(valorFiltro);
         await input.press('Enter');
-        await consultaPromise.catch(() => {/* si el input aplica sin red, continuar */
+        await consultaPromise.catch(() => {
         });
         await esperarCargaOverlay(this.page);
     }
@@ -497,14 +497,14 @@ export class BusquedaComprobantesPage {
             if (correlativo) {
                 return this.page.locator('tr').filter({hasText: correlativo}).first();
             }
-            // Correlativo todo ceros ("0", "00000000") → buscar por la serie
-            // La grilla muestra serie y correlativo en columnas separadas (sin guión)
+            
+            
             const serie = partes[0];
             if (serie && serie !== '0') {
                 return this.page.locator('tr').filter({hasText: serie}).first();
             }
         }
-        // Fallback: primera fila visible (ya filtramos por tipo + categoría)
+        
         return this.page.locator('tbody tr').first();
     }
 

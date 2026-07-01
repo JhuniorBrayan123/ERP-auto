@@ -14,7 +14,7 @@ import {ClientePage} from '@pages/PuntoVenta/ClientePage';
 import {CajaPage} from '@pages/PuntoVenta/CajaPage';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
 
-// ── BC-18 | Abrir emisión de Factura desde una Nota de Venta ──
+
 test.describe('BC-18 | Abrir emisión de Factura desde NV', () => {
     let semillaNV: ComprobanteInfo;
 
@@ -91,7 +91,7 @@ test.describe('BC-18 | Abrir emisión de Factura desde NV', () => {
     });
 });
 
-// ── BC-19 y BC-20 | Bitácora y Ver comprobante (comparten semilla Boleta) ──
+
 test.describe('BC-19 y BC-20 | Bitácora y Ver comprobante', () => {
     let semillaFactura: ComprobanteInfo;
 

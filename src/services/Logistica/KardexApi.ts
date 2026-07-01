@@ -1,15 +1,15 @@
 import type {APIRequestContext} from '@playwright/test';
 import {env} from '../../../config/env';
-import type {KardexVariacionRaw, KardexAlmacenRaw} from '../../types/api-responses.types';
+import type {KardexAlmacenRaw, KardexVariacionRaw} from '../../types/api-responses.types';
 
 interface ObtenerSaldoParams {
-    
+
     codigoProducto: string;
-    
+
     almacenFiltro?: string;
-    
+
     fechaInicio?: string;
-    
+
     tipoItem?: number[];
 }
 
@@ -61,17 +61,34 @@ export class KardexApi {
 
         const url = this.buildUrl({codigoProducto, fechaInicio, tipoItem});
 
-        const response = await this.request.get(url, {
-            headers: {'Authorization': `Bearer ${this.token}`},
-        });
+        const maxRetries = 3;
+        let body: any;
 
-        if (!response.ok()) {
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            const response = await this.request.get(url, {
+                headers: {'Authorization': `Bearer ${this.token}`},
+            });
+
+            if (response.ok()) {
+                body = await response.json();
+                break; 
+            }
+
+            const status = response.status();
+
+            
+            if (status >= 500 && status < 600 && attempt < maxRetries) {
+                console.warn(`⚠ [KardexApi] Error ${status} al consultar saldo de "${codigoProducto}". Reintento ${attempt} en 2s...`);
+                
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                continue;
+            }
+
+            
             throw new Error(
-                `KardexApi: La petición falló con status ${response.status()} – ${response.statusText()}`,
+                `KardexApi: La petición falló con status ${status} – ${response.statusText()}`,
             );
         }
-
-        const body = await response.json();
 
         if (!body.Data?.length) {
             throw new Error(

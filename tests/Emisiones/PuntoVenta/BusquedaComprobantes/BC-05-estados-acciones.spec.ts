@@ -57,7 +57,7 @@ test('BC-24 | Emitir guía de remisión en estado Guardado y validar bitácora',
         AbrirAccionesDelComprobante.delPrimero(),
     );
 
-    // Emitir y capturar el correlativo real desde la API
+    
     const busqueda = new BusquedaComprobantesPage(page);
     const emitResponsePromise = page.waitForResponse(
         (resp) => resp.url().includes('DocumentosContables/Emisiones') && resp.status() === 200,
