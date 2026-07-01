@@ -25,12 +25,20 @@ export const IrACierreDeCaja = () => {
                 .catch(() => false);
 
             if (!menuAbierto) {
-                await MenuCajaTargets.btnAbrirMenu(page).click();
+                await esperarCargaOverlay(page);
+                await MenuCajaTargets.btnAbrirMenu(page).waitFor({ state: 'visible', timeout: 3000 }).catch(() => {});
+                await MenuCajaTargets.btnAbrirMenu(page).click({ force: true });
                 
-                await page.waitForTimeout(500);
+                await page.waitForTimeout(1000);
             }
 
-            await MenuCajaTargets.opcionCierreCaja(page).click();
+            try {
+                await MenuCajaTargets.opcionCierreCaja(page).click({ timeout: 2000 });
+            } catch (e) {
+                console.warn(`[IrACierreDeCaja] No se pudo hacer clic en Cierre de caja en intento ${intento} — reintentando`);
+                await page.waitForTimeout(1000);
+                continue;
+            }
 
             
             await esperarCargaOverlay(page);
@@ -46,7 +54,7 @@ export const IrACierreDeCaja = () => {
 
             console.warn(`[IrACierreDeCaja] Intento ${intento}/${MAX_INTENTOS} fallido — reintentando`);
             
-            await page.waitForTimeout(1_000);
+            await page.waitForTimeout(1000);
         }
 
         

@@ -19,7 +19,7 @@ export const MenuCajaTargets = {
         page.locator('[id="pv_cmp-punto-venta_menus:menu-movimientos-dinero:li_cobros"]'),
 
         opcionCierreCaja: (page: Page) =>
-        page.getByRole('listitem').filter({ hasText: /^Cierre de caja$/ }),
+        page.locator('[idx="pv_cmp-punto-venta:menu-ventas_menu-ventas-section:li_12"]'),
 
         opcionNuevaVenta: (page: Page) =>
         page.getByText('Nueva venta', { exact: true }),

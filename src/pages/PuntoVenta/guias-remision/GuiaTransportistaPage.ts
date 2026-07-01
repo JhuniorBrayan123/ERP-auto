@@ -52,8 +52,8 @@ export class GuiaTransportistaPage {
 
     get inputPagadorFlete() {
         return this.page.locator(
-            'input[id="pv_cmp-guia-remision-transportista_cmp-card-inicio:form-inicio_v-input:filtrar-entidad"][placeholder="Digite N° de documento"]'
-        ).last();
+            'input[id="pv_cmp-guia-remision-transportista_cmp-card-inicio:form-inicio-pagador-flete_v-input:filtrar-entidad"]'
+        );
     }
 
     async abrirNuevaGuia() {
@@ -83,7 +83,16 @@ export class GuiaTransportistaPage {
         await esperarCargaOverlay(this.page);
     }
     async seleccionarRemitente(documento: string) {
-        await this.seleccionarEntidadEnCard(this.cardBusquedaEntidad('Buscar remitente'), documento);
+        const input = this.page.locator('input[id="pv_cmp-guia-remision-transportista_cmp-card-inicio:form-inicio-remitente_v-input:filtrar-entidad"]');
+        await expect(input).toBeVisible();
+        await input.click();
+        await input.fill(documento);
+        await this.page
+            .locator('.v-input-dropdown.is-open article')
+            .filter({hasText: new RegExp(documento)})
+            .first()
+            .click();
+        await esperarCargaOverlay(this.page);
     }
 
     async seleccionarDestinatario(documento: string) {
@@ -113,7 +122,7 @@ export class GuiaTransportistaPage {
 
     async seleccionarTransportista(documento: string) {
         const input = this.page.locator(
-            '[id*="card-transporte"][id*="transportista"][id*="filtrar-entidad"]'
+            'input[id*="card-transporte"][id*="transportista"][id*="filtrar-entidad"]'
         );
         if (!(await input.isVisible().catch(() => false))) {
             return;
@@ -140,8 +149,8 @@ export class GuiaTransportistaPage {
 
     async seleccionarSubcontratador(documento: string) {
         const input = this.page.locator(
-            'input[id="pv_cmp-guia-remision-transportista_cmp-card-inicio:form-inicio_v-input:filtrar-entidad"][placeholder="Digite N° de RUC, nombre o razón social"]'
-        ).last();
+            'input[id="pv_cmp-guia-remision-transportista_cmp-card-inicio:form-inicio-pagador-flete_v-input:filtrar-entidad"]'
+        );
         await input.click();
         await input.fill(documento);
         await this.page.locator('.v-input-dropdown.is-open article')
@@ -166,9 +175,9 @@ export class GuiaTransportistaPage {
     }
 
     async completarPagadorFleteData(documento: string): Promise<void> {
-        const input = this.page.getByRole('textbox', {
-            name: /buscar pagador de flete/i,
-        });
+        const input = this.page.locator(
+            'input[id="pv_cmp-guia-remision-transportista_cmp-card-inicio:form-inicio-pagador-flete_v-input:filtrar-entidad"]'
+        );
 
         await input.fill(documento);
 

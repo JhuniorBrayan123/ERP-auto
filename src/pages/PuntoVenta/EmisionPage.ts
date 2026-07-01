@@ -319,6 +319,8 @@ export class EmisionPage {
 
     async clickNuevaVenta(): Promise<void> {
         await this.btnNuevaVenta.click();
+        await this.page.waitForLoadState('networkidle');
+        await this.page.waitForTimeout(500); // Dar un pequeño respiro extra a la UI
     }
 
     async clickYape(): Promise<void> {
