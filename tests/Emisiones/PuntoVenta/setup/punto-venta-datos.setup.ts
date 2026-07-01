@@ -35,7 +35,7 @@ setup('preparar datos base para PuntoVenta / Emisiones', async ({page}) => {
 
     try {
         console.log('   Intentando "Continuar vendiendo"...');
-        await page.getByRole('button', {name: 'Continuar vendiendo'}).first().click({timeout: 10_000});
+        await page.getByRole('button', {name: 'Continuar vendiendo'}).first().click({timeout: 30_000});
         console.log('  ✓ Entró a la caja');
     } catch {
         console.log('   Caja cerrada, aperturando...');

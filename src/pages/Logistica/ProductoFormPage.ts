@@ -239,7 +239,7 @@ export class ProductoFormPage extends ItemFormBasePage {
         await inputFactor.click();
         await inputFactor.fill(String(config.factor));
 
-        await this.page.locator('div').filter({ hasText: /^Seleccionar$/ }).nth(2).click();
+        await this.page.locator('.v-select-header-base-form:visible').filter({ hasText: /^Seleccionar$/ }).first().click({ force: true });
         await this.page.getByText(config.tipoAfectacion).last().click();
 
         const inputPrecioVenta = this.page.getByRole('textbox', { name: 'Monto final' }).first();
