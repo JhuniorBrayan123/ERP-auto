@@ -43,15 +43,15 @@ export class GuiaRemitentePage {
     }
 
     get inputDestinatario() {
-        return this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-destinatario:form-destino_v-input:filtrar-entidad"]');
+        return this.page.locator('input[id="pv_cmp-guia-remision-remitente_cmp-card-destinatario:form-destino_v-input:filtrar-entidad"]');
     }
 
     get inputTransportista() {
-        return this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-transporte:form-transporte-transportista_v-input:filtrar-entidad"]');
+        return this.page.locator('input[id="pv_cmp-guia-remision-remitente_cmp-card-transporte:form-transporte-transportista_v-input:filtrar-entidad"]');
     }
 
     get inputConductor() {
-        return this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-transporte:form-transporte-conductor_v-input:filtrar-entidad"]');
+        return this.page.locator('input[id="pv_cmp-guia-remision-remitente_cmp-card-transporte:form-transporte-conductor_v-input:filtrar-entidad"]');
     }
 
     get inputMTC() {
@@ -276,7 +276,7 @@ export class GuiaRemitentePage {
     }
 
     async seleccionarProveedor(documento: string) {
-        const inputProveedor = this.page.locator('[id="pv_cmp-guia-remision-remitente_cmp-card-inicio:form-inicio-proveedor_v-input:filtrar-entidad"]');
+        const inputProveedor = this.page.locator('input[id="pv_cmp-guia-remision-remitente_cmp-card-inicio:form-inicio-proveedor_v-input:filtrar-entidad"]');
         await inputProveedor.click();
         await inputProveedor.fill(documento);
         const resultado = this.page

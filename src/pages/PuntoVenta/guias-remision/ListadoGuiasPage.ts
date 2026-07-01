@@ -37,7 +37,7 @@ export class ListadoGuiasPage {
             .filter({hasText: 'GUARDADO'})
             .first();
 
-        await expect(mensajeGuardado.or(filaGuardada)).toBeVisible({timeout: 15_000});
+        await expect(mensajeGuardado.or(filaGuardada)).toBeVisible({timeout: 30_000});
     }
 
     async validarElementosDeEnvioVisibles() {

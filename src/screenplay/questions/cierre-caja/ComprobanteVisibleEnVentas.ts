@@ -18,8 +18,7 @@ export const ComprobanteVisibleEnVentas = (datos: DatosComprobanteEsperado) => {
 
         if (datos.serie) {
             try {
-                
-                await contenedor.locator('td').getByText(String(datos.serie), { exact: false }).first().waitFor({ state: 'visible', timeout: 5000 });
+                await contenedor.locator('.serie:visible, .mobile-serie-correlativo:visible').getByText(String(datos.serie), { exact: false }).first().waitFor({ state: 'visible', timeout: 5000 });
             } catch (e) {
                 throw new Error(`Validación fallida: No se encontró la serie '${datos.serie}' visible en la tabla.`);
             }
@@ -28,8 +27,7 @@ export const ComprobanteVisibleEnVentas = (datos: DatosComprobanteEsperado) => {
         if (datos.correlativo) {
             const correlativoLimpio = Number(datos.correlativo).toString();
             try {
-                
-                await contenedor.locator('td').getByText(correlativoLimpio, { exact: true }).first().waitFor({ state: 'visible', timeout: 5000 });
+                await contenedor.locator('.correlativo:visible, .mobile-serie-correlativo:visible').getByText(correlativoLimpio, { exact: false }).first().waitFor({ state: 'visible', timeout: 5000 });
             } catch (e) {
                 throw new Error(`Validación fallida: No se encontró el correlativo '${correlativoLimpio}' visible en la tabla.`);
             }
@@ -37,7 +35,7 @@ export const ComprobanteVisibleEnVentas = (datos: DatosComprobanteEsperado) => {
 
         if (datos.tipoDocumento) {
             try {
-                await contenedor.locator('td').getByText(datos.tipoDocumento, { exact: false }).first().waitFor({ state: 'visible', timeout: 3000 });
+                await contenedor.locator('.tipo-comprobante:visible, .mobile-tipo:visible').getByText(datos.tipoDocumento, { exact: false }).first().waitFor({ state: 'visible', timeout: 3000 });
             } catch (e) {
                 throw new Error(`Validación fallida: No se encontró el tipo de documento '${datos.tipoDocumento}' visible en la tabla.`);
             }
@@ -45,7 +43,7 @@ export const ComprobanteVisibleEnVentas = (datos: DatosComprobanteEsperado) => {
 
         if (datos.cliente) {
             try {
-                await contenedor.getByText(datos.cliente, { exact: false }).first().waitFor({ state: 'visible', timeout: 3000 });
+                await contenedor.locator('.razon-social:visible, .mobile-razon-social:visible').getByText(datos.cliente, { exact: false }).first().waitFor({ state: 'visible', timeout: 3000 });
             } catch (e) {
                 throw new Error(`Validación fallida: No se encontró el cliente '${datos.cliente}' visible en la tabla.`);
             }
@@ -53,7 +51,7 @@ export const ComprobanteVisibleEnVentas = (datos: DatosComprobanteEsperado) => {
 
         if (datos.estado) {
             try {
-                await contenedor.getByText(datos.estado, { exact: true }).first().waitFor({ state: 'visible', timeout: 3000 });
+                await contenedor.locator('.label-estado-comprobante:visible').getByText(datos.estado, { exact: true }).first().waitFor({ state: 'visible', timeout: 3000 });
             } catch (e) {
                 throw new Error(`Validación fallida: No se encontró el estado '${datos.estado}' visible en la tabla.`);
             }

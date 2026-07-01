@@ -41,6 +41,12 @@ export const EmitirComprobanteOrigen = (datos: DatosComprobanteOrigen) => {
         await emisionPage.seleccionarItem(datos.item.nombre);
         const resultado = await emisionPage.emitirConEfectivoExacto();
         await expect(page.getByText('¡Buen trabajo!')).toBeVisible();
+        
+        // Pausa crucial: Si el robot hace clic en "Nueva Venta" demasiado rápido, 
+        // el servidor colapsa (Error 500) porque aún está procesando el cierre de la boleta.
+        // A los humanos no les pasa porque se demoran más de un segundo en reaccionar.
+        await page.waitForTimeout(1500); 
+        
         await emisionPage.clickNuevaVenta();
 
         return {
