@@ -54,7 +54,12 @@ test('BC-09 | Validar columnas visibles y ocultas de la grilla', async ({busqued
         await expect(page.getByRole('columnheader', {name: 'Estado de pago', exact: true})).toHaveCount(0);
         await expect(page.getByRole('columnheader', {name: 'Estado de SUNAT', exact: true})).toHaveCount(0);
     });
+
+    await test.step('Cleanup: reactivar TODAS las columnas en todos los tabs', async () => {
+        await busquedaPage.activarTodasLasColumnas();
+    });
 });
+
 
 test('BC-10 | Validar paginación — avanzar a siguiente página mantiene filtros', async ({busquedaPage}) => {
     const page = busquedaPage['page'];

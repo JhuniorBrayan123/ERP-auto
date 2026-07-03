@@ -104,7 +104,17 @@ export class DetraccionPage {
         await this.page.getByRole('button', {name: 'Guardar', exact: true}).click();
         await this.page.getByRole('button', {name: 'Actualizar'}).waitFor({state: 'visible'});
         await this.page.getByRole('button', {name: 'Actualizar'}).click();
-        await this.page.locator('.v-modal > div').first().click();
+        
+        // Esperar el modal de éxito y cerrarlo con la X
+        await this.page.getByText('¡Buen trabajo!').waitFor({state: 'visible'});
+        await this.page.locator('.v-modal.is-open > .icon').last().click();
+        
+        // Cerrar el modal de configuración si sigue abierto
+        await this.page.waitForTimeout(500); // pequeña pausa para animación
+        const configModalIcon = this.page.locator('.v-modal.is-open > .icon').first();
+        if (await configModalIcon.isVisible()) {
+            await configModalIcon.click();
+        }
     }
 
     async configurarDetraccionSimple(config: {
@@ -123,7 +133,15 @@ export class DetraccionPage {
         await inputCuenta.fill(config.numeroCuenta);
 
         await this.page.getByRole('button', {name: 'Actualizar'}).click();
-        await this.page.locator('.v-modal > div').first().click();
+
+        await this.page.getByText('¡Buen trabajo!').waitFor({state: 'visible'});
+        await this.page.locator('.v-modal.is-open > .icon').last().click();
+
+        await this.page.waitForTimeout(500); // pequeña pausa para animación
+        const configModalIcon = this.page.locator('.v-modal.is-open > .icon').first();
+        if (await configModalIcon.isVisible()) {
+            await configModalIcon.click();
+        }
     }
 
     private async _llenarUbigeo(detalle: DetalleCarga, tipo: 'origen' | 'destino'): Promise<void> {

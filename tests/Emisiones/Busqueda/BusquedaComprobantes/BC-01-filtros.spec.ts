@@ -6,8 +6,9 @@ import {
     test
 } from '@fixtures/PuntoVenta/busqueda-comprobantes.fixture';
 import type {ComprobanteInfo} from '@helpers/PuntoVenta/busqueda-comprobantes.data';
-import {BC_CATEGORIAS, BC_PRESETS_FECHA, BC_TIPOS_COMPROBANTE,} from '@helpers/PuntoVenta/busqueda-comprobantes.data';
+import {BC_CATEGORIAS, BC_PRESETS_FECHA, BC_TIPOS_COMPROBANTE} from '@helpers/PuntoVenta/busqueda-comprobantes.data';
 import {CLIENTES} from '@helpers/PuntoVenta/emision-data.helper';
+import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 
 let semilla: ComprobanteInfo;
 
@@ -19,6 +20,9 @@ test.beforeAll(async ({browser}) => {
     const page = await context.newPage();
     try {
         semilla = await crearBoletaSemilla(page);
+        await page.goto('/punto-venta/comprobantes');
+        const busquedaPage = new BusquedaComprobantesPage(page);
+        await busquedaPage.activarTodasLasColumnas();
     } finally {
         await context.close();
     }

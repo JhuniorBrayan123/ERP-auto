@@ -655,15 +655,36 @@ export class BusquedaComprobantesPage {
 
     async abrirConfiguracionColumnas(): Promise<void> {
         await this.page.locator('.v-icon-head-plus > .icon').click();
+        // Esperar a que el dropdown se renderice en el DOM para evitar race conditions
+        await this.page.locator('.container-dropdown-elements').waitFor({ state: 'attached', timeout: 5000 });
     }
 
-    async configurarColumna(categoria: string, campoId: string, activar: boolean): Promise<void> {
+    async configurarColumna(categoria: string, campoId: string, activar: boolean): Promise<boolean> {
         const itemId = `pv_cmp-comprobantes:cmp-grid-comprobantes-header-options_select-columns:item-${categoria}-${campoId}`;
-        const checkbox = this.page.locator(`[id="${itemId}"]`).locator('label');
-        const isChecked = await this.page.locator(`[id="${itemId}"] input`).isChecked().catch(() => false);
+        const container = this.page.locator(`[id="${itemId}"]`);
 
-        if (activar && !isChecked) await checkbox.click();
-        if (!activar && isChecked) await checkbox.click();
+        // Si la columna no existe en esta categoría, la ignoramos
+        if (await container.count() === 0) return false;
+
+        // Leemos el estado real desde el atributo checked del wrapper (no del input nativo)
+        const wrapper = container.locator('.v-checkbox');
+        const checkedAttr = await wrapper.getAttribute('checked').catch(() => null);
+        const isChecked = checkedAttr === 'true';
+
+        if (activar && !isChecked) {
+            // Scrollear al elemento antes de hacer click (puede estar fuera del viewport)
+            await container.scrollIntoViewIfNeeded();
+            // El click debe ir al label — Vue maneja el estado, no el input nativo
+            await container.locator('label').click({ force: true });
+            return true;
+        }
+        if (!activar && isChecked) {
+            await container.scrollIntoViewIfNeeded();
+            await container.locator('label').click({ force: true });
+            return true;
+        }
+
+        return false;
     }
 
     async guardarConfiguracionColumnas(): Promise<void> {
@@ -671,7 +692,61 @@ export class BusquedaComprobantesPage {
             '[id="pv_cmp-comprobantes:cmp-grid-comprobantes-header-options_v-button:guardar-configuracion"]',
         ).click();
         await esperarCargaOverlay(this.page);
+    }
+    
+    async activarTodasLasColumnas(): Promise<void> {
+        const columnasPorCategoria: Record<BcCategoria, string[]> = {
+            TODOS: [
+                'NumeroDocumento', 'FCreacion', 'FEmision', 'UsuarioCreador',
+                'Peso', 'CondicionesPago', 'MetodosPago', 'Monedas',
+                'Subtotal', 'IGV', 'Mtotal', 'MontoPagado',
+                'MontoAdeudado', 'EstadoPago', 'ListEstadosSunat',
+            ],
+            VENTAS: [
+                'NumeroDocumento', 'IdRazonSocial', 'FEmision', 'IdsCajas',
+                'Despacho', 'CondicionesPago', 'MetodosPago', 'Monedas',
+                'ListEstados', 'EstadoPago', 'ListEstadosSunat',
+            ],
+            FACTURACION: [
+                'NumeroDocumento', 'IdRazonSocial', 'FEmision', 'IdsCajas',
+                'Despacho', 'CondicionesPago', 'MetodosPago', 'Monedas',
+                'ListEstados', 'EstadoPago', 'ListEstadosSunat',
+            ],
+            GUIAS: [
+                'NumeroDocumento', 'IdRazonSocial', 'FEmision', 'IdsCajas',
+                'Despacho', 'CondicionesPago', 'MetodosPago', 'Monedas',
+                'ListEstados', 'EstadoPago', 'ListEstadosSunat',
+            ],
+            COTIZACIONES: [
+                'NumeroDocumento', 'IdRazonSocial', 'FEmision', 'IdsCajas',
+                'Despacho', 'CondicionesPago', 'MetodosPago', 'Monedas',
+                'ListEstados', 'EstadoPago', 'ListEstadosSunat',
+            ],
+            PEDIDOS: [
+                'NumeroDocumento', 'IdRazonSocial', 'FEmision', 'IdsCajas',
+                'Despacho', 'CondicionesPago', 'MetodosPago', 'Monedas',
+                'ListEstados', 'EstadoPago', 'ListEstadosSunat',
+            ],
+        };
 
+        for (const [categoria, columnas] of Object.entries(columnasPorCategoria)) {
+            await this.seleccionarCategoria(categoria as BcCategoria);
+            await this.abrirConfiguracionColumnas();
+
+            let changed = false;
+            for (const campoId of columnas) {
+                const toggled = await this.configurarColumna(categoria, campoId, true);
+                if (toggled) changed = true;
+            }
+            
+            if (changed) {
+                await this.guardarConfiguracionColumnas();
+            } else {
+                await this.page.locator('.v-icon-head-plus > .icon').click();
+            }
+        }
+
+        await this.seleccionarCategoria('TODOS');
     }
 
     async abrirVerComprobanteDesdeMenu(): Promise<Page> {
