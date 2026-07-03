@@ -95,8 +95,6 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
             await emisionAdelantosPage.abrirAdelantos(CLIENTES.EMPRESA_RUC_AUTO);
             
             await busquedaComprobantes.filtrarAdelantoFactura(emisionAdelanto);
-
-            await page.locator('.v-modal > div').first().click();
         });
 
         await test.step('And: verificar total anticipos visible', async () => {

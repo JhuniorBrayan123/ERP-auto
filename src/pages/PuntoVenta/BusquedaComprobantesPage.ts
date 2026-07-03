@@ -120,6 +120,7 @@ export class BusquedaComprobantesPage {
 
         const checkbox = this.page.locator('[id="pv_punto-venta_cmp_venta_pedido:modals_cmp-gestion-adelantos_v-checkbox:agregar-adelanto-0"]');
         await checkbox.click({force: true});
+        await this.page.getByRole('button', { name: 'Aceptar' }).click();
 
         console.log(`   Adelanto factura filtrado y seleccionado: F001-${emision.correlativo}`);
     }

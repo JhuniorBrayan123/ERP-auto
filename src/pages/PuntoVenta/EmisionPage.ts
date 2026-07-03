@@ -437,14 +437,10 @@ export class EmisionPage {
     async clickFechaFueraDeRango(diasLimite: number): Promise<string> {
         const fecha = new Date();
         fecha.setDate(fecha.getDate() - (diasLimite + 1));
-
         const diasSemana = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const meses = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
         const ariaLabel = `${diasSemana[fecha.getDay()]}, ${meses[fecha.getMonth()]} ${fecha.getDate()}, ${fecha.getFullYear()}`;
-
         await this.abrirSelectorFecha();
-
         const fechaObjetivo = new Date()
         fechaObjetivo.setDate(fechaObjetivo.getDate() - (diasLimite + 1));
         const hoy = new Date();
@@ -454,11 +450,12 @@ export class EmisionPage {
         ) {
             await this.page.locator('button.vc-arrow.vc-prev').click()
         }
-        const botonFecha = this.page.locator(`[aria-label="${ariaLabel}"]`);
+        // const botonFecha = this.page.locator(`[aria-label="${ariaLabel}"]`);
+        const botonFecha = this.page.locator(
+            `.vc-day:not(.is-not-in-month) [aria-label="${ariaLabel}"]`
+        );
         await botonFecha.waitFor({state: 'attached', timeout: 5_000});
-
         await botonFecha.dispatchEvent('click');
-
         console.log(`   Click disparado en fecha fuera de rango: ${ariaLabel}`);
         return ariaLabel;
     }
