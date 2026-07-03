@@ -1,4 +1,5 @@
 import {type Page} from '@playwright/test';
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 export class MovimientoRapidoPage {
     constructor(private readonly page: Page) {
@@ -23,19 +24,30 @@ export class MovimientoRapidoPage {
             .click();
     }
 
-    async clickAumentarStockDesdeVisualizacion(): Promise<void> {
+    async clickAumentarStockDesdeVisualizacion(nombreAlmacen: string): Promise<void> {
         await this.page
             .locator('[id="lgt_items_cmp-grid-item-option:opciones_items_cmp-dropdown:options-li:visualizar-item"]')
             .click();
-        await this.page
-            .locator('[id="lgt_items_v-modal:stock-item_cmp-dropdown:stock-almacen-opciones"]')
-            .first()
+        await esperarCargaOverlay(this.page);
+
+        // Localizar la tarjeta del almacén específico
+        const card = this.page
+            .locator('.stock-almacen')
+            .filter({ has: this.page.locator('.descripcion', { hasText: nombreAlmacen }) });
+
+        // Click en el botón de opciones visible del almacén correspondiente
+        await card
+            .locator('.stock .opciones [id="lgt_items_v-modal:stock-item_cmp-dropdown:stock-almacen-opciones"]')
             .click();
+
+        await esperarCargaOverlay(this.page);
+
         await this.page
             .locator('[id="lgt_items_v-modal:stock-item_cmp-dropdown:stock-almacen-opciones_cmp-dropdown-item:aumentar-stock"]')
             .getByText('Aumentar stock')
             .click();
     }
+
 
     async clickIncrementarStockVariante(): Promise<void> {
         await this.page
