@@ -12,6 +12,7 @@ import {
 } from '@screenplay/tasks/cierre-caja/ConsultarIngresosYEgresos';
 import { MovimientoVisibleEnCierre } from '@screenplay/questions/cierre-caja/MovimientoVisibleEnCierre';
 import { CLIENTES } from '@helpers/PuntoVenta/emision-data.helper';
+import { UsarNavegador } from '@abilities/usarnavegador';
 
 
 
@@ -73,7 +74,7 @@ test.describe('Ingresos y Egresos de Caja', () => {
 
         
         await expect(
-            cajero.habilidad(require('@abilities/usarnavegador').UsarNavegador).page
+            cajero.habilidad(UsarNavegador).page
                 .getByText(`S/100.00`, { exact: false }),
         ).toBeVisible();
 
@@ -108,7 +109,7 @@ test.describe('Ingresos y Egresos de Caja', () => {
         expect(movimiento.CorrelativoDocFinanciero).toBeGreaterThan(0);
         expect(movimiento.SerieFinal).toMatch(/RP01/i);
 
-        const page = cajero.habilidad(require('@abilities/usarnavegador').UsarNavegador).page;
+        const page = cajero.habilidad(UsarNavegador).page;
 
         
         await expect(
@@ -153,7 +154,7 @@ test.describe('Ingresos y Egresos de Caja', () => {
         );
 
         
-        const page = cajero.habilidad(require('@abilities/usarnavegador').UsarNavegador).page;
+        const page = cajero.habilidad(UsarNavegador).page;
 
         
         await expect(page.getByText(/Total Ingresos/i)).toBeVisible();

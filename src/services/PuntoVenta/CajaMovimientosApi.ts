@@ -27,6 +27,7 @@ export interface MovimientoCaja {
     FechaMov?: string;
     TipoPagoDesc?: string;
     IdMonedaMovimiento?: number;
+    Concepto?: string;
 }
 
 export interface MovimientosResponse {
