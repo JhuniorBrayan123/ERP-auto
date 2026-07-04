@@ -266,6 +266,7 @@ export class GuiaRemitentePage {
             await expect(this.page.locator('body')).toContainText(`${serie}-${correlativo}`);
             await this.page.getByRole('button', {name: 'Vincular y crear guía'}).click();
             await expect(this.page.getByText('Comprobante vinculado')).toBeVisible();
+            await this.page.locator('.v-modal > div').first().click();
         });
     }
 

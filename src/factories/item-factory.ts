@@ -494,6 +494,35 @@ export const ITEM_TEMPLATES: ItemTemplate[] = [
         },
     },
     {
+        key: 'COMBO_ESTRICTO',
+        codigoBase: '550055',
+        nombre: 'combo items estrictos',
+        tipo: 'combo',
+        fase: 4,
+        esDinamico: true,
+        config: {
+            precioVenta: '150',
+            precioCompra: '44.5',
+            controlStock: 'flexible',
+            componentesCombo: [
+                {codigoBusqueda: 'PRODUCTO_SIMPLE', textoSeleccion: 'Item para combos estricto'},
+                {
+                    codigoBusqueda: 'ITEM_VARIANTE_ESTRICTO',
+                    textoSeleccion: 'item variante estricto gravado',
+                    variante: 'Variante 1 estricto'
+                },
+                {
+                    codigoBusqueda: 'ITEM_EQUIVALENTE_ESTRICTO',
+                    textoSeleccion: 'item equivalente estricto gravado',
+                    equivalencia: 'Equivalente X2'
+                },
+            ],
+            categoria: 'REGRESION',
+            subcategoria: 'AUTO-TEST',
+            marca: 'AUTOMATIZADO',
+        },
+    },
+    {
         key: 'LISTA_SIN_STOCK',
         codigoBase: '434344',
         nombre: 'Lista con un item sin stock',

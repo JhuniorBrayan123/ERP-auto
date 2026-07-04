@@ -48,7 +48,7 @@ export default defineConfig({
 
     trace: isCI ? "retain-on-failure" : "off",
     screenshot: "only-on-failure",
-    video: isCI ? "retain-on-failure" : "off",
+    video: isCI ? "retain-on-failure" : "on",
 
     actionTimeout: 35_000,
     navigationTimeout: 60_000,

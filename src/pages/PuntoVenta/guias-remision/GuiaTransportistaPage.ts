@@ -145,12 +145,15 @@ export class GuiaTransportistaPage {
         await this.page.locator('.v-select-base-options.is-open')
             .getByText(tipo, {exact: true})
             .click();
+        await esperarCargaOverlay(this.page);
     }
 
     async seleccionarSubcontratador(documento: string) {
-        const input = this.page.locator(
-            'input[id="pv_cmp-guia-remision-transportista_cmp-card-inicio:form-inicio-pagador-flete_v-input:filtrar-entidad"]'
-        );
+        const input = this.page.locator('input[id*="subcontrata"][id*="filtrar-entidad"]').or(
+            this.page.locator('article').filter({hasText: /Subcontratador/i}).getByRole('textbox', {name: 'Digite N° de documento'})
+        ).first();
+        
+        await expect(input).toBeVisible({ timeout: 15000 });
         await input.click();
         await input.fill(documento);
         await this.page.locator('.v-input-dropdown.is-open article')

@@ -59,7 +59,6 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
         });
 
         await buscarItemEnListadoRapidoYAcceder(movimientoRapido, page, ITEMS_TEST.VARIANTE_FLEXIBLE.codigo);
-
         await test.step('And: seleccionar variante e incrementar stock', async () => {
             await movimientoRapido.clickexpandeVariante(ITEMS_TEST.VARIANTE_FLEXIBLE.codigo);
             await movimientoRapido.abrirMenuItemAcciones(VARIANTES.V1_FLEXIBLE.nombre);

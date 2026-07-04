@@ -13,6 +13,8 @@ import {ComprobantePage} from '@pages/PuntoVenta/ComprobantePage';
 import {ClientePage} from '@pages/PuntoVenta/ClientePage';
 import {CajaPage} from '@pages/PuntoVenta/CajaPage';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
+import {esperarCargaOverlay} from "@utils/wait-helpers";
+import {Page} from "@playwright/test";
 
 
 test.describe('BC-18 | Abrir emisión de Factura desde NV', () => {
@@ -215,7 +217,7 @@ test.describe('BC-21 | Clonar factura', () => {
         await page.goto('/punto-venta/comprobantes');
     });
 
-    test('BC-21 | Clonar una factura y validar que los datos se transfieren', async ({busquedaPage}) => {
+    test('BC-21 | Clonar una factura y validar que los datos se transfieren', async ({ busquedaPage }) => {
         test.skip(!semillaParaClonar, 'Semilla para clonar no disponible');
 
         await test.step('Given: filtrar la factura semilla para clonar', async () => {
@@ -225,23 +227,22 @@ test.describe('BC-21 | Clonar factura', () => {
             await busquedaPage.filtrarPorCorrelativos(semillaParaClonar.correlativo);
         });
 
+        let popupPage: Page;
+
         await test.step('When: abre acciones y selecciona "Clonar comprobante"', async () => {
             await busquedaPage.abrirAccionesDeComprobante(semillaParaClonar.numeroCompleto);
             await busquedaPage.seleccionarAccion(BC_ACCIONES.CLONAR);
-            await busquedaPage['page'].getByText(CAJAS.VENTA.nombre, {exact: true}).click();
-            const popupPromise = busquedaPage['page'].waitForEvent('popup');
-            await busquedaPage['page'].getByRole('button', {name: 'Continuar'}).click();
-            const popupPage = await popupPromise;
+            await busquedaPage.seleccionarCajaParaClonar(CAJAS.VENTA.nombre);
+            popupPage = await busquedaPage.confirmarClonacion();
+        });
 
-            await test.step('Then: el popup de emisión contiene los datos del comprobante origen', async () => {
-                await expect(popupPage.getByRole('main')).toContainText(
-                    CLIENTES.EMPRESA_RUC_AUTO.nombre, {timeout: 20_000},
-                );
-                await expect(popupPage.getByRole('main')).toContainText(
-                    ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre,
-                );
-            });
-
+        await test.step('Then: el popup de emisión contiene los datos del comprobante origen', async () => {
+            await expect(popupPage.getByRole('main')).toContainText(
+                CLIENTES.EMPRESA_RUC_AUTO.nombre, { timeout: 30_000 },
+            );
+            await expect(popupPage.getByRole('main')).toContainText(
+                ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre,
+            );
             await popupPage.close();
         });
     });

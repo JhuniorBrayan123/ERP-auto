@@ -151,6 +151,12 @@ export const ITEMS_PV = {
         cantidad: 4,
     } as ItemVenta,
 
+    COMBO_ESTRICTO: {
+        codigo: "550055",
+        nombre: "combo items estrictos",
+        cantidad: 1,
+    } as ItemVenta,
+
     ITEM_VARIANTE_FLEXIBLE: {
         codigo: "313131",
         nombre: "item con variante flexible",

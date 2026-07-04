@@ -474,19 +474,28 @@ export class BusquedaComprobantesPage {
         await esperarCargaOverlay(this.page);
     }
 
-    async filtrarPorMontoTotal(comparador: string, valor: string): Promise<void> {
 
+    async filtrarPorMontoTotal(comparador: string, valor: string): Promise<void> {
         await this.page.locator(
             '[id="pv_comprobantes_cmp-grid-comprobantes-header:grid-header_v-input:MontoTotalFormateado"]',
         ).click();
 
-        await this.page.getByText(comparador, {exact: true}).click();
+        const dropdownComparador = this.page.locator('.v-select-header-form');
+        await dropdownComparador.click();
+
+        const opcionesDropdown = this.page.locator('.v-select-base-options.is-open');
+        await opcionesDropdown.waitFor({ state: 'visible' });
+
+        await opcionesDropdown
+            .locator('.v-select-form-option')
+            .getByText(comparador, { exact: true })
+            .click();
 
         const inputValor = this.page.locator(
             '[id="pv_common_cmp-card-filter-number:filtro_v-input:valor"]',
         );
         await inputValor.fill(valor);
-        await inputValor.press('Enter');
+        await this.page.locator('[id="pv_comprobantes_cmp-grid-comprobantes-header:grid-header_cmp-card-filter-number:aplicar-filtro"]').click();
         await esperarCargaOverlay(this.page);
     }
 
@@ -615,8 +624,20 @@ export class BusquedaComprobantesPage {
 
     async seleccionarAccion(nombreAccion: string): Promise<void> {
         await this.page.getByText(nombreAccion, {exact: true}).click();
+        await esperarCargaOverlay(this.page);
     }
 
+    async seleccionarCajaParaClonar(nombreCaja: string) {
+        await this.page
+            .locator('.cmp-card-caja')
+            .filter({ has: this.page.locator('.titulo').getByText(nombreCaja, { exact: true }) })
+            .click();
+    }
+    async confirmarClonacion(): Promise<Page> {
+        const popupPromise = this.page.waitForEvent('popup');
+        await this.page.getByRole('button', { name: 'Continuar' }).click();
+        return await popupPromise;
+    }
     async seleccionarAccionPorId(idAccion: string): Promise<void> {
         await this.page.locator(`[id="${idAccion}"]`).click();
     }

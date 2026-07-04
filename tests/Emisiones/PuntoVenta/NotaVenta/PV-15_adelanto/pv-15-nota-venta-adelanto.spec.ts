@@ -95,7 +95,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
             await page.locator(
                 '.v-checkbox-default-label.flex-row-align-items-center-justify-content-center > span',
             ).first().click();
-            await page.locator('.v-modal > div').first().click();
+            await page.getByRole('button', { name: 'Aceptar' }).click();
         });
 
         await test.step('And: verificar total anticipos visible', async () => {

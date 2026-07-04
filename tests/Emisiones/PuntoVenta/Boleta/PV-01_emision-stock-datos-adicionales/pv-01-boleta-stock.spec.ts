@@ -105,8 +105,8 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
         });
 
         await test.step('When: agregar combo y emitir', async () => {
-            await emisionPage.buscarItem(ITEMS_PV.COMBO_EXONERADO.codigo);
-            await emisionPage.seleccionarItem(ITEMS_PV.COMBO_EXONERADO.nombre);
+            await emisionPage.buscarItem(ITEMS_PV.COMBO_ESTRICTO.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.COMBO_ESTRICTO.nombre);
             await emisionPage.emitirConEfectivoExacto();
         });
 

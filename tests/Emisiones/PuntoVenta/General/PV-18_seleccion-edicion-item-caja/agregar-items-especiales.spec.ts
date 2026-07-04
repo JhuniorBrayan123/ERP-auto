@@ -10,7 +10,6 @@ import {CerrarTotales} from '../../../../../src/interactions/PuntoVenta/CerrarTo
 import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {TotalDistintoDeCero} from "@question/PuntoVenta/TotalDistintoDeCero";
-import {calcularTotalesExonerado} from "@utils/calculadora-impuestos";
 
 test.describe('Selección, edición de ítem en caja de venta — Items especiales', {tag: ['@punto-venta', '@seleccion-edicion-item', '@items-especiales']}, () => {
 
@@ -44,15 +43,13 @@ test.describe('Selección, edición de ítem en caja de venta — Items especial
     test('SC-09: Buscar y agregar un ítem tipo combo @PV-18.9', async ({page}) => {
         const cajero = Cajero.con(page);
         
-        const totales = calcularTotalesExonerado(15, 1);
-
         await cajero.intentaRealizar(
-            BuscarYAgregarCombo(ITEMS_PV.COMBO_EXONERADO),
+            BuscarYAgregarCombo(ITEMS_PV.COMBO_ESTRICTO),
             AbrirTotales()
         );
 
-        expect(totales.baseImponible).toBe("15.00");
-        expect(totales.igv).toBe("0.00");
+        expect(await cajero.pregunta(TotalDistintoDeCero())).toBe(true);
+        await cajero.intentaRealizar(CerrarTotales());
     });
 
     test('SC-10: Buscar y agregar una lista de productos @PV-18.10', async ({page}) => {

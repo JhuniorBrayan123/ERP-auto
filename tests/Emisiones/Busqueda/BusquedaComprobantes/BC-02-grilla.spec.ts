@@ -189,10 +189,4 @@ test('BC-11b | Ordenar resultados por monto total — verificar orden numérico'
 
         expect(estaOrdenado, `Monto total no está ordenado. Valores: ${nums.join(', ')}`).toBe(true);
     });
-
-    await test.step('Cleanup: desactivar columna Monto total', async () => {
-        await busquedaPage.abrirConfiguracionColumnas();
-        await busquedaPage.configurarColumna('TODOS', BC_COLUMN_IDS.MONTO_TOTAL, false);
-        await busquedaPage.guardarConfiguracionColumnas();
-    });
 });

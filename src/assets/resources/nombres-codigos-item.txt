@@ -16,6 +16,7 @@
 545454 = item selector flexible
 
 222222 = combo exonerado hijo
+550055 = combo items estrictos (base: estricto + variante estricto + equivalente estricto)
 
 //mayormente estos entran en las recetas
 444444 = Nuevo insumo sin control de stock+
