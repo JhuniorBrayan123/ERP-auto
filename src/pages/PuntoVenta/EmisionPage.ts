@@ -320,7 +320,7 @@ export class EmisionPage {
     async clickNuevaVenta(): Promise<void> {
         await this.btnNuevaVenta.click();
         await this.page.waitForLoadState('networkidle');
-        await this.page.waitForTimeout(500); // Dar un pequeño respiro extra a la UI
+        await this.page.waitForTimeout(500); 
     }
 
     async clickYape(): Promise<void> {
@@ -450,7 +450,7 @@ export class EmisionPage {
         ) {
             await this.page.locator('button.vc-arrow.vc-prev').click()
         }
-        // const botonFecha = this.page.locator(`[aria-label="${ariaLabel}"]`);
+        
         const botonFecha = this.page.locator(
             `.vc-day:not(.is-not-in-month) [aria-label="${ariaLabel}"]`
         );

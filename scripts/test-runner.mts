@@ -228,13 +228,38 @@ function formatCommand(args: string[]): string {
     return ['npx', 'playwright', 'test', ...args].map(quoteArg).join(' ');
 }
 
-function cargarCacheActual(): void {
+async function cargarCacheActual(): Promise<void> {
     const envGroup = (process.env.APP_ENV ?? '').trim().toLowerCase() === 'prd' ? 'prd' : 'crt-group';
     const currentAccount = (process.env.USER_EMAIL ?? '').trim().toLowerCase() || 'unknown';
 
     const cacheMapa = cargarMapaDesdeCache(envGroup, currentAccount);
+    
+    // Check missing items regardless of where it's loaded from
+    const checkMissing = async (mapa: any) => {
+        if (envGroup === 'prd') return;
+        let needsToRun = false;
+        try {
+            const { ITEM_TEMPLATES } = await import('../src/factories/item-factory.js');
+            for (const template of ITEM_TEMPLATES) {
+                if (template.fase && !mapa[template.key]) {
+                    console.log(`[setup-state] Ítem faltante detectado por test-runner: ${template.key}. Forzando setup...`);
+                    needsToRun = true;
+                    break;
+                }
+            }
+        } catch (e) {
+            console.warn('[Cache] Error al verificar ITEM_TEMPLATES:', e instanceof Error ? e.message : String(e));
+        }
+        if (needsToRun) {
+            const { markSetupIncomplete } = await import('@utils/setup-state.js');
+            markSetupIncomplete('punto-venta-items');
+            delete process.env.SKIP_PV_ITEMS_SETUP;
+        }
+    };
+
     if (cacheMapa) {
         console.log(`[Cache] Items cargados desde cache: ${envGroup} / ${currentAccount}`);
+        await checkMissing(cacheMapa);
         return;
     }
 
@@ -262,6 +287,9 @@ function cargarCacheActual(): void {
             const crtMapa = JSON.parse(crtContent);
             guardarMapaEnCache(crtMapa, envGroup, currentAccount);
             console.log(`[Cache] CRT cache creado desde dynamic-items.json (RUN_ID: ${crtMapa.RUN_ID})`);
+            
+            await checkMissing(crtMapa);
+            
         } else {
             console.warn(`[Cache] No hay cache para ${envGroup} / ${currentAccount}. ` +
                 `Ejecuta setups o copia tus códigos a playwright/.auth/dynamic-items.json`);
@@ -313,7 +341,7 @@ async function askRunOptions(projectKey?: ProjectKey): Promise<string[]> {
         process.env.SKIP_PV_ITEMS_SETUP = '1';
         process.env.SKIP_DATOS_SETUP = '1';
 
-        cargarCacheActual();
+        await cargarCacheActual();
 
         return [];
     }
@@ -356,7 +384,7 @@ async function askRunOptions(projectKey?: ProjectKey): Promise<string[]> {
         process.env.SKIP_DATOS_SETUP = '1';
         process.env.SKIP_PV_SETUP = '1';
 
-        cargarCacheActual();
+        await cargarCacheActual();
         return [];
     } else if (rawSelection.includes(ALL_VALUE)) {
         selected = ['auth', 'punto-venta-datos', 'punto-venta-items', 'datos-adicionales'];
@@ -370,9 +398,7 @@ async function askRunOptions(projectKey?: ProjectKey): Promise<string[]> {
 
     applySetupSelections(selected);
 
-    if (!selected.includes('punto-venta-items')) {
-        cargarCacheActual();
-    }
+    await cargarCacheActual();
 
     return [];
 }
@@ -777,10 +803,10 @@ async function selectProject(): Promise<'PuntoVenta' | 'Logistica' | 'RunAllSequ
     const choice = await select<'PuntoVenta' | 'Logistica' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'RunAllFailed' | 'exit'>({
         message: 'ERP2 AUTO - TEST RUNNER — Selecciona proyecto:',
         choices: [
-            { name: '1. PuntoVenta', value: 'PuntoVenta' },
+            { name: '1. Emisiones', value: 'PuntoVenta' },
             { name: '2. Logistica', value: 'Logistica' },
-            { name: '3. Run All (Secuencial: PV → LOG, output limpio)', value: 'RunAllSequential' },
-            { name: '4. Run All (Paralelo: PV + LOG, output mezclado)', value: 'RunAllParallel' },
+            { name: '3. Run All (Secuencial: EMI → LOG, output limpio)', value: 'RunAllSequential' },
+            { name: '4. Run All (Paralelo: EMI + LOG, output mezclado)', value: 'RunAllParallel' },
             { name: '5. Run All (Dos terminales: instrucciones)', value: 'RunAllDual' },
             { name: '6. 🔄 Re-ejecutar tests fallidos', value: 'RunAllFailed' },
             { name: '7. Salir', value: 'exit' },
@@ -806,7 +832,7 @@ async function runAllSequential(): Promise<void> {
     ensureOutputDirs('playwright-report/puntoventa');
     ensureOutputDirs('playwright-report/logistica');
 
-    console.log('\n=== Ejecutando Suite: PuntoVenta ===\n');
+    console.log('\n=== Ejecutando Suite: Emisiones ===\n');
     const pvExitCode = await new Promise<number | null>((resolve) => {
         const pv = crossSpawn('npx', ['playwright', 'test', ...pvArgs], {
             stdio: 'inherit',
@@ -835,7 +861,7 @@ async function runAllSequential(): Promise<void> {
     });
 
     console.log('\n=== Run All Summary ===');
-    console.log(`PuntoVenta: exit code ${pvExitCode}`);
+    console.log(`Emisiones: exit code ${pvExitCode}`);
     console.log(`Logistica:  exit code ${logExitCode}`);
     console.log('=======================\n');
 }
@@ -862,7 +888,7 @@ async function runAllParallel(): Promise<void> {
     ensureOutputDirs('playwright-report/puntoventa');
     ensureOutputDirs('playwright-report/logistica');
 
-    console.log('\n=== Ejecutando PuntoVenta + Logistica en paralelo ===\n');
+    console.log('\n=== Ejecutando Emisiones + Logistica en paralelo ===\n');
     console.log('NOTA: El output se mezclará porque ambos procesos comparten la consola.\n');
 
     const isRelevantLine = (line: string): boolean => {
@@ -907,12 +933,12 @@ async function runAllParallel(): Promise<void> {
     };
 
     const [pvCode, logCode] = await Promise.all([
-        runSuite(pvArgs, pvEnv, '[PV]'),
+        runSuite(pvArgs, pvEnv, '[EMI]'),
         runSuite(logArgs, logEnv, '[LOG]'),
     ]);
 
     console.log('\n=== Run All Summary ===');
-    console.log(`PuntoVenta: exit code ${pvCode}`);
+    console.log(`Emisiones: exit code ${pvCode}`);
     console.log(`Logistica:  exit code ${logCode}`);
     console.log('=======================\n');
 }
@@ -927,7 +953,7 @@ async function runAllDualTerminal(): Promise<void> {
     console.log('Una sola consola no puede mostrar dos streams de output');
     console.log('simultáneamente sin mezclarlos. Para ver ambos proyectos');
     console.log('en paralelo con output limpio, abrí dos terminales:\n');
-    console.log('┌─ Terminal 1 (PuntoVenta) ──────────────────────────┐');
+    console.log('┌─ Terminal 1 (Emisiones) ───────────────────────────┐');
     console.log(`│  npx playwright test --project PuntoVenta          │`);
     console.log(`│    --output ${pvOutput.padEnd(38)}│`);
     console.log('└────────────────────────────────────────────────────┘\n');

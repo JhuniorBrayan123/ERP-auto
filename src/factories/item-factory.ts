@@ -318,17 +318,30 @@ export const ITEM_TEMPLATES: ItemTemplate[] = [
     {
         key: 'RECETA_INSUMOS',
         codigoBase: '332211',
-        nombre: 'Receta insumos estrictos 27-4',
+        nombre: 'Receta productos estrictos',
         tipo: 'receta',
-        fase: 3,
+        fase: 4,
         esDinamico: true,
         config: {
             precioVenta: '50.22',
             precioCompra: '15.45',
             controlStock: 'flexible',
             insumos: [
-                {codigoBusqueda: '464646', textoSeleccion: 'Nuevo insumo test1'},
-                {codigoBusqueda: '444666', textoSeleccion: 'nuevo insumo con', equivalencia: 'equivalenteX2 insumo'},
+                {codigoBusqueda: 'PRODUCTO_SIMPLE', textoSeleccion: 'Item para combos estricto'},
+                {
+                    codigoBusqueda: 'ITEM_VARIANTE_ESTRICTO',
+                    textoSeleccion: 'item variante estricto gravado',
+                    variante: 'Variante 1 estricto'
+                },
+                {
+                    codigoBusqueda: 'ITEM_EQUIVALENTE_ESTRICTO',
+                    textoSeleccion: 'item equivalente estricto gravado',
+                    equivalencia: 'Equivalente X2'
+                },
+                {
+                    codigoBusqueda: 'ITEM_SELECTOR_GRAVADO',
+                    textoSeleccion: 'item selector gravado'
+                },
             ],
             categoria: 'REGRESION',
             subcategoria: 'AUTO-TEST',
@@ -575,7 +588,13 @@ export function guardarMapaCodigos(mapa: DynamicItemsMap): void {
     if (!existsSync(AUTH_DIR)) {
         mkdirSync(AUTH_DIR, {recursive: true});
     }
-    writeFileSync(MAPPING_FILE, JSON.stringify(mapa, null, 2), 'utf-8');
+    const nombres: Record<string, string> = {};
+    for (const t of ITEM_TEMPLATES) {
+        nombres[t.key] = t.nombre;
+    }
+    const mapaConNombres = mapa as Record<string, unknown>;
+    mapaConNombres.__nombres = nombres;
+    writeFileSync(MAPPING_FILE, JSON.stringify(mapaConNombres, null, 2), 'utf-8');
     console.log(`[ItemFactory] Mapa guardado en ${MAPPING_FILE}`);
     console.log(`[ItemFactory] RUN_ID: ${mapa.RUN_ID}`);
     console.log(`[ItemFactory] Items: ${Object.keys(mapa).length - 1} definidos`);

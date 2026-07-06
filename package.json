@@ -6,7 +6,7 @@
   "scripts": {
     "test": "npx playwright test",
     "test:menu": "tsx scripts/test-runner.mts",
-    "setup:items": "npx playwright test punto-venta-items.setup.ts --project=setup,pv-items-setup"
+    "setup:items": "npx playwright test --project=setup --project=pv-items-setup"
   },
   "keywords": [],
   "author": "",

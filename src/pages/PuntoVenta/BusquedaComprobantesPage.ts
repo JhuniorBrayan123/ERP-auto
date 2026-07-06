@@ -676,7 +676,7 @@ export class BusquedaComprobantesPage {
 
     async abrirConfiguracionColumnas(): Promise<void> {
         await this.page.locator('.v-icon-head-plus > .icon').click();
-        // Esperar a que el dropdown se renderice en el DOM para evitar race conditions
+        
         await this.page.locator('.container-dropdown-elements').waitFor({ state: 'attached', timeout: 5000 });
     }
 
@@ -684,18 +684,18 @@ export class BusquedaComprobantesPage {
         const itemId = `pv_cmp-comprobantes:cmp-grid-comprobantes-header-options_select-columns:item-${categoria}-${campoId}`;
         const container = this.page.locator(`[id="${itemId}"]`);
 
-        // Si la columna no existe en esta categoría, la ignoramos
+        
         if (await container.count() === 0) return false;
 
-        // Leemos el estado real desde el atributo checked del wrapper (no del input nativo)
+        
         const wrapper = container.locator('.v-checkbox');
         const checkedAttr = await wrapper.getAttribute('checked').catch(() => null);
         const isChecked = checkedAttr === 'true';
 
         if (activar && !isChecked) {
-            // Scrollear al elemento antes de hacer click (puede estar fuera del viewport)
+            
             await container.scrollIntoViewIfNeeded();
-            // El click debe ir al label — Vue maneja el estado, no el input nativo
+            
             await container.locator('label').click({ force: true });
             return true;
         }

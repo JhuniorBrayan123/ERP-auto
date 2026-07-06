@@ -70,11 +70,11 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', { tag: ['@logis
         page,
         kardexApi,
     }) => {
-        await crearSalidaEstandarParaPrecondicion(movimientosNav, registroMovimiento, resultadoMovimiento, ITEMS_TEST.VARIANTE_ESTRICTO.codigo, ITEMS_TEST.VARIANTE_ESTRICTO.nombre, '10', VARIANTES.V3_ESTRICTO.nombre);
+        await crearSalidaEstandarParaPrecondicion(movimientosNav, registroMovimiento, resultadoMovimiento, ITEMS_TEST.VARIANTE_ESTRICTO.codigo, ITEMS_TEST.VARIANTE_ESTRICTO.nombre, '10', VARIANTES.V1_ESTRICTO.nombre);
         await test.step('And: verificar stock y kardex antes de eliminar', async () => {
             await movimientosNav.navegarAKardexTotal();
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.VARIANTE_ESTRICTO.codigo);
-            await kardexVerificacion.abrirKardexVariante(VARIANTES.V3_ESTRICTO.nombre);
+            await kardexVerificacion.abrirKardexVariante(VARIANTES.V1_ESTRICTO.nombre);
             await esperarCargaOverlay(page);
             await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.VENTAS);
         });
@@ -87,7 +87,7 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', { tag: ['@logis
         await test.step('Assert: verificar kardex refleja eliminación', async () => {
             await movimientosNav.navegarAKardexTotal();
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.VARIANTE_ESTRICTO.codigo);
-            await kardexVerificacion.abrirKardexVariante(VARIANTES.V3_ESTRICTO.nombre);
+            await kardexVerificacion.abrirKardexVariante(VARIANTES.V1_ESTRICTO.nombre);
             await esperarCargaOverlay(page);
             await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
         });

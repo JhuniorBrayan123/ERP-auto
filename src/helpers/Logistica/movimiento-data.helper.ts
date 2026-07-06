@@ -28,9 +28,9 @@ export const VARIANTES = {
         nombre: 'Variante 3 flexible',
         codigo: '313131-V003',
     },
-    V3_ESTRICTO: {
-        nombre: 'Variante 3 estricto',
-        codigo: '131313-V003',
+    V1_ESTRICTO: {
+        nombre: 'Variante 1 estricto',
+        codigo: '131313-V001',
     },
     EQUIVALENTE_X2: 'Equivalente X2',
 };
@@ -140,8 +140,8 @@ try {
             VARIANTES.V3_FLEXIBLE.codigo = `${codigoVarianteFlex}-V003`;
             VARIANTES.V3_FLEXIBLE.nombre = `Variante 3 flexible ${runId}`;
 
-            VARIANTES.V3_ESTRICTO.codigo = `${codigoVarianteEst}-V003`;
-            VARIANTES.V3_ESTRICTO.nombre = `Variante 3 estricto ${runId}`;
+            VARIANTES.V1_ESTRICTO.codigo = `${codigoVarianteEst}-V001`;
+            VARIANTES.V1_ESTRICTO.nombre = `Variante 1 estricto ${runId}`;
         }
     } else {
         console.warn('[movimiento-data] dynamic-items.json no encontrado. Usando códigos base estáticos.');

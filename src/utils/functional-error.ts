@@ -179,7 +179,7 @@ export async function verificarVisible(
   },
 ): Promise<void> {
   try {
-    await expect(locator).toBeVisible({timeout: options.timeout ?? 15_000});
+    await expect(locator).toBeVisible({timeout: options.timeout ?? 30_000});
   } catch (error) {
     const observedState = await detectCommonUiState(page, options.uiMessages);
     const diagnosis = observedState

@@ -4,7 +4,7 @@ import {RecetaFormPage} from '@pages/Logistica/RecetaFormPage';
 import {ListaFormPage} from '@pages/Logistica/ListaFormPage';
 import {ComboFormPage} from '@pages/Logistica/ComboFormPage';
 import type {ItemTemplate} from '@factories/item-factory';
-import {verificarVisible} from '../../../../src/utils/functional-error';
+import {verificarVisible} from '@utils/functional-error';
 
 export async function llenarProductoBase(
     productoForm: ProductoFormPage,

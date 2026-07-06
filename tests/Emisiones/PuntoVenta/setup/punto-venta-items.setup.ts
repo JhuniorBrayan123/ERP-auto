@@ -25,7 +25,7 @@ import {
     marcarDone,
     limpiarCheckpoint,
 } from './setup-checkpoint';
-import {shouldSkipSetup, markSetupComplete} from '@utils/setup-state';
+import {shouldSkipSetup, markSetupComplete, markSetupIncomplete} from '@utils/setup-state';
 import {resolve} from 'node:path';
 import {copyFileSync, existsSync, readFileSync} from 'node:fs';
 
@@ -101,43 +101,123 @@ function crearResolver(mapaCodigos: Record<string, string>): (key: string) => st
 
 setup(CASO_ACTUAL, async ({page}) => {
     
+    const isPrd = (process.env.APP_ENV ?? '').trim().toLowerCase() === 'prd';
+    if (!isPrd) {
+        const dynamicItemsFile = resolve(process.cwd(), 'playwright', '.auth', 'dynamic-items.json');
+        let needsToRun = false;
+        if (existsSync(dynamicItemsFile)) {
+            try {
+                const dynamicItems = JSON.parse(readFileSync(dynamicItemsFile, 'utf-8'));
+                const dynamicItemsRaw = dynamicItems as Record<string, unknown>;
+                const nombresGuardados = dynamicItemsRaw.__nombres as Record<string, string> | undefined;
+                for (const template of ITEM_TEMPLATES) {
+                    if (!template.fase) continue;
+                    if (!dynamicItems[template.key]) {
+                        console.log(`[setup-state] Ítem faltante en cache: ${template.key}. Forzando setup...`);
+                        needsToRun = true;
+                        break;
+                    }
+                    const nombreGuardado = nombresGuardados?.[template.key];
+                    if (nombreGuardado && nombreGuardado !== template.nombre) {
+                        console.log(`[setup-state] Template "${template.key}" cambió de nombre ("${nombreGuardado}" → "${template.nombre}"). Forzando recreación...`);
+                        delete dynamicItems[template.key];
+                        needsToRun = true;
+                    }
+                }
+            } catch (e) {
+                needsToRun = true;
+            }
+        } else {
+            needsToRun = true;
+        }
+        if (needsToRun) {
+            markSetupIncomplete(SETUP_NAME);
+        }
+    }
+
     if (shouldSkipSetup(SETUP_NAME)) {
         console.log(`[setup-state] ${SETUP_NAME} already completed, skipping`);
         return;
     }
 
-    const isPrd = (process.env.APP_ENV ?? '').trim().toLowerCase() === 'prd';
     if (isPrd) {
         const prdItemsFile = resolve(process.cwd(), 'playwright', 'dynamic-items.prd.json');
         if (!existsSync(prdItemsFile)) {
-            throw new Error(`[setup-state] PRD: archivo de ítems fijo no encontrado: ${prdItemsFile}. Ejecutar setup en CRT o copiar dynamic-items.prd.json`);
+            throw new Error(`[setup-state] PRD: archivo de ítems fijo no encontrado: ${prdItemsFile}.`);
         }
-        copyFileSync(prdItemsFile, resolve(process.cwd(), 'playwright', '.auth', 'dynamic-items.json'));
-        console.log(`[setup-state] PRD: ítems fijos copiados desde dynamic-items.prd.json`);
-        
-        try {
-            const prdData = readFileSync(prdItemsFile, 'utf-8');
-            const prdMapa = JSON.parse(prdData);
-            const envGroup = 'prd';
-            const account = (process.env.USER_EMAIL ?? '').trim().toLowerCase() || 'unknown';
-            guardarMapaEnCache(prdMapa, envGroup, account);
-        } catch {
-            console.warn('[setup-state] No se pudo guardar cache PRD — no crítico');
+        const prdData = readFileSync(prdItemsFile, 'utf-8');
+        const prdMapa = JSON.parse(prdData) as Record<string, unknown>;
+        const prdNombres = prdMapa.__nombres as Record<string, string> | undefined;
+
+        let prdNeedsCreate = false;
+        for (const template of ITEM_TEMPLATES) {
+            if (!template.fase) continue;
+            if (!prdMapa[template.key]) {
+                console.log(`[setup-state] PRD: ítem faltante en JSON: ${template.key}. Se creará en el ERP...`);
+                prdNeedsCreate = true;
+                break;
+            }
+            const nombreGuardado = prdNombres?.[template.key];
+            if (nombreGuardado && nombreGuardado !== template.nombre) {
+                console.log(`[setup-state] PRD: template "${template.key}" cambió de nombre ("${nombreGuardado}" → "${template.nombre}"). Se recreará...`);
+                delete prdMapa[template.key];
+                prdNeedsCreate = true;
+            }
         }
-        markSetupComplete(SETUP_NAME);
-        return;
+
+        if (!prdNeedsCreate) {
+            copyFileSync(prdItemsFile, resolve(process.cwd(), 'playwright', '.auth', 'dynamic-items.json'));
+            console.log(`[setup-state] PRD: todos los ítems presentes. Cargando desde dynamic-items.prd.json`);
+            try {
+                const envGroup = 'prd';
+                const account = (process.env.USER_EMAIL ?? '').trim().toLowerCase() || 'unknown';
+                guardarMapaEnCache(prdMapa as import('@factories/item-factory').DynamicItemsMap, envGroup, account);
+            } catch {
+                console.warn('[setup-state] No se pudo guardar cache PRD — no crítico');
+            }
+            markSetupComplete(SETUP_NAME);
+            return;
+        }
+
+        console.log(`[setup-state] PRD: hay ítems que crear. Continuando con setup en modo PRD...`);
     }
 
     setup.setTimeout(600_000); 
+
+    
+    const dynamicItemsFile = resolve(process.cwd(), 'playwright', '.auth', 'dynamic-items.json');
+    const existingRunId: string | null = (() => {
+        try {
+            if (existsSync(dynamicItemsFile)) {
+                const mapa = JSON.parse(readFileSync(dynamicItemsFile, 'utf-8'));
+                return mapa.RUN_ID ?? null;
+            }
+        } catch {  }
+        return null;
+    })();
 
     const checkpointPrevio = cargarCheckpoint();
     let RUN_ID: string;
     let itemsDone: Set<string>;
 
-    if (checkpointPrevio) {
+    if (checkpointPrevio && existingRunId && checkpointPrevio.RUN_ID !== existingRunId) {
+        
+        logInfo('Checkpoint', `Checkpoint obsoleto (RUN_ID ${checkpointPrevio.RUN_ID}) ≠ mapa actual (${existingRunId}). Descartando checkpoint.`);
+        limpiarCheckpoint();
+        RUN_ID = existingRunId;
+        itemsDone = new Set<string>();
+        iniciarCheckpoint(RUN_ID);
+        logInfo('Checkpoint', `Reanudando desde mapa existente con RUN_ID ${RUN_ID}`);
+    } else if (checkpointPrevio) {
         RUN_ID = checkpointPrevio.RUN_ID;
         itemsDone = new Set(checkpointPrevio.done);
         logInfo('Checkpoint', `Reanudando RUN_ID ${RUN_ID} — ${itemsDone.size} ítems ya creados`);
+    } else if (existingRunId) {
+        
+        RUN_ID = existingRunId;
+        itemsDone = new Set<string>();
+        iniciarCheckpoint(RUN_ID);
+        logInfo('Checkpoint', `Sin checkpoint previo. Usando RUN_ID del mapa existente: ${RUN_ID}`);
     } else {
         RUN_ID = generarRunId();
         itemsDone = new Set<string>();
@@ -214,9 +294,6 @@ setup(CASO_ACTUAL, async ({page}) => {
         try {
             logInfo('Post-setup', 'Activando switch obligatorio en ITEM_SELECTOR_GRAVADO (454545)...');
 
-            await page.goto('/');
-            await navegarAItems(page);
-
             const listaItemsEdit = new ListaItemsPage(page);
             await listaItemsEdit.searchAndEdit('454545');
 
@@ -241,9 +318,21 @@ setup(CASO_ACTUAL, async ({page}) => {
 
     guardarMapaCodigos(mapaCodigos);
     
-    const envGroup = (process.env.APP_ENV ?? '').trim().toLowerCase() === 'prd' ? 'prd' : 'crt-group';
+    const envGroup = isPrd ? 'prd' : 'crt-group';
     const account = (process.env.USER_EMAIL ?? '').trim().toLowerCase() || 'unknown';
     guardarMapaEnCache(mapaCodigos, envGroup, account);
+
+    if (isPrd) {
+        const prdItemsFile = resolve(process.cwd(), 'playwright', 'dynamic-items.prd.json');
+        try {
+            const { writeFileSync: wf } = await import('node:fs');
+            wf(prdItemsFile, JSON.stringify(mapaCodigos, null, 2), 'utf-8');
+            logInfo('PRD', `dynamic-items.prd.json actualizado con los nuevos ítems creados`);
+        } catch {
+            console.warn('[setup-state] No se pudo actualizar dynamic-items.prd.json — hazlo manualmente');
+        }
+    }
+
     limpiarCheckpoint();
     markSetupComplete(SETUP_NAME);
     logInfo('Setup Completo', `Todos los ítems de PuntoVenta están listos (RUN_ID: ${RUN_ID}) — checkpoint limpiado`);

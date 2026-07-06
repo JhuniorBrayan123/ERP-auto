@@ -124,7 +124,7 @@ export const ITEMS_PV = {
 
     RECETA_INSUMOS: {
         codigo: "332211",
-        nombre: "Receta insumos estrictos 27-4",
+        nombre: "Receta productos estrictos",
         cantidad: 1,
     } as ItemVenta,
 

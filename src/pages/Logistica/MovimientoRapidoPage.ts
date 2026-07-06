@@ -30,12 +30,12 @@ export class MovimientoRapidoPage {
             .click();
         await esperarCargaOverlay(this.page);
 
-        // Localizar la tarjeta del almacén específico
+        
         const card = this.page
             .locator('.stock-almacen')
             .filter({ has: this.page.locator('.descripcion', { hasText: nombreAlmacen }) });
 
-        // Click en el botón de opciones visible del almacén correspondiente
+        
         await card
             .locator('.stock .opciones [id="lgt_items_v-modal:stock-item_cmp-dropdown:stock-almacen-opciones"]')
             .click();

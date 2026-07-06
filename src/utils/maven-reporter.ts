@@ -105,7 +105,8 @@ class MavenReporter implements Reporter {
     }
 
     onTestEnd(test: TestCase, result: TestResult): void {
-        if (this.isSetupTest(test)) return;
+        const isSetup = this.isSetupTest(test);
+        if (isSetup && result.status !== 'failed' && result.status !== 'timedOut') return;
 
         const duration = (result.duration / 1000).toFixed(1);
 
