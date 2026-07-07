@@ -120,16 +120,16 @@ export class DetraccionPage {
 
         
         if (config.tramo) {
-            await this.page.waitForTimeout(500);
-            const btnSegundoDetalle = this.page.locator('[id$="v-button:agregar-detalle-carga"]').or(
-                this.page.getByRole('button', {name: 'Agregar detalle de carga'}).last()
-            );
-            await btnSegundoDetalle.first().waitFor({state: 'visible', timeout: 5_000});
-            await btnSegundoDetalle.first().click({force: true});
+            
+            await this.page.waitForTimeout(800);
+            const btnAgregarDetalle = this.page.getByRole('button', {name: 'Agregar detalle de carga'});
+            await expect(btnAgregarDetalle.first()).toBeVisible({timeout: 7_000});
+            await btnAgregarDetalle.first().click();
 
-            await this.page.waitForTimeout(300);
+            
+            await this.page.waitForTimeout(500);
             const btnTramo = this.page.getByRole('button', {name: 'Agregar tramo y vehículo'});
-            await btnTramo.waitFor({state: 'visible', timeout: 5_000});
+            await expect(btnTramo).toBeVisible({timeout: 7_000});
             await btnTramo.click();
 
             
@@ -150,7 +150,7 @@ export class DetraccionPage {
 
             
             await this.page.getByRole('button', {name: 'Guardar', exact: true}).click();
-            await this.page.waitForTimeout(300);
+            await this.page.waitForTimeout(500);
             
             await this.page.getByRole('button', {name: 'Guardar', exact: true}).click();
         }
