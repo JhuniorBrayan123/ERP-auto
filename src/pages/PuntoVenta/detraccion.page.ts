@@ -6,6 +6,18 @@ export interface DetalleCarga {
     direccion: string;
 }
 
+export interface TramoVehiculo {
+    origen: DetalleCarga;
+    destino: DetalleCarga;
+    configuracionVehicular: string;
+    cargaUtilMetricasVehiculo: string;
+    descripcionTramo: string;
+    cargaEfectivaToneladas: string;
+    valorTransporte: string;
+    valorReferencialTonelada: string;
+    valorPreliminarCargaUtilNominal?: string;
+}
+
 export interface ConfigDetraccionTransporte {
     tipoOperacion: string;
     metodoPago: string;
@@ -17,6 +29,7 @@ export interface ConfigDetraccionTransporte {
     cargaEfectiva: string;
     cargaUtil: string;
     detalleViaje: string;
+    tramo?: TramoVehiculo;
 }
 
 export class DetraccionPage {
@@ -104,6 +117,44 @@ export class DetraccionPage {
         await this.page.getByRole('textbox', {name: 'Ingresa detalle del viaje'}).fill(config.detalleViaje);
 
         await this.page.getByRole('button', {name: 'Guardar', exact: true}).click();
+
+        
+        if (config.tramo) {
+            await this.page.waitForTimeout(500);
+            const btnSegundoDetalle = this.page.locator('[id$="v-button:agregar-detalle-carga"]').or(
+                this.page.getByRole('button', {name: 'Agregar detalle de carga'}).last()
+            );
+            await btnSegundoDetalle.first().waitFor({state: 'visible', timeout: 5_000});
+            await btnSegundoDetalle.first().click({force: true});
+
+            await this.page.waitForTimeout(300);
+            const btnTramo = this.page.getByRole('button', {name: 'Agregar tramo y vehículo'});
+            await btnTramo.waitFor({state: 'visible', timeout: 5_000});
+            await btnTramo.click();
+
+            
+            const t = config.tramo;
+            await this._llenarUbigeo(t.origen, 'origen');
+            await this._llenarUbigeo(t.destino, 'destino');
+
+            await this.page.locator('[id$="v-input:configuracion-vehicular"]').fill(t.configuracionVehicular);
+            await this.page.locator('[id$="v-input:carga-util-metricas-vehiculo"]').fill(t.cargaUtilMetricasVehiculo);
+            await this.page.locator('[id$="v-input:description-tramo"]').fill(t.descripcionTramo);
+            await this.page.locator('[id$="v-input:carga-efectiva-toneladas-metricas"]').fill(t.cargaEfectivaToneladas);
+            await this.page.getByRole('textbox', {name: 'Ej. S/'}).fill(t.valorTransporte);
+            await this.page.locator('[id$="v-input:valor-referencial-tonelada-metrica"]').fill(t.valorReferencialTonelada);
+
+            if (t.valorPreliminarCargaUtilNominal) {
+                await this.page.locator('[id$="v-input:valor-preliminar-carga-util-nominal"]').fill(t.valorPreliminarCargaUtilNominal);
+            }
+
+            
+            await this.page.getByRole('button', {name: 'Guardar', exact: true}).click();
+            await this.page.waitForTimeout(300);
+            
+            await this.page.getByRole('button', {name: 'Guardar', exact: true}).click();
+        }
+
         await this.page.getByRole('button', {name: 'Actualizar'}).waitFor({state: 'visible'});
         await this.page.getByRole('button', {name: 'Actualizar'}).click();
 

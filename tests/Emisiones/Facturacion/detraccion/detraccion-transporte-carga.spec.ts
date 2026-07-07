@@ -20,14 +20,33 @@ test.describe('Facturación — Detracción transporte de carga', () => {
                         direccion: 'Av. Arequipa 123',
                     },
                     destino: {
-                        ubigeo: 'lima',
-                        texto: '- Lima - Lima - Lima',
-                        direccion: 'Av. Lima 456',
+                        ubigeo: 'juliaca',
+                        texto: '- Juliaca - San Roman - Puno',
+                        direccion: 'Av. Juliaca 456',
                     },
                     valorTransporte: '500',
-                    cargaEfectiva: '2',
+                    cargaEfectiva: '3',
                     cargaUtil: '20',
                     detalleViaje: 'Carga de prueba automatizada',
+                    tramo: {
+                        origen: {
+                            ubigeo: 'ica',
+                            texto: '- Ica - Ica - Ica',
+                            direccion: 'Av. Ica 789',
+                        },
+                        destino: {
+                            ubigeo: 'lima',
+                            texto: '- Lima - Lima - Lima',
+                            direccion: 'Av. Lima 012',
+                        },
+                        configuracionVehicular: 'estándar',
+                        cargaUtilMetricasVehiculo: '23',
+                        descripcionTramo: 'Tramo automatizado',
+                        cargaEfectivaToneladas: '2.6',
+                        valorTransporte: '1000',
+                        valorReferencialTonelada: '2.5',
+                        valorPreliminarCargaUtilNominal: '5.3',
+                    },
                 },
             })
         );
