@@ -33,6 +33,8 @@ test.describe('Facturación — Bloquear adelanto >= total', () => {
         await esperarDebounce(page, 1000, 'Esperar carga de adelanto');
         await AdelantosTargets.checkboxPrimerAdelanto(page).click();
 
+        await BuscarYAgregarProducto(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL)(page);
+
         await page.getByRole('button', { name: 'PAGAR' }).click();
 
         await expect(page.locator('body')).toContainText(

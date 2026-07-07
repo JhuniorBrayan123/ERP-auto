@@ -24,21 +24,21 @@ export class DetraccionPage {
     }
 
     async activarDetraccion(): Promise<void> {
-        
+
         const switchComponent = this.page.locator('.switch-component').filter({hasText: /Detracci[oó]n/i});
 
         if (await switchComponent.isVisible().catch(() => false)) {
             await switchComponent.locator('.slider').click();
             await switchComponent.getByRole('button', {name: 'Editar'}).click();
         } else {
-            
+
             await this.page.locator('div:nth-child(2) > .switch-component > .v-switch > .switch-content > .switch > .slider').click();
             await this.page.getByRole('button', {name: 'Editar'}).first().click();
         }
     }
 
     async configurarTransporteCarga(config: ConfigDetraccionTransporte): Promise<void> {
-        
+
         const selectOperacion = this.page
             .locator('.v-select-header-form')
             .filter({hasText: 'Operación Sujeta a Detracción'});
@@ -68,7 +68,7 @@ export class DetraccionPage {
             await opcionMetodoPago.waitFor({state: 'visible'});
             await opcionMetodoPago.click({force: true});
         }
-        
+
         const inputPorcentaje = this.page.locator('[id$="v-input:porcentaje"]');
         await inputPorcentaje.waitFor({state: 'visible'});
         const valPorcentaje = await inputPorcentaje.inputValue();
@@ -80,9 +80,11 @@ export class DetraccionPage {
         const inputCuenta = this.page.locator('[id$="v-input:numero-cuenta"]');
         await inputCuenta.waitFor({state: 'visible'});
         const valCuenta = await inputCuenta.inputValue();
-        if (valCuenta !== config.numeroCuenta) {
+        const soloDigitos = config.numeroCuenta.replace(/\D/g, '');
+        if (valCuenta.replace(/\D/g, '') !== soloDigitos) {
             await inputCuenta.clear();
-            await inputCuenta.fill(config.numeroCuenta);
+            // Escribir dígito por dígito para que la máscara del ERP formatee el número de cuenta
+            await inputCuenta.pressSequentially(soloDigitos, {delay: 50});
         }
 
         const btnAgregar = this.page.locator('[id$="v-button:agregar-detalle-carga"]').or(
@@ -104,13 +106,13 @@ export class DetraccionPage {
         await this.page.getByRole('button', {name: 'Guardar', exact: true}).click();
         await this.page.getByRole('button', {name: 'Actualizar'}).waitFor({state: 'visible'});
         await this.page.getByRole('button', {name: 'Actualizar'}).click();
-        
-        
+
+
         await this.page.getByText('¡Buen trabajo!').waitFor({state: 'visible'});
         await this.page.locator('.v-modal.is-open > .icon').last().click();
-        
-        
-        await this.page.waitForTimeout(500); 
+
+
+        await this.page.waitForTimeout(500);
         const configModalIcon = this.page.locator('.v-modal.is-open > .icon').first();
         if (await configModalIcon.isVisible()) {
             await configModalIcon.click();
@@ -121,7 +123,7 @@ export class DetraccionPage {
         porcentaje: string;
         numeroCuenta: string;
     }): Promise<void> {
-        
+
         const inputPorcentaje = this.page.locator('[id$="v-input:porcentaje"]');
         await inputPorcentaje.waitFor({state: 'visible'});
         await inputPorcentaje.clear();
@@ -130,14 +132,14 @@ export class DetraccionPage {
         const inputCuenta = this.page.locator('[id$="v-input:numero-cuenta"]');
         await inputCuenta.waitFor({state: 'visible'});
         await inputCuenta.clear();
-        await inputCuenta.fill(config.numeroCuenta);
+        await inputCuenta.pressSequentially(config.numeroCuenta.replace(/\D/g, ''), {delay: 50});
 
         await this.page.getByRole('button', {name: 'Actualizar'}).click();
 
         await this.page.getByText('¡Buen trabajo!').waitFor({state: 'visible'});
         await this.page.locator('.v-modal.is-open > .icon').last().click();
 
-        await this.page.waitForTimeout(500); 
+        await this.page.waitForTimeout(500);
         const configModalIcon = this.page.locator('.v-modal.is-open > .icon').first();
         if (await configModalIcon.isVisible()) {
             await configModalIcon.click();

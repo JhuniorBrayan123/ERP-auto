@@ -23,11 +23,10 @@ test.describe('Facturación — Emitir Boleta Simple', () => {
         await expect(page.locator('body')).toContainText(resultado.numero, { timeout: 10_000 });
     });
 
-    test('Emite una Boleta con Consumidor Final (doc 00000000)', async ({ page, cajero }) => {
+    test('Emite una Boleta con Consumidor Final (doc 00000000) — sin seleccionar cliente', async ({ page, cajero }) => {
         const resultado = await cajero.realizaYObtiene(
             EmitirComprobanteSimple({
                 tipoComprobante: 'BOLETA',
-                cliente: CLIENTES.CONSUMIDOR_FINAL,
                 producto: ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL,
                 metodoPago: 'efectivo',
             })

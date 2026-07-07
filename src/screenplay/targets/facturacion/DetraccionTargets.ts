@@ -64,6 +64,28 @@ export const DetraccionTargets = {
         page.getByRole('button', { name: 'Guardar', exact: true }),
 
     
+    btnAgregarTramoVehiculo: (page: Page) =>
+        page.getByRole('button', { name: 'Agregar tramo y vehículo' }),
+
+    inputConfiguracionVehicular: (page: Page) =>
+        page.locator('[id="pv_punto-venta_drapes:informacion-tramo-vehiculo_v-input:configuracion-vehicular"]'),
+
+    inputCargaUtilMetricasVehiculo: (page: Page) =>
+        page.locator('[id="pv_punto-venta_drapes:informacion-tramo-vehiculo_v-input:carga-util-metricas-vehiculo"]'),
+
+    inputDescripcionTramo: (page: Page) =>
+        page.locator('[id="pv_punto-venta_drapes:informacion-tramo-vehiculo_v-input:description-tramo"]'),
+
+    inputCargaEfectivaToneladas: (page: Page) =>
+        page.locator('[id="pv_punto-venta_drapes:informacion-tramo-vehiculo_v-input:carga-efectiva-toneladas-metricas"]'),
+
+    inputValorTransporteTramo: (page: Page) =>
+        page.getByRole('textbox', { name: 'Ej. S/' }),
+
+    inputValorReferencialTonelada: (page: Page) =>
+        page.locator('[id="pv_punto-venta_drapes:informacion-tramo-vehiculo_v-input:valor-referencial-tonelada-metrica"]'),
+
+    
     textoTipoCambioDetraccion: (page: Page) =>
         page.getByText('Tipo de cambio de detracción'),
 };

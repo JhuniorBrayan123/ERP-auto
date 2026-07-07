@@ -12,7 +12,7 @@ type MetodoPago = 'efectivo' | 'cheque' | 'niubiz' | 'yape' | 'plin' | 'transfer
 
 export interface DatosEmisionSimple {
     tipoComprobante: TipoComprobante;
-    cliente: DatosCliente & { textoSelector?: string };
+    cliente?: DatosCliente & { textoSelector?: string };
     producto: ItemVenta;
     metodoPago?: MetodoPago;
 }
@@ -24,7 +24,9 @@ export interface ResultadoEmision extends EmisionResult {
 export const EmitirComprobanteSimple = (datos: DatosEmisionSimple) => {
     const fn = async (page: Page): Promise<ResultadoEmision> => {
         await SeleccionarTipoComprobante(datos.tipoComprobante)(page);
-        await BuscarYSeleccionarCliente(datos.cliente)(page);
+        if (datos.cliente) {
+            await BuscarYSeleccionarCliente(datos.cliente)(page);
+        }
         await BuscarYAgregarProducto(datos.producto)(page);
 
         const resultado = await ConfirmarPago(datos.metodoPago ?? 'efectivo')(page);
@@ -37,7 +39,9 @@ export const EmitirComprobanteSimple = (datos: DatosEmisionSimple) => {
         const numero = `${resultado.serie}-${String(resultado.correlativo).padStart(8, '0')}`;
         return {...resultado, numero};
     };
-    fn.displayName = `Emitir ${datos.tipoComprobante} simple — ${datos.cliente.nombre}`;
+    fn.displayName = datos.cliente
+        ? `Emitir ${datos.tipoComprobante} simple — ${datos.cliente.nombre}`
+        : `Emitir ${datos.tipoComprobante} simple — Consumidor Final`;
     return fn;
 };
 
