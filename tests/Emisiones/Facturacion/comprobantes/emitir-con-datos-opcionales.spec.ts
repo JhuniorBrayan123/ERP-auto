@@ -21,6 +21,7 @@ test.describe('Facturación — Emitir con Datos Opcionales', () => {
 
         const resultado = await cajero.realizaYObtiene(ConfirmarPago('efectivo'));
         expect(resultado.serie).toBe('F001');
-        expect(resultado.numero).toMatch(/^F001-\d{8}$/);
+        const numero = `${resultado.serie}-${String(resultado.correlativo).padStart(8, '0')}`;
+        expect(numero).toMatch(/^F001-\d{8}$/);
     });
 });

@@ -31,6 +31,8 @@ export interface DatosDetraccionTransporte {
     cliente: DatosCliente & { textoSelector?: string };
     productos: ProductoConPrecio[];
     transporte: ConfigDetraccionTransporte;
+    moneda?: Moneda;
+    tipoCambioExtranjera?: string; 
 }
 
 const ejecutarPago = async (page: Page): Promise<ResultadoEmision> => {
