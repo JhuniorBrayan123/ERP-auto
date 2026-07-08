@@ -21,7 +21,7 @@ test.describe('Facturación — Cálculo de ISC', () => {
         const iscValor = totales['ISC'] ?? totales['Isc'] ?? '';
         expect(parseFloat(iscValor.replace(',', '.'))).toBeGreaterThan(0);
 
-        const subtotal = totales['Subtotal'] ?? totales['Base imponible'] ?? '';
+        const subtotal = totales['Operaciones Gravadas'] ?? '';
         expect(parseFloat(subtotal.replace(',', '.'))).toBeGreaterThan(0);
     });
 

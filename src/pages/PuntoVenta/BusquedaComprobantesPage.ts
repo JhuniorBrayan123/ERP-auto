@@ -120,7 +120,7 @@ export class BusquedaComprobantesPage {
 
         const checkbox = this.page.locator('[id="pv_punto-venta_cmp_venta_pedido:modals_cmp-gestion-adelantos_v-checkbox:agregar-adelanto-0"]');
         await checkbox.click({force: true});
-        await this.page.getByRole('button', { name: 'Aceptar' }).click();
+        await this.page.getByRole('button', {name: 'Aceptar'}).click();
 
         console.log(`   Adelanto factura filtrado y seleccionado: F001-${emision.correlativo}`);
     }
@@ -484,11 +484,11 @@ export class BusquedaComprobantesPage {
         await dropdownComparador.click();
 
         const opcionesDropdown = this.page.locator('.v-select-base-options.is-open');
-        await opcionesDropdown.waitFor({ state: 'visible' });
+        await opcionesDropdown.waitFor({state: 'visible'});
 
         await opcionesDropdown
             .locator('.v-select-form-option')
-            .getByText(comparador, { exact: true })
+            .getByText(comparador, {exact: true})
             .click();
 
         const inputValor = this.page.locator(
@@ -507,14 +507,14 @@ export class BusquedaComprobantesPage {
             if (correlativo) {
                 return this.page.locator('tr').filter({hasText: correlativo}).first();
             }
-            
-            
+
+
             const serie = partes[0];
             if (serie && serie !== '0') {
                 return this.page.locator('tr').filter({hasText: serie}).first();
             }
         }
-        
+
         return this.page.locator('tbody tr').first();
     }
 
@@ -630,14 +630,16 @@ export class BusquedaComprobantesPage {
     async seleccionarCajaParaClonar(nombreCaja: string) {
         await this.page
             .locator('.cmp-card-caja')
-            .filter({ has: this.page.locator('.titulo').getByText(nombreCaja, { exact: true }) })
+            .filter({has: this.page.locator('.titulo').getByText(nombreCaja, {exact: true})})
             .click();
     }
+
     async confirmarClonacion(): Promise<Page> {
         const popupPromise = this.page.waitForEvent('popup');
-        await this.page.getByRole('button', { name: 'Continuar' }).click();
+        await this.page.getByRole('button', {name: 'Continuar'}).click();
         return await popupPromise;
     }
+
     async seleccionarAccionPorId(idAccion: string): Promise<void> {
         await this.page.locator(`[id="${idAccion}"]`).click();
     }
@@ -676,32 +678,32 @@ export class BusquedaComprobantesPage {
 
     async abrirConfiguracionColumnas(): Promise<void> {
         await this.page.locator('.v-icon-head-plus > .icon').click();
-        
-        await this.page.locator('.container-dropdown-elements').waitFor({ state: 'attached', timeout: 5000 });
+
+        await this.page.locator('.container-dropdown-elements').waitFor({state: 'attached', timeout: 5000});
     }
 
     async configurarColumna(categoria: string, campoId: string, activar: boolean): Promise<boolean> {
         const itemId = `pv_cmp-comprobantes:cmp-grid-comprobantes-header-options_select-columns:item-${categoria}-${campoId}`;
         const container = this.page.locator(`[id="${itemId}"]`);
 
-        
+
         if (await container.count() === 0) return false;
 
-        
+
         const wrapper = container.locator('.v-checkbox');
         const checkedAttr = await wrapper.getAttribute('checked').catch(() => null);
         const isChecked = checkedAttr === 'true';
 
         if (activar && !isChecked) {
-            
+
             await container.scrollIntoViewIfNeeded();
-            
-            await container.locator('label').click({ force: true });
+
+            await container.locator('label').click({force: true});
             return true;
         }
         if (!activar && isChecked) {
             await container.scrollIntoViewIfNeeded();
-            await container.locator('label').click({ force: true });
+            await container.locator('label').click({force: true});
             return true;
         }
 
@@ -714,7 +716,7 @@ export class BusquedaComprobantesPage {
         ).click();
         await esperarCargaOverlay(this.page);
     }
-    
+
     async activarTodasLasColumnas(): Promise<void> {
         const columnasPorCategoria: Record<BcCategoria, string[]> = {
             TODOS: [
@@ -759,7 +761,7 @@ export class BusquedaComprobantesPage {
                 const toggled = await this.configurarColumna(categoria, campoId, true);
                 if (toggled) changed = true;
             }
-            
+
             if (changed) {
                 await this.guardarConfiguracionColumnas();
             } else {

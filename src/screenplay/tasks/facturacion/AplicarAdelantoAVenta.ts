@@ -52,8 +52,8 @@ export const AplicarAdelantoAVenta = (datos: DatosAplicarAdelanto) => {
         
         for (const producto of datos.productos) {
             await BuscarYAgregarProducto(producto)(page);
-            // Agregar el ítem nuevamente para incrementar la cantidad a 2 y asegurar
-            // que el monto de la venta sea estrictamente mayor al adelanto aplicado.
+            
+            
             await BuscarYAgregarProducto(producto)(page);
         }
 

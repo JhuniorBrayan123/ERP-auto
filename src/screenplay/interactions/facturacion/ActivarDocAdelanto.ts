@@ -2,7 +2,7 @@ import {expect, type Page} from '@playwright/test';
 
 export const ActivarDocAdelanto = () => {
     const fn = async (page: Page): Promise<void> => {
-        // Soporta tanto Factura/Boleta (cmp-factura-boleta-header) como Nota de Venta (cmp-nota-venta-header)
+        
         const selectorInput = '[id$="_v-switch:documento-adelanto"]';
         
         const input = page.locator(selectorInput);
@@ -14,7 +14,7 @@ export const ActivarDocAdelanto = () => {
         if (!isChecked) {
             await label.scrollIntoViewIfNeeded();
             await label.click();
-            await page.waitForTimeout(500); // Dar tiempo a Vue de actualizar el DOM
+            await page.waitForTimeout(500); 
         }
 
 

@@ -42,8 +42,8 @@ test.describe('Facturación — Bloquear detracción sin tipo de cambio', () => 
 
         await BuscarYAgregarProducto(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL)(page);
 
-        // El producto no tiene precio en dólares, se agrega con $0.00
-        // Hay que asignarle un precio válido para que supere la validación de precio cero
+        
+        
         await VentaGridTargets.btnEditarItem(page, 0).click();
         await VentaGridTargets.inputPrecioFinal(page, 0).fill('250');
         await VentaGridTargets.btnAceptarEdicion(page, 0).click();

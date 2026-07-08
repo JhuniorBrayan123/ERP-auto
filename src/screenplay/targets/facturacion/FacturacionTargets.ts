@@ -50,10 +50,12 @@ export const FacturacionTargets = {
         page.locator('div:nth-child(4) > .switch-component > .v-switch > .switch-content > .switch > .slider'),
 
     sliderRetencion: (page: Page) =>
-        page.locator('div:nth-child(5) > .switch-component > .v-switch > .switch-content > .switch > .slider'),
+        page.locator('label:has([id$="_v-switch:documento-retencion"])').first(),
 
     btnEditarDetraccion: (page: Page) =>
         page.locator('[id="pv_punto-venta_cmp-factura-boleta-header_div:editar-datos-detraccion"]'),
+    chkRetencion: (page: Page) =>
+        page.locator('[id="pv_punto-venta_cmp-factura-boleta-header_v-switch:documento-retencion"]'),
 
     inputPorcentajeRetencion: (page: Page) =>
         page.locator('[id="pv_punto-venta_cmp-factura-boleta-header_v-input:porcentaje"]'),

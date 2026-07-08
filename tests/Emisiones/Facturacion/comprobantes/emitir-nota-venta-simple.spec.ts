@@ -1,11 +1,11 @@
-﻿import { test, expect } from '@fixtures/PuntoVenta/facturacion.fixture';
-import { EmitirComprobanteSimple } from '@screenplay/tasks/facturacion/EmitirComprobanteSimple';
-import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
-import { BusquedaComprobantesPage } from '@pages/PuntoVenta/BusquedaComprobantesPage';
+﻿import {test} from '@fixtures/PuntoVenta/facturacion.fixture';
+import {EmitirComprobanteSimple} from '@screenplay/tasks/facturacion/EmitirComprobanteSimple';
+import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 
 test.describe('Facturación — Emitir Nota de Venta Simple', () => {
 
-    test('Emite una Nota de Venta con cliente DNI', async ({ page, cajero }) => {
+    test('Emite una Nota de Venta con cliente DNI', async ({page, cajero}) => {
         const resultado = await cajero.realizaYObtiene(
             EmitirComprobanteSimple({
                 tipoComprobante: 'NOTA DE VENTA',
@@ -14,11 +14,15 @@ test.describe('Facturación — Emitir Nota de Venta Simple', () => {
                 metodoPago: 'efectivo',
             })
         );
-        expect(resultado.serie).toBe('NV01');
-        expect(resultado.numero).toMatch(/^NV01-\d{8}$/);
-
         const busqueda = new BusquedaComprobantesPage(page);
+        const estadoSunat = await test.step('And: validar estado SUNAT desde API de Consultas', async () => {
+            return await busqueda.validarEstadoSunat();
+        });
+
         await busqueda.navegarABusquedaComprobantes(resultado);
-        await expect(page.locator('body')).toContainText(resultado.numero, { timeout: 10_000 });
+        await busqueda.abrirBitacoraDelPrimerComprobante();
+        await busqueda.validarComprobanteEmitido(estadoSunat);
+        await busqueda.validarDescargoInventarios();
+        await busqueda.cerrarBitacora();
     });
 });

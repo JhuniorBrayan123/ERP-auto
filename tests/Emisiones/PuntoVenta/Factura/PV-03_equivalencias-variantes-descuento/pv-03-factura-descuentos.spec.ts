@@ -1,4 +1,4 @@
-import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
+import {test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
 test.describe('PV-03 | Factura con equivalencias, variantes y descuento global @PV-03', {tag: ['@punto-venta', '@factura', '@descuento']}, () => {
@@ -13,13 +13,13 @@ test.describe('PV-03 | Factura con equivalencias, variantes y descuento global @
     }
 
     test('Emitir factura con descuento ítem % y descuento global monto @PV-03.6', async ({
-                                                                                            cajaPage,
-                                                                                            comprobantePage,
-                                                                                            emisionPage,
-                                                                                            clientePage,
-                                                                                            busquedaComprobantes,
-                                                                                            page,
-                                                                                        }) => {
+                                                                                             cajaPage,
+                                                                                             comprobantePage,
+                                                                                             emisionPage,
+                                                                                             clientePage,
+                                                                                             busquedaComprobantes,
+                                                                                             page,
+                                                                                         }) => {
         await test.step('Given: caja abierta, FACTURA con cliente RUC', async () => {
             await cajaPage.continuarVendiendo();
             await setupFacturaConClienteRUC(comprobantePage, clientePage, page);

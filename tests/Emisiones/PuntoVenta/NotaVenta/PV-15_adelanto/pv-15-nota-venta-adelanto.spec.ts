@@ -40,7 +40,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
         await test.step('Then: nota de venta adelanto emitida', async () => {
             await emisionPage.clickNuevaVenta();
         });
-        await test.step('recargar si hay error', async ()=>{
+        await test.step('recargar si hay error', async () => {
             await recargarSiHayError(page)
         })
         await test.step('And: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
@@ -95,7 +95,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
             await page.locator(
                 '.v-checkbox-default-label.flex-row-align-items-center-justify-content-center > span',
             ).first().click();
-            await page.getByRole('button', { name: 'Aceptar' }).click();
+            await page.getByRole('button', {name: 'Aceptar'}).click();
         });
 
         await test.step('And: verificar total anticipos visible', async () => {
@@ -110,7 +110,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
         await test.step('Then: nota de venta con adelanto aplicado emitida', async () => {
             await emisionPage.clickNuevaVenta();
         });
-        await test.step('recargar si hay error', async ()=>{
+        await test.step('recargar si hay error', async () => {
             await recargarSiHayError(page)
         })
         await test.step('And: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {

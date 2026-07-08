@@ -1,17 +1,17 @@
-import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
+import {test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {esperarCargaOverlay} from '@utils/wait-helpers';
 
 test.describe('PV-14 | Emitir comprobante con retención @PV-14', {tag: ['@punto-venta', '@factura', '@retencion']}, () => {
 
     test('Emitir factura con retención 18% @PV-14.1', async ({
-                                                                cajaPage,
-                                                                comprobantePage,
-                                                                emisionPage,
-                                                                emisionAdelantosPage,
-                                                                busquedaComprobantes,
-                                                                page,
-                                                            }) => {
+                                                                 cajaPage,
+                                                                 comprobantePage,
+                                                                 emisionPage,
+                                                                 emisionAdelantosPage,
+                                                                 busquedaComprobantes,
+                                                                 page,
+                                                             }) => {
         await test.step('Given: FACTURA con cliente RUC', async () => {
             await cajaPage.continuarVendiendo();
             await comprobantePage.seleccionarFactura();

@@ -35,7 +35,7 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
         await test.step('And: click Nueva Venta', async () => {
             await emisionPage.clickNuevaVenta();
         });
-        
+
         await test.step('Then: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
             await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
         });

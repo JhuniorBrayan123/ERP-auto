@@ -1,9 +1,9 @@
-﻿import { expect, type Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 import { SeleccionarTipoComprobante } from '@screenplay/interactions/facturacion/SeleccionarTipoComprobante';
 import { BuscarYSeleccionarCliente } from '@screenplay/interactions/facturacion/BuscarYSeleccionarCliente';
 import { BuscarYAgregarProducto } from '@screenplay/interactions/facturacion/BuscarYAgregarProducto';
 import { FacturacionTargets } from '@screenplay/targets/facturacion/FacturacionTargets';
-import { EmisionAdelantosPage } from '@pages/PuntoVenta/EmisionAdelantosPage';
+
 import type { DatosCliente, ItemVenta } from '@helpers/PuntoVenta/emision.types';
 import type { ResultadoEmision } from './EmitirComprobanteSimple';
 
@@ -21,9 +21,20 @@ export const EmitirFacturaConRetencion = (datos: DatosRetencion) => {
             await BuscarYAgregarProducto(producto)(page);
         }
 
+        await page.waitForTimeout(500);
+        await FacturacionTargets.sliderRetencion(page).click({force: true});
+        await page.waitForTimeout(500);
+
+        const inputRetencion = FacturacionTargets.inputPorcentajeRetencion(page);
+        await inputRetencion.waitFor({ state: 'visible', timeout: 5000 });
+        await inputRetencion.fill('');
+        await inputRetencion.pressSequentially(datos.porcentajeRetencion, { delay: 150 });
+
+        const btnGuardar = FacturacionTargets.btnGuardarRetencion(page);
+        await btnGuardar.waitFor({ state: 'visible', timeout: 5000 });
+        await btnGuardar.click();
         
-        const adelantosPage = new EmisionAdelantosPage(page);
-        await adelantosPage.activarRetencion(datos.porcentajeRetencion);
+        await FacturacionTargets.btnCerrarModal(page).click();
 
         const emisionPromise = page.waitForResponse(
             (resp) => resp.url().includes('DocumentosContables/Emisiones') && resp.status() === 200,

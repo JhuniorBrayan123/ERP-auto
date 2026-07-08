@@ -19,7 +19,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
             await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).click();
             await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).fill(CLIENTES.EMPRESA_RUC_AUTO.documento);
             await page.getByText(CLIENTES.EMPRESA_RUC_AUTO.textoSelector).click();
-            await page.locator('.slider').first().click(); 
+            await page.locator('.slider').first().click();
         });
 
         await test.step('When: emitir con PLIN', async () => {
@@ -61,7 +61,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
                                                                      busquedaComprobantes,
                                                                      page,
                                                                  }) => {
-        
+
         let emisionAdelanto: typeof emisionPage.ultimaEmision = null;
 
         await test.step('Given: crear factura de adelanto como precondición', async () => {
@@ -93,7 +93,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
 
         await test.step('When: aplicar adelanto existente', async () => {
             await emisionAdelantosPage.abrirAdelantos(CLIENTES.EMPRESA_RUC_AUTO);
-            
+
             await busquedaComprobantes.filtrarAdelantoFactura(emisionAdelanto);
         });
 

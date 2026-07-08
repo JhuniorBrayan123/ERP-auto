@@ -1,11 +1,11 @@
-﻿import { test, expect } from '@fixtures/PuntoVenta/facturacion.fixture';
-import { EmitirComprobanteSimple } from '@screenplay/tasks/facturacion/EmitirComprobanteSimple';
-import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
-import { BusquedaComprobantesPage } from '@pages/PuntoVenta/BusquedaComprobantesPage';
+﻿import {test} from '@fixtures/PuntoVenta/facturacion.fixture';
+import {EmitirComprobanteSimple} from '@screenplay/tasks/facturacion/EmitirComprobanteSimple';
+import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 
 test.describe('Facturación — Emitir Boleta Simple', () => {
 
-    test('Emite una Boleta con cliente DNI y pago en efectivo', async ({ page, cajero }) => {
+    test('Emite una Boleta con cliente DNI y pago en efectivo', async ({page, cajero}) => {
         const resultado = await cajero.realizaYObtiene(
             EmitirComprobanteSimple({
                 tipoComprobante: 'BOLETA',
@@ -14,16 +14,19 @@ test.describe('Facturación — Emitir Boleta Simple', () => {
                 metodoPago: 'efectivo',
             })
         );
-        expect(resultado.serie).toBe('B001');
-        expect(parseInt(resultado.correlativo)).toBeGreaterThan(0);
-        expect(resultado.numero).toMatch(/^B001-\d{8}$/);
-
         const busqueda = new BusquedaComprobantesPage(page);
+        const estadoSunat = await test.step('And: validar estado SUNAT desde API de Consultas', async () => {
+            return await busqueda.validarEstadoSunat();
+        });
+
         await busqueda.navegarABusquedaComprobantes(resultado);
-        await expect(page.locator('body')).toContainText(resultado.numero, { timeout: 10_000 });
+        await busqueda.abrirBitacoraDelPrimerComprobante();
+        await busqueda.validarComprobanteEmitido(estadoSunat);
+        await busqueda.validarDescargoInventarios();
+        await busqueda.cerrarBitacora();
     });
 
-    test('Emite una Boleta con Consumidor Final (doc 00000000) — sin seleccionar cliente', async ({ page, cajero }) => {
+    test('Emite una Boleta con Consumidor Final (doc 00000000) — sin seleccionar cliente', async ({page, cajero}) => {
         const resultado = await cajero.realizaYObtiene(
             EmitirComprobanteSimple({
                 tipoComprobante: 'BOLETA',
@@ -32,11 +35,15 @@ test.describe('Facturación — Emitir Boleta Simple', () => {
             })
         );
 
-        expect(resultado.serie).toBe('B001');
-        expect(resultado.numero).toMatch(/^B001-\d{8}$/);
-
         const busqueda = new BusquedaComprobantesPage(page);
+        const estadoSunat = await test.step('And: validar estado SUNAT desde API de Consultas', async () => {
+            return await busqueda.validarEstadoSunat();
+        });
+
         await busqueda.navegarABusquedaComprobantes(resultado);
-        await expect(page.locator('body')).toContainText(resultado.numero, { timeout: 10_000 });
+        await busqueda.abrirBitacoraDelPrimerComprobante();
+        await busqueda.validarComprobanteEmitido(estadoSunat);
+        await busqueda.validarDescargoInventarios();
+        await busqueda.cerrarBitacora();
     });
 });

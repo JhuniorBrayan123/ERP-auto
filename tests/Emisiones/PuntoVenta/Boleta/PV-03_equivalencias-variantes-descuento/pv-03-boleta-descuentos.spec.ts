@@ -1,13 +1,13 @@
-import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
+import {test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
 test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @PV-03', {tag: ['@punto-venta', '@boleta', '@descuento']}, () => {
 
     test('Emitir boleta con descuento por ítem por monto @PV-03.1', async ({
-                                                                              cajaPage,
-                                                                              emisionPage,
-                                                                              busquedaComprobantes,
-                                                                          }) => {
+                                                                               cajaPage,
+                                                                               emisionPage,
+                                                                               busquedaComprobantes,
+                                                                           }) => {
         await test.step('Given: caja abierta y producto agregado', async () => {
             await cajaPage.continuarVendiendo();
             await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
@@ -42,10 +42,10 @@ test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @P
     });
 
     test('Emitir boleta con descuento global por porcentaje @PV-03.2', async ({
-                                                                                 cajaPage,
-                                                                                 emisionPage,
-                                                                                 busquedaComprobantes,
-                                                                             }) => {
+                                                                                  cajaPage,
+                                                                                  emisionPage,
+                                                                                  busquedaComprobantes,
+                                                                              }) => {
         await test.step('Given: caja abierta y producto con cantidad 10', async () => {
             await cajaPage.continuarVendiendo();
             await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
@@ -83,11 +83,11 @@ test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @P
     });
 
     test('Emitir boleta con descuento ítem porcentaje + descuento global @PV-03.3', async ({
-                                                                                              cajaPage,
-                                                                                              emisionPage,
-                                                                                              busquedaComprobantes,
-                                                                                              page,
-                                                                                          }) => {
+                                                                                               cajaPage,
+                                                                                               emisionPage,
+                                                                                               busquedaComprobantes,
+                                                                                               page,
+                                                                                           }) => {
         await test.step('Given: caja abierta y producto agregado', async () => {
             await cajaPage.continuarVendiendo();
             await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
@@ -133,11 +133,11 @@ test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @P
     });
 
     test('Emitir boleta con ítem con equivalencia @PV-03.4', async ({
-                                                                       cajaPage,
-                                                                       emisionPage,
-                                                                       busquedaComprobantes,
-                                                                       page,
-                                                                   }) => {
+                                                                        cajaPage,
+                                                                        emisionPage,
+                                                                        busquedaComprobantes,
+                                                                        page,
+                                                                    }) => {
         await test.step('Given: caja abierta', async () => {
             await cajaPage.continuarVendiendo();
         });

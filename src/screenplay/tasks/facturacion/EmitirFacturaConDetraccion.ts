@@ -1,14 +1,14 @@
-﻿import { expect, type Page } from '@playwright/test';
-import { SeleccionarTipoComprobante } from '@screenplay/interactions/facturacion/SeleccionarTipoComprobante';
-import { BuscarYSeleccionarCliente } from '@screenplay/interactions/facturacion/BuscarYSeleccionarCliente';
-import { BuscarYAgregarProducto } from '@screenplay/interactions/facturacion/BuscarYAgregarProducto';
-import { SeleccionarMoneda } from '@screenplay/interactions/facturacion/SeleccionarMoneda';
-import { FacturacionTargets } from '@screenplay/targets/facturacion/FacturacionTargets';
-import { PagoTargets } from '@screenplay/targets/facturacion/PagoTargets';
-import { VentaGridTargets } from '@screenplay/targets/facturacion/VentaGridTargets';
-import { DetraccionPage, type ConfigDetraccionTransporte } from '@pages/PuntoVenta/detraccion.page';
-import type { DatosCliente, ItemVenta } from '@helpers/PuntoVenta/emision.types';
-import type { ResultadoEmision } from './EmitirComprobanteSimple';
+import {expect, type Page} from '@playwright/test';
+import {SeleccionarTipoComprobante} from '@screenplay/interactions/facturacion/SeleccionarTipoComprobante';
+import {BuscarYSeleccionarCliente} from '@screenplay/interactions/facturacion/BuscarYSeleccionarCliente';
+import {BuscarYAgregarProducto} from '@screenplay/interactions/facturacion/BuscarYAgregarProducto';
+import {SeleccionarMoneda} from '@screenplay/interactions/facturacion/SeleccionarMoneda';
+import {FacturacionTargets} from '@screenplay/targets/facturacion/FacturacionTargets';
+import {PagoTargets} from '@screenplay/targets/facturacion/PagoTargets';
+import {VentaGridTargets} from '@screenplay/targets/facturacion/VentaGridTargets';
+import {type ConfigDetraccionTransporte, DetraccionPage} from '@pages/PuntoVenta/detraccion.page';
+import type {DatosCliente, ItemVenta} from '@helpers/PuntoVenta/emision.types';
+import type {ResultadoEmision} from './EmitirComprobanteSimple';
 
 type Moneda = 'soles' | 'dolares' | 'euros';
 
@@ -20,11 +20,11 @@ export interface DatosDetraccionSimple {
     cliente: DatosCliente & { textoSelector?: string };
     productos: ProductoConPrecio[];
     detraccion: {
-        porcentaje: string;    
-        numeroCuenta: string;  
+        porcentaje: string;
+        numeroCuenta: string;
     };
     moneda?: Moneda;
-    tipoCambioExtranjera?: string; 
+    tipoCambioExtranjera?: string;
 }
 
 export interface DatosDetraccionTransporte {
@@ -32,15 +32,15 @@ export interface DatosDetraccionTransporte {
     productos: ProductoConPrecio[];
     transporte: ConfigDetraccionTransporte;
     moneda?: Moneda;
-    tipoCambioExtranjera?: string; 
+    tipoCambioExtranjera?: string;
 }
 
 const ejecutarPago = async (page: Page): Promise<ResultadoEmision> => {
     const emisionPromise = page.waitForResponse(
         (resp) => resp.url().includes('DocumentosContables/Emisiones') && resp.status() === 200,
-        { timeout: 45_000 }
+        {timeout: 45_000}
     );
-    await page.getByRole('button', { name: 'PAGAR' }).click();
+    await page.getByRole('button', {name: 'PAGAR'}).click();
     await PagoTargets.btnMontoExacto(page).click();
     await PagoTargets.btnRealizarPago(page).click();
 
@@ -51,11 +51,12 @@ const ejecutarPago = async (page: Page): Promise<ResultadoEmision> => {
     const correlativo = String(body.CorrelativoDocumento ?? '');
     const comprobanteId = body.IdComprobante ?? 0;
 
-    await expect(FacturacionTargets.mensajeExito(page)).toBeVisible({ timeout: 15_000 });
+    await expect(FacturacionTargets.mensajeExito(page)).toBeVisible({timeout: 15_000});
     await FacturacionTargets.btnNuevaVenta(page).click();
-    await page.waitForLoadState('networkidle').catch(() => {});
+    await page.waitForLoadState('networkidle').catch(() => {
+    });
     const numero = `${serie}-${correlativo.padStart(8, '0')}`;
-    return { serie, correlativo, comprobanteId, numero };
+    return {serie, correlativo, comprobanteId, numero};
 };
 
 const agregarProductosConPrecio = async (page: Page, productos: ProductoConPrecio[]): Promise<void> => {
@@ -82,7 +83,7 @@ const activarDetraccion = async (page: Page): Promise<void> => {
             const el = document.getElementById(id) as HTMLInputElement;
             if (el && !el.checked) {
                 el.checked = true;
-                el.dispatchEvent(new Event('change', { bubbles: true }));
+                el.dispatchEvent(new Event('change', {bubbles: true}));
             }
         }, DETRACCION_CHECKBOX_ID);
         await page.waitForTimeout(500);
@@ -97,12 +98,14 @@ export const EmitirFacturaConDetraccion = (datos: DatosDetraccionSimple) => {
             await SeleccionarMoneda(datos.moneda)(page);
         }
 
+        await agregarProductosConPrecio(page, datos.productos);
+
         await activarDetraccion(page);
 
-        
+
         if (datos.tipoCambioExtranjera) {
-            await expect(page.getByText('Tipo de cambio de detracción')).toBeVisible({ timeout: 5_000 });
-            const input = page.getByRole('textbox', { name: 'Cambio' }).or(page.getByRole('textbox', { name: '0' }));
+            await expect(page.getByText('Tipo de cambio de detracción')).toBeVisible({timeout: 5_000});
+            const input = page.getByRole('textbox', {name: 'Cambio'}).or(page.getByRole('textbox', {name: '0'}));
             if (await input.isVisible().catch(() => false)) {
                 await input.fill(datos.tipoCambioExtranjera);
             }
@@ -112,8 +115,6 @@ export const EmitirFacturaConDetraccion = (datos: DatosDetraccionSimple) => {
 
         const detraccionPage = new DetraccionPage(page);
         await detraccionPage.configurarDetraccionSimple(datos.detraccion);
-
-        await agregarProductosConPrecio(page, datos.productos);
 
         return ejecutarPago(page);
     };
@@ -129,11 +130,13 @@ export const EmitirFacturaConDetraccionTransporte = (datos: DatosDetraccionTrans
             await SeleccionarMoneda(datos.moneda)(page);
         }
 
+        await agregarProductosConPrecio(page, datos.productos);
+
         await activarDetraccion(page);
 
         if (datos.tipoCambioExtranjera) {
-            await expect(page.getByText('Tipo de cambio de detracción')).toBeVisible({ timeout: 5_000 });
-            const input = page.getByRole('textbox', { name: 'Cambio' }).or(page.getByRole('textbox', { name: '0' }));
+            await expect(page.getByText('Tipo de cambio de detracción')).toBeVisible({timeout: 5_000});
+            const input = page.getByRole('textbox', {name: 'Cambio'}).or(page.getByRole('textbox', {name: '0'}));
             if (await input.isVisible().catch(() => false)) {
                 await input.fill(datos.tipoCambioExtranjera);
             }
@@ -143,8 +146,6 @@ export const EmitirFacturaConDetraccionTransporte = (datos: DatosDetraccionTrans
 
         const detraccionPage = new DetraccionPage(page);
         await detraccionPage.configurarTransporteCarga(datos.transporte);
-
-        await agregarProductosConPrecio(page, datos.productos);
 
         return ejecutarPago(page);
     };

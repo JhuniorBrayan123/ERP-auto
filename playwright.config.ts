@@ -97,12 +97,41 @@ export default defineConfig({
     },
     {
       name: "PuntoVenta",
+      // Excluye Facturacion/ — esos specs tienen su propio proyecto aislado
       testMatch: "tests/Emisiones/**/*.spec.ts",
+      testIgnore: ["**/Facturacion/**"],
       use: {
         ...devices["Desktop Chrome"],
         storageState: resolveStoragePath(),
       },
-      dependencies: ["setup", "pv-items-setup"], //["setup"],//
+      dependencies: ["setup", "pv-items-setup"],
+      teardown: "pv-teardown",
+      workers: isCI ? 2 : 1,
+    },
+    {
+      // Vista Facturación es GLOBAL por empresa.
+      // NO correr en paralelo con PuntoVenta ni con Facturacion.
+      // mode:'serial' forzado dentro del spec.
+      name: "Facturacion-Vista",
+      testMatch: "tests/Emisiones/Facturacion/vista-facturacion/**/*.spec.ts",
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: resolveStoragePath(),
+      },
+      dependencies: ["setup", "pv-items-setup"],
+      workers: 1,
+    },
+    {
+      // Tests transaccionales de Facturación — correlativo via API intercept.
+      // No correr junto con vista-facturacion (ya excluido por testMatch).
+      name: "Facturacion",
+      testMatch: "tests/Emisiones/Facturacion/**/*.spec.ts",
+      testIgnore: ["**/vista-facturacion/**"],
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: resolveStoragePath(),
+      },
+      dependencies: ["setup", "pv-items-setup"],
       teardown: "pv-teardown",
       workers: isCI ? 2 : 1,
     },

@@ -1,5 +1,5 @@
 import {expect, test} from '@playwright/test';
-import {Cajero} from '../../../../../src/actors/cajero';
+import {Cajero} from '@actors/cajero';
 import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
 import {BuscarYAgregarItemSimple} from '@task/PuntoVenta/BuscarYAgregarItemSimple.task';
 import {IntentarAgregarSobrepasandoStock} from '@task/PuntoVenta/IntentarAgregarSobrepasandoStock.task';
