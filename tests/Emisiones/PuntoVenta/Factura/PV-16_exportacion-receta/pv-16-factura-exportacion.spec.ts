@@ -1,15 +1,15 @@
-import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
+import {test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
 test.describe('PV-16 | Emitir comprobante de exportación con receta @PV-16', {tag: ['@punto-venta', '@factura', '@exportacion']}, () => {
 
     test('Emitir factura de exportación sin RUC @PV-16.1', async ({
-                                                                     cajaPage,
-                                                                     comprobantePage,
-                                                                     emisionPage,
-                                                                     busquedaComprobantes,
-                                                                     page,
-                                                                 }) => {
+                                                                      cajaPage,
+                                                                      comprobantePage,
+                                                                      emisionPage,
+                                                                      busquedaComprobantes,
+                                                                      page,
+                                                                  }) => {
         await test.step('Given: caja abierta, FACTURA con switch exportación', async () => {
             await cajaPage.continuarVendiendo();
             await comprobantePage.seleccionarFactura();

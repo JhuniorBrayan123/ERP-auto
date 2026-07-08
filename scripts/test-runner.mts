@@ -14,7 +14,7 @@ import Fuse from 'fuse.js';
 const ROOT_DIR = process.cwd();
 const TESTS_DIR = path.join(ROOT_DIR, 'tests');
 
-type ProjectKey = 'PuntoVenta' | 'Logistica';
+type ProjectKey = 'Emisiones' | 'Logistica';
 
 interface ProjectContext {
     key: ProjectKey;
@@ -25,7 +25,7 @@ interface ProjectContext {
 }
 
 const PROJECT_CONFIG: Record<ProjectKey, { projectFlag: string | null; testDir: string; outputDir: string }> = {
-    PuntoVenta: {
+    Emisiones: {
         projectFlag: 'PuntoVenta',
         testDir: path.join(TESTS_DIR, 'Emisiones'),
         outputDir: 'test-results/puntoventa',
@@ -321,7 +321,7 @@ export function applySetupSelections(selected: string[]): void {
 }
 
 function getDefaultSetups(projectKey?: ProjectKey): string[] {
-    if (projectKey === 'PuntoVenta') return [...PV_SETUP_NAMES];
+    if (projectKey === 'Emisiones') return [...PV_SETUP_NAMES];
     if (projectKey === 'Logistica') return [...LOG_SETUP_NAMES];
     
     return [...PV_SETUP_NAMES, ...LOG_SETUP_NAMES];
@@ -403,12 +403,25 @@ async function askRunOptions(projectKey?: ProjectKey): Promise<string[]> {
     return [];
 }
 
-function buildArgs(projectContext: ProjectContext, extraArgs: string[]): string[] {
+function buildArgs(projectContext: ProjectContext, extraArgs: string[], pathsToRun: string[]): string[] {
     const args: string[] = [];
-    if (projectContext.projectFlag) {
-        args.push('--project', projectContext.projectFlag);
+    
+    let currentProjectFlag = projectContext.projectFlag;
+    let currentOutputDir = projectContext.outputDir;
+    
+    // Inyección dinámica de proyecto si estamos corriendo Facturacion aislada
+    if (projectContext.key === 'Emisiones') {
+        const hasFacturacion = pathsToRun.some(p => p.includes('/Facturacion') || p.includes('\\Facturacion'));
+        if (hasFacturacion) {
+            currentProjectFlag = 'Facturacion';
+            currentOutputDir = 'test-results/facturacion';
+        }
     }
-    args.push('--output', projectContext.outputDir);
+
+    if (currentProjectFlag) {
+        args.push('--project', currentProjectFlag);
+    }
+    args.push('--output', currentOutputDir);
     if (!projectContext.isRunAll) {
         args.push('--workers', '1');
     }
@@ -416,14 +429,14 @@ function buildArgs(projectContext: ProjectContext, extraArgs: string[]): string[
 }
 
 function formatCommandWithContext(args: string[], projectContext?: ProjectContext): string {
-    const prefixArgs = projectContext ? buildArgs(projectContext, []) : [];
+    const prefixArgs = projectContext ? buildArgs(projectContext, [], args) : [];
     return ['npx', 'playwright', 'test', ...prefixArgs, ...args].map(quoteArg).join(' ');
 }
 
 function runPlaywright(args: string[], projectContext?: ProjectContext): Promise<void> {
     return new Promise((resolve, reject) => {
-        const ctx = projectContext || getProjectContext('PuntoVenta');
-        const prefixedArgs = buildArgs(ctx, args);
+        const ctx = projectContext || getProjectContext('Emisiones');
+        const prefixedArgs = buildArgs(ctx, args, args);
 
         console.log('\nComando generado:\n');
         console.log(formatCommandWithContext(args, ctx));
@@ -799,15 +812,15 @@ async function runPlaywrightUi(projectContext: ProjectContext): Promise<void> {
     await runPlaywright(['--ui'], projectContext);
 }
 
-async function selectProject(): Promise<'PuntoVenta' | 'Logistica' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'RunAllFailed' | 'exit'> {
-    const choice = await select<'PuntoVenta' | 'Logistica' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'RunAllFailed' | 'exit'>({
+async function selectProject(): Promise<'Emisiones' | 'Logistica' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'RunAllFailed' | 'exit'> {
+    const choice = await select<'Emisiones' | 'Logistica' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'RunAllFailed' | 'exit'>({
         message: 'ERP2 AUTO - TEST RUNNER — Selecciona proyecto:',
         choices: [
-            { name: '1. Emisiones', value: 'PuntoVenta' },
+            { name: '1. Emisiones', value: 'Emisiones' },
             { name: '2. Logistica', value: 'Logistica' },
-            { name: '3. Run All (Secuencial: EMI → LOG, output limpio)', value: 'RunAllSequential' },
-            { name: '4. Run All (Paralelo: EMI + LOG, output mezclado)', value: 'RunAllParallel' },
-            { name: '5. Run All (Dos terminales: instrucciones)', value: 'RunAllDual' },
+            { name: '3. Run All (Secuencial)', value: 'RunAllSequential' },
+            { name: '4. Run All (Paralelo: EMI + LOG)', value: 'RunAllParallel' },
+            { name: '5. Run All (Dos terminales)', value: 'RunAllDual' },
             { name: '6. 🔄 Re-ejecutar tests fallidos', value: 'RunAllFailed' },
             { name: '7. Salir', value: 'exit' },
         ],
@@ -818,7 +831,7 @@ async function selectProject(): Promise<'PuntoVenta' | 'Logistica' | 'RunAllSequ
 async function runAllSequential(): Promise<void> {
     await askRunOptions();
 
-    const pvOutput = PROJECT_CONFIG.PuntoVenta.outputDir;
+    const pvOutput = PROJECT_CONFIG.Emisiones.outputDir;
     const logOutput = PROJECT_CONFIG.Logistica.outputDir;
 
     const pvArgs = ['--project', 'PuntoVenta', '--output', pvOutput];
@@ -869,7 +882,7 @@ async function runAllSequential(): Promise<void> {
 async function runAllParallel(): Promise<void> {
     await askRunOptions();
 
-    const pvOutput = PROJECT_CONFIG.PuntoVenta.outputDir;
+    const pvOutput = PROJECT_CONFIG.Emisiones.outputDir;
     const logOutput = PROJECT_CONFIG.Logistica.outputDir;
 
     const pvArgs = ['--project', 'PuntoVenta', '--output', pvOutput];
@@ -944,7 +957,7 @@ async function runAllParallel(): Promise<void> {
 }
 
 async function runAllDualTerminal(): Promise<void> {
-    const pvOutput = PROJECT_CONFIG.PuntoVenta.outputDir;
+    const pvOutput = PROJECT_CONFIG.Emisiones.outputDir;
     const logOutput = PROJECT_CONFIG.Logistica.outputDir;
 
     console.log('\n═══════════════════════════════════════════════════════');
@@ -970,7 +983,7 @@ async function runFailedTests(): Promise<void> {
 
     if (failedGroups.length === 0) {
         
-        const pvPath = path.join(PROJECT_CONFIG.PuntoVenta.outputDir, 'results.json');
+        const pvPath = path.join(PROJECT_CONFIG.Emisiones.outputDir, 'results.json');
         const logPath = path.join(PROJECT_CONFIG.Logistica.outputDir, 'results.json');
 
         if (!fs.existsSync(pvPath) && !fs.existsSync(logPath)) {

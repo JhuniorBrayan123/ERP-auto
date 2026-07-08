@@ -9,7 +9,10 @@ export const BuscarYAgregarEquivalencia = (item: ItemVenta, equivalencia: string
         await emision.seleccionarItem(item.nombre);
         
         await page.getByText(equivalencia).click();
-        await page.locator('.cmp-informacion-item > div').first().click();
+        const confirmarInfo = page.locator('.cmp-informacion-item > div').first();
+        if (await confirmarInfo.isVisible().catch(() => false)) {
+            await confirmarInfo.click();
+        }
     };
     fn.displayName = 'Buscar y agregar equivalencia';
     return fn;

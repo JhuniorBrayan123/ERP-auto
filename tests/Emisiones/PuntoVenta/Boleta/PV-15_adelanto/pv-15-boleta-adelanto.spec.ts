@@ -1,11 +1,14 @@
-import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
+import {test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
 test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-venta', '@boleta', '@adelanto']}, () => {
 
     test('Emitir boleta de adelanto @PV-15.1', async ({
-                                                         cajaPage, emisionPage, busquedaComprobantes, emisionAdelantosPage,
-                                                     }) => {
+                                                          cajaPage,
+                                                          emisionPage,
+                                                          busquedaComprobantes,
+                                                          emisionAdelantosPage,
+                                                      }) => {
         await test.step('Given: caja abierta y producto agregado', async () => {
             await cajaPage.continuarVendiendo();
             await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);

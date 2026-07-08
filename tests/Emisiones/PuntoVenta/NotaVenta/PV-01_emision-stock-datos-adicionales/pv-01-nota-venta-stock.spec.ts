@@ -10,7 +10,7 @@ test.describe('PV-01 | Emisión de nota de venta con control de stock @PV-01', {
                                                                                         emisionPage,
                                                                                         kardexApi,
                                                                                         busquedaComprobantes,
-        page
+                                                                                        page
                                                                                     }) => {
         let saldoAntes = 0;
 
@@ -35,7 +35,7 @@ test.describe('PV-01 | Emisión de nota de venta con control de stock @PV-01', {
         await test.step('Then: nota de venta emitida', async () => {
             await emisionPage.clickNuevaVenta();
         });
-        await test.step('recargar si hay error', async ()=>{
+        await test.step('recargar si hay error', async () => {
             await recargarSiHayError(page)
         })
         await test.step('And: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {

@@ -40,7 +40,7 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
             await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_SIMPLE.nombre);
             await emisionPage.editarPrecioItem('50');
             await emisionPage.abrirSelectorFecha();
-            
+
             await page.locator('.v-calendar .day.is-today').click().catch(() => {
             });
             await emisionPage.emitirConEfectivoExacto();

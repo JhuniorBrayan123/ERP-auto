@@ -93,13 +93,19 @@ export class EmisionPage {
 
     async seleccionarItem(nombre: string): Promise<void> {
         try {
-            
-            await esperarCargaOverlay(this.page, 30_000).catch(() => {});
+
+            await esperarCargaOverlay(this.page, 30_000).catch(() => {
+            });
 
             const item = this.page
                 .locator('.body')
                 .filter({hasText: nombre})
-                .first();
+                .first().or(
+                    this.page
+                        .locator('.card-item-dropdown')
+                        .filter({hasText: nombre})
+                        .first()
+                );
 
             await expect(item).toBeVisible({timeout: 30_000});
             await item.click();
@@ -124,15 +130,15 @@ export class EmisionPage {
     async incrementarCantidadImagen(veces: number = 1, nombre: string): Promise<void> {
         try {
             const btnIncrease = this.page
-                .locator('.cmp-producto-img') 
-                .filter({hasText: nombre})     
+                .locator('.cmp-producto-img')
+                .filter({hasText: nombre})
                 .first();
 
             await expect(btnIncrease).toBeVisible({timeout: 10_000});
 
             for (let i = 0; i < veces; i++) {
                 await btnIncrease.click();
-                await this.page.waitForTimeout(200); 
+                await this.page.waitForTimeout(200);
             }
 
             const overload = this.page.locator('[id="cmn_cmp-overload:loading"]');
@@ -320,7 +326,7 @@ export class EmisionPage {
     async clickNuevaVenta(): Promise<void> {
         await this.btnNuevaVenta.click();
         await this.page.waitForLoadState('networkidle');
-        await this.page.waitForTimeout(500); 
+        await this.page.waitForTimeout(500);
     }
 
     async clickYape(): Promise<void> {
@@ -450,7 +456,7 @@ export class EmisionPage {
         ) {
             await this.page.locator('button.vc-arrow.vc-prev').click()
         }
-        
+
         const botonFecha = this.page.locator(
             `.vc-day:not(.is-not-in-month) [aria-label="${ariaLabel}"]`
         );

@@ -16,7 +16,7 @@ test.describe('Guías de Remisión Transportista - Emisión', {tag: ['@guias', '
     test('GRT-16: Emitir guía transportista básica', async ({cajero, listadoGuiasPage}) => {
         await cajero.intentaRealizar(
             EmitirGuiaTransportistaTask({
-                peso: '10', 
+                peso: '10',
                 items: [{codigoONombre: GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_SIN_CONTROL.nombre}]
             })
         );
