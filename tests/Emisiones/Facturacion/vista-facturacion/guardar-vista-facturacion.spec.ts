@@ -1,24 +1,34 @@
-﻿import {expect, test} from '@fixtures/PuntoVenta/facturacion.fixture';
+import {expect, test} from '@fixtures/PuntoVenta/caja.fixture';
 import {ConfigurarVistaFacturacion} from '@screenplay/tasks/facturacion/ConfigurarVistaFacturacion';
 import {VistaFacturacionActiva} from '@screenplay/questions/facturacion/VistaFacturacionActiva';
-
-test.describe.configure({mode: 'serial'});
+import {FacturacionTargets} from '@screenplay/targets/facturacion/FacturacionTargets';
 
 test.describe('Vista Facturación — Guardar configuración', () => {
 
-    test('Puede guardar Vista Facturación y queda activa', async ({cajero}) => {
+    test('Puede guardar Vista Facturación y persiste al recargar', async ({page, cajero}) => {
+        // 1. Guardar la configuración en DB
         await cajero.realiza(
             ConfigurarVistaFacturacion()
         );
-        const estaActiva = await cajero.pregunta(VistaFacturacionActiva());
+        let estaActiva = await cajero.pregunta(VistaFacturacionActiva());
         expect(estaActiva).toBe(true);
-    });
 
-    test('Vista Facturación persiste al recargar la página', async ({page, cajero}) => {
+        // 2. Recargar para validar la persistencia
         await page.reload();
         await page.waitForLoadState('networkidle');
 
-        const estaActiva = await cajero.pregunta(VistaFacturacionActiva());
+        estaActiva = await cajero.pregunta(VistaFacturacionActiva());
         expect(estaActiva).toBe(true);
+
+        // 3. Limpieza: Restauramos a la vista por defecto para no afectar otros tests
+        await FacturacionTargets.btnCambiarVista(page).click();
+        await FacturacionTargets.opcionVistaCuadrada(page).click();
+        
+        await page.waitForTimeout(500);
+        await FacturacionTargets.btnGuardarVista(page).click({ force: true });
+        
+        await expect(FacturacionTargets.mensajeVistaGuardada(page)).toBeVisible({ timeout: 10_000 });
+        await FacturacionTargets.btnCerrarModal(page).click();
     });
+
 });

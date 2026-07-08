@@ -23,6 +23,9 @@ export const FacturacionTargets = {
     btnGuardarVista: (page: Page) =>
         page.getByRole('button', {name: 'Guardar vista'}).nth(1),
 
+    opcionVistaCuadrada: (page: Page) =>
+        page.locator('[id="pv_punto-venta_cmp-pv-navbar:navbar_cmp-select:vista_grilla_option:vista_imagen_cuadrada"]'),
+
 
     opcionTipoComprobante: (page: Page, tipo: string) => {
         const id = TIPO_COMPROBANTE_ID[tipo] ?? TIPO_COMPROBANTE_ID['BOLETA'];
