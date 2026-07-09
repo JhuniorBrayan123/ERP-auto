@@ -4,7 +4,7 @@
 
 111222 = item sin stock estricto  // este es nuevo item creacion manual Se usa para movimientos tambien
 
-313131= item con variante flexible //Se usa para movimientos tambien
+await page.getByRole('textbox', { name: 'Escanea o busca por nombre, c' }).fill('313131');= item con variante flexible //Se usa para movimientos tambien
 131313 = item variante estricto gravado
 333333 =item variante sin control gravado
 
