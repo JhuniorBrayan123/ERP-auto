@@ -5,6 +5,7 @@ import {
     CAMPOS_PV,
     CLIENTE_DNI_PV,
     CLIENTE_RUC_PV,
+    CONDUCTOR_PV,
     VENDEDOR_PV,
 } from '@helpers/PuntoVenta/punto-venta-setup-data.helper';
 import {shouldSkipSetup, markSetupComplete} from '@utils/setup-state';
@@ -54,6 +55,9 @@ setup('preparar datos base para PuntoVenta / Emisiones', async ({page}) => {
 
     console.log('\n [PV Setup] Configurando CLIENTE RUC...');
     await pvSetup.asegurarClienteRUC(CLIENTE_RUC_PV);
+
+    console.log('\n [PV Setup] Configurando CONDUCTOR...');
+    await pvSetup.asegurarConductor(CONDUCTOR_PV);
 
     console.log('\n [PV Setup] Datos base de PuntoVenta listos\n');
 

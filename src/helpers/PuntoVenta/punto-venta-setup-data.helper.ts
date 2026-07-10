@@ -12,21 +12,21 @@ export interface VendedorData {
 export interface ClienteSetupData {
     tipoDocumento: 'DNI' | 'RUC';
     documento: string;
-    
+
     razonSocial?: string;
     direccion: string;
     telefono: string;
     email: string;
-    
+
     textoExistencia: string;
 }
 
 export interface CampoAdicionalPVConfig {
     tipo: 'texto' | 'fecha' | 'seleccion' | 'numero';
     nombre: string;
-    
+
     opciones?: string[];
-    
+
     aplicarATodos: boolean;
 }
 
@@ -59,6 +59,19 @@ export const CLIENTE_RUC_PV: ClienteSetupData = {
     email: 'automatizacionerp2@gmail.com',
     textoExistencia: '20759685854',
 };
+
+export const CONDUCTOR_PV = {
+    tipoDocumento: 'DNI',
+    documento: '75652545',
+    nombre: 'Conductor automatizado qa',
+    codigo: '123456789',
+    categoria: 'A-I',
+    placa: 'ABC123ASCa',
+    zona: 'Arequipa-Sur',
+    direccion: 'Arequipa',
+    telefono: '999999999',
+    email: 'srqapruebaserp2@gmail.com',
+} as const;
 
 export const CAMPOS_PV: CampoAdicionalPVConfig[] = [
     {
