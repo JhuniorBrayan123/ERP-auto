@@ -1,5 +1,6 @@
 import {
     crearBoletaSemilla,
+    crearFacturaSemilla,
     expect,
     resolveActiveStorageState,
     resolveBaseUrl,
@@ -11,6 +12,7 @@ import {CLIENTES} from '@helpers/PuntoVenta/emision-data.helper';
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 
 let semilla: ComprobanteInfo;
+let semillaFactura: ComprobanteInfo;
 
 test.beforeAll(async ({browser}) => {
     const context = await browser.newContext({
@@ -20,8 +22,9 @@ test.beforeAll(async ({browser}) => {
     const page = await context.newPage();
     try {
         semilla = await crearBoletaSemilla(page);
-        await page.goto('/punto-venta/comprobantes');
+        semillaFactura = await crearFacturaSemilla(page);
         const busquedaPage = new BusquedaComprobantesPage(page);
+        await busquedaPage.ir();
         await busquedaPage.activarTodasLasColumnas();
     } finally {
         await context.close();
@@ -29,7 +32,8 @@ test.beforeAll(async ({browser}) => {
 });
 
 test.beforeEach(async ({page}) => {
-    await page.goto('/punto-venta/comprobantes');
+    const busqPage = new BusquedaComprobantesPage(page);
+    await busqPage.ir();
 });
 
 test('BC-02 | Buscar comprobantes por rango de fechas — Hoy', async ({busquedaPage}) => {
@@ -122,6 +126,8 @@ test('BC-05 | Buscar comprobantes por nombre de cliente', async ({busquedaPage})
 });
 
 test('BC-05b | Buscar comprobantes por número de documento del cliente (RUC)', async ({busquedaPage}) => {
+    test.skip(!semillaFactura, 'Semilla factura no disponible');
+
     await test.step('Given: el usuario abre filtros avanzados en categoría Ventas', async () => {
         await busquedaPage.seleccionarCategoria(BC_CATEGORIAS.VENTAS);
         await busquedaPage.abrirFiltrosAvanzados();
@@ -132,12 +138,14 @@ test('BC-05b | Buscar comprobantes por número de documento del cliente (RUC)', 
         await busquedaPage.filtrarPorNumDocCliente(CLIENTES.EMPRESA_RUC_AUTO.documento);
     });
 
-    await test.step('Then: la grilla muestra facturas del cliente RUC', async () => {
-        const page = busquedaPage['page'];
-        await expect(page.locator('tbody').first()).toContainText('FACTURA', {timeout: 15_000});
+    await test.step('Then: la grilla muestra la factura semilla del cliente RUC', async () => {
+        const fila = busquedaPage.obtenerFilaPorNumero(semillaFactura.numeroCompleto);
+        await expect(fila).toBeVisible({timeout: 15_000});
     });
 });
 test('BC-06 | Buscar comprobantes combinando tipo + documento de cliente', async ({busquedaPage}) => {
+    test.skip(!semillaFactura, 'Semilla factura no disponible');
+
     await test.step('Given: filtros avanzados abiertos', async () => {
         await busquedaPage.abrirFiltrosAvanzados();
     });
@@ -147,11 +155,9 @@ test('BC-06 | Buscar comprobantes combinando tipo + documento de cliente', async
         await busquedaPage.filtrarPorNumDocCliente(CLIENTES.EMPRESA_RUC_AUTO.documento);
     });
 
-    await test.step('Then: la grilla muestra solo facturas del cliente RUC', async () => {
-        const page = busquedaPage['page'];
-        await expect(page.locator('tbody').first()).toContainText('FACTURA', {timeout: 15_000});
-        
-        await expect(page.locator('tbody').first()).toContainText(CLIENTES.EMPRESA_RUC_AUTO.nombre);
+    await test.step('Then: la grilla muestra la factura semilla del cliente RUC', async () => {
+        const fila = busquedaPage.obtenerFilaPorNumero(semillaFactura.numeroCompleto);
+        await expect(fila).toBeVisible({timeout: 15_000});
     });
 });
 

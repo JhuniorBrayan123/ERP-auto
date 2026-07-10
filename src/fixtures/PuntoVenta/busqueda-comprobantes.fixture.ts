@@ -94,6 +94,41 @@ export async function crearBoletaSemilla(page: Page): Promise<ComprobanteInfo> {
     return semilla;
 }
 
+export async function crearFacturaSemilla(page: Page): Promise<ComprobanteInfo> {
+    const cajaPage = new CajaPage(page, CAJAS.VENTA.nombre);
+    const comprobantePage = new ComprobantePage(page);
+    const clientePage = new ClientePage(page);
+    const emisionPage = new EmisionPage(page);
+    const postEmision = new PostEmisionPage(page);
+
+    await page.goto('/');
+    await page.getByText('Ventas y compras').click();
+    await page.getByText('Ver cajas').click();
+    await cajaPage.asegurarCajaAbierta();
+
+    await comprobantePage.seleccionarFactura();
+    await clientePage.seleccionarClienteRUCAuto();
+    await emisionPage.buscarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
+    await emisionPage.seleccionarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
+    const emision = await emisionPage.emitirConEfectivoExacto();
+    const numeroCompleto = await postEmision.obtenerCorrelativoDinamico();
+    const [serie, correlativo] = numeroCompleto.split('-');
+
+    await emisionPage.clickNuevaVenta();
+
+    const semilla: ComprobanteInfo = {
+        tipo: 'Factura',
+        serie: serie ?? emision.serie,
+        correlativo: correlativo ?? emision.correlativo,
+        numeroCompleto: numeroCompleto || `${emision.serie}-${emision.correlativo}`,
+        cliente: CLIENTES.EMPRESA_RUC_AUTO.nombre,
+        estado: 'EMITIDO',
+    };
+
+    console.log(`[Semilla] Factura creada: ${semilla.numeroCompleto}`);
+    return semilla;
+}
+
 export async function crearBoletaConDatosOpcionales(page: Page): Promise<ComprobanteInfo> {
     const cajaPage = new CajaPage(page, CAJAS.VENTA.nombre);
     const comprobantePage = new ComprobantePage(page);

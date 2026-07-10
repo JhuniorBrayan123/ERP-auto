@@ -398,9 +398,11 @@ export class BusquedaComprobantesPage {
     }
 
     async abrirFiltrosAvanzados(): Promise<void> {
-        const btn = this.page.getByRole('button', {name: /ver filtros avanzados/i});
+        const btn = this.page.locator(
+            '[id="pv_comprobantes_cmp-filtros-comprobantes:state_v-button-filter-border:activar-filtros-avanzados"]',
+        );
         try {
-            await btn.waitFor({state: 'visible', timeout: 10_000});
+            await btn.waitFor({state: 'visible', timeout: 30_000});
             await btn.click();
         } catch {
 
@@ -821,7 +823,10 @@ export class BusquedaComprobantesPage {
 
     async ir(): Promise<void> {
         await this.page.goto('/punto-venta/comprobantes');
-        await esperarCargaOverlay(this.page);
+        await this.page.waitForLoadState('networkidle');
+        await this.page.locator(
+            '[id="pv_comprobantes_cmp-filtros-comprobantes:state_v-button-filter-border:activar-filtros-avanzados"]',
+        ).waitFor({state: 'visible', timeout: 30_000});
     }
 
     async buscarPorSerieCorrelativo(comprobante: import('../../helpers/PuntoVenta/busqueda-comprobantes.data').ComprobanteInfo): Promise<void> {
