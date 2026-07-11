@@ -5,7 +5,7 @@ import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
 import {GUIAS_DATA} from "@helpers/PuntoVenta/guias-data.helper";
 
-test.describe('Guías de Remisión Transportista - Emisión', {tag: ['@guias', '@puntoventa', '@transportista']}, () => {
+test.describe('GR-07 | Transportista — Emisión', {tag: ['@puntoventa', '@guias']}, () => {
     test.beforeEach(async ({cajero}) => {
         await cajero.intentaRealizar(
             IniciarVentaEnCaja('caja-auto'),
@@ -13,7 +13,7 @@ test.describe('Guías de Remisión Transportista - Emisión', {tag: ['@guias', '
         );
     });
 
-    test('GRT-16: Emitir guía transportista básica', async ({cajero, listadoGuiasPage}) => {
+    test('SC-01: Emitir guía transportista básica @GR-07.1', async ({cajero, listadoGuiasPage}) => {
         await cajero.intentaRealizar(
             EmitirGuiaTransportistaTask({
                 peso: '10',
@@ -26,7 +26,7 @@ test.describe('Guías de Remisión Transportista - Emisión', {tag: ['@guias', '
         });
     });
 
-    test('GRT-17: Emitir guía transportista vinculando comprobante', async ({
+    test('SC-02: Emitir guía transportista vinculando comprobante @GR-07.2', async ({
                                                                                 cajero,
                                                                                 listadoGuiasPage,
                                                                                 page,
@@ -65,7 +65,7 @@ test.describe('Guías de Remisión Transportista - Emisión', {tag: ['@guias', '
         });
     });
 
-    test('GRT-18: Emitir guía transportista con pagador de flete adicional', async ({
+    test('SC-03: Emitir guía transportista con pagador de flete adicional @GR-07.3', async ({
                                                                                         cajero,
                                                                                         listadoGuiasPage,
                                                                                         page,
@@ -97,7 +97,7 @@ test.describe('Guías de Remisión Transportista - Emisión', {tag: ['@guias', '
         });
     });
 
-    test('GRT-19: Emitir guía transportista con retorno subcontratado', async ({cajero, listadoGuiasPage}) => {
+    test('SC-04: Emitir guía transportista con retorno subcontratado @GR-07.4', async ({cajero, listadoGuiasPage}) => {
         await cajero.intentaRealizar(
             EmitirGuiaTransportistaTask({
                 peso: '10',
@@ -113,7 +113,7 @@ test.describe('Guías de Remisión Transportista - Emisión', {tag: ['@guias', '
         });
     });
 
-    test('GRT-20: Emitir guía transportista con autorización especial', async ({cajero, page, listadoGuiasPage}) => {
+    test('SC-05: Emitir guía transportista con autorización especial @GR-07.5', async ({cajero, page, listadoGuiasPage}) => {
         await cajero.intentaRealizar(
             EmitirGuiaTransportistaTask({
                 peso: '10',

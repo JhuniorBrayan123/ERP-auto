@@ -3,9 +3,9 @@ import {EmitirComprobanteSimple} from '@screenplay/tasks/facturacion/EmitirCompr
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 
-test.describe('Facturación — Emitir Factura Simple', () => {
+test.describe('FC-04 | Emitir Factura Simple', {tag: ['@facturacion', '@comprobantes']}, () => {
 
-    test('Emite una Factura con empresa RUC y pago en efectivo', async ({page, cajero}) => {
+    test('SC-01: Emitir Factura con empresa RUC y pago en efectivo @FC-04.1', async ({page, cajero}) => {
         const resultado = await cajero.realizaYObtiene(
             EmitirComprobanteSimple({
                 tipoComprobante: 'FACTURA',

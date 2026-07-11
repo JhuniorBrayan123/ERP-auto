@@ -2,9 +2,9 @@ import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {recargarSiHayError} from "@utils/wait-helpers";
 
-test.describe('PV-04 | Emisión de nota de venta con descuento por ítem @PV-04', {tag: ['@punto-venta', '@nota-venta', '@descuento']}, () => {
+test.describe('PV-04 | Emisión de nota de venta con descuento por ítem', {tag: ['@punto-venta', '@nota-venta', '@descuento']}, () => {
 
-    test('Emitir nota de venta con descuento global por monto @PV-04.2', async ({
+    test('SC-01: Emitir nota de venta con descuento global por monto @PV-04.1', async ({
                                                                                    cajaPage,
                                                                                    comprobantePage,
                                                                                    emisionPage,

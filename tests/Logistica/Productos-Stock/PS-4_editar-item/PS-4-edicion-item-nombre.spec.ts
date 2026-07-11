@@ -5,9 +5,9 @@ import {
     buscarYVerItemDesdeListado,
 } from '@helpers/Logistica/verificaciones-edicion-items.helper';
 
-test.describe('PS-4 | Edición de nombre de item', {tag: ['@logistica', '@productos-stock']}, () => {
+test.describe('PS-04 | Edición de nombre de item', {tag: ['@logistica', '@productos-stock']}, () => {
 
-    test('editar nombre de producto existente @PS-4', async ({
+    test('SC-01: editar nombre de producto existente @PS-04.1', async ({
                                                            page,
                                                            listaItems,
                                                            edicionItem,

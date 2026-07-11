@@ -2,9 +2,9 @@ import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {esperarCargaOverlay, recargarSiHayError} from "@utils/wait-helpers";
 
-test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-venta', '@nota-venta', '@adelanto']}, () => {
+test.describe('PV-15 | Emitir comprobante con adelanto', {tag: ['@punto-venta', '@nota-venta', '@adelanto']}, () => {
 
-    test('Emitir nota de venta de adelanto @PV-15.4', async ({
+    test('SC-01: Emitir nota de venta de adelanto @PV-15.1', async ({
                                                                  cajaPage,
                                                                  comprobantePage,
                                                                  emisionPage,
@@ -63,7 +63,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
         });
     });
 
-    test('Emitir nota de venta aplicando adelanto existente @PV-15.5', async ({
+    test('SC-02: Emitir nota de venta aplicando adelanto existente @PV-15.2', async ({
                                                                                   cajaPage,
                                                                                   comprobantePage,
                                                                                   emisionPage,
@@ -84,8 +84,8 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
         await test.step('And: iniciar nueva nota de venta', async () => {
             await comprobantePage.seleccionarNotaVenta();
             await recargarSiHayError(page)
-            await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+            await emisionPage.buscarItem(ITEMS_PV.ESTRICTO_GRAVADO_4.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.ESTRICTO_GRAVADO_4.nombre);
             await emisionPage.incrementarCantidad(1)
         });
 

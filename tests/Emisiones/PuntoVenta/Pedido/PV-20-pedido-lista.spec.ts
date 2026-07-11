@@ -20,9 +20,9 @@ import {TarjetaPedidoContieneTexto} from '@question/PuntoVenta/TarjetaPedidoCont
 import {TarjetaPedidoTieneOpciones} from '@question/PuntoVenta/TarjetaPedidoTieneOpciones.question';
 import {esperarCargaOverlay} from "@utils/wait-helpers";
 
-test.describe('PV-20 Pedido - Lista de pedidos', {tag: ['@punto-venta', '@pedido', '@lista']}, () => {
+test.describe('PV-20 | Lista de pedidos', {tag: ['@punto-venta', '@pedido', '@lista']}, () => {
 
-    test('P11: Listar pedidos (Ver todos) @PV-20.7', async ({page}) => {
+    test('SC-01: Listar pedidos (Ver todos) @PV-20.1', async ({page}) => {
         const cajero = Cajero.con(page);
         const pedido: EmisionOutputRef = {current: null};
         await cajero.intentaRealizar(
@@ -49,7 +49,7 @@ test.describe('PV-20 Pedido - Lista de pedidos', {tag: ['@punto-venta', '@pedido
         expect(await cajero.pregunta(TarjetaPedidoTieneOpciones(referenciaPedido))).toBe(true);
     });
 
-    test('P12: Buscar pedido por número en lista @PV-20.8', async ({page}) => {
+    test('SC-02: Buscar pedido por número en lista @PV-20.2', async ({page}) => {
         const cajero = Cajero.con(page);
         const pedido: EmisionOutputRef = {current: null};
         await cajero.intentaRealizar(
@@ -70,7 +70,7 @@ test.describe('PV-20 Pedido - Lista de pedidos', {tag: ['@punto-venta', '@pedido
         expect(await cajero.pregunta(PedidoEnListaVisible(correlativo))).toBe(true);
     });
 
-    test('P13: Buscar pedido por cliente en lista @PV-20.9', async ({page}) => {
+    test('SC-03: Buscar pedido por cliente en lista @PV-20.3', async ({page}) => {
         const cajero = Cajero.con(page);
         const pedido: EmisionOutputRef = {current: null};
 
@@ -102,7 +102,7 @@ test.describe('PV-20 Pedido - Lista de pedidos', {tag: ['@punto-venta', '@pedido
         await expect(cardOtroCliente).toHaveCount(0);
     });
 
-    test('P14: Buscar pedido por caja en lista @PV-20.10', async ({page}) => {
+    test('SC-04: Buscar pedido por caja en lista @PV-20.4', async ({page}) => {
         const cajero = Cajero.con(page);
         const pedido: EmisionOutputRef = {current: null};
         await cajero.intentaRealizar(
@@ -132,7 +132,7 @@ test.describe('PV-20 Pedido - Lista de pedidos', {tag: ['@punto-venta', '@pedido
         await expect(cardOtraCaja).toHaveCount(0);
     });
 
-    test('P15: Ver pedido desde lista @PV-20.11', async ({page}) => {
+    test('SC-05: Ver pedido desde lista @PV-20.5', async ({page}) => {
         const cajero = Cajero.con(page);
         const pedido: EmisionOutputRef = {current: null};
         await cajero.intentaRealizar(

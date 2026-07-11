@@ -7,7 +7,7 @@ import {IntentarAgregarListaSinStock} from '@task/PuntoVenta/IntentarAgregarList
 import {ClickAceptarModal} from '@interactions/PuntoVenta/ClickAceptarModal';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Selección, edición de ítem en caja de venta — Bloqueos por stock', {tag: ['@punto-venta', '@seleccion-edicion-item', '@bloqueos-stock']}, () => {
+test.describe('PV-18 | Bloqueos por stock', {tag: ['@puntoventa', '@pv-18', '@bloqueos-stock']}, () => {
 
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);

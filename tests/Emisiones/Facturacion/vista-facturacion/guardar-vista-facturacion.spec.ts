@@ -3,9 +3,9 @@ import {ConfigurarVistaFacturacion} from '@screenplay/tasks/facturacion/Configur
 import {VistaFacturacionActiva} from '@screenplay/questions/facturacion/VistaFacturacionActiva';
 import {FacturacionTargets} from '@screenplay/targets/facturacion/FacturacionTargets';
 
-test.describe('Vista Facturación — Guardar configuración', () => {
+test.describe('FC-21 | Guardar configuración de Vista Facturación', {tag: ['@facturacion', '@vista-facturacion']}, () => {
 
-    test('Puede guardar Vista Facturación y persiste al recargar', async ({page, cajero}) => {
+    test('SC-01: Guardar Vista Facturación y persiste al recargar @FC-21.1', async ({page, cajero}) => {
         // 1. Guardar la configuración en DB
         await cajero.realiza(
             ConfigurarVistaFacturacion()

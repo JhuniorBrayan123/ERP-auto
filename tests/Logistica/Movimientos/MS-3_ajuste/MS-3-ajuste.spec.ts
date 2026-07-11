@@ -15,9 +15,9 @@ import {
     verificarStockYKardex
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
 
-test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movimientos']}, () => {
+test.describe('MS-03 | Ajustes de Almacén', {tag: ['@logistica', '@movimientos']}, () => {
 
-    test('Registrar ajuste tipo Agregar @MS-3', async ({
+    test('SC-01: Registrar ajuste tipo Agregar @MS-03.1', async ({
                                                            movimientosNav,
                                                            registroMovimiento,
                                                            resultadoMovimiento,
@@ -40,7 +40,7 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
         );
     });
 
-    test('Registrar ajuste con insumo @MS-3', async ({
+    test('SC-02: Registrar ajuste con insumo @MS-03.2', async ({
                                                          movimientosNav,
                                                          registroMovimiento,
                                                          resultadoMovimiento,
@@ -63,7 +63,7 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
         );
     });
 
-    test('Registrar ajuste con equivalencia @MS-3', async ({
+    test('SC-03: Registrar ajuste con equivalencia @MS-03.3', async ({
                                                                movimientosNav,
                                                                registroMovimiento,
                                                                resultadoMovimiento,
@@ -88,7 +88,7 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
         );
     });
 
-    test('Registrar ajuste tipo Quitar @MS-3', async ({
+    test('SC-04: Registrar ajuste tipo Quitar @MS-03.4', async ({
                                                           movimientosNav,
                                                           registroMovimiento,
                                                           resultadoMovimiento,
@@ -111,7 +111,7 @@ test.describe('MS-3 | Ajustes de Almacén @ajuste', {tag: ['@logistica', '@movim
         );
     });
 
-    test('Registrar ajuste con datos adicionales @MS-3', async ({
+    test('SC-05: Registrar ajuste con datos adicionales @MS-03.5', async ({
                                                                     movimientosNav,
                                                                     registroMovimiento,
                                                                     datosOpcionales,

@@ -11,9 +11,9 @@ import {
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
 import { esperarCargaOverlay } from '@utils/wait-helpers';
 
-test.describe('MS-9 | Eliminación de Movimientos @eliminacion', { tag: ['@logistica', '@movimientos'] }, () => {
+test.describe('MS-09 | Eliminación de Movimientos', { tag: ['@logistica', '@movimientos'] }, () => {
 
-    test('Eliminar movimiento correctamente @MS-9', async ({
+    test('SC-01: Eliminar movimiento correctamente @MS-09.1', async ({
         movimientosNav,
         registroMovimiento,
         resultadoMovimiento,
@@ -25,15 +25,15 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', { tag: ['@logis
     }) => {
         let saldoAfectadoAPI = 0;
 
-        await crearSalidaEstandarParaPrecondicion(movimientosNav, registroMovimiento, resultadoMovimiento, ITEMS_TEST.PRODUCTO_GRAVADO.codigo, ITEMS_TEST.PRODUCTO_GRAVADO.nombre, '10');
+        await crearSalidaEstandarParaPrecondicion(movimientosNav, registroMovimiento, resultadoMovimiento, ITEMS_TEST.ESTRICTO_GRAVADO_10.codigo, ITEMS_TEST.ESTRICTO_GRAVADO_10.nombre, '10');
 
-        await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
+        await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.ESTRICTO_GRAVADO_10.codigo);
 
         await verificarKardexDesdeStock(stockVerificacion, ALMACENES.AUTO, PATRON_CODIGO.SALIDA);
 
         await test.step('API Arrange: obtener saldo antes de eliminar', async () => {
             saldoAfectadoAPI = await kardexApi.obtenerSaldoPorProducto({
-                codigoProducto: ITEMS_TEST.PRODUCTO_GRAVADO.codigo,
+                codigoProducto: ITEMS_TEST.ESTRICTO_GRAVADO_10.codigo,
                 almacenFiltro: 'AUTO',
             });
         });
@@ -49,18 +49,18 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', { tag: ['@logis
 
         await verificarEventoEnBitacora(listadoMovimientos, 'Eliminación');
 
-        await verificarKardexTotalEstandar(movimientosNav, kardexVerificacion, page, ITEMS_TEST.PRODUCTO_GRAVADO.codigo, ALMACENES.VENTAS, PATRON_CODIGO.SALIDA);
+        await verificarKardexTotalEstandar(movimientosNav, kardexVerificacion, page, ITEMS_TEST.ESTRICTO_GRAVADO_10.codigo, ALMACENES.VENTAS, PATRON_CODIGO.SALIDA);
 
         await test.step('API Assert: verificar que el backend sumó el saldo tras eliminación', async () => {
             const saldoPostEliminacion = await kardexApi.obtenerSaldoPorProducto({
-                codigoProducto: ITEMS_TEST.PRODUCTO_GRAVADO.codigo,
+                codigoProducto: ITEMS_TEST.ESTRICTO_GRAVADO_10.codigo,
                 almacenFiltro: 'AUTO',
             });
             expect(saldoPostEliminacion).toBe(saldoAfectadoAPI + 10);
         });
     });
 
-    test('Eliminar movimiento con variante @MS-9', async ({
+    test('SC-02: Eliminar movimiento con variante @MS-09.2', async ({
         movimientosNav,
         registroMovimiento,
         resultadoMovimiento,
@@ -93,7 +93,7 @@ test.describe('MS-9 | Eliminación de Movimientos @eliminacion', { tag: ['@logis
         });
     });
 
-    test('Bloquear eliminación por stock negativo @MS-9', async ({
+    test('SC-03: Bloquear eliminación por stock negativo @MS-09.3', async ({
         movimientosNav,
         registroMovimiento,
         resultadoMovimiento,

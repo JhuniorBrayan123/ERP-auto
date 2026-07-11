@@ -1,9 +1,9 @@
 import {expect, test} from '@fixtures/Logistica/edicion-clonado-fixture';
 import {buildUniqueClonedItemName} from '@helpers/Logistica/nombre-clonado.helper';
 
-test.describe('PS-5 | Clonado de item', {tag: ['@logistica', '@productos-stock']}, () => {
+test.describe('PS-05 | Clonado de item', {tag: ['@logistica', '@productos-stock']}, () => {
 
-    test('clonar producto existente con nombre único @PS-5', async ({
+    test('SC-01: clonar producto existente con nombre único @PS-05.1', async ({
                                                                         page,
                                                                         listaItems,
                                                                         edicionItem,

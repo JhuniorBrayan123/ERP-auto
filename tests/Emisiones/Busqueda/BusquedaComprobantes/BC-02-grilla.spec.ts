@@ -6,12 +6,13 @@ import {
     BC_TIPOS_COMPROBANTE,
 } from '@helpers/PuntoVenta/busqueda-comprobantes.data';
 
+test.describe('BC-02 | Grilla de búsqueda', {tag: ['@busqueda']}, () => {
 test.beforeEach(async ({page}) => {
     await page.goto('/punto-venta/comprobantes');
 });
 
 
-test('BC-09 | Validar columnas visibles y ocultas de la grilla', async ({busquedaPage}) => {
+test('SC-01: Validar columnas visibles y ocultas de la grilla @BC-02.1', async ({busquedaPage}) => {
     const page = busquedaPage['page'];
 
     await test.step('Given: el usuario abre la configuración de columnas', async () => {
@@ -61,7 +62,7 @@ test('BC-09 | Validar columnas visibles y ocultas de la grilla', async ({busqued
 });
 
 
-test('BC-10 | Validar paginación — avanzar a siguiente página mantiene filtros', async ({busquedaPage}) => {
+test('SC-02: Validar paginación — avanzar a siguiente página mantiene filtros @BC-02.2', async ({busquedaPage}) => {
     const page = busquedaPage['page'];
 
     await test.step('Given: se aplica filtro con suficientes resultados (Boletas 30 días)', async () => {
@@ -97,7 +98,7 @@ test('BC-10 | Validar paginación — avanzar a siguiente página mantiene filtr
     });
 });
 
-test('BC-11 | Ordenar resultados por correlativo (sin valores fijos)', async ({busquedaPage}) => {
+test('SC-03: Ordenar resultados por correlativo (sin valores fijos) @BC-02.3', async ({busquedaPage}) => {
     const page = busquedaPage['page'];
 
     await test.step('Given: se aplica un filtro que retorna múltiples comprobantes', async () => {
@@ -151,7 +152,7 @@ test('BC-11 | Ordenar resultados por correlativo (sin valores fijos)', async ({b
     });
 });
 
-test('BC-11b | Ordenar resultados por monto total — verificar orden numérico', async ({busquedaPage}) => {
+test('SC-04: Ordenar resultados por monto total — verificar orden numérico @BC-02.4', async ({busquedaPage}) => {
     const page = busquedaPage['page'];
 
     await test.step('Given: se añade la columna "Monto total" y se aplica filtro con resultados', async () => {
@@ -189,4 +190,5 @@ test('BC-11b | Ordenar resultados por monto total — verificar orden numérico'
 
         expect(estaOrdenado, `Monto total no está ordenado. Valores: ${nums.join(', ')}`).toBe(true);
     });
+});
 });

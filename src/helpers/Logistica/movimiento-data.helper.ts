@@ -13,6 +13,19 @@ export const ITEMS_TEST = {
     MASIVO_PROD: {codigo: 'EDPROD00', nombre: 'Tippy'} as ItemTest,
     MASIVO_INSUMO: {codigo: 'EDINS002', nombre: ''} as ItemTest,
 
+    ESTRICTO_GRAVADO_1: {codigo: '111112', nombre: 'Item control estricto gravado 1'} as ItemTest,
+    ESTRICTO_GRAVADO_2: {codigo: '111113', nombre: 'Item control estricto gravado 2'} as ItemTest,
+    ESTRICTO_GRAVADO_3: {codigo: '111114', nombre: 'Item control estricto gravado 3'} as ItemTest,
+    ESTRICTO_GRAVADO_4: {codigo: '111115', nombre: 'Item control estricto gravado 4'} as ItemTest,
+    ESTRICTO_GRAVADO_5: {codigo: '111116', nombre: 'Item control estricto gravado 5'} as ItemTest,
+    ESTRICTO_GRAVADO_6: {codigo: '111117', nombre: 'Item control estricto gravado 6'} as ItemTest,
+    ESTRICTO_GRAVADO_7: {codigo: '111118', nombre: 'Item control estricto gravado 7'} as ItemTest,
+    ESTRICTO_GRAVADO_8: {codigo: '111119', nombre: 'Item control estricto gravado 8'} as ItemTest,
+    ESTRICTO_GRAVADO_9: {codigo: '111120', nombre: 'Item control estricto gravado 9'} as ItemTest,
+    ESTRICTO_GRAVADO_10: {codigo: '111121', nombre: 'Item control estricto gravado 10'} as ItemTest,
+    EQUIVALENTE_SIN_CONTROL: {codigo: '303030', nombre: 'item equivalente sin control gravado'} as ItemTest,
+    VARIANTE_SIN_CONTROL: {codigo: '333333', nombre: 'item variante sin control gravado'} as ItemTest,
+
 };
 
 export const VARIANTES = {
@@ -109,6 +122,18 @@ try {
             'EQUIVALENTE_FLEX': 'ITEM_EQUIVALENTE',
             'EQUIVALENTE_EST': 'ITEM_EQUIVALENTE_ESTRICTO',
             'VARIANTE_ESTRICTO': 'ITEM_VARIANTE_ESTRICTO',
+            'ESTRICTO_GRAVADO_1': 'ESTRICTO_GRAVADO_1',
+            'ESTRICTO_GRAVADO_2': 'ESTRICTO_GRAVADO_2',
+            'ESTRICTO_GRAVADO_3': 'ESTRICTO_GRAVADO_3',
+            'ESTRICTO_GRAVADO_4': 'ESTRICTO_GRAVADO_4',
+            'ESTRICTO_GRAVADO_5': 'ESTRICTO_GRAVADO_5',
+            'ESTRICTO_GRAVADO_6': 'ESTRICTO_GRAVADO_6',
+            'ESTRICTO_GRAVADO_7': 'ESTRICTO_GRAVADO_7',
+            'ESTRICTO_GRAVADO_8': 'ESTRICTO_GRAVADO_8',
+            'ESTRICTO_GRAVADO_9': 'ESTRICTO_GRAVADO_9',
+            'ESTRICTO_GRAVADO_10': 'ESTRICTO_GRAVADO_10',
+            'EQUIVALENTE_SIN_CONTROL': 'ITEM_EQUIVALENTE_SIN_CONTROL',
+            'VARIANTE_SIN_CONTROL': 'ITEM_VARIANTE_SIN_CONTROL',
         };
 
         for (const [testKey, templateKey] of Object.entries(MAPA_CLAVES)) {

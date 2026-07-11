@@ -15,7 +15,7 @@ import {CajaPage} from '@pages/PuntoVenta/CajaPage';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
 import {esperarCargaOverlay} from "@utils/wait-helpers";
 
-test.describe('BC-12 | Generar nota de crédito desde una factura', () => {
+test.describe('BC-12 | Generar nota de crédito desde una factura', {tag: ['@busqueda']}, () => {
     let semilla: ComprobanteInfo;
 
     test.beforeAll(async ({browser}) => {
@@ -59,7 +59,7 @@ test.describe('BC-12 | Generar nota de crédito desde una factura', () => {
         await page.goto('/punto-venta/comprobantes');
     });
 
-    test('BC-12 | Generar nota de crédito desde una factura emitida', async ({busquedaPage}) => {
+    test('SC-01: Generar nota de crédito desde una factura emitida @BC-12.1', async ({busquedaPage}) => {
         test.skip(!semilla, 'Semilla factura no disponible');
         const s = semilla!;
 
@@ -98,7 +98,7 @@ test.describe('BC-12 | Generar nota de crédito desde una factura', () => {
     });
 });
 
-test.describe('BC-13 | Generar nota de venta desde una boleta', () => {
+test.describe('BC-13 | Generar nota de venta desde una boleta', {tag: ['@busqueda']}, () => {
     let semilla: ComprobanteInfo;
 
     test.beforeAll(async ({browser}) => {
@@ -143,7 +143,7 @@ test.describe('BC-13 | Generar nota de venta desde una boleta', () => {
         await page.goto('/punto-venta/comprobantes');
     });
 
-    test('BC-13 | Generar nota de venta desde una boleta emitida', async ({busquedaPage}) => {
+    test('SC-01: Generar nota de venta desde una boleta emitida @BC-13.1', async ({busquedaPage}) => {
         test.skip(!semilla, 'Semilla boleta no disponible');
         const s = semilla!;
 
@@ -172,7 +172,7 @@ test.describe('BC-13 | Generar nota de venta desde una boleta', () => {
 });
 
 
-test.describe('BC-14 | Generar factura desde una NV', () => {
+test.describe('BC-14 | Generar factura desde una NV', {tag: ['@busqueda']}, () => {
     let semilla: ComprobanteInfo;
 
     test.beforeAll(async ({browser}) => {
@@ -217,7 +217,7 @@ test.describe('BC-14 | Generar factura desde una NV', () => {
         await page.goto('/punto-venta/comprobantes');
     });
 
-    test('BC-14 | Generar factura desde una nota de venta', async ({busquedaPage}) => {
+    test('SC-01: Generar factura desde una nota de venta @BC-14.1', async ({busquedaPage}) => {
         test.skip(!semilla, 'Semilla NV no disponible');
         const s = semilla!;
 
@@ -246,7 +246,7 @@ test.describe('BC-14 | Generar factura desde una NV', () => {
     });
 });
 
-test.describe('BC-15 | Generar pedido desde una cotización', () => {
+test.describe('BC-15 | Generar pedido desde una cotización', {tag: ['@busqueda']}, () => {
     let semilla: ComprobanteInfo;
 
     test.beforeAll(async ({browser}) => {
@@ -291,7 +291,7 @@ test.describe('BC-15 | Generar pedido desde una cotización', () => {
         await page.goto('/punto-venta/comprobantes');
     });
 
-    test('BC-15 | Generar pedido desde una cotización', async ({busquedaPage}) => {
+    test('SC-01: Generar pedido desde una cotización @BC-15.1', async ({busquedaPage}) => {
         test.skip(!semilla, 'Semilla cotización no disponible');
         const s = semilla!;
 
@@ -319,7 +319,7 @@ test.describe('BC-15 | Generar pedido desde una cotización', () => {
 });
 
 
-test.describe('BC-16 | Generar boleta desde un pedido', () => {
+test.describe('BC-16 | Generar boleta desde un pedido', {tag: ['@busqueda']}, () => {
     let semilla: ComprobanteInfo;
 
     test.beforeAll(async ({browser}) => {
@@ -366,7 +366,7 @@ test.describe('BC-16 | Generar boleta desde un pedido', () => {
         await page.goto('/punto-venta/comprobantes');
     });
 
-    test('BC-16 | Generar boleta desde un pedido guardado', async ({busquedaPage}) => {
+    test('SC-01: Generar boleta desde un pedido guardado @BC-16.1', async ({busquedaPage}) => {
         test.skip(!semilla, 'Semilla pedido no disponible');
         const s = semilla!;
 

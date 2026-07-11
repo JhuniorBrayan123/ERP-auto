@@ -3,9 +3,9 @@ import {EmitirComprobanteSimple} from '@screenplay/tasks/facturacion/EmitirCompr
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 
-test.describe('Facturación — Emitir Nota de Venta Simple', () => {
+test.describe('FC-05 | Emitir Nota de Venta Simple', {tag: ['@facturacion', '@comprobantes']}, () => {
 
-    test('Emite una Nota de Venta con cliente DNI', async ({page, cajero}) => {
+    test('SC-01: Emitir Nota de Venta con cliente DNI @FC-05.1', async ({page, cajero}) => {
         const resultado = await cajero.realizaYObtiene(
             EmitirComprobanteSimple({
                 tipoComprobante: 'NOTA DE VENTA',

@@ -13,7 +13,7 @@ import {EmisionPage} from "@pages/PuntoVenta/EmisionPage";
 import {calcularTotales} from "@utils/calculadora-impuestos";
 import {validarCamposEspecificos, validarTotales} from "@utils/validar-totales";
 
-test.describe("Selección, edición de ítem en caja de venta — Edición de ítem", {tag: ['@punto-venta', '@seleccion-edicion-item', '@edicion-item']}, () => {
+test.describe("PV-18 | Edición de ítem", {tag: ['@puntoventa', '@pv-18', '@edicion-item']}, () => {
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(IniciarVentaEnCaja());

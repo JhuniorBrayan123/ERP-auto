@@ -1,7 +1,7 @@
 import {expect, test} from '@fixtures/Logistica/edicion-clonado-fixture';
 
-test.describe('PS-8 | Exportar lista de ítems', {tag: ['@logistica', '@productos-stock']}, () => {
-    test('exportar ítems genera un archivo descargable @PS-8', async ({
+test.describe('PS-08 | Exportar lista de ítems', {tag: ['@logistica', '@productos-stock']}, () => {
+    test('SC-01: exportar ítems genera un archivo descargable @PS-08.1', async ({
                                                                           listaItems,
                                                                       }) => {
         await test.step('Exportar lista de ítems', async () => {

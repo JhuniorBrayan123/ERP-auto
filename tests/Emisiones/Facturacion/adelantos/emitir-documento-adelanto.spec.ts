@@ -2,9 +2,9 @@
 import { EmitirDocumentoDeAdelanto } from '@screenplay/tasks/facturacion/EmitirDocumentoDeAdelanto';
 import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Facturación — Emitir Documento de Adelanto', () => {
+test.describe('FC-29 | Emitir Documento de Adelanto', {tag: ['@facturacion', '@adelantos']}, () => {
 
-    test('Emite una Boleta de Adelanto con cliente DNI', async ({ cajero }) => {
+    test('SC-01: Emitir una Boleta de Adelanto con cliente DNI @FC-29.1', async ({ cajero }) => {
         const resultado = await cajero.realizaYObtiene(
             EmitirDocumentoDeAdelanto({
                 tipoComprobante: 'BOLETA',
@@ -17,7 +17,7 @@ test.describe('Facturación — Emitir Documento de Adelanto', () => {
         expect(resultado.numero).toMatch(/^B001-\d{8}$/);
     });
 
-    test('Emite una Factura de Adelanto con empresa RUC', async ({ cajero }) => {
+    test('SC-02: Emitir una Factura de Adelanto con empresa RUC @FC-29.2', async ({ cajero }) => {
         const resultado = await cajero.realizaYObtiene(
             EmitirDocumentoDeAdelanto({
                 tipoComprobante: 'FACTURA',
@@ -31,7 +31,7 @@ test.describe('Facturación — Emitir Documento de Adelanto', () => {
         expect(resultado.numero).toMatch(/^F001-\d{8}$/);
     });
 
-    test('Emite una Nota de Venta de Adelanto', async ({ cajero }) => {
+    test('SC-03: Emitir una Nota de Venta de Adelanto @FC-29.3', async ({ cajero }) => {
         const resultado = await cajero.realizaYObtiene(
             EmitirDocumentoDeAdelanto({
                 tipoComprobante: 'NOTA DE VENTA',

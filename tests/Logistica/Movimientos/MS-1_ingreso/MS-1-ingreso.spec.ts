@@ -18,9 +18,9 @@ import {
 import { KardexVerificacionPage } from '@pages/Logistica/KardexVerificacionPage';
 import { esperarCargaOverlay } from '@utils/wait-helpers';
 
-test.describe('MS-1 | Ingresos de Almacén @ingreso', { tag: ['@logistica', '@m                                                                                                                                                                                             ovimientos'] }, () => {
+test.describe('MS-01 | Ingresos de Almacén', { tag: ['@logistica', '@m                                                                                                                                                                                             ovimientos'] }, () => {
 
-    test('Registrar ingreso de almacén correctamente con producto y reflejar aumento de stock @MS-1', async ({
+    test('SC-01: Registrar ingreso de almacén correctamente con producto y reflejar aumento de stock @MS-01.1', async ({
         movimientosNav,
         registroMovimiento,
         resultadoMovimiento,
@@ -60,7 +60,7 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', { tag: ['@logistica', '@m 
         });
     });
 
-    test('Registrar ingreso con ítem con variante @MS-1', async ({
+    test('SC-02: Registrar ingreso con ítem con variante @MS-01.2', async ({
         movimientosNav,
         registroMovimiento,
         resultadoMovimiento,
@@ -89,7 +89,7 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', { tag: ['@logistica', '@m 
         });
     });
 
-    test('Registrar ingreso con ítem con equivalencia @MS-1', async ({
+    test('SC-03: Registrar ingreso con ítem con equivalencia @MS-01.3', async ({
         movimientosNav,
         registroMovimiento,
         resultadoMovimiento,
@@ -115,7 +115,7 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', { tag: ['@logistica', '@m 
         });
     });
 
-    test('Validar cantidad inválida en ingreso @MS-1', async ({
+    test('SC-04: Validar cantidad inválida en ingreso @MS-01.4', async ({
         movimientosNav,
         registroMovimiento,
         page,
@@ -149,7 +149,7 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', { tag: ['@logistica', '@m 
         });
     });
 
-    test('Validar duplicidad de ítems en ingreso @MS-1', async ({
+    test('SC-05: Validar duplicidad de ítems en ingreso @MS-01.5', async ({
         movimientosNav,
         registroMovimiento,
     }) => {
@@ -171,7 +171,7 @@ test.describe('MS-1 | Ingresos de Almacén @ingreso', { tag: ['@logistica', '@m 
         });
     });
 
-    test('Registrar ingreso con datos adicionales @MS-1', async ({
+    test('SC-06: Registrar ingreso con datos adicionales @MS-01.6', async ({
         movimientosNav,
         registroMovimiento,
         datosOpcionales,

@@ -11,14 +11,14 @@ import {BitacoraComprobante} from '@question/PuntoVenta/BitacoraComprobante.ques
 import {CLIENTES, ITEMS_PV, TIPOS_COMPROBANTE} from '@helpers/PuntoVenta/emision-data.helper';
 import {IncrementarCantidadCarrito} from "../../../../src/interactions/PuntoVenta/IncrementarCantidadCarrito";
 
-test.describe('PV-19: Emisión de Cotización Básica', {tag: ['@punto-venta', '@cotizacion', '@emision']}, () => {
+test.describe('PV-19 | Emisión de Cotización Básica', {tag: ['@punto-venta', '@cotizacion', '@emision']}, () => {
 
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(IniciarVentaEnCaja());
     });
 
-    test('C1: Emitir cotización con cliente registrado @PV-19.1', async ({page}) => {
+    test('SC-01: Emitir cotización con cliente registrado @PV-19.1', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             SeleccionarTipoComprobante(TIPOS_COMPROBANTE.COTIZACION),
@@ -32,7 +32,7 @@ test.describe('PV-19: Emisión de Cotización Básica', {tag: ['@punto-venta', '
         expect(await cajero.pregunta(BitacoraComprobante.noMuestraDescargoInventario())).toBe(true);
     });
 
-    test('C2: Emitir cotización con cliente sin documento @PV-19.2', async ({page}) => {
+    test('SC-02: Emitir cotización con cliente sin documento @PV-19.2', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             SeleccionarTipoComprobante(TIPOS_COMPROBANTE.COTIZACION),
@@ -45,7 +45,7 @@ test.describe('PV-19: Emisión de Cotización Básica', {tag: ['@punto-venta', '
         expect(await cajero.pregunta(ModalPostEmision.tieneCorrelativo())).toBe(true);
     });
 
-    test('C5: No permitir emitir cotización sin productos @PV-19.3', async ({page}) => {
+    test('SC-03: No permitir emitir cotización sin productos @PV-19.3', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             SeleccionarTipoComprobante(TIPOS_COMPROBANTE.COTIZACION),
@@ -55,7 +55,7 @@ test.describe('PV-19: Emisión de Cotización Básica', {tag: ['@punto-venta', '
         await expect(page.getByText('No puedes realizar un pago porque no tienes ítems seleccionados')).toBeVisible({timeout: 5000});
     });
 
-    test('C6: Emitir cotización con producto sin stock @PV-19.4', async ({page}) => {
+    test('SC-04: Emitir cotización con producto sin stock @PV-19.4', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             SeleccionarTipoComprobante(TIPOS_COMPROBANTE.COTIZACION),

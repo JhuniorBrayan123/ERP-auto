@@ -2,9 +2,9 @@ import {test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {esperarCargaOverlay} from '@utils/wait-helpers';
 
-test.describe('PV-14 | Emitir comprobante con retención @PV-14', {tag: ['@punto-venta', '@factura', '@retencion']}, () => {
+test.describe('PV-14 | Emitir comprobante con retención', {tag: ['@punto-venta', '@factura', '@retencion']}, () => {
 
-    test('Emitir factura con retención 18% @PV-14.1', async ({
+    test('SC-01: Emitir factura con retención 18% @PV-14.1', async ({
                                                                  cajaPage,
                                                                  comprobantePage,
                                                                  emisionPage,
@@ -15,8 +15,8 @@ test.describe('PV-14 | Emitir comprobante con retención @PV-14', {tag: ['@punto
         await test.step('Given: FACTURA con cliente RUC', async () => {
             await cajaPage.continuarVendiendo();
             await comprobantePage.seleccionarFactura();
-            await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+            await emisionPage.buscarItem(ITEMS_PV.ESTRICTO_GRAVADO_5.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.ESTRICTO_GRAVADO_5.nombre);
             await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).click();
             await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).fill(CLIENTES.EMPRESA_RUC_AUTO.documento);
             await page.getByText(CLIENTES.EMPRESA_RUC_AUTO.textoSelector).click();

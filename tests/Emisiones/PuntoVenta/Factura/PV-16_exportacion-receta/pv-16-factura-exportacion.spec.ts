@@ -1,9 +1,9 @@
 import {test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('PV-16 | Emitir comprobante de exportación con receta @PV-16', {tag: ['@punto-venta', '@factura', '@exportacion']}, () => {
+test.describe('PV-16 | Emitir comprobante de exportación con receta', {tag: ['@punto-venta', '@factura', '@exportacion']}, () => {
 
-    test('Emitir factura de exportación sin RUC @PV-16.1', async ({
+    test('SC-01: Emitir factura de exportación sin RUC @PV-16.1', async ({
                                                                       cajaPage,
                                                                       comprobantePage,
                                                                       emisionPage,
@@ -16,8 +16,8 @@ test.describe('PV-16 | Emitir comprobante de exportación con receta @PV-16', {t
         });
 
         await test.step('And: agregar producto y activar exportación', async () => {
-            await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+            await emisionPage.buscarItem(ITEMS_PV.ESTRICTO_GRAVADO_7.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.ESTRICTO_GRAVADO_7.nombre);
             await page.locator(
                 'div:nth-child(4) > .switch-component > .v-switch > .switch-content > .switch > .slider',
             ).click();
@@ -46,7 +46,7 @@ test.describe('PV-16 | Emitir comprobante de exportación con receta @PV-16', {t
         });
     });
 
-    test('Emitir factura con receta con control de stock @PV-16.2', async ({
+    test('SC-02: Emitir factura con receta con control de stock @PV-16.2', async ({
                                                                                cajaPage,
                                                                                comprobantePage,
                                                                                emisionPage,

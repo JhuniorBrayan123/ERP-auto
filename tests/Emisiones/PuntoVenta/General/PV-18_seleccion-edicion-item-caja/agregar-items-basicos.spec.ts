@@ -6,7 +6,7 @@ import {IntentarAgregarSobrepasandoStock} from '@task/PuntoVenta/IntentarAgregar
 import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Selección, edición de ítem en caja de venta — Items básicos', {tag: ['@punto-venta', '@seleccion-edicion-item', '@items-basicos']}, () => {
+test.describe('PV-18 | Items básicos', {tag: ['@puntoventa', '@pv-18', '@items-basicos']}, () => {
 
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);
@@ -34,9 +34,9 @@ test.describe('Selección, edición de ítem en caja de venta — Items básicos
     test('SC-05: Agregar un producto con stock flexible @PV-18.5', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
-            BuscarYAgregarItemSimple(ITEMS_PV.PRODUCTO_GRAVADO)
+            BuscarYAgregarItemSimple(ITEMS_PV.ESTRICTO_GRAVADO_10)
         );
-        expect(await cajero.pregunta(MensajeVisible(ITEMS_PV.PRODUCTO_GRAVADO.nombre))).toBe(true);
+        expect(await cajero.pregunta(MensajeVisible(ITEMS_PV.ESTRICTO_GRAVADO_10.nombre))).toBe(true);
     });
 
     test('SC-06: Agregar un producto sin control de stock @PV-18.6', async ({page}) => {

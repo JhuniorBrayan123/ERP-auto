@@ -11,7 +11,7 @@ import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {TotalDistintoDeCero} from "@question/PuntoVenta/TotalDistintoDeCero";
 
-test.describe('Selección, edición de ítem en caja de venta — Items especiales', {tag: ['@punto-venta', '@seleccion-edicion-item', '@items-especiales']}, () => {
+test.describe('PV-18 | Items especiales', {tag: ['@puntoventa', '@pv-18', '@items-especiales']}, () => {
 
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);

@@ -10,7 +10,7 @@ import {IntentarDescargarPdf} from '@task/PuntoVenta/IntentarDescargarPdf.task';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
 import {ITEMS_PV, TIPOS_COMPROBANTE} from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('PV-20: Opciones post-registro de Pedido', {tag: ['@punto-venta', '@pedido', '@post-registro']}, () => {
+test.describe('PV-20 | Opciones post-registro de Pedido', {tag: ['@punto-venta', '@pedido', '@post-registro']}, () => {
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
@@ -22,7 +22,7 @@ test.describe('PV-20: Opciones post-registro de Pedido', {tag: ['@punto-venta', 
         expect(await cajero.pregunta(ModalPostEmision.estaVisible())).toBe(true);
     });
 
-    test('P3: Compartir pedido por email @PV-20.14', async ({page}) => {
+    test('SC-01: Compartir pedido por email @PV-20.1', async ({page}) => {
         const cajero = Cajero.con(page);
 
         await cajero.intentaRealizar(
@@ -32,7 +32,7 @@ test.describe('PV-20: Opciones post-registro de Pedido', {tag: ['@punto-venta', 
         await expect(page.getByText('¡Mail enviado!')).toBeVisible({timeout: 5000});
     });
 
-    test('P4: Descargar PDF de pedido @PV-20.15', async ({page}) => {
+    test('SC-02: Descargar PDF de pedido @PV-20.2', async ({page}) => {
         const downloadPromise = page.waitForEvent('download', {timeout: 60_000});
 
         await Cajero.con(page).intentaRealizar(IntentarDescargarPdf());
@@ -41,7 +41,7 @@ test.describe('PV-20: Opciones post-registro de Pedido', {tag: ['@punto-venta', 
         expect(download.suggestedFilename()).toContain('.pdf');
     });
 
-    test('P19: Imprimir pedido registrado @PV-20.16', async ({page}) => {
+    test('SC-03: Imprimir pedido registrado @PV-20.3', async ({page}) => {
         await page.evaluate(() => {
             (window as any).__printCalled = false;
             window.print = () => {

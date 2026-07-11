@@ -2,9 +2,9 @@ import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {esperarCargaOverlay} from "@utils/wait-helpers";
 
-test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-venta', '@factura', '@adelanto']}, () => {
+test.describe('PV-15 | Emitir comprobante con adelanto', {tag: ['@punto-venta', '@factura', '@adelanto']}, () => {
 
-    test('Emitir factura de adelanto @PV-15.2', async ({
+    test('SC-01: Emitir factura de adelanto @PV-15.1', async ({
                                                            cajaPage,
                                                            comprobantePage,
                                                            emisionPage,
@@ -14,8 +14,8 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
         await test.step('Given: FACTURA con adelanto activo', async () => {
             await cajaPage.continuarVendiendo();
             await comprobantePage.seleccionarFactura();
-            await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+            await emisionPage.buscarItem(ITEMS_PV.ESTRICTO_GRAVADO_6.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.ESTRICTO_GRAVADO_6.nombre);
             await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).click();
             await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).fill(CLIENTES.EMPRESA_RUC_AUTO.documento);
             await page.getByText(CLIENTES.EMPRESA_RUC_AUTO.textoSelector).click();
@@ -53,7 +53,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
         });
     });
 
-    test('Emitir factura con adelanto aplicado @PV-15.3', async ({
+    test('SC-02: Emitir factura con adelanto aplicado @PV-15.2', async ({
                                                                      cajaPage,
                                                                      comprobantePage,
                                                                      emisionPage,
@@ -86,8 +86,8 @@ test.describe('PV-15 | Emitir comprobante con adelanto @PV-15', {tag: ['@punto-v
             await inputCliente.fill(CLIENTES.EMPRESA_RUC_AUTO.documento);
             await page.getByText(CLIENTES.EMPRESA_RUC_AUTO.textoSelector).click();
             await expect(page.getByText(CLIENTES.EMPRESA_RUC_AUTO.documento)).toBeVisible();
-            await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+            await emisionPage.buscarItem(ITEMS_PV.ESTRICTO_GRAVADO_6.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.ESTRICTO_GRAVADO_6.nombre);
             await emisionPage.incrementarCantidad(1)
         });
 

@@ -3,9 +3,9 @@ import {buildUniqueItemName} from '@helpers/Logistica/unique-name.helper';
 import type {ProductoListaItem} from '@helpers/Logistica/item-data.types';
 import {confirmarCreacionEIrALista, prepararListaBase,} from '@helpers/Logistica/verificaciones-items.helper';
 
-test.describe('PS-3 | Creación de Listas', {tag: ['@logistica', '@productos-stock']}, () => {
+test.describe('PS-03 | Creación de Listas', {tag: ['@logistica', '@productos-stock']}, () => {
 
-    test('crear lista con items estrictos @PS-3', async ({listaForm, itemDetail}) => {
+    test('SC-01: crear lista con items estrictos @PS-03.1', async ({listaForm, itemDetail}) => {
         const nombre = buildUniqueItemName('lista', 'items estrictos');
 
         const productos: ProductoListaItem[] = [
@@ -25,7 +25,7 @@ test.describe('PS-3 | Creación de Listas', {tag: ['@logistica', '@productos-sto
         });
     });
 
-    test('crear lista con items sin control @PS-3', async ({listaForm, itemDetail}) => {
+    test('SC-02: crear lista con items sin control @PS-03.2', async ({listaForm, itemDetail}) => {
         const nombre = buildUniqueItemName('lista', 'items sin control');
         const productos: ProductoListaItem[] = [
             {
@@ -41,7 +41,7 @@ test.describe('PS-3 | Creación de Listas', {tag: ['@logistica', '@productos-sto
         });
     });
 
-    test('crear lista con items flexibles @PS-3', async ({listaForm, itemDetail}) => {
+    test('SC-03: crear lista con items flexibles @PS-03.3', async ({listaForm, itemDetail}) => {
         const nombre = buildUniqueItemName('lista', 'items flexibles');
         const productos: ProductoListaItem[] = [
             {codigoBusqueda: 'PRODUCTO_GRAVADO', textoSeleccion: 'item para combos gravado'},

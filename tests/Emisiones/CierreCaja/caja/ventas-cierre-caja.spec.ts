@@ -11,10 +11,10 @@ import {ComprobanteVisibleEnVentas} from '@screenplay/questions/cierre-caja/Comp
 import {CierreCajaTargets} from '@screenplay/targets/cierre-caja/CierreCajaTargets';
 import {UsarNavegador} from '@abilities/usarnavegador';
 
-test.describe('Ventas en Cierre de Caja', () => {
+test.describe('CC-08 | Ventas', {tag: ['@cierre-caja']}, () => {
     test.describe.configure({mode: 'serial'});
 
-    test('validar boleta emitida en ventas de cierre de caja', async ({
+    test('SC-01: Validar boleta emitida en ventas de cierre de caja @CC-08.1', async ({
                                                                           cajero,
                                                                           boletaEmitida,
                                                                       }) => {
@@ -50,7 +50,7 @@ test.describe('Ventas en Cierre de Caja', () => {
         await cajero.realiza(BorrarFiltrosVentas(), RegresarANuevaVenta());
     });
 
-    test('validar factura emitida en ventas de cierre de caja', async ({
+    test('SC-02: Validar factura emitida en ventas de cierre de caja @CC-08.2', async ({
                                                                            cajero,
                                                                            facturaEmitida,
                                                                        }) => {
@@ -81,7 +81,7 @@ test.describe('Ventas en Cierre de Caja', () => {
         await cajero.realiza(BorrarFiltrosVentas(), RegresarANuevaVenta());
     });
 
-    test('usar filtros avanzados mixtos: tipo + correlativo + estado', async ({
+    test('SC-03: Usar filtros avanzados mixtos: tipo + correlativo + estado @CC-08.3', async ({
                                                                                   cajero,
                                                                                   boletaEmitida,
                                                                               }) => {

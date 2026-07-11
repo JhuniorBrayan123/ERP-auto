@@ -9,9 +9,9 @@ import {
 } from '@screenplay/tasks/cierre-caja/ConsultarItemsYDescuentos';
 import { ArchivoDescargado } from '@screenplay/questions/cierre-caja/MovimientoVisibleEnCierre';
 
-test.describe('Descargas del Cierre de Caja', () => {
+test.describe('CC-03 | Descargas del Cierre', {tag: ['@cierre-caja']}, () => {
 
-    test('descargar Excel del cierre de caja y verificar extensión', async ({ cajero }) => {
+    test('SC-01: Descargar Excel del cierre de caja y verificar extensión @CC-03.1', async ({ cajero }) => {
         
         await cajero.realiza(IrACierreDeCaja());
 
@@ -24,7 +24,7 @@ test.describe('Descargas del Cierre de Caja', () => {
         await cajero.realiza(RegresarANuevaVenta());
     });
 
-    test('descargar PDF del cierre de caja y verificar extensión', async ({ cajero }) => {
+    test('SC-02: Descargar PDF del cierre de caja y verificar extensión @CC-03.2', async ({ cajero }) => {
         
         await cajero.realiza(IrACierreDeCaja());
 

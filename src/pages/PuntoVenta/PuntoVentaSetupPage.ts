@@ -5,7 +5,7 @@ import type {
     CampoAdicionalPVConfig,
     ClienteSetupData,
     VendedorData,
-} from '../../helpers/PuntoVenta/punto-venta-setup-data.helper';
+} from '@helpers/PuntoVenta/punto-venta-setup-data.helper';
 import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 export class PuntoVentaSetupPage {
@@ -46,7 +46,7 @@ export class PuntoVentaSetupPage {
             '[id="pv_vendedores_cmp-lista-proveedores-filtro:filters_v-input:busqueda-compuesta"]',
         );
 
-        await inputBusqueda.waitFor({state: 'visible', timeout: 15_000});
+        await inputBusqueda.waitFor({state: 'visible', timeout: 30_000});
         await inputBusqueda.click();
         await inputBusqueda.fill(documento);
         await inputBusqueda.press('Enter');
@@ -152,16 +152,16 @@ export class PuntoVentaSetupPage {
     }
 
     async asegurarClienteDNI(datos: ClienteSetupData): Promise<boolean> {
-        console.log(`  🔍 Verificando cliente DNI ${datos.documento}...`);
+        console.log(`  Verificando cliente DNI ${datos.documento}...`);
 
         const existe = await this.clienteExiste(datos.documento);
 
         if (existe) {
-            console.log(`  ✅ Cliente DNI "${datos.documento}" ya existe`);
+            console.log(`  Cliente DNI "${datos.documento}" ya existe`);
             return false;
         }
 
-        console.log(`  🔧 Creando cliente DNI "${datos.documento}"...`);
+        console.log(`   Creando cliente DNI "${datos.documento}"...`);
         await this.clientePage.crearClienteDNI({
             documento: datos.documento,
             direccion: datos.direccion,
@@ -175,12 +175,12 @@ export class PuntoVentaSetupPage {
     }
 
     async asegurarClienteRUC(datos: ClienteSetupData): Promise<boolean> {
-        console.log(`  🔍 Verificando cliente RUC ${datos.documento}...`);
+        console.log(`  Verificando cliente RUC ${datos.documento}...`);
 
         const existe = await this.clienteExiste(datos.documento);
 
         if (existe) {
-            console.log(`  ✅ Cliente RUC "${datos.documento}" ya existe`);
+            console.log(`  Cliente RUC "${datos.documento}" ya existe`);
             return false;
         }
 

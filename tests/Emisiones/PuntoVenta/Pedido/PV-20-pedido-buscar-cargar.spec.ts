@@ -14,13 +14,13 @@ import {ModalPostEmision} from '@question/PuntoVenta/ModalPostEmision.question';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
 
-test.describe('PV-20: Búsqueda y carga de pedidos', {tag: ['@punto-venta', '@pedido', '@busqueda']}, () => {
+test.describe('PV-20 | Búsqueda y carga de pedidos', {tag: ['@punto-venta', '@pedido', '@busqueda']}, () => {
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(IniciarVentaEnCaja());
     });
 
-    test('P5: Cargar pedido emitido previamente @PV-20.12', async ({page}) => {
+    test('SC-01: Cargar pedido emitido previamente @PV-20.1', async ({page}) => {
         const cajero = Cajero.con(page);
 
         const pedido: EmisionOutputRef = {current: null};
@@ -43,7 +43,7 @@ test.describe('PV-20: Búsqueda y carga de pedidos', {tag: ['@punto-venta', '@pe
         expect(await cajero.pregunta(DatosPedidoCargado.contieneMontoItem('S/10.56'))).toBe(true);
     });
 
-    test('P20: Actualizar pedido cargado @PV-20.13', async ({page}) => {
+    test('SC-02: Actualizar pedido cargado @PV-20.2', async ({page}) => {
         const cajero = Cajero.con(page);
 
         const pedido: EmisionOutputRef = {current: null};

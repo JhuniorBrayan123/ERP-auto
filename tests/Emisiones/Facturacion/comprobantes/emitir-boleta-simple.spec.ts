@@ -3,9 +3,9 @@ import {EmitirComprobanteSimple} from '@screenplay/tasks/facturacion/EmitirCompr
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 
-test.describe('Facturación — Emitir Boleta Simple', () => {
+test.describe('FC-02 | Emitir Boleta Simple', {tag: ['@facturacion', '@comprobantes']}, () => {
 
-    test('Emite una Boleta con cliente DNI y pago en efectivo', async ({page, cajero}) => {
+    test('SC-01: Emitir Boleta con cliente DNI y pago en efectivo @FC-02.1', async ({page, cajero}) => {
         const resultado = await cajero.realizaYObtiene(
             EmitirComprobanteSimple({
                 tipoComprobante: 'BOLETA',
@@ -26,7 +26,7 @@ test.describe('Facturación — Emitir Boleta Simple', () => {
         await busqueda.cerrarBitacora();
     });
 
-    test('Emite una Boleta con Consumidor Final (doc 00000000) — sin seleccionar cliente', async ({page, cajero}) => {
+    test('SC-02: Emitir Boleta con Consumidor Final (doc 00000000) — sin seleccionar cliente @FC-02.2', async ({page, cajero}) => {
         const resultado = await cajero.realizaYObtiene(
             EmitirComprobanteSimple({
                 tipoComprobante: 'BOLETA',

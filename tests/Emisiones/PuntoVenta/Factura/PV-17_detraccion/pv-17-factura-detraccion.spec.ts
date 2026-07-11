@@ -2,7 +2,7 @@ import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {CLIENTES, DETRACCION, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {esperarCargaOverlay} from '@utils/wait-helpers';
 
-test.describe('PV-17 | Emitir comprobante con detracción @PV-17', {tag: ['@punto-venta', '@factura', '@detraccion']}, () => {
+test.describe('PV-17 | Emitir comprobante con detracción', {tag: ['@punto-venta', '@factura', '@detraccion']}, () => {
 
     async function setupFacturaConClienteRUC(
         comprobantePage: any, page: any,
@@ -13,7 +13,7 @@ test.describe('PV-17 | Emitir comprobante con detracción @PV-17', {tag: ['@punt
         await page.getByText(CLIENTES.EMPRESA_RUC_AUTO.textoSelector).click();
     }
 
-    test('Bloquear factura con detracción sin datos completos @PV-17.1', async ({
+    test('SC-01: Bloquear factura con detracción sin datos completos @PV-17.1', async ({
                                                                                     cajaPage,
                                                                                     comprobantePage,
                                                                                     emisionPage,
@@ -42,7 +42,7 @@ test.describe('PV-17 | Emitir comprobante con detracción @PV-17', {tag: ['@punt
         });
     });
 
-    test('Emitir factura con detracción transporte de carga @PV-17.2', async ({
+    test('SC-02: Emitir factura con detracción transporte de carga @PV-17.2', async ({
                                                                                   cajaPage,
                                                                                   comprobantePage,
                                                                                   emisionPage,
@@ -53,8 +53,8 @@ test.describe('PV-17 | Emitir comprobante con detracción @PV-17', {tag: ['@punt
         await test.step('Given: FACTURA con cliente RUC', async () => {
             await cajaPage.continuarVendiendo();
             await setupFacturaConClienteRUC(comprobantePage, page);
-            await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+            await emisionPage.buscarItem(ITEMS_PV.ESTRICTO_GRAVADO_8.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.ESTRICTO_GRAVADO_8.nombre);
         });
 
         await test.step('When: configurar detracción transporte de carga', async () => {
@@ -102,7 +102,7 @@ test.describe('PV-17 | Emitir comprobante con detracción @PV-17', {tag: ['@punt
         });
     });
 
-    test('Emitir factura en moneda distinta a soles con detracción usando tipo de cambio @PV-17.3', async ({
+    test('SC-03: Emitir factura en moneda distinta a soles con detracción usando tipo de cambio @PV-17.3', async ({
                                                                                                                cajaPage,
                                                                                                                comprobantePage,
                                                                                                                emisionPage,
@@ -113,8 +113,8 @@ test.describe('PV-17 | Emitir comprobante con detracción @PV-17', {tag: ['@punt
         await test.step('Given: FACTURA con cliente RUC en moneda dólares', async () => {
             await cajaPage.continuarVendiendo();
             await setupFacturaConClienteRUC(comprobantePage, page);
-            await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+            await emisionPage.buscarItem(ITEMS_PV.ESTRICTO_GRAVADO_8.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.ESTRICTO_GRAVADO_8.nombre);
             await emisionPage.seleccionarMonedaDolares();
         });
 
@@ -160,7 +160,7 @@ test.describe('PV-17 | Emitir comprobante con detracción @PV-17', {tag: ['@punt
         });
     });
 
-    test('Bloquear factura en moneda distinta a soles con detracción sin tipo de cambio @PV-17.4', async ({
+    test('SC-04: Bloquear factura en moneda distinta a soles con detracción sin tipo de cambio @PV-17.4', async ({
                                                                                                               cajaPage,
                                                                                                               comprobantePage,
                                                                                                               emisionPage,
@@ -170,8 +170,8 @@ test.describe('PV-17 | Emitir comprobante con detracción @PV-17', {tag: ['@punt
         await test.step('Given: FACTURA en dólares con cliente RUC y producto', async () => {
             await cajaPage.continuarVendiendo();
             await setupFacturaConClienteRUC(comprobantePage, page);
-            await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+            await emisionPage.buscarItem(ITEMS_PV.ESTRICTO_GRAVADO_8.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.ESTRICTO_GRAVADO_8.nombre);
             await emisionPage.seleccionarMonedaDolares();
         });
 

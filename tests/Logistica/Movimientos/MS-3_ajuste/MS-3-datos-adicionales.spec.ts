@@ -6,9 +6,9 @@ import {
     registrarIngresoEIrAlListado
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
 
-test.describe('MS-3 | Datos Adicionales de Movimientos @datos-adicionales', {tag: ['@logistica', '@movimientos']}, () => {
+test.describe('MS-03 | Datos Adicionales de Movimientos', {tag: ['@logistica', '@movimientos']}, () => {
 
-    test('Registrar datos adicionales completos @MS-3', async ({
+    test('SC-01: Registrar datos adicionales completos @MS-03.1', async ({
                                                                    movimientosNav,
                                                                    registroMovimiento,
                                                                    datosOpcionales,
@@ -40,7 +40,7 @@ test.describe('MS-3 | Datos Adicionales de Movimientos @datos-adicionales', {tag
         });
     });
 
-    test('Agregar documento relacionado (comprobante) @MS-3', async ({
+    test('SC-02: Agregar documento relacionado (comprobante) @MS-03.2', async ({
                                                                          movimientosNav,
                                                                          registroMovimiento,
                                                                          datosOpcionales,
@@ -69,7 +69,7 @@ test.describe('MS-3 | Datos Adicionales de Movimientos @datos-adicionales', {tag
         });
     });
 
-    test('Valida documento incompleto @MS-3', async ({
+    test('SC-03: Valida documento incompleto @MS-03.3', async ({
                                                          movimientosNav,
                                                          registroMovimiento,
                                                          datosOpcionales,

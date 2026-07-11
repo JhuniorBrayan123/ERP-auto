@@ -6,7 +6,7 @@ import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {ALMACENES_PV, ITEMS_POR_ALMACEN} from '@helpers/PuntoVenta/emision-data.helper';
 import {FiltrarBuscarYVerificarItem} from "@task/PuntoVenta/FiltrarPorAlmacenUnico";
 
-test.describe('Selección, edición de ítem en caja de venta — Filtros', {tag: ['@punto-venta', '@seleccion-edicion-item', '@filtros']}, () => {
+test.describe('PV-18 | Filtros de caja', {tag: ['@puntoventa', '@pv-18', '@filtros']}, () => {
 
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);

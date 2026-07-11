@@ -5,9 +5,9 @@ import { BuscarYAgregarProducto } from '@screenplay/interactions/facturacion/Bus
 import { VentaGridTargets } from '@screenplay/targets/facturacion/VentaGridTargets';
 import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Facturación — Vista previa', () => {
+test.describe('FC-23 | Vista previa', {tag: ['@facturacion', '@vista-previa']}, () => {
 
-    test('Visualiza la vista previa antes de emitir desde Vista Facturación', async ({ page, cajero }) => {
+    test('SC-01: Visualizar la vista previa antes de emitir desde Vista Facturación @FC-23.1', async ({ page, cajero }) => {
         await cajero.realiza(
             SeleccionarTipoComprobante('BOLETA'),
             BuscarYSeleccionarCliente(CLIENTES.PERSONA_DNI),

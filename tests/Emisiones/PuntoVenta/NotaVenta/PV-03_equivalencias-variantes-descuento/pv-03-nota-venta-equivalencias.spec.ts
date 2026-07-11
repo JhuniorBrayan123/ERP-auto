@@ -2,9 +2,9 @@ import {test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {esperarCargaOverlay, recargarSiHayError} from "@utils/wait-helpers";
 
-test.describe('PV-03 | Nota de venta con equivalencias y lista @PV-03', {tag: ['@punto-venta', '@nota-venta', '@equivalencias']}, () => {
+test.describe('PV-03 | Nota de venta con equivalencias y lista', {tag: ['@punto-venta', '@nota-venta', '@equivalencias']}, () => {
 
-    test('Emitir nota de venta con lista de productos @PV-03.8', async ({
+    test('SC-01: Emitir nota de venta con lista de productos @PV-03.1', async ({
                                                                             cajaPage,
                                                                             comprobantePage,
                                                                             emisionPage,
@@ -48,7 +48,7 @@ test.describe('PV-03 | Nota de venta con equivalencias y lista @PV-03', {tag: ['
         });
     });
 
-    test('Emitir nota de venta con equivalencia @PV-03.9', async ({
+    test('SC-02: Emitir nota de venta con equivalencia @PV-03.2', async ({
                                                                       cajaPage,
                                                                       comprobantePage,
                                                                       emisionPage,

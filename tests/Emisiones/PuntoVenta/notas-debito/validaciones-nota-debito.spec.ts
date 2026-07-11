@@ -12,9 +12,9 @@ import {
 } from '@screenplay/questions/notas/ValidacionesNegativas';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Notas de Débito — Validaciones y Casos Negativos @pv @nota-debito', () => {
+test.describe('ND-04 | Validaciones y Casos Negativos', {tag: ['@puntoventa', '@nota-debito']}, () => {
 
-    test('Error: comprobante vinculado es obligatorio al emitir ND @validacion', async ({facturador}) => {
+    test('SC-01: Error: comprobante vinculado es obligatorio al emitir ND @ND-04.1', async ({facturador}) => {
         await new ComprobantePage(facturador.page).seleccionarNotaDebito();
 
         await SeleccionarMotivoNotaDebito('Intereses por mora')(facturador.page);
@@ -29,7 +29,7 @@ test.describe('Notas de Débito — Validaciones y Casos Negativos @pv @nota-deb
         await facturador.pregunta(CampoObligatorioVisible());
     });
 
-    test('Error: motivo es obligatorio al emitir ND @validacion', async ({facturador}) => {
+    test('SC-02: Error: motivo es obligatorio al emitir ND @ND-04.2', async ({facturador}) => {
         const origen = await facturador.realizaYObtiene(
             EmitirComprobanteOrigen({
                 tipoComprobante: 'FACTURA',
@@ -64,7 +64,7 @@ test.describe('Notas de Débito — Validaciones y Casos Negativos @pv @nota-deb
         await facturador.pregunta(CampoObligatorioVisible());
     });
 
-    test('Error: monto vacío en ND por aumento en el valor @validacion', async ({facturador}) => {
+    test('SC-03: Error: monto vacío en ND por aumento en el valor @ND-04.3', async ({facturador}) => {
         const origen = await facturador.realizaYObtiene(
             EmitirComprobanteOrigen({
                 tipoComprobante: 'BOLETA',
@@ -99,7 +99,7 @@ test.describe('Notas de Débito — Validaciones y Casos Negativos @pv @nota-deb
         await facturador.page.getByRole('button', {name: /aceptar/i}).click();
     });
 
-    test('Error: comprobante no encontrado con correlativo inexistente @validacion', async ({facturador}) => {
+    test('SC-04: Error: comprobante no encontrado con correlativo inexistente @ND-04.4', async ({facturador}) => {
         await new ComprobantePage(facturador.page).seleccionarNotaDebito();
 
         await facturador.page.locator('div').filter({hasText: /^Factura$/}).nth(2).click();
@@ -116,7 +116,7 @@ test.describe('Notas de Débito — Validaciones y Casos Negativos @pv @nota-deb
         await facturador.pregunta(ComprobanteNoEncontrado());
     });
 
-    test('Eliminar comprobante vinculado limpia los ítems del grid @validacion', async ({facturador}) => {
+    test('SC-05: Eliminar comprobante vinculado limpia los ítems del grid @ND-04.5', async ({facturador}) => {
         const origen = await facturador.realizaYObtiene(
             EmitirComprobanteOrigen({
                 tipoComprobante: 'FACTURA',

@@ -5,7 +5,7 @@ import {NavegarAGuiaRemitente} from '@task/PuntoVenta/guias-remision/NavegarAGui
 import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
 import {capturarSaldoAnterior, verificarStockSinCambio} from '@helpers/PuntoVenta/verificaciones-pv.helper';
 
-test.describe('Guías de Remisión Remitente - Emisión General', {tag: ['@guias', '@puntoventa']}, () => {
+test.describe('GR-01 | Remitente — Emisión General', {tag: ['@puntoventa', '@guias']}, () => {
     test.beforeEach(async ({cajero}) => {
         await cajero.intentaRealizar(
             IniciarVentaEnCaja('caja-auto'),
@@ -13,7 +13,7 @@ test.describe('Guías de Remisión Remitente - Emisión General', {tag: ['@guias
         );
     });
 
-    test('GRR-01: Emitir guía con modalidad pública', async ({cajero, listadoGuiasPage, kardexApi}) => {
+    test('SC-01: Emitir guía con modalidad pública @GR-01.1', async ({cajero, listadoGuiasPage, kardexApi}) => {
         const saldoAntes = await capturarSaldoAnterior(
             kardexApi,
             GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo
@@ -39,7 +39,7 @@ test.describe('Guías de Remisión Remitente - Emisión General', {tag: ['@guias
         );
     });
 
-    test('Emitir guía donde el destinatario es el mismo emisor @GRR-03a', async ({cajero, listadoGuiasPage, page}) => {
+    test('SC-02: Emitir guía donde el destinatario es el mismo emisor @GR-01.2', async ({cajero, listadoGuiasPage, page}) => {
         await cajero.intentaRealizar(
             EmitirGuiaRemitenteTask({
                 tipoOperacion: 'COMPRA',
@@ -62,7 +62,7 @@ test.describe('Guías de Remisión Remitente - Emisión General', {tag: ['@guias
         });
     });
 
-    test('GRR-06: Guardar guía en modalidad privada (borrador)', async ({cajero, listadoGuiasPage}) => {
+    test('SC-03: Guardar guía en modalidad privada (borrador) @GR-01.3', async ({cajero, listadoGuiasPage}) => {
         await cajero.intentaRealizar(
             EmitirGuiaRemitenteTask({
                 motivo: GUIAS_DATA.MOTIVOS_TRASLADO.VENTA,

@@ -4,7 +4,7 @@ import {GUIAS_DATA} from '@helpers/PuntoVenta/guias-data.helper';
 import {NavegarAGuiaTransportista} from '@task/PuntoVenta/guias-remision/NavegarAGuiaTransportista.task';
 import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
 
-test.describe('Guías de Remisión Transportista - Validaciones', {tag: ['@guias', '@puntoventa', '@transportista']}, () => {
+test.describe('GR-08 | Transportista — Validaciones', {tag: ['@puntoventa', '@guias']}, () => {
     test.beforeEach(async ({cajero}) => {
         await cajero.intentaRealizar(
             IniciarVentaEnCaja('caja-auto'),
@@ -12,7 +12,7 @@ test.describe('Guías de Remisión Transportista - Validaciones', {tag: ['@guias
         );
     });
 
-    test('GRT-21: Validar campos obligatorios de guía transportista', async ({page}) => {
+    test('SC-01: Validar campos obligatorios de guía transportista @GR-08.1', async ({page}) => {
         await test.step('Intentar emitir sin llenar campos obligatorios', async () => {
             await page.getByRole('button', {name: 'Emitir'}).click();
         });
@@ -31,7 +31,7 @@ test.describe('Guías de Remisión Transportista - Validaciones', {tag: ['@guias
     
     
 
-    test('GRT-23: Validar pagador de flete obligatorio', async ({cajero, page}) => {
+    test('SC-02: Validar pagador de flete obligatorio @GR-08.2', async ({cajero, page}) => {
         await cajero.intentaRealizar(
             EmitirGuiaTransportistaTask({
                 peso: '10.51',
@@ -48,7 +48,7 @@ test.describe('Guías de Remisión Transportista - Validaciones', {tag: ['@guias
         });
     });
 
-    test('GRT-24: Validar subcontratador obligatorio', async ({cajero, page}) => {
+    test('SC-03: Validar subcontratador obligatorio @GR-08.3', async ({cajero, page}) => {
         await cajero.intentaRealizar(
             EmitirGuiaTransportistaTask({
                 peso: '10.45',
@@ -63,7 +63,7 @@ test.describe('Guías de Remisión Transportista - Validaciones', {tag: ['@guias
         });
     });
 
-    test('GRT-25: Validar peso y cantidad inválidos', async ({cajero, page}) => {
+    test('SC-04: Validar peso y cantidad inválidos @GR-08.4', async ({cajero, page}) => {
         await cajero.intentaRealizar(
             EmitirGuiaTransportistaTask({
                 peso: '0',

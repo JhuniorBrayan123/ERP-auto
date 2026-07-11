@@ -10,12 +10,12 @@ import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
 import {ComprobanteDetallePage} from '@pages/PuntoVenta/ComprobanteDetallePage';
 import {capturarSaldoAnterior, verificarStockSinCambio} from '@helpers/PuntoVenta/verificaciones-pv.helper';
 
-test.describe('Guías de Remisión Remitente - Vinculación', { tag: ['@guias', '@puntoventa'] }, () => {
+test.describe('GR-06 | Remitente — Vinculación', {tag: ['@puntoventa', '@guias']}, () => {
     test.beforeEach(async ({ cajero }) => {
         await cajero.intentaRealizar(IniciarVentaEnCaja('caja-auto'));
     });
 
-    test('GRR-15: Emitir guía vinculando un comprobante', async ({page, listadoGuiasPage, kardexApi}) => {
+    test('SC-01: Emitir guía vinculando un comprobante @GR-06.1', async ({page, listadoGuiasPage, kardexApi}) => {
         
         const resultado = await ejecutarEmisionBasica(
             {

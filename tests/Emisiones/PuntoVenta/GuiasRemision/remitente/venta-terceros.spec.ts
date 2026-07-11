@@ -5,7 +5,7 @@ import {GUIAS_DATA} from '@helpers/PuntoVenta/guias-data.helper';
 import {NavegarAGuiaRemitente} from '@task/PuntoVenta/guias-remision/NavegarAGuiaRemitente.task';
 import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
 
-test.describe('Guías de Remisión Remitente - Venta a terceros', { tag: ['@guias', '@puntoventa'] }, () => {
+test.describe('GR-05 | Remitente — Venta a terceros', {tag: ['@puntoventa', '@guias']}, () => {
     test.beforeEach(async ({ cajero }) => {
         await cajero.intentaRealizar(
             IniciarVentaEnCaja('caja-auto'),
@@ -13,7 +13,7 @@ test.describe('Guías de Remisión Remitente - Venta a terceros', { tag: ['@guia
         );
     });
 
-    test('GRR-04: Emitir guía por venta con entrega a terceros', async ({ cajero, listadoGuiasPage }) => {
+    test('SC-01: Emitir guía por venta con entrega a terceros @GR-05.1', async ({ cajero, listadoGuiasPage }) => {
         await cajero.intentaRealizar(
             EmitirGuiaRemitenteTask({
                 motivo: GUIAS_DATA.MOTIVOS_TRASLADO.VENTA_TERCEROS,
@@ -30,7 +30,7 @@ test.describe('Guías de Remisión Remitente - Venta a terceros', { tag: ['@guia
         });
     });
 
-    test('GRR-05: Validar comprador obligatorio en venta con entrega a terceros', async ({ cajero, page }) => {
+    test('SC-02: Validar comprador obligatorio en venta con entrega a terceros @GR-05.2', async ({ cajero, page }) => {
         await cajero.intentaRealizar(
             EmitirGuiaRemitenteConValidacionTask({
                 motivo: GUIAS_DATA.MOTIVOS_TRASLADO.VENTA_TERCEROS,

@@ -2,9 +2,9 @@
 import { EmitirFacturaConRetencion } from '@screenplay/tasks/facturacion/EmitirFacturaConRetencion';
 import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Facturación — Emitir Factura con Retención', () => {
+test.describe('FC-18 | Emitir Factura con Retención', {tag: ['@facturacion', '@retencion']}, () => {
 
-    test('Emite Factura con Retención al 3%', async ({ cajero }) => {
+    test('SC-01: Emitir Factura con Retención al 3% @FC-18.1', async ({ cajero }) => {
         const resultado = await cajero.realizaYObtiene(
             EmitirFacturaConRetencion({
                 cliente: CLIENTES.EMPRESA_RUC_AUTO,

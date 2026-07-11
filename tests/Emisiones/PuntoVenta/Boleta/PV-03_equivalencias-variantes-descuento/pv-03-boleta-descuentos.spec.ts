@@ -1,17 +1,17 @@
 import {test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @PV-03', {tag: ['@punto-venta', '@boleta', '@descuento']}, () => {
+test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global', {tag: ['@punto-venta', '@boleta', '@descuento']}, () => {
 
-    test('Emitir boleta con descuento por ítem por monto @PV-03.1', async ({
+    test('SC-01: Emitir boleta con descuento por ítem por monto @PV-03.1', async ({
                                                                                cajaPage,
                                                                                emisionPage,
                                                                                busquedaComprobantes,
                                                                            }) => {
         await test.step('Given: caja abierta y producto agregado', async () => {
             await cajaPage.continuarVendiendo();
-            await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+            await emisionPage.buscarItem(ITEMS_PV.ESTRICTO_GRAVADO_2.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.ESTRICTO_GRAVADO_2.nombre);
             await emisionPage.incrementarCantidad(7);
         });
 
@@ -41,15 +41,15 @@ test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @P
         });
     });
 
-    test('Emitir boleta con descuento global por porcentaje @PV-03.2', async ({
+    test('SC-02: Emitir boleta con descuento global por porcentaje @PV-03.2', async ({
                                                                                   cajaPage,
                                                                                   emisionPage,
                                                                                   busquedaComprobantes,
                                                                               }) => {
         await test.step('Given: caja abierta y producto con cantidad 10', async () => {
             await cajaPage.continuarVendiendo();
-            await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+            await emisionPage.buscarItem(ITEMS_PV.ESTRICTO_GRAVADO_2.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.ESTRICTO_GRAVADO_2.nombre);
             await emisionPage.incrementarCantidad(9);
         });
 
@@ -82,7 +82,7 @@ test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @P
         });
     });
 
-    test('Emitir boleta con descuento ítem porcentaje + descuento global @PV-03.3', async ({
+    test('SC-03: Emitir boleta con descuento ítem porcentaje + descuento global @PV-03.3', async ({
                                                                                                cajaPage,
                                                                                                emisionPage,
                                                                                                busquedaComprobantes,
@@ -90,8 +90,8 @@ test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @P
                                                                                            }) => {
         await test.step('Given: caja abierta y producto agregado', async () => {
             await cajaPage.continuarVendiendo();
-            await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+            await emisionPage.buscarItem(ITEMS_PV.ESTRICTO_GRAVADO_2.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.ESTRICTO_GRAVADO_2.nombre);
         });
 
         await test.step('When: aplicar descuento por ítem del 2% en porcentaje', async () => {
@@ -132,7 +132,7 @@ test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @P
         });
     });
 
-    test('Emitir boleta con ítem con equivalencia @PV-03.4', async ({
+    test('SC-04: Emitir boleta con ítem con equivalencia @PV-03.4', async ({
                                                                         cajaPage,
                                                                         emisionPage,
                                                                         busquedaComprobantes,
@@ -172,7 +172,7 @@ test.describe('PV-03 | Boleta con equivalencias, variantes y descuento global @P
         });
     });
 
-    test('Visualizar precuenta de una boleta antes de emitir @PV-03.5', async ({
+    test('SC-05: Visualizar precuenta de una boleta antes de emitir @PV-03.5', async ({
                                                                                    cajaPage,
                                                                                    comprobantePage,
                                                                                    emisionPage,

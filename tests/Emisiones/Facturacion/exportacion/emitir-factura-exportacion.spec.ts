@@ -7,9 +7,9 @@ import {FacturacionTargets} from '@screenplay/targets/facturacion/FacturacionTar
 import {CLIENTE_EXTRANJERIA_NC_EXPORTACION, CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 
-test.describe('Facturación — Emitir Factura de Exportación', () => {
+test.describe('FC-12 | Emitir Factura de Exportación', {tag: ['@facturacion', '@exportacion']}, () => {
 
-    test('Emite Factura de Exportación con cliente Extranjería', async ({page, cajero}) => {
+    test('SC-01: Emitir Factura de Exportación con cliente Extranjería @FC-12.1', async ({page, cajero}) => {
         const clienteExportacion = {
             tipoDocumento: CLIENTE_EXTRANJERIA_NC_EXPORTACION.tipoDocumento,
             documento: CLIENTE_EXTRANJERIA_NC_EXPORTACION.numeroDocumento,
@@ -45,7 +45,7 @@ test.describe('Facturación — Emitir Factura de Exportación', () => {
         await busqueda.cerrarBitacora();
     });
 
-    test('Emite Factura de Exportación con cliente sin RUC (Carnet Extranjería)', async ({page, cajero}) => {
+    test('SC-02: Emitir Factura de Exportación con cliente sin RUC (Carnet Extranjería) @FC-12.2', async ({page, cajero}) => {
         const clienteSinRuc = {
             tipoDocumento: CLIENTES.PERSONA_EXTRANJERIA.tipoDocumento,
             documento: CLIENTES.PERSONA_EXTRANJERIA.documento,

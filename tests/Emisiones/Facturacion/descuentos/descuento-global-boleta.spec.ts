@@ -9,9 +9,9 @@ import {FacturacionTargets} from '@screenplay/targets/facturacion/FacturacionTar
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 
-test.describe('Facturación — Descuento Global en Boleta', () => {
+test.describe('FC-06 | Descuento Global en Boleta', {tag: ['@facturacion', '@descuentos']}, () => {
 
-    test('Aplica descuento global de S/ 5 y verifica en totales', async ({cajero}) => {
+    test('SC-01: Aplicar descuento global de S/ 5 y verificar en totales @FC-06.1', async ({cajero}) => {
         await cajero.realiza(
             SeleccionarTipoComprobante('BOLETA'),
             BuscarYSeleccionarCliente(CLIENTES.PERSONA_DNI),
@@ -26,7 +26,7 @@ test.describe('Facturación — Descuento Global en Boleta', () => {
         expect(descuentoGlobal).toBeDefined();
     });
 
-    test('Emite Boleta con descuento global aplicado', async ({page, cajero}) => {
+    test('SC-02: Emitir Boleta con descuento global aplicado @FC-06.2', async ({page, cajero}) => {
         await cajero.realiza(
             SeleccionarTipoComprobante('BOLETA'),
             BuscarYSeleccionarCliente(CLIENTES.PERSONA_DNI),

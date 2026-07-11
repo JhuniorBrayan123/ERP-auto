@@ -5,9 +5,9 @@ import {BuscarYAgregarProducto} from '@screenplay/interactions/facturacion/Busca
 import {VentaGridTargets} from '@screenplay/targets/facturacion/VentaGridTargets';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Facturación — Precuenta', () => {
+test.describe('FC-22 | Precuenta', {tag: ['@facturacion', '@vista-facturacion']}, () => {
 
-    test('Visualiza la precuenta antes de emitir desde Vista Facturación', async ({page, cajero}) => {
+    test('SC-01: Visualizar la precuenta antes de emitir desde Vista Facturación @FC-22.1', async ({page, cajero}) => {
         await cajero.realiza(
             SeleccionarTipoComprobante('BOLETA'),
             BuscarYSeleccionarCliente(CLIENTES.PERSONA_DNI),

@@ -4,9 +4,9 @@ import {ejecutarTestCargaMasiva} from '@helpers/Logistica/verificaciones-items.h
 
 const CONFIG = MASIVO_CONFIG.recetas;
 
-test.describe('PS-2 | Carga masiva de recetas desde Excel', {tag: ['@logistica', '@productos-stock']}, () => {
+test.describe('PS-02 | Carga masiva de recetas desde Excel', {tag: ['@logistica', '@productos-stock']}, () => {
 
-    test('crear recetas masivamente desde excel @PS-2', async ({
+    test('SC-01: crear recetas masivamente desde excel @PS-02.1', async ({
                                                              page,
                                                              cargaMasiva,
                                                          }) => {

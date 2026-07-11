@@ -17,7 +17,6 @@ import {
     crearListaDesdeTemplate,
     crearComboDesdeTemplate,
 } from './crear-item-setup.helpers';
-import {ActivarSelectorObligatorio} from '@task/PuntoVenta/ActivarSelectorObligatorio.task';
 import {EdicionItemPage} from '@pages/Logistica/EdicionItemPage';
 import {
     cargarCheckpoint,
@@ -182,7 +181,7 @@ setup(CASO_ACTUAL, async ({page}) => {
         console.log(`[setup-state] PRD: hay ítems que crear. Continuando con setup en modo PRD...`);
     }
 
-    setup.setTimeout(600_000); 
+    setup.setTimeout(1_200_000); 
 
     
     const dynamicItemsFile = resolve(process.cwd(), 'playwright', '.auth', 'dynamic-items.json');
@@ -290,28 +289,71 @@ setup(CASO_ACTUAL, async ({page}) => {
         }
     }
 
-    await setup.step('Activar selector obligatorio en ITEM_SELECTOR_GRAVADO', async () => {
+    await setup.step('Crear selectores en ITEM_SELECTOR_GRAVADO (454545)', async () => {
         try {
-            logInfo('Post-setup', 'Activando switch obligatorio en ITEM_SELECTOR_GRAVADO (454545)...');
+            logInfo('Post-setup', 'Configurando selectores en ITEM_SELECTOR_GRAVADO (454545)...');
 
             const listaItemsEdit = new ListaItemsPage(page);
             await listaItemsEdit.searchAndEdit('454545');
 
             const edicionItemPage = new EdicionItemPage(page);
             await edicionItemPage.waitForFormLoad();
-
             await edicionItemPage.goToSelectoresTab();
+            await page.waitForTimeout(1000);
+
+            // Si no hay selector aún, crearlo: Añadir selector → Nuevo selector
+            if (!await edicionItemPage.isSelectorCreado()) {
+                await edicionItemPage.clickAnadirSelector();
+                await page.waitForTimeout(500);
+                await edicionItemPage.clickNuevoSelector();
+                await page.waitForTimeout(1000);
+            } else {
+                logInfo('Post-setup', 'Selector ya existe — saltando creación');
+            }
+
+            // Llenar nombre del selector
+            await edicionItemPage.fillSelectorNombre('Selectores manuales simples');
+            await page.waitForTimeout(500);
+
+            // Crear option desde inventario (item 111111)
+            await edicionItemPage.clickCrearSelectorInventario();
+            await page.waitForTimeout(500);
+            await edicionItemPage.buscarYAgregarItemSelector('111111');
+
+            // Opción 0: item de inventario (111111) — ya agregado arriba
+            // Primera opción manual: click "Crear selectores libres"
+            await edicionItemPage.clickCrearSelectorLibre();
+            await page.waitForTimeout(500);
+            await edicionItemPage.fillManualOptionNombre(1, 'Selector manual 1');
+            await edicionItemPage.fillManualOptionPrecio(1, '5.00');
+            await page.waitForTimeout(300);
+
+            // Segunda opción manual: click "Añadir opción"
+            await edicionItemPage.clickAnadirOpcion();
+            await page.waitForTimeout(500);
+            await edicionItemPage.fillManualOptionNombre(2, 'Selector manual 2');
+            await edicionItemPage.fillManualOptionPrecio(2, '10.00');
+            await page.waitForTimeout(300);
+
+            // Tercera opción manual: click "Añadir opción"
+            await edicionItemPage.clickAnadirOpcion();
+            await page.waitForTimeout(500);
+            await edicionItemPage.fillManualOptionNombre(3, 'Selector manual 3');
+            await edicionItemPage.fillManualOptionPrecio(3, '15.00');
+            await page.waitForTimeout(300);
+
+            // Crear el selector
+            await edicionItemPage.clickCrearSelector();
+
+            // Activar switch obligatorio
+            await edicionItemPage.waitForObligatorioSwitch();
             const changed = await edicionItemPage.setSelectorObligatorioSwitch();
 
-            if (changed) {
-                await edicionItemPage.clickActualizarProducto();
-                await edicionItemPage.closeSuccessModal();
-                logInfo('Post-setup', '✓ Selector obligatorio activado y guardado');
-            } else {
-                logInfo('Post-setup', '✓ Selector obligatorio ya estaba activo — sin cambios');
-            }
+            await edicionItemPage.clickActualizarProducto();
+            await edicionItemPage.closeSuccessModal();
+            logInfo('Post-setup', '✓ Selectores creados y switch obligatorio activado en 454545');
         } catch (error) {
-            logError('Activar selector obligatorio', error);
+            logError('Crear selectores en 454545', error);
             throw error;
         }
     });

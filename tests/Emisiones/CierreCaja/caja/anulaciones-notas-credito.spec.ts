@@ -12,10 +12,10 @@ import {
 import { AnulacionesNCTargets } from '@screenplay/targets/cierre-caja/AnulacionesNCTargets';
 import { UsarNavegador } from '@abilities/usarnavegador';
 
-test.describe('Anulaciones y Notas de Crédito en Cierre de Caja', () => {
+test.describe('CC-01 | Anulaciones y Notas de Crédito', {tag: ['@cierre-caja']}, () => {
     test.describe.configure({ mode: 'serial' });
 
-    test('anular boleta y verificar que aparece como DADO DE BAJA en cierre de caja', async ({
+    test('SC-01: Anular boleta y verificar que aparece como DADO DE BAJA en cierre de caja @CC-01.1', async ({
         cajero,
         boletaEmitida,
     }) => {
@@ -52,7 +52,7 @@ test.describe('Anulaciones y Notas de Crédito en Cierre de Caja', () => {
         await cajero.realiza(RegresarANuevaVenta());
     });
 
-    test('anular factura y verificar que aparece como DADO DE BAJA en cierre de caja', async ({
+    test('SC-02: Anular factura y verificar que aparece como DADO DE BAJA en cierre de caja @CC-01.2', async ({
         cajero,
         facturaEmitida,
     }) => {

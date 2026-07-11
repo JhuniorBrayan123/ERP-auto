@@ -1,9 +1,9 @@
 import {expect, test} from '@fixtures/Logistica/movimientos-fixture';
 import {Download} from "@playwright/test";
 
-test.describe('MS-10-11 | Exportaciones de Movimientos @exportaciones', {tag: ['@logistica', '@movimientos']}, () => {
+test.describe('MS-10 | Exportaciones de Movimientos', {tag: ['@logistica', '@movimientos']}, () => {
 
-    test('Exportar movimientos con filtros @MS-10-11', async ({
+    test('SC-01: Exportar movimientos con filtros @MS-10.1', async ({
                                                                   movimientosNav,
                                                                   listadoMovimientos,
                                                                   page,
@@ -33,7 +33,7 @@ test.describe('MS-10-11 | Exportaciones de Movimientos @exportaciones', {tag: ['
         });
     });
 
-    test('Exportar todos los movimientos detallados @MS-10-11', async ({
+    test('SC-02: Exportar todos los movimientos detallados @MS-10.2', async ({
                                                                            movimientosNav,
                                                                            listadoMovimientos,
                                                                            page,

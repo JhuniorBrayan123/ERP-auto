@@ -11,9 +11,9 @@ import { BusquedaComprobantesPage } from '@pages/PuntoVenta/BusquedaComprobantes
 
 const DETRACCION_CHECKBOX_ID = 'pv_punto-venta_cmp-factura-boleta-header_v-switch:documento-detraccion';
 
-test.describe('Facturación — Detracción transporte de carga', () => {
+test.describe('FC-10 | Detracción transporte de carga', {tag: ['@facturacion', '@detraccion']}, () => {
 
-    test('Emite factura con detracción de transporte de carga exitosamente', async ({ page, cajero }) => {
+    test('SC-01: Emitir factura con detracción de transporte de carga exitosamente @FC-10.1', async ({ page, cajero }) => {
         await cajero.realiza(
             SeleccionarTipoComprobante('FACTURA'),
             BuscarYSeleccionarCliente(CLIENTES.EMPRESA_RUC_AUTO),

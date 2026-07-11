@@ -11,7 +11,7 @@ import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {FilaEnTotales} from '@question/PuntoVenta/FilaEnTotales';
 import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
 
-test.describe('Selección, edición de ítem en caja de venta — Edición de cantidad', {tag: ['@punto-venta', '@seleccion-edicion-item', '@edicion-cantidad']}, () => {
+test.describe('PV-18 | Edición de cantidad', {tag: ['@puntoventa', '@pv-18', '@edicion-cantidad']}, () => {
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(IniciarVentaEnCaja());

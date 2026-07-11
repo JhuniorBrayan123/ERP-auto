@@ -6,9 +6,9 @@ import { AdelantosTargets } from '@screenplay/targets/facturacion/AdelantosTarge
 import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 import { esperarDebounce } from '@utils/wait-helpers';
 
-test.describe('Facturación — Buscar adelanto', () => {
+test.describe('FC-27 | Buscar adelanto', {tag: ['@facturacion', '@adelantos']}, () => {
 
-    test('Busca un adelanto por serie y correlativo desde Vista Facturación', async ({ page, cajero }) => {
+    test('SC-01: Buscar un adelanto por serie y correlativo desde Vista Facturación @FC-27.1', async ({ page, cajero }) => {
         const adelanto = await cajero.realizaYObtiene(
             EmitirDocumentoDeAdelanto({
                 tipoComprobante: 'BOLETA',

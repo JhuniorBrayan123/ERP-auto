@@ -5,9 +5,9 @@ import { BuscarYAgregarProducto } from '@screenplay/interactions/facturacion/Bus
 import { VentaGridTargets } from '@screenplay/targets/facturacion/VentaGridTargets';
 import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Facturación — Eliminar producto de la grilla', () => {
+test.describe('FC-15 | Eliminar producto de la grilla', {tag: ['@facturacion', '@productos']}, () => {
 
-    test('Elimina un producto de la grilla y verifica que quede vacía', async ({ page, cajero }) => {
+    test('SC-01: Eliminar un producto de la grilla y verificar que quede vacía @FC-15.1', async ({ page, cajero }) => {
         await cajero.realiza(
             SeleccionarTipoComprobante('BOLETA'),
             BuscarYSeleccionarCliente(CLIENTES.PERSONA_DNI),

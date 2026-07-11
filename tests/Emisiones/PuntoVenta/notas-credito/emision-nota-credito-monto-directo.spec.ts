@@ -4,9 +4,9 @@ import { CrearNotaCreditoConVinculacion } from '@screenplay/tasks/notas-credito/
 import { ModalPostEmisionVisible } from '@screenplay/questions/notas/ModalPostEmisionVisible';
 import { CLIENTES, ITEMS_PV, TIPOS_DOCUMENTO_ORIGEN, TIPOS_COMPROBANTE } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Notas de Crédito — Motivos con Monto Directo @pv @nota-credito', () => {
+test.describe('NC-02 | Motivos con Monto Directo', {tag: ['@puntoventa', '@nota-credito']}, () => {
 
-  test('Emitir NC por descuento global desde factura @emision', async ({ facturador }) => {
+  test('SC-01: Emitir NC por descuento global desde factura @NC-02.1', async ({ facturador }) => {
     const origen = await facturador.realizaYObtiene(
       EmitirComprobanteOrigen({
         tipoComprobante: TIPOS_COMPROBANTE.FACTURA,
@@ -33,7 +33,7 @@ test.describe('Notas de Crédito — Motivos con Monto Directo @pv @nota-credito
     await expect(facturador.page.getByText(resultado.numero)).toBeVisible();
   });
 
-  test('Emitir NC por disminución en el valor desde factura @emision', async ({ facturador }) => {
+  test('SC-02: Emitir NC por disminución en el valor desde factura @NC-02.2', async ({ facturador }) => {
     const origen = await facturador.realizaYObtiene(
       EmitirComprobanteOrigen({
         tipoComprobante: TIPOS_COMPROBANTE.FACTURA,
@@ -60,7 +60,7 @@ test.describe('Notas de Crédito — Motivos con Monto Directo @pv @nota-credito
     await expect(facturador.page.getByText(resultado.numero)).toBeVisible();
   });
 
-  test('Emitir NC por otros conceptos desde boleta @emision', async ({ facturador }) => {
+  test('SC-03: Emitir NC por otros conceptos desde boleta @NC-02.3', async ({ facturador }) => {
     const origen = await facturador.realizaYObtiene(
       EmitirComprobanteOrigen({
         tipoComprobante: TIPOS_COMPROBANTE.BOLETA,

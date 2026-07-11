@@ -4,9 +4,9 @@ import {CrearNotaCreditoConVinculacion} from '@screenplay/tasks/notas-credito/Cr
 import {ModalPostEmisionVisible} from '@screenplay/questions/notas/ModalPostEmisionVisible';
 import {CLIENTES, ITEMS_PV, TIPOS_COMPROBANTE, TIPOS_DOCUMENTO_ORIGEN} from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Notas de Crédito — Motivos Especiales @pv @nota-credito', () => {
+test.describe('NC-01 | Motivos Especiales', {tag: ['@puntoventa', '@nota-credito']}, () => {
 
-    test('Emitir NC por anulación SIN retorno de stock desde factura @emision', async ({facturador}) => {
+    test('SC-01: Emitir NC por anulación SIN retorno de stock desde factura @NC-01.1', async ({facturador}) => {
 
         const origen = await facturador.realizaYObtiene(
             EmitirComprobanteOrigen({
@@ -33,7 +33,7 @@ test.describe('Notas de Crédito — Motivos Especiales @pv @nota-credito', () =
         await expect(facturador.page.getByText(resultado.numero)).toBeVisible();
     });
 
-    test('Emitir NC por anulación por error en el RUC desde factura @emision', async ({facturador}) => {
+    test('SC-02: Emitir NC por anulación por error en el RUC desde factura @NC-01.2', async ({facturador}) => {
         const origen = await facturador.realizaYObtiene(
             EmitirComprobanteOrigen({
                 tipoComprobante: TIPOS_COMPROBANTE.FACTURA,

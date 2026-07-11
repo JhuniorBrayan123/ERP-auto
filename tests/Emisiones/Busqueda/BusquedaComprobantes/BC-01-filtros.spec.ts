@@ -11,6 +11,7 @@ import {BC_CATEGORIAS, BC_PRESETS_FECHA, BC_TIPOS_COMPROBANTE} from '@helpers/Pu
 import {CLIENTES} from '@helpers/PuntoVenta/emision-data.helper';
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 
+test.describe('BC-01 | Filtros de búsqueda', {tag: ['@busqueda']}, () => {
 let semilla: ComprobanteInfo;
 let semillaFactura: ComprobanteInfo;
 
@@ -36,7 +37,7 @@ test.beforeEach(async ({page}) => {
     await busqPage.ir();
 });
 
-test('BC-02 | Buscar comprobantes por rango de fechas — Hoy', async ({busquedaPage}) => {
+test('SC-01: Buscar comprobantes por rango de fechas — Hoy @BC-01.1', async ({busquedaPage}) => {
     await test.step('Given: el usuario está en la pantalla de búsqueda', async () => {
     });
     await test.step('When: selecciona el preset "Hoy" y aplica filtros', async () => {
@@ -47,7 +48,7 @@ test('BC-02 | Buscar comprobantes por rango de fechas — Hoy', async ({busqueda
     });
 });
 
-test('BC-02b | Buscar comprobantes por rango de fechas — Últimos 7 días', async ({busquedaPage}) => {
+test('SC-02: Buscar comprobantes por rango de fechas — Últimos 7 días @BC-01.2', async ({busquedaPage}) => {
     await test.step('When: selecciona preset "Últimos 7 días" y aplica', async () => {
         await busquedaPage.filtrarPorRangoFecha(BC_PRESETS_FECHA.SIETE);
     });
@@ -57,7 +58,7 @@ test('BC-02b | Buscar comprobantes por rango de fechas — Últimos 7 días', as
     });
 });
 
-test('BC-03 | Buscar comprobantes por tipo — Boleta', async ({busquedaPage}) => {
+test('SC-03: Buscar comprobantes por tipo — Boleta @BC-01.3', async ({busquedaPage}) => {
     await test.step('Given: el usuario selecciona la categoría Ventas', async () => {
         await busquedaPage.seleccionarCategoria(BC_CATEGORIAS.VENTAS);
     });
@@ -74,7 +75,7 @@ test('BC-03 | Buscar comprobantes por tipo — Boleta', async ({busquedaPage}) =
     });
 });
 
-test('BC-04 | Buscar comprobante por serie y correlativo (semilla)', async ({busquedaPage}) => {
+test('SC-04: Buscar comprobante por serie y correlativo (semilla) @BC-01.4', async ({busquedaPage}) => {
     test.skip(!semilla, 'Semilla no disponible — el beforeAll puede haber fallado');
 
     await test.step('Given: el usuario está en categoría Ventas con filtros avanzados', async () => {
@@ -102,7 +103,7 @@ test('BC-04 | Buscar comprobante por serie y correlativo (semilla)', async ({bus
     });
 });
 
-test('BC-05 | Buscar comprobantes por nombre de cliente', async ({busquedaPage}) => {
+test('SC-05: Buscar comprobantes por nombre de cliente @BC-01.5', async ({busquedaPage}) => {
     test.skip(!semilla, 'Semilla no disponible');
 
     await test.step('Given: el usuario está en Ventas con filtros avanzados', async () => {
@@ -125,7 +126,7 @@ test('BC-05 | Buscar comprobantes por nombre de cliente', async ({busquedaPage})
     });
 });
 
-test('BC-05b | Buscar comprobantes por número de documento del cliente (RUC)', async ({busquedaPage}) => {
+test('SC-06: Buscar comprobantes por número de documento del cliente (RUC) @BC-01.6', async ({busquedaPage}) => {
     test.skip(!semillaFactura, 'Semilla factura no disponible');
 
     await test.step('Given: el usuario abre filtros avanzados en categoría Ventas', async () => {
@@ -143,7 +144,7 @@ test('BC-05b | Buscar comprobantes por número de documento del cliente (RUC)', 
         await expect(fila).toBeVisible({timeout: 15_000});
     });
 });
-test('BC-06 | Buscar comprobantes combinando tipo + documento de cliente', async ({busquedaPage}) => {
+test('SC-07: Buscar comprobantes combinando tipo + documento de cliente @BC-01.7', async ({busquedaPage}) => {
     test.skip(!semillaFactura, 'Semilla factura no disponible');
 
     await test.step('Given: filtros avanzados abiertos', async () => {
@@ -161,7 +162,7 @@ test('BC-06 | Buscar comprobantes combinando tipo + documento de cliente', async
     });
 });
 
-test('BC-07 | Buscar comprobantes sin resultados (correlativo inexistente)', async ({busquedaPage}) => {
+test('SC-08: Buscar comprobantes sin resultados (correlativo inexistente) @BC-01.8', async ({busquedaPage}) => {
     await test.step('Given: filtros avanzados abiertos', async () => {
         await busquedaPage.abrirFiltrosAvanzados();
     });
@@ -181,7 +182,7 @@ test('BC-07 | Buscar comprobantes sin resultados (correlativo inexistente)', asy
     });
 });
 
-test('BC-08 | Limpiar filtros de búsqueda restablece el estado inicial', async ({busquedaPage}) => {
+test('SC-09: Limpiar filtros de búsqueda restablece el estado inicial @BC-01.9', async ({busquedaPage}) => {
     const page = busquedaPage['page'];
 
     await test.step('Given: el usuario aplica múltiples filtros', async () => {
@@ -202,4 +203,5 @@ test('BC-08 | Limpiar filtros de búsqueda restablece el estado inicial', async 
     await test.step('And: la grilla muestra resultados sin filtro aplicado', async () => {
         await expect(page.locator('tbody tr').first()).toBeVisible({timeout: 15_000});
     });
+});
 });

@@ -7,7 +7,7 @@ import {NavegarAGuiaRemitente} from '@task/PuntoVenta/guias-remision/NavegarAGui
 import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
 import {capturarSaldoAnterior, verificarStockSinCambio} from '@helpers/PuntoVenta/verificaciones-pv.helper';
 
-test.describe('Guías de Remisión Remitente - Mercancía Extranjera', { tag: ['@guias', '@puntoventa'] }, () => {
+test.describe('GR-03 | Remitente — Mercancía Extranjera', {tag: ['@puntoventa', '@guias']}, () => {
     test.beforeEach(async ({ cajero }) => {
         await cajero.intentaRealizar(
             IniciarVentaEnCaja('caja-auto'),
@@ -15,7 +15,7 @@ test.describe('Guías de Remisión Remitente - Mercancía Extranjera', { tag: ['
         );
     });
 
-    test('GRR-10: Emitir guía por traslado de mercancía extranjera sin contenedor', async ({ cajero, listadoGuiasPage }) => {
+    test('SC-01: Emitir guía por traslado de mercancía extranjera sin contenedor @GR-03.1', async ({ cajero, listadoGuiasPage }) => {
         await cajero.intentaRealizar(
             EmitirGuiaRemitenteTask({
                 motivo: GUIAS_DATA.MOTIVOS_TRASLADO.TRASLADO_BIENES_TRANSFORMACION, 
@@ -29,7 +29,7 @@ test.describe('Guías de Remisión Remitente - Mercancía Extranjera', { tag: ['
         await listadoGuiasPage.validarGuiaEmitidaExito();
     });
 
-    test('GRR-11: Emitir guía por traslado de mercancía extranjera con contenedor', async ({ cajero, listadoGuiasPage, kardexApi }) => {
+    test('SC-02: Emitir guía por traslado de mercancía extranjera con contenedor @GR-03.2', async ({ cajero, listadoGuiasPage, kardexApi }) => {
         const saldoAntes = await capturarSaldoAnterior(
             kardexApi,
             GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo
@@ -61,7 +61,7 @@ test.describe('Guías de Remisión Remitente - Mercancía Extranjera', { tag: ['
         );
     });
 
-    test('GRR-12: Emitir guía con traslado de vehículos categoría M1 o L', async ({ cajero, listadoGuiasPage, kardexApi }) => {
+    test('SC-03: Emitir guía con traslado de vehículos categoría M1 o L @GR-03.3', async ({ cajero, listadoGuiasPage, kardexApi }) => {
         const saldoAntes = await capturarSaldoAnterior(
             kardexApi,
             GUIAS_DATA.ITEMS.PRODUCTO_GRAVADO_FLEXIBLE.codigo
@@ -91,7 +91,7 @@ test.describe('Guías de Remisión Remitente - Mercancía Extranjera', { tag: ['
         );
     });
 
-    test('GRR-13: Validar datos obligatorios de traslado de mercancía extranjera', async ({ cajero, page }) => {
+    test('SC-04: Validar datos obligatorios de traslado de mercancía extranjera @GR-03.4', async ({ cajero, page }) => {
         await cajero.intentaRealizar(
             EmitirGuiaRemitenteConValidacionTask({
                 motivo: GUIAS_DATA.MOTIVOS_TRASLADO.TRASLADO_MERCANCIA_EXTRANJERA,
@@ -108,7 +108,7 @@ test.describe('Guías de Remisión Remitente - Mercancía Extranjera', { tag: ['
         await expect(page.getByRole('textbox', { name: 'Ej. 10' })).toBeEmpty();
     });
 
-    test('GRR-14: Validar contenedor y precinto obligatorios', async ({ cajero, page }) => {
+    test('SC-05: Validar contenedor y precinto obligatorios @GR-03.5', async ({ cajero, page }) => {
         const guiaPage = new GuiaRemitentePage(page);
 
         await guiaPage.seleccionarMotivo(GUIAS_DATA.MOTIVOS_TRASLADO.TRASLADO_MERCANCIA_EXTRANJERA);

@@ -26,9 +26,9 @@ const activarDetraccion = async (page: import('@playwright/test').Page): Promise
     }
 };
 
-test.describe('Facturación — Bloquear detracción sin tipo de cambio', () => {
+test.describe('FC-08 | Bloquear detracción sin tipo de cambio', {tag: ['@facturacion', '@detraccion']}, () => {
 
-    test('Bloquea emisión de factura con detracción en moneda extranjera sin tipo de cambio', async ({
+    test('SC-01: Bloquear emisión de factura con detracción en moneda extranjera sin tipo de cambio @FC-08.1', async ({
                                                                                                          page,
                                                                                                          cajero
                                                                                                      }) => {
