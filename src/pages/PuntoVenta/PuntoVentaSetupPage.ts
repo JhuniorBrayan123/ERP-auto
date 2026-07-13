@@ -256,7 +256,7 @@ export class PuntoVentaSetupPage {
         await inputNombre.click();
         await inputNombre.fill(campo.nombre);
 
-        await this.page.getByText('Selecciona documentos').click();
+        await this.page.getByText('Selecciona comprobantes').click();
         await this.page.locator('.v-checkbox-default-label:visible').filter({hasText: /^Todos$/}).first().click();
         await this.page.locator('.v-multiselect-form-header .vector').click();
         await this.page.waitForTimeout(300);
