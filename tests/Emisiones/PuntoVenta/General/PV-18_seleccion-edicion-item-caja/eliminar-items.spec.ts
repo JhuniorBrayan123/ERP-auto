@@ -22,8 +22,7 @@ test.describe('PV-18 | Eliminar ítems', {tag: ['@puntoventa', '@pv-18', '@elimi
             AgregarDosItemsYEliminarUno(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL, ITEMS_PV.ESTRICTO_GRAVADO_1, 1)
         );
         const totalesRestantes = calcularTotalesCombinados([
-
-            {key: 'PRODUCTO_GRAVADO', cantidad: 1},
+            {key: 'ITEM_GRAVADO_SIN_CONTROL', cantidad: 1},
         ]);
 
         await cajero.intentaRealizar(DesplegarPanelCalculos());
@@ -42,7 +41,7 @@ test.describe('PV-18 | Eliminar ítems', {tag: ['@puntoventa', '@pv-18', '@elimi
 
     test('SC-27: Limpiar todos los ítems del carrito @PV-18.27', async ({page}) => {
         const cajero = Cajero.con(page);
-        await cajero.intentaRealizar(AgregarItemsYLimpiarCarrito(ITEMS_PV.LISTA_ITEMS));
+        await cajero.intentaRealizar(AgregarItemsYLimpiarCarrito(ITEMS_PV.LISTA_ITEMS_ESTRICTOS));
         expect(await cajero.pregunta(TotalEnCarrito("0.00"))).toBe(true);
     });
 });

@@ -5,26 +5,21 @@ import {ListaFormPage} from '@pages/Logistica/ListaFormPage';
 import {ComboFormPage} from '@pages/Logistica/ComboFormPage';
 import {ListaItemsPage} from '@pages/Logistica/ListaItemsPage';
 import {
-    generarRunId,
     generarMapaCodigos,
+    generarRunId,
     guardarMapaCodigos,
     guardarMapaEnCache,
     ITEM_TEMPLATES,
 } from '@factories/item-factory';
 import {
+    crearComboDesdeTemplate,
+    crearListaDesdeTemplate,
     crearProductoDesdeTemplate,
     crearRecetaDesdeTemplate,
-    crearListaDesdeTemplate,
-    crearComboDesdeTemplate,
 } from './crear-item-setup.helpers';
 import {EdicionItemPage} from '@pages/Logistica/EdicionItemPage';
-import {
-    cargarCheckpoint,
-    iniciarCheckpoint,
-    marcarDone,
-    limpiarCheckpoint,
-} from './setup-checkpoint';
-import {shouldSkipSetup, markSetupComplete, markSetupIncomplete} from '@utils/setup-state';
+import {cargarCheckpoint, iniciarCheckpoint, limpiarCheckpoint, marcarDone,} from './setup-checkpoint';
+import {markSetupComplete, markSetupIncomplete, shouldSkipSetup} from '@utils/setup-state';
 import {resolve} from 'node:path';
 import {copyFileSync, existsSync, readFileSync} from 'node:fs';
 
@@ -47,7 +42,7 @@ async function navegarAItems(page: import('@playwright/test').Page): Promise<voi
         try {
             await page.getByText('Productos y servicios').click();
             await page.locator('[id="nvg_selects_cmp-header-selects_select:select-module-203-item-2007"]').click();
-            await expect(page.getByRole('textbox', { name: 'Buscar por nombre, código o c' })).toBeVisible({timeout: 20000});
+            await expect(page.getByRole('textbox', {name: 'Buscar por nombre, código o c'})).toBeVisible({timeout: 20000});
             await page.waitForLoadState('networkidle');
         } catch (error) {
             logError('Navegar al módulo de Productos', error);
@@ -61,7 +56,7 @@ async function itemExistePorCodigo(
     page: import('@playwright/test').Page,
     codigo: string,
 ): Promise<boolean> {
-    
+
     const codigoLimpio = codigo.replace(/-/g, '');
     return await setup.step(`Verificar existencia del ítem con código ${codigoLimpio}`, async () => {
         try {
@@ -85,21 +80,21 @@ function crearResolver(mapaCodigos: Record<string, string>): (key: string) => st
     }
 
     return (key: string) => {
-        
+
         if (templateKeys.has(key) && mapaCodigos[key]) {
             return mapaCodigos[key];
         }
-        
+
         const templateKey = baseToKey.get(key);
         if (templateKey && mapaCodigos[templateKey]) {
             return mapaCodigos[templateKey];
         }
-        return key; 
+        return key;
     };
 }
 
 setup(CASO_ACTUAL, async ({page}) => {
-    
+
     const isPrd = (process.env.APP_ENV ?? '').trim().toLowerCase() === 'prd';
     if (!isPrd) {
         const dynamicItemsFile = resolve(process.cwd(), 'playwright', '.auth', 'dynamic-items.json');
@@ -181,9 +176,9 @@ setup(CASO_ACTUAL, async ({page}) => {
         console.log(`[setup-state] PRD: hay ítems que crear. Continuando con setup en modo PRD...`);
     }
 
-    setup.setTimeout(1_200_000); 
+    setup.setTimeout(1_800_000);
 
-    
+
     const dynamicItemsFile = resolve(process.cwd(), 'playwright', '.auth', 'dynamic-items.json');
     const existingRunId: string | null = (() => {
         try {
@@ -191,7 +186,8 @@ setup(CASO_ACTUAL, async ({page}) => {
                 const mapa = JSON.parse(readFileSync(dynamicItemsFile, 'utf-8'));
                 return mapa.RUN_ID ?? null;
             }
-        } catch {  }
+        } catch {
+        }
         return null;
     })();
 
@@ -200,7 +196,7 @@ setup(CASO_ACTUAL, async ({page}) => {
     let itemsDone: Set<string>;
 
     if (checkpointPrevio && existingRunId && checkpointPrevio.RUN_ID !== existingRunId) {
-        
+
         logInfo('Checkpoint', `Checkpoint obsoleto (RUN_ID ${checkpointPrevio.RUN_ID}) ≠ mapa actual (${existingRunId}). Descartando checkpoint.`);
         limpiarCheckpoint();
         RUN_ID = existingRunId;
@@ -212,7 +208,7 @@ setup(CASO_ACTUAL, async ({page}) => {
         itemsDone = new Set(checkpointPrevio.done);
         logInfo('Checkpoint', `Reanudando RUN_ID ${RUN_ID} — ${itemsDone.size} ítems ya creados`);
     } else if (existingRunId) {
-        
+
         RUN_ID = existingRunId;
         itemsDone = new Set<string>();
         iniciarCheckpoint(RUN_ID);
@@ -285,7 +281,7 @@ setup(CASO_ACTUAL, async ({page}) => {
             logInfo('Creación', `✓ "${template.key}" (${codigo}) creado y marcado en checkpoint`);
         } catch (error) {
             logError(`Crear ${template.tipo} "${template.key}"`, error);
-            throw error; 
+            throw error;
         }
     }
 
@@ -301,57 +297,57 @@ setup(CASO_ACTUAL, async ({page}) => {
             await edicionItemPage.goToSelectoresTab();
             await page.waitForTimeout(1000);
 
-            // Si no hay selector aún, crearlo: Añadir selector → Nuevo selector
             if (!await edicionItemPage.isSelectorCreado()) {
+                // Crear selector desde cero: Añadir selector → Nuevo selector
                 await edicionItemPage.clickAnadirSelector();
                 await page.waitForTimeout(500);
                 await edicionItemPage.clickNuevoSelector();
                 await page.waitForTimeout(1000);
+
+                // Llenar nombre del selector
+                await edicionItemPage.fillSelectorNombre('Selectores manuales simples');
+                await page.waitForTimeout(500);
+
+                // Crear option desde inventario (item 111111)
+                await edicionItemPage.clickCrearSelectorInventario();
+                await page.waitForTimeout(500);
+                await edicionItemPage.buscarYAgregarItemSelector('111111');
+
+                // Opción 0: item de inventario (111111) — ya agregado arriba
+                // Primera opción manual: click "Crear selectores libres"
+                await edicionItemPage.clickCrearSelectorLibre();
+                await page.waitForTimeout(500);
+                await edicionItemPage.fillManualOptionNombre(1, 'Selector manual 1');
+                await edicionItemPage.fillManualOptionPrecio(1, '5.00');
+                await page.waitForTimeout(300);
+
+                // Segunda opción manual: click "Añadir opción"
+                await edicionItemPage.clickAnadirOpcion();
+                await page.waitForTimeout(500);
+                await edicionItemPage.fillManualOptionNombre(2, 'Selector manual 2');
+                await edicionItemPage.fillManualOptionPrecio(2, '10.00');
+                await page.waitForTimeout(300);
+
+                // Tercera opción manual: click "Añadir opción"
+                await edicionItemPage.clickAnadirOpcion();
+                await page.waitForTimeout(500);
+                await edicionItemPage.fillManualOptionNombre(3, 'Selector manual 3');
+                await edicionItemPage.fillManualOptionPrecio(3, '15.00');
+                await page.waitForTimeout(300);
+
+                // Crear el selector
+                await edicionItemPage.clickCrearSelector();
+
+                // Activar switch obligatorio
+                await edicionItemPage.waitForObligatorioSwitch();
+                await edicionItemPage.setSelectorObligatorioSwitch();
+
+                await edicionItemPage.clickActualizarProducto();
+                await edicionItemPage.closeSuccessModal();
+                logInfo('Post-setup', '✓ Selectores creados y switch obligatorio activado en 454545');
             } else {
-                logInfo('Post-setup', 'Selector ya existe — saltando creación');
+                logInfo('Post-setup', 'Selector ya existe en 454545 — saltando creación');
             }
-
-            // Llenar nombre del selector
-            await edicionItemPage.fillSelectorNombre('Selectores manuales simples');
-            await page.waitForTimeout(500);
-
-            // Crear option desde inventario (item 111111)
-            await edicionItemPage.clickCrearSelectorInventario();
-            await page.waitForTimeout(500);
-            await edicionItemPage.buscarYAgregarItemSelector('111111');
-
-            // Opción 0: item de inventario (111111) — ya agregado arriba
-            // Primera opción manual: click "Crear selectores libres"
-            await edicionItemPage.clickCrearSelectorLibre();
-            await page.waitForTimeout(500);
-            await edicionItemPage.fillManualOptionNombre(1, 'Selector manual 1');
-            await edicionItemPage.fillManualOptionPrecio(1, '5.00');
-            await page.waitForTimeout(300);
-
-            // Segunda opción manual: click "Añadir opción"
-            await edicionItemPage.clickAnadirOpcion();
-            await page.waitForTimeout(500);
-            await edicionItemPage.fillManualOptionNombre(2, 'Selector manual 2');
-            await edicionItemPage.fillManualOptionPrecio(2, '10.00');
-            await page.waitForTimeout(300);
-
-            // Tercera opción manual: click "Añadir opción"
-            await edicionItemPage.clickAnadirOpcion();
-            await page.waitForTimeout(500);
-            await edicionItemPage.fillManualOptionNombre(3, 'Selector manual 3');
-            await edicionItemPage.fillManualOptionPrecio(3, '15.00');
-            await page.waitForTimeout(300);
-
-            // Crear el selector
-            await edicionItemPage.clickCrearSelector();
-
-            // Activar switch obligatorio
-            await edicionItemPage.waitForObligatorioSwitch();
-            const changed = await edicionItemPage.setSelectorObligatorioSwitch();
-
-            await edicionItemPage.clickActualizarProducto();
-            await edicionItemPage.closeSuccessModal();
-            logInfo('Post-setup', '✓ Selectores creados y switch obligatorio activado en 454545');
         } catch (error) {
             logError('Crear selectores en 454545', error);
             throw error;
@@ -359,7 +355,7 @@ setup(CASO_ACTUAL, async ({page}) => {
     });
 
     guardarMapaCodigos(mapaCodigos);
-    
+
     const envGroup = isPrd ? 'prd' : 'crt-group';
     const account = (process.env.USER_EMAIL ?? '').trim().toLowerCase() || 'unknown';
     guardarMapaEnCache(mapaCodigos, envGroup, account);
@@ -367,7 +363,7 @@ setup(CASO_ACTUAL, async ({page}) => {
     if (isPrd) {
         const prdItemsFile = resolve(process.cwd(), 'playwright', 'dynamic-items.prd.json');
         try {
-            const { writeFileSync: wf } = await import('node:fs');
+            const {writeFileSync: wf} = await import('node:fs');
             wf(prdItemsFile, JSON.stringify(mapaCodigos, null, 2), 'utf-8');
             logInfo('PRD', `dynamic-items.prd.json actualizado con los nuevos ítems creados`);
         } catch {

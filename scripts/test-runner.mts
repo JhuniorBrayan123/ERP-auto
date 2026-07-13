@@ -409,10 +409,11 @@ function buildArgs(projectContext: ProjectContext, extraArgs: string[], pathsToR
     let currentProjectFlag = projectContext.projectFlag;
     let currentOutputDir = projectContext.outputDir;
     
-    // Inyección dinámica de proyecto si estamos corriendo Facturacion aislada
+    // Inyección dinámica de proyecto solo si TODAS las rutas son de Facturacion
     if (projectContext.key === 'Emisiones') {
-        const hasFacturacion = pathsToRun.some(p => p.includes('/Facturacion') || p.includes('\\Facturacion'));
-        if (hasFacturacion) {
+        const includesFacturacion = (p: string) => p.includes('/Facturacion') || p.includes('\\Facturacion');
+        const allAreFacturacion = pathsToRun.length > 0 && pathsToRun.every(includesFacturacion);
+        if (allAreFacturacion) {
             currentProjectFlag = 'Facturacion';
             currentOutputDir = 'test-results/facturacion';
         }
