@@ -5,7 +5,7 @@ export const EmitirCotizacion = () => {
     const fn = async (page: Page): Promise<void> => {
         const emisionPage = new EmisionPage(page);
 
-        await emisionPage.clickPagar();
+        await emisionPage.clickEmitir();
     };
     fn.displayName = `Emitir cotización`;
     return fn;

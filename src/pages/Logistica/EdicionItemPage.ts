@@ -5,7 +5,7 @@ export class EdicionItemPage {
     }
 
     public async waitForFormLoad(): Promise<void> {
-        
+
         await this.page.waitForTimeout(500);
 
         await this.page.locator('[id="cmn_cmp-overload:loading"]').waitFor({
@@ -79,7 +79,7 @@ export class EdicionItemPage {
     }
 
     async expandirOpcionesAvanzadas(): Promise<void> {
-        
+
         const expander = this.page.locator('div').filter({hasText: /Opciones avanzadas/i}).first();
 
         if (await expander.isVisible()) {
@@ -93,22 +93,118 @@ export class EdicionItemPage {
         const tabOpcionesAvanzadas = this.page.getByText('Opciones avanzadas (opcional)', {exact: false});
         if (await tabOpcionesAvanzadas.isVisible()) {
             await tabOpcionesAvanzadas.click();
-            
+
             await this.page.waitForTimeout(1000);
             await this.page.locator('[id="cmn_cmp-overload:loading"]')
                 .waitFor({state: 'hidden', timeout: 10_000})
-                .catch(() => {});
+                .catch(() => {
+                });
         }
 
         const tabSelectores = this.page.getByText('Selectores', {exact: false}).first();
         await tabSelectores.waitFor({state: 'visible', timeout: 15_000});
         await tabSelectores.click();
 
+        await this.page.waitForTimeout(1000);
+        await this.page.locator('[id="cmn_cmp-overload:loading"]')
+            .waitFor({state: 'hidden', timeout: 15_000})
+            .catch(() => {
+            });
+    }
+
+    async isSelectorCreado(): Promise<boolean> {
+        return this.page.getByText('Obligatorio').isVisible().catch(() => false);
+    }
+
+    async clickAnadirSelector(): Promise<void> {
+        // Click en el toggle "Añadir selector" para abrir el menú
+        const toggle = this.page.locator('.cmp-option-button-toggle').filter({hasText: 'Añadir selector'});
+        await toggle.waitFor({state: 'visible', timeout: 15_000});
+        await toggle.click();
+        await this.page.waitForTimeout(500);
+    }
+
+    async clickNuevoSelector(): Promise<void> {
+        const btn = this.page.locator('[id="lgt_reg-item_v-tab:selectores-item_cmp-option-button:selectores-opciones_v-button:btn-nuevo-selector"]');
+        await btn.waitFor({state: 'visible', timeout: 15_000});
+        await btn.click();
+        await this.page.waitForTimeout(1000);
+    }
+
+    async fillSelectorNombre(nombre: string): Promise<void> {
+        const input = this.page.locator('[id="lgt_reg-item_v-tab:selectores-item_gestion-selector:formulario_v-input:nombre"]');
+        await input.waitFor({state: 'visible', timeout: 15_000});
+        await input.click();
+        await input.fill(nombre);
+    }
+
+    async clickCrearSelectorInventario(): Promise<void> {
+        const opcion = this.page.locator('[id="lgt_reg-item_cmp-card-selectores:opcion_div:inventario"]');
+        await opcion.waitFor({state: 'visible', timeout: 15_000});
+        await opcion.click();
+    }
+
+    async buscarYAgregarItemSelector(codigo: string): Promise<void> {
+        // Input de búsqueda de items desde el modal de selector de inventario
+        const inputBusqueda = this.page.locator('[id="lgt_reg-item_v-modal:busqueda-item-selector_v-input:search"]');
+        await inputBusqueda.waitFor({state: 'visible', timeout: 30_000});
+        await inputBusqueda.click();
+        await inputBusqueda.fill(codigo);
+        await this.page.waitForTimeout(1500);
+
+        // Hacer clic en el resultado de la búsqueda (item 111111)
+        const resultado = this.page.getByText(codigo, {exact: false}).first();
+        await resultado.waitFor({state: 'visible', timeout: 10_000});
+        await resultado.click();
+        await this.page.waitForTimeout(500);
+
+        // Cerrar/clicar fuera si hay algún panel abierto
+        const btnAgregar = this.page.getByRole('button', {name: /Agregar|Seleccionar/i}).first();
+        if (await btnAgregar.isVisible().catch(() => false)) {
+            await btnAgregar.click();
+        }
+    }
+
+    async clickCrearSelectorLibre(): Promise<void> {
+        const opcion = this.page.locator('[id="lgt_reg-item_cmp-card-selectores:opcion_div:libre"]');
+        await opcion.waitFor({state: 'visible', timeout: 15_000});
+        await opcion.click();
+    }
+
+    async clickAnadirOpcion(): Promise<void> {
+        const btn = this.page.getByRole('button', {name: 'Añadir opción'}).first();
+        await btn.waitFor({state: 'visible', timeout: 15_000});
+        await btn.click();
+        await this.page.waitForTimeout(500);
+    }
+
+    async fillManualOptionNombre(optionIndex: number, nombre: string): Promise<void> {
+        const input = this.page.locator('[id*="gestion-selector_selector-opcion"][id$=":item_v-input:nombre"]').nth(optionIndex);
+        await input.waitFor({state: 'visible', timeout: 15_000});
+        await input.click();
+        await input.fill(nombre);
+    }
+
+    async fillManualOptionPrecio(optionIndex: number, precio: string): Promise<void> {
+        const input = this.page.locator('[id*="gestion-selector_selector-opcion"][id$=":item_v-input:precio"]').nth(optionIndex);
+        await input.waitFor({state: 'visible', timeout: 15_000});
+        await input.click();
+        await input.fill(precio);
+    }
+
+    async clickCrearSelector(): Promise<void> {
+        const btn = this.page.locator('[id="lgt_reg-item_v-drape:gestion-selector_v-button:crear-selector"]');
+        await btn.waitFor({state: 'visible', timeout: 15_000});
+        await btn.click();
+        await this.page.waitForTimeout(1500);
+    }
+
+    async waitForObligatorioSwitch(): Promise<void> {
         await this.page.locator('text=Obligatorio').waitFor({state: 'visible', timeout: 15_000});
     }
 
     async setSelectorObligatorioSwitch(): Promise<boolean> {
-        
+
         const checkbox = this.page.locator('.obligatorio > div > .v-switch > .switch-content > .switch > .slider');
 
         await checkbox.waitFor({state: 'visible', timeout: 35000});

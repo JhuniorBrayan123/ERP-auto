@@ -134,6 +134,12 @@ export const ITEMS_PV = {
         cantidad: 1,
     } as ItemVenta,
 
+    LISTA_ITEMS_ESTRICTOS: {
+        codigo: "447744",
+        nombre: "Lista items estrictos",
+        cantidad: 1,
+    } as ItemVenta,
+
     PRODUCTO_SIN_STOCK: {
         codigo: "111222",
         nombre: "Item sin stock estricto",
@@ -169,6 +175,18 @@ export const ITEMS_PV = {
         cantidad: 1,
     } as ItemVenta,
 
+    ITEM_EQUIVALENTE_SIN_CONTROL: {
+        codigo: "303030",
+        nombre: "item equivalente sin control gravado",
+        cantidad: 1,
+    } as ItemVenta,
+
+    ITEM_VARIANTE_SIN_CONTROL: {
+        codigo: "333333",
+        nombre: "item variante sin control gravado",
+        cantidad: 1,
+    } as ItemVenta,
+
     RECETA_SIN_STOCK: {
         codigo: "112121",
         nombre: "Receta con item sin Sotck",
@@ -192,6 +210,67 @@ export const ITEMS_PV = {
         nombre: "item selector flexible",
         cantidad: 1,
     } as ItemVenta,
+
+    ESTRICTO_GRAVADO_1: {
+        codigo: "111112",
+        nombre: "Item control estricto gravado 1",
+        cantidad: 1,
+    } as ItemVenta,
+
+    ESTRICTO_GRAVADO_2: {
+        codigo: "111113",
+        nombre: "Item control estricto gravado 2",
+        cantidad: 1,
+    } as ItemVenta,
+
+    ESTRICTO_GRAVADO_3: {
+        codigo: "111114",
+        nombre: "Item control estricto gravado 3",
+        cantidad: 1,
+    } as ItemVenta,
+
+    ESTRICTO_GRAVADO_4: {
+        codigo: "111115",
+        nombre: "Item control estricto gravado 4",
+        cantidad: 1,
+    } as ItemVenta,
+
+    ESTRICTO_GRAVADO_5: {
+        codigo: "111116",
+        nombre: "Item control estricto gravado 5",
+        cantidad: 1,
+    } as ItemVenta,
+
+    ESTRICTO_GRAVADO_6: {
+        codigo: "111117",
+        nombre: "Item control estricto gravado 6",
+        cantidad: 1,
+    } as ItemVenta,
+
+    ESTRICTO_GRAVADO_7: {
+        codigo: "111118",
+        nombre: "Item control estricto gravado 7",
+        cantidad: 1,
+    } as ItemVenta,
+
+    ESTRICTO_GRAVADO_8: {
+        codigo: "111119",
+        nombre: "Item control estricto gravado 8",
+        cantidad: 1,
+    } as ItemVenta,
+
+    ESTRICTO_GRAVADO_9: {
+        codigo: "111120",
+        nombre: "Item control estricto gravado 9",
+        cantidad: 1,
+    } as ItemVenta,
+
+    ESTRICTO_GRAVADO_10: {
+        codigo: "111121",
+        nombre: "Item control estricto gravado 10",
+        cantidad: 1,
+    } as ItemVenta,
+
 };
 
 export const SERIES = {

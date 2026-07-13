@@ -18,10 +18,10 @@ import {ComprobantePage} from '@pages/PuntoVenta/ComprobantePage';
 import {ClientePage} from '@pages/PuntoVenta/ClientePage';
 import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
 
-test.describe('Ver Pago en Cierre de Caja', () => {
+test.describe('CC-09 | Ver Pago', {tag: ['@cierre-caja']}, () => {
     test.describe.configure({mode: 'serial'});
 
-    test('validar "Ver Pago" para venta con pago único (POS VISA)', async ({cajero, page}) => {
+    test('SC-01: Validar "Ver Pago" para venta con pago único (POS VISA) @CC-09.1', async ({cajero, page}) => {
         
         const comprobante = await cajero.realizaYObtiene(
             EmitirComprobanteOrigen({
@@ -46,7 +46,7 @@ test.describe('Ver Pago en Cierre de Caja', () => {
         );
     });
 
-    test('validar "Ver Pago" para venta con pago combinado (múltiples métodos)', async ({cajero, page}) => {
+    test('SC-02: Validar "Ver Pago" para venta con pago combinado (múltiples métodos) @CC-09.2', async ({cajero, page}) => {
         
         
         const comprobantePage = new ComprobantePage(page);
@@ -128,7 +128,7 @@ test.describe('Ver Pago en Cierre de Caja', () => {
         await cajero.realiza(CerrarModalVerPago(), BorrarFiltrosVentas(), RegresarANuevaVenta());
     });
 
-    test('validar que venta a crédito NO muestra opción "Ver Pago"', async ({
+    test('SC-03: Validar que venta a crédito NO muestra opción "Ver Pago" @CC-09.3', async ({
                                                                                 cajero,
                                                                                 ventaCreditoFactura,
                                                                             }) => {

@@ -9,24 +9,24 @@ import {capturarStockNC, validarStockDespuesNC} from '@helpers/PuntoVenta/verifi
 import {esperarStockDespuesVenta} from "@helpers/PuntoVenta/esperarStockDespuesVenta";
 import {asegurarClienteExtranjeria} from "@helpers/PuntoVenta/asegurar-cliente.helper";
 
-test.describe('Notas de Crédito — Emisión con Vinculación @pv @nota-credito', () => {
+test.describe('NC-05 | Emisión con Vinculación', {tag: ['@puntoventa', '@nota-credito']}, () => {
 
-    test('Emitir NC por anulación CON retorno de stock desde factura @emision', async ({facturador, postEmision, kardexApi}) => {
-        const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+    test('SC-01: Emitir NC por anulación CON retorno de stock desde factura @NC-05.1', async ({facturador, postEmision, kardexApi}) => {
+        const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.ESTRICTO_GRAVADO_2.codigo);
 
         const origen = await facturador.realizaYObtiene(
             EmitirComprobanteOrigen({
                 tipoComprobante: TIPOS_COMPROBANTE.FACTURA,
                 cliente: CLIENTES.EMPRESA_RUC_AUTO,
-                item: ITEMS_PV.PRODUCTO_GRAVADO,
+                item: ITEMS_PV.ESTRICTO_GRAVADO_2,
             })
         );
 
         const stockDespuesVenta = await esperarStockDespuesVenta({
             kardexApi,
-            codigoProducto: ITEMS_PV.PRODUCTO_GRAVADO.codigo,
+            codigoProducto: ITEMS_PV.ESTRICTO_GRAVADO_2.codigo,
             stockOriginal,
-            cantidadVendida: ITEMS_PV.PRODUCTO_GRAVADO.cantidad
+            cantidadVendida: ITEMS_PV.ESTRICTO_GRAVADO_2.cantidad
         });
 
         const resultado = await facturador.realizaYObtiene(
@@ -50,30 +50,30 @@ test.describe('Notas de Crédito — Emisión con Vinculación @pv @nota-credito
 
         await validarStockDespuesNC({
             kardexApi,
-            codigoProducto: ITEMS_PV.PRODUCTO_GRAVADO.codigo,
+            codigoProducto: ITEMS_PV.ESTRICTO_GRAVADO_2.codigo,
             stockOriginal,
             stockDespuesVenta,
-            cantidadDevuelta: ITEMS_PV.PRODUCTO_GRAVADO.cantidad,
+            cantidadDevuelta: ITEMS_PV.ESTRICTO_GRAVADO_2.cantidad,
             retornoStock: true,
         });
     });
 
-    test('Emitir NC por devolución total CON retorno de stock desde boleta @emision', async ({facturador, kardexApi}) => {
-        const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+    test('SC-02: Emitir NC por devolución total CON retorno de stock desde boleta @NC-05.2', async ({facturador, kardexApi}) => {
+        const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.ESTRICTO_GRAVADO_2.codigo);
 
         const origen = await facturador.realizaYObtiene(
             EmitirComprobanteOrigen({
                 tipoComprobante: TIPOS_COMPROBANTE.BOLETA,
                 cliente: CLIENTES.PERSONA_DNI,
-                item: ITEMS_PV.PRODUCTO_GRAVADO,
+                item: ITEMS_PV.ESTRICTO_GRAVADO_2,
             })
         );
 
         const stockDespuesVenta = await esperarStockDespuesVenta({
             kardexApi,
-            codigoProducto: ITEMS_PV.PRODUCTO_GRAVADO.codigo,
+            codigoProducto: ITEMS_PV.ESTRICTO_GRAVADO_2.codigo,
             stockOriginal,
-            cantidadVendida: ITEMS_PV.PRODUCTO_GRAVADO.cantidad
+            cantidadVendida: ITEMS_PV.ESTRICTO_GRAVADO_2.cantidad
         });
 
         const resultado = await facturador.realizaYObtiene(
@@ -94,30 +94,30 @@ test.describe('Notas de Crédito — Emisión con Vinculación @pv @nota-credito
 
         await validarStockDespuesNC({
             kardexApi,
-            codigoProducto: ITEMS_PV.PRODUCTO_GRAVADO.codigo,
+            codigoProducto: ITEMS_PV.ESTRICTO_GRAVADO_2.codigo,
             stockOriginal,
             stockDespuesVenta,
-            cantidadDevuelta: ITEMS_PV.PRODUCTO_GRAVADO.cantidad,
+            cantidadDevuelta: ITEMS_PV.ESTRICTO_GRAVADO_2.cantidad,
             retornoStock: true,
         });
     });
 
-    test('Emitir NC por devolución total SIN retorno de stock desde factura @emision', async ({facturador, kardexApi}) => {
-        const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+    test('SC-03: Emitir NC por devolución total SIN retorno de stock desde factura @NC-05.3', async ({facturador, kardexApi}) => {
+        const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.ESTRICTO_GRAVADO_2.codigo);
 
         const origen = await facturador.realizaYObtiene(
             EmitirComprobanteOrigen({
                 tipoComprobante: TIPOS_COMPROBANTE.FACTURA,
                 cliente: CLIENTES.EMPRESA_RUC_AUTO,
-                item: ITEMS_PV.PRODUCTO_GRAVADO,
+                item: ITEMS_PV.ESTRICTO_GRAVADO_2,
             })
         );
 
         const stockDespuesVenta = await esperarStockDespuesVenta({
             kardexApi,
-            codigoProducto: ITEMS_PV.PRODUCTO_GRAVADO.codigo,
+            codigoProducto: ITEMS_PV.ESTRICTO_GRAVADO_2.codigo,
             stockOriginal,
-            cantidadVendida: ITEMS_PV.PRODUCTO_GRAVADO.cantidad
+            cantidadVendida: ITEMS_PV.ESTRICTO_GRAVADO_2.cantidad
         });
 
         const resultado = await facturador.realizaYObtiene(
@@ -139,7 +139,7 @@ test.describe('Notas de Crédito — Emisión con Vinculación @pv @nota-credito
 
         await validarStockDespuesNC({
             kardexApi,
-            codigoProducto: ITEMS_PV.PRODUCTO_GRAVADO.codigo,
+            codigoProducto: ITEMS_PV.ESTRICTO_GRAVADO_2.codigo,
             stockOriginal,
             stockDespuesVenta,
             cantidadDevuelta: 0,
@@ -147,22 +147,22 @@ test.describe('Notas de Crédito — Emisión con Vinculación @pv @nota-credito
         });
     });
 
-    test('Emitir NC por devolución por ítem CON retorno de stock desde factura @emision', async ({facturador, kardexApi}) => {
-        const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.PRODUCTO_GRAVADO.codigo);
+    test('SC-04: Emitir NC por devolución por ítem CON retorno de stock desde factura @NC-05.4', async ({facturador, kardexApi}) => {
+        const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.ESTRICTO_GRAVADO_2.codigo);
 
         const origen = await facturador.realizaYObtiene(
             EmitirComprobanteOrigen({
                 tipoComprobante: TIPOS_COMPROBANTE.FACTURA,
                 cliente: CLIENTES.EMPRESA_RUC_AUTO,
-                item: ITEMS_PV.PRODUCTO_GRAVADO,
+                item: ITEMS_PV.ESTRICTO_GRAVADO_2,
             })
         );
 
         const stockDespuesVenta = await esperarStockDespuesVenta({
             kardexApi,
-            codigoProducto: ITEMS_PV.PRODUCTO_GRAVADO.codigo,
+            codigoProducto: ITEMS_PV.ESTRICTO_GRAVADO_2.codigo,
             stockOriginal,
-            cantidadVendida: ITEMS_PV.PRODUCTO_GRAVADO.cantidad
+            cantidadVendida: ITEMS_PV.ESTRICTO_GRAVADO_2.cantidad
         });
 
         const resultado = await facturador.realizaYObtiene(
@@ -185,7 +185,7 @@ test.describe('Notas de Crédito — Emisión con Vinculación @pv @nota-credito
 
         await validarStockDespuesNC({
             kardexApi,
-            codigoProducto: ITEMS_PV.PRODUCTO_GRAVADO.codigo,
+            codigoProducto: ITEMS_PV.ESTRICTO_GRAVADO_2.codigo,
             stockOriginal,
             stockDespuesVenta,
             cantidadDevuelta: 1,
@@ -193,7 +193,7 @@ test.describe('Notas de Crédito — Emisión con Vinculación @pv @nota-credito
         });
     });
 
-    test('Consultar NC emitida y verificar detalle en vista comprobante @consulta', async ({
+    test('SC-05: Consultar NC emitida y verificar detalle en vista comprobante @NC-05.5', async ({
                                                                                      facturador,
                                                                                      busquedaComprobantes
                                                                                  }) => {
@@ -235,7 +235,7 @@ test.describe('Notas de Crédito — Emisión con Vinculación @pv @nota-credito
         await popup.getByRole('button', {name: /salir/i}).click();
     });
 
-    test('Emitir NC vinculada por ajustes de operaciones de exportación @emision', async ({
+    test('SC-06: Emitir NC vinculada por ajustes de operaciones de exportación @NC-05.6', async ({
                                                                                      facturador,
                                                                                      busquedaComprobantes
                                                                                  }) => {

@@ -2,9 +2,9 @@ import { expect, test } from '@fixtures/Logistica/items-fixture';
 import { buildUniqueItemName } from '@helpers/Logistica/unique-name.helper';
 import { confirmarCreacionEIrALista } from '@helpers/Logistica/verificaciones-items.helper';
 
-test.describe('PS-3 | Creación de Insumos', { tag: ['@logistica', '@productos-stock'] }, () => {
+test.describe('PS-03 | Creación de Insumos', { tag: ['@logistica', '@productos-stock'] }, () => {
 
-    test('crear insumo sin control de stock @PS-3', async ({ insumoForm, itemDetail }) => {
+    test('SC-01: crear insumo sin control de stock @PS-03.1', async ({ insumoForm, itemDetail }) => {
         const nombre = buildUniqueItemName('insumo', 'sin control');
 
         await test.step('Iniciar creación de insumo', async () => {
@@ -25,7 +25,7 @@ test.describe('PS-3 | Creación de Insumos', { tag: ['@logistica', '@productos-s
         await confirmarCreacionEIrALista(insumoForm, () => insumoForm.crearInsumo());
     });
 
-    test('crear insumo con stock estricto @PS-3', async ({ insumoForm, itemDetail }) => {
+    test('SC-02: crear insumo con stock estricto @PS-03.2', async ({ insumoForm, itemDetail }) => {
         const nombre = buildUniqueItemName('insumo', 'estricto kilos');
         await test.step('Iniciar creación de insumo', async () => {
             await insumoForm.iniciarCreacionInsumo();

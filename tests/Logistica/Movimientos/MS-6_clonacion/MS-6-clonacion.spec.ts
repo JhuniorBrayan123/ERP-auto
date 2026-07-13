@@ -6,9 +6,9 @@ import {
     verificarBitacoraEdicion,
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
 
-test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica', '@movimientos']}, () => {
+test.describe('MS-06 | Clonación de Movimientos', {tag: ['@logistica', '@movimientos']}, () => {
 
-    test('Clonar movimiento correctamente @MS-6', async ({
+    test('SC-01: Clonar movimiento correctamente @MS-06.1', async ({
                                                              movimientosNav,
                                                              registroMovimiento,
                                                              resultadoMovimiento,
@@ -21,12 +21,12 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
 
         await crearIngresoBaseParaClonacion(
             movimientosNav, registroMovimiento, resultadoMovimiento,
-            ITEMS_TEST.PRODUCTO_GRAVADO.codigo, ITEMS_TEST.PRODUCTO_GRAVADO.nombre,
+            ITEMS_TEST.ESTRICTO_GRAVADO_9.codigo, ITEMS_TEST.ESTRICTO_GRAVADO_9.nombre,
         );
 
         await test.step('And: verificar stock antes de clonar', async () => {
             await movimientosNav.navegarAStockProductos();
-            await stockVerificacion.buscarPorCodigo(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
+            await stockVerificacion.buscarPorCodigo(ITEMS_TEST.ESTRICTO_GRAVADO_9.codigo);
             await stockVerificacion.clickVariosTexto();
         });
 
@@ -40,7 +40,7 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
 
         await test.step('Assert: verificar nuevo movimiento en kardex', async () => {
             await movimientosNav.navegarAKardexTotal();
-            await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
+            await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.ESTRICTO_GRAVADO_9.codigo);
             await kardexVerificacion.clickKardexPorProducto();
             await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
             await kardexVerificacion.expectPatronCodigoMovimientoVisible(PATRON_CODIGO.INGRESO);
@@ -50,7 +50,7 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
         });
     });
 
-    test('Clonar movimiento con equivalencia @MS-6', async ({
+    test('SC-02: Clonar movimiento con equivalencia @MS-06.2', async ({
                                                                 movimientosNav,
                                                                 registroMovimiento,
                                                                 resultadoMovimiento,
@@ -86,7 +86,7 @@ test.describe('MS-6 | Clonación de Movimientos @clonacion', {tag: ['@logistica'
         });
     });
 
-    test('Clonar movimiento con datos adicionales @MS-6', async ({
+    test('SC-03: Clonar movimiento con datos adicionales @MS-06.3', async ({
                                                                      movimientosNav,
                                                                      registroMovimiento,
                                                                      datosOpcionales,

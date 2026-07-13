@@ -4,9 +4,9 @@ import {BuscarYAgregarProducto} from '@screenplay/interactions/facturacion/Busca
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {MensajeValidacion} from "@screenplay/questions/facturacion/MensajeValidacion";
 
-test.describe('Facturación — Bloquear factura sin RUC', () => {
+test.describe('FC-01 | Bloquear factura sin RUC', {tag: ['@facturacion', '@comprobantes']}, () => {
 
-    test('Bloquea la emisión de una Factura con cliente DNI (sin RUC)', async ({cajero, page}) => {
+    test('SC-01: Bloquea la emisión de una Factura con cliente DNI (sin RUC) @FC-01.1', async ({cajero, page}) => {
         await cajero.realiza(
             SeleccionarTipoComprobante('FACTURA'),
             BuscarYAgregarProducto(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL),

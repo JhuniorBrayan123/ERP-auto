@@ -2,9 +2,9 @@ import { test, expect } from '@fixtures/PuntoVenta/facturacion.fixture';
 import { EmitirFacturaConDetraccion } from '@screenplay/tasks/facturacion/EmitirFacturaConDetraccion';
 import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Facturación — Detracción moneda extranjera', () => {
+test.describe('FC-09 | Detracción moneda extranjera', {tag: ['@facturacion', '@detraccion']}, () => {
 
-    test('Emite factura con detracción en dólares y tipo de cambio', async ({ cajero }) => {
+    test('SC-01: Emitir factura con detracción en dólares y tipo de cambio @FC-09.1', async ({ cajero }) => {
         const resultado = await cajero.realizaYObtiene(
             EmitirFacturaConDetraccion({
                 cliente: CLIENTES.EMPRESA_RUC_AUTO,

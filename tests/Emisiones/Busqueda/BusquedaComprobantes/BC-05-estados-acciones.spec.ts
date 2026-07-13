@@ -19,8 +19,9 @@ import {FiltrarComprobantes} from "@task/PuntoVenta/busqueda-comprobantes/Filtra
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 import {esperarCargaOverlay} from '@utils/wait-helpers';
 
+test.describe('BC-05 | Estados y acciones', {tag: ['@busqueda']}, () => {
 
-test('BC-22 | Clonar comprobante EUR a caja sin EUR muestra error de moneda', async ({actor, page}) => {
+test('SC-01: Clonar comprobante EUR a caja sin EUR muestra error de moneda @BC-05.1', async ({actor, page}) => {
     await test.step('Setup: asegurar configuración EURO', async () => {
         await asegurarConfiguracionEuro(page, ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
     });
@@ -34,7 +35,7 @@ test('BC-22 | Clonar comprobante EUR a caja sin EUR muestra error de moneda', as
     );
 });
 
-test('BC-23 | Eliminar cotización y verificar estado ELIMINADO en la grilla', async ({actor}) => {
+test('SC-02: Eliminar cotización y verificar estado ELIMINADO en la grilla @BC-05.2', async ({actor}) => {
     const cotizacion = await actor.pregunta(CrearComprobanteSemilla.cotizacion());
 
     await actor.intentaRealizar(
@@ -45,7 +46,7 @@ test('BC-23 | Eliminar cotización y verificar estado ELIMINADO en la grilla', a
 
     expect(await actor.pregunta(EstadoDelComprobante.enGrilla(cotizacion))).toEqual('ELIMINADO');
 });
-test('BC-24 | Emitir guía de remisión en estado Guardado y validar bitácora', async ({actor, page}) => {
+test('SC-03: Emitir guía de remisión en estado Guardado y validar bitácora @BC-05.3', async ({actor, page}) => {
     const guia = await actor.pregunta(CrearComprobanteSemilla.guiaRemisionGuardada());
 
     await actor.intentaRealizar(
@@ -104,8 +105,8 @@ const casosEmitir = [
     },
 ];
 
-for (const caso of casosEmitir) {
-    test(`${caso.id} | ${caso.descripcion}`, async ({actor}) => {
+for (const [idx, caso] of casosEmitir.entries()) {
+    test(`SC-${String(idx + 4).padStart(2, '0')}: ${caso.descripcion} @BC-05.${idx + 4}`, async ({actor}) => {
         const semilla = await actor.pregunta(caso.factory);
 
         await actor.intentaRealizar(
@@ -122,3 +123,4 @@ for (const caso of casosEmitir) {
         expect(await actor.pregunta(AccionDelComprobante.esVisible(BC_ACCIONES.VER_COMPROBANTE))).toBeTruthy();
     });
 }
+});

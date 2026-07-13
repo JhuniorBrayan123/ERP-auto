@@ -7,9 +7,9 @@ import {
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
 import * as path from 'path';
 
-test.describe('MS-7 | Movimientos Masivos @masivos', {tag: ['@logistica', '@movimientos']}, () => {
+test.describe('MS-07 | Movimientos Masivos', {tag: ['@logistica', '@movimientos']}, () => {
 
-    test('Registrar movimiento masivo correctamente @MS-7', async ({
+    test('SC-01: Registrar movimiento masivo correctamente @MS-07.1', async ({
                                                                        movimientosNav,
                                                                        listadoMovimientos,
                                                                        stockVerificacion,
@@ -35,7 +35,7 @@ test.describe('MS-7 | Movimientos Masivos @masivos', {tag: ['@logistica', '@movi
         });
     });
 
-    test('Movimiento masivo con productos e insumos @MS-7', async ({
+    test('SC-02: Movimiento masivo con productos e insumos @MS-07.2', async ({
                                                                        movimientosNav,
                                                                        listadoMovimientos,
                                                                        stockVerificacion,

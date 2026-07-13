@@ -17,7 +17,7 @@ export class ListaItemsPage {
     }
 
     async searchByCode(code: string): Promise<void> {
-        await this.searchInput.click();
+        await this.searchInput.first().click();
         await this.searchInput.fill(code);
 
         await this.page

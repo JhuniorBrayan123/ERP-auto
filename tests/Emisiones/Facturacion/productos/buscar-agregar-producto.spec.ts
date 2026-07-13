@@ -6,9 +6,9 @@ import {BuscarYAgregarEquivalencia} from "@task/PuntoVenta/BuscarYAgregarEquival
 import {FacturacionTargets} from "@screenplay/targets/facturacion/FacturacionTargets";
 
 
-test.describe('Facturación — Buscar y agregar producto', () => {
+test.describe('FC-14 | Buscar y agregar producto', {tag: ['@facturacion', '@productos']}, () => {
 
-    test('Busca un producto por código y aparece en la grilla', async ({cajero}) => {
+    test('SC-01: Buscar un producto por código y aparece en la grilla @FC-14.1', async ({cajero}) => {
         await cajero.realiza(
             BuscarYAgregarProducto(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL)
         );
@@ -19,7 +19,7 @@ test.describe('Facturación — Buscar y agregar producto', () => {
         expect(enGrilla).toBe(true);
     });
 
-    test('Agrega múltiples productos a la grilla', async ({cajero, page}) => {
+    test('SC-02: Agregar múltiples productos a la grilla @FC-14.2', async ({cajero, page}) => {
         await cajero.realiza(
             BuscarYAgregarProducto(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL),
             BuscarYAgregarEquivalencia(ITEMS_PV.ITEM_EQUIVALENTE, 'Equivalente X2'),

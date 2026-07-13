@@ -7,9 +7,9 @@ import { AdelantosTargets } from '@screenplay/targets/facturacion/AdelantosTarge
 import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 import { esperarDebounce } from '@utils/wait-helpers';
 
-test.describe('Facturación — Bloquear adelanto >= total', () => {
+test.describe('FC-26 | Bloquear adelanto >= total', {tag: ['@facturacion', '@adelantos']}, () => {
 
-    test('Bloquea la emisión cuando el adelanto seleccionado iguala o supera el total de la venta', async ({ page, cajero }) => {
+    test('SC-01: Bloquear la emisión cuando el adelanto seleccionado iguala o supera el total de la venta @FC-26.1', async ({ page, cajero }) => {
         const adelanto = await cajero.realizaYObtiene(
             EmitirDocumentoDeAdelanto({
                 tipoComprobante: 'BOLETA',

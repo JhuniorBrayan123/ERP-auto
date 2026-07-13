@@ -3,9 +3,9 @@ import {buildUniqueItemName} from '@helpers/Logistica/unique-name.helper';
 import type {ComponenteCombo} from '@helpers/Logistica/item-data.types';
 import {confirmarCreacionEIrALista, prepararComboBase,} from '@helpers/Logistica/verificaciones-items.helper';
 
-test.describe('PS-3 | Creación de Combos', {tag: ['@logistica', '@productos-stock']}, () => {
+test.describe('PS-03 | Creación de Combos', {tag: ['@logistica', '@productos-stock']}, () => {
 
-    test('crear combo con items estrictos gravados @PS-3', async ({
+    test('SC-01: crear combo con items estrictos gravados @PS-03.1', async ({
                                                                       comboForm,
                                                                       itemDetail,
                                                                   }) => {
@@ -33,7 +33,7 @@ test.describe('PS-3 | Creación de Combos', {tag: ['@logistica', '@productos-sto
         });
     });
 
-    test('crear combo con items flexibles gravados @PS-3', async ({
+    test('SC-02: crear combo con items flexibles gravados @PS-03.2', async ({
                                                                       comboForm,
                                                                       itemDetail,
                                                                   }) => {
@@ -54,7 +54,7 @@ test.describe('PS-3 | Creación de Combos', {tag: ['@logistica', '@productos-sto
         });
     });
 
-    test('crear combo con items sin control de stock @PS-3', async ({
+    test('SC-03: crear combo con items sin control de stock @PS-03.3', async ({
                                                                         comboForm,
                                                                         itemDetail,
                                                                     }) => {
@@ -78,7 +78,7 @@ test.describe('PS-3 | Creación de Combos', {tag: ['@logistica', '@productos-sto
             await itemDetail.verificarItemDesdeMenu({verificarBitacora: true});
         });
     });
-    test('crear combo con un item sin stock gravados @PS-3', async ({
+    test('SC-04: crear combo con un item sin stock gravados @PS-03.4', async ({
                                                                         comboForm,
                                                                         itemDetail,
                                                                     }) => {

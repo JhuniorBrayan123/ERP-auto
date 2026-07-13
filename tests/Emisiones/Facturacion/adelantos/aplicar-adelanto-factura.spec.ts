@@ -3,9 +3,9 @@ import { EmitirDocumentoDeAdelanto } from '@screenplay/tasks/facturacion/EmitirD
 import { AplicarAdelantoAVenta } from '@screenplay/tasks/facturacion/AplicarAdelantoAVenta';
 import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Facturación — Aplicar Adelanto a Factura', () => {
+test.describe('FC-25 | Aplicar Adelanto a Factura', {tag: ['@facturacion', '@adelantos']}, () => {
 
-    test('Aplica un adelanto de Factura a una nueva venta de Factura', async ({ cajero }) => {
+    test('SC-01: Aplicar un adelanto de Factura a una nueva venta de Factura @FC-25.1', async ({ cajero }) => {
         const adelanto = await cajero.realizaYObtiene(
             EmitirDocumentoDeAdelanto({
                 tipoComprobante: 'FACTURA',

@@ -1,5 +1,5 @@
 import {expect, test} from '@playwright/test';
-import {Cajero} from '../../../../../src/actors/cajero';
+import {Cajero} from '@actors/cajero';
 import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
 import {ActivarSelectorObligatorio} from '@task/PuntoVenta/ActivarSelectorObligatorio.task';
 import {BuscarYAgregarConSelectores} from '@task/PuntoVenta/BuscarYAgregarConSelectores.task';
@@ -10,9 +10,9 @@ import {calcularTotales} from '@utils/calculadora-impuestos';
 import {FilaEnTotales} from '@question/PuntoVenta/FilaEnTotales';
 import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
 import {TotalDistintoDeCero} from '@question/PuntoVenta/TotalDistintoDeCero';
-import {AbrirTotales} from '../../../../../src/interactions/PuntoVenta/AbrirTotales';
+import {AbrirTotales} from '@interactions/PuntoVenta/AbrirTotales';
 
-test.describe('Selección, edición de ítem en caja de venta — Selectores', {tag: ['@punto-venta', '@seleccion-edicion-item', '@selectores']}, () => {
+test.describe('PV-18 | Selectores', {tag: ['@puntoventa', '@pv-18', '@selectores']}, () => {
 
     test('SC-14: Buscar y agregar un ítem con selectores obligatorios @PV-18.14', async ({page}) => {
         const cajero = Cajero.con(page);

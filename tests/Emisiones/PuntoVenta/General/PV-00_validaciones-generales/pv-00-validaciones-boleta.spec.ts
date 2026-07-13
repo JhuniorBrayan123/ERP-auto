@@ -1,9 +1,9 @@
 import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('PV-00 | Validaciones generales de emisión — Boleta @PV-00', {tag: ['@punto-venta', '@boleta', '@validaciones']}, () => {
+test.describe('PV-00 | Validaciones generales de emisión — Boleta', {tag: ['@punto-venta', '@boleta', '@validaciones']}, () => {
 
-    test('Bloquear emisión de boleta sin cliente para montos >= 700 @PV-00.1', async ({
+    test('SC-01: Bloquear emisión de boleta sin cliente para montos >= 700 @PV-00.1', async ({
                                                                                           cajaPage, emisionPage, page,
                                                                                       }) => {
         await test.step('Given: la caja está abierta', async () => {
@@ -11,8 +11,8 @@ test.describe('PV-00 | Validaciones generales de emisión — Boleta @PV-00', {t
         });
 
         await test.step('And: agregar producto y editar precio a 750', async () => {
-            await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+            await emisionPage.buscarItem(ITEMS_PV.ESTRICTO_GRAVADO_9.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.ESTRICTO_GRAVADO_9.nombre);
             await emisionPage.editarPrecioItem('750.00');
         });
 
@@ -31,15 +31,15 @@ test.describe('PV-00 | Validaciones generales de emisión — Boleta @PV-00', {t
         });
     });
 
-    test('Bloquear emisión de boleta con fecha fuera del rango permitido @PV-00.2', async ({
+    test('SC-02: Bloquear emisión de boleta con fecha fuera del rango permitido @PV-00.2', async ({
                                                                                                cajaPage,
                                                                                                emisionPage,
                                                                                                page,
                                                                                            }) => {
         await test.step('Given: caja abierta y producto agregado', async () => {
             await cajaPage.continuarVendiendo();
-            await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+            await emisionPage.buscarItem(ITEMS_PV.ESTRICTO_GRAVADO_9.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.ESTRICTO_GRAVADO_9.nombre);
         });
 
         let fechaAntes = '';

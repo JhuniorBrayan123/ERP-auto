@@ -1,6 +1,6 @@
-import { type Page } from '@playwright/test';
-import { ItemFormBasePage } from './ItemFormBasePage';
-import type { ISCConfig, StockConfig } from '../../helpers/Logistica/item-data.types';
+import {type Page} from '@playwright/test';
+import {ItemFormBasePage} from './ItemFormBasePage';
+import type {ISCConfig, StockConfig} from '@app-types/item-data.types';
 
 export class ProductoFormPage extends ItemFormBasePage {
     constructor(page: Page) {
@@ -13,8 +13,8 @@ export class ProductoFormPage extends ItemFormBasePage {
     }
 
     async llenarPrecios(precioVenta: string, precioCompra: string): Promise<void> {
-        const inputPrecioVenta = this.page.getByRole('textbox', { name: 'Monto final' }).first();
-        const inputPrecioCompra = this.page.getByRole('textbox', { name: 'Monto final' }).nth(1);
+        const inputPrecioVenta = this.page.getByRole('textbox', {name: 'Monto final'}).first();
+        const inputPrecioCompra = this.page.getByRole('textbox', {name: 'Monto final'}).nth(1);
 
         await inputPrecioVenta.click();
         await inputPrecioVenta.fill(precioVenta);
@@ -37,46 +37,44 @@ export class ProductoFormPage extends ItemFormBasePage {
     }
 
     async seleccionarAlmacenEspecifico(nombreAlmacen: string): Promise<void> {
-        await this.page.locator('div').filter({ hasText: /^Todos$/ }).nth(3).click();
+        await this.page.locator('div').filter({hasText: /^Todos$/}).nth(3).click();
         await this.page.locator('.v-checkbox-default-label > span').first().click();
         await this.page.getByText(nombreAlmacen).click();
         await this.page.locator('.vector').click();
     }
 
-    async seleccionarControlStock(tipo: 'estricto' | 'flexible'): Promise<void> {
-        const id =
-            tipo === 'estricto'
-                ? 'lgt_reg-item_v-tab:stock-almacen_cmp-card-stock:control-estricto'
-                : 'lgt_reg-item_v-tab:stock-almacen_cmp-card-stock:control-flexible';
+    async seleccionarControlStock(tipo: 'estricto' | 'flexible' | 'sin_control'): Promise<void> {
+        let id: string;
+        if (tipo === 'estricto') {
+            id = 'lgt_reg-item_v-tab:stock-almacen_cmp-card-stock:control-estricto';
+        } else if (tipo === 'flexible') {
+            id = 'lgt_reg-item_v-tab:stock-almacen_cmp-card-stock:control-flexible';
+        } else {
+            id = 'lgt_reg-item_v-tab:stock-almacen_cmp-card-stock:sin-control-stock';
+        }
         await this.page.locator(`[id="${id}"]`).click();
     }
 
-    async llenarCantidadesStock(cantidadMaxima: string, cantidadMinima?: string): Promise<void> {
-        const inputMax = this.page
-            .locator('[id="lgt_cmp-card-almacen_v-step:cantidad"]')
-            .first();
+    async llenarCantidadesStock(cantidad: string): Promise<void> {
+        const cards = this.page.locator('.cmp-card-almacen');
+        const count = await cards.count();
 
-        await inputMax.click();
-        await inputMax.fill(cantidadMaxima);
-
-        if (cantidadMinima !== undefined) {
-            const inputMin = this.page
-                .locator('[id="lgt_cmp-card-almacen_v-step:cantidad"]')
-                .nth(1);
-            await inputMin.click();
-            await inputMin.fill(cantidadMinima);
+        for (let i = 0; i < count; i++) {
+            const input = cards.nth(i).locator('[id="lgt_cmp-card-almacen_v-step:cantidad"]');
+            await input.click();
+            await input.fill(cantidad);
         }
     }
 
     async configurarStock(config: StockConfig): Promise<void> {
         await this.irATabStock();
         await this.seleccionarControlStock(config.tipo);
-        await this.llenarCantidadesStock(config.cantidadMaxima, config.cantidadMinima);
+        await this.llenarCantidadesStock(config.cantidadMaxima);
     }
 
     async seleccionarTipoAfectacionIGV(opcionTexto: string): Promise<void> {
         await this.page.locator('.v-select-header-form-arrow.form.form-control').click();
-        await this.page.getByText(opcionTexto, { exact: true }).click();
+        await this.page.getByText(opcionTexto, {exact: true}).click();
     }
 
     async activarICBPER(): Promise<void> {
@@ -99,19 +97,19 @@ export class ProductoFormPage extends ItemFormBasePage {
             await this.page.locator('.v-select-header-form-arrow.invalid').click();
             await this.page
                 .locator('div')
-                .filter({ hasText: /^Sistema al valor$/ })
+                .filter({hasText: /^Sistema al valor$/})
                 .click();
         } else {
             await this.page
                 .locator('div')
-                .filter({ hasText: /^Tipo de sistema ISC$/ })
+                .filter({hasText: /^Tipo de sistema ISC$/})
                 .nth(2)
                 .click();
             await this.page.getByText('Aplicación al monto fijo').click();
         }
 
         const inputName = config.tipoSistema === 'Sistema al valor' ? '%' : 'S/';
-        const inputMonto = this.page.getByRole('textbox', { name: inputName, exact: true });
+        const inputMonto = this.page.getByRole('textbox', {name: inputName, exact: true});
         await inputMonto.click();
         await inputMonto.fill(config.monto);
     }
@@ -119,12 +117,14 @@ export class ProductoFormPage extends ItemFormBasePage {
     async esperarLoader(): Promise<void> {
         await this.page
             .locator('[id="cmn_cmp-overload:loading"]')
-            .waitFor({ state: 'visible', timeout: 2_000 })
-            .catch(() => { });
+            .waitFor({state: 'visible', timeout: 2_000})
+            .catch(() => {
+            });
         await this.page
             .locator('[id="cmn_cmp-overload:loading"]')
-            .waitFor({ state: 'hidden', timeout: 15_000 })
-            .catch(() => { });
+            .waitFor({state: 'hidden', timeout: 15_000})
+            .catch(() => {
+            });
     }
 
     async llenarInfoAdicional(
@@ -135,15 +135,15 @@ export class ProductoFormPage extends ItemFormBasePage {
         await this.irATabInfoAdicional();
 
         await this.page.locator(`.subcategoria > ${this.DROPDOWN_ARROW}`).first().click();
-        await this.page.getByText(categoria, { exact: true }).click();
+        await this.page.getByText(categoria, {exact: true}).click();
         await this.esperarLoader();
 
         await this.page.locator(`div:nth-child(2) > ${this.DROPDOWN_ARROW}`).click();
-        await this.page.getByText(subcategoria, { exact: true }).click();
+        await this.page.getByText(subcategoria, {exact: true}).click();
         await this.esperarLoader();
 
         await this.page.locator(`div:nth-child(3) > ${this.DROPDOWN_ARROW}`).click();
-        await this.page.getByText(marca, { exact: true }).click();
+        await this.page.getByText(marca, {exact: true}).click();
         await this.esperarLoader();
     }
 
@@ -153,20 +153,20 @@ export class ProductoFormPage extends ItemFormBasePage {
 
     async crearAtributoVariante(titulo: string, opciones: string[]): Promise<void> {
         await this.page.getByText('Añadir atributo').click();
-        await this.page.getByRole('button', { name: 'Crear nuevo atributo' }).click();
+        await this.page.getByRole('button', {name: 'Crear nuevo atributo'}).click();
 
-        const inputTitulo = this.page.getByRole('textbox', { name: 'Digita el título del nuevo' });
+        const inputTitulo = this.page.getByRole('textbox', {name: 'Digita el título del nuevo'});
         await inputTitulo.click();
         await inputTitulo.fill(titulo);
 
         for (let i = 0; i < opciones.length; i++) {
-            const inputOpcion = this.page.getByRole('textbox', { name: `Opción ${i + 1}` });
+            const inputOpcion = this.page.getByRole('textbox', {name: `Opción ${i + 1}`});
             await inputOpcion.click();
             await inputOpcion.fill(opciones[i]);
         }
 
-        await this.page.getByRole('button', { name: 'Crear atributo' }).click();
-        
+        await this.page.getByRole('button', {name: 'Crear atributo'}).click();
+
         await this.page.locator('.v-modal > div').first().click();
     }
 
@@ -210,7 +210,7 @@ export class ProductoFormPage extends ItemFormBasePage {
             await inputMin.click();
             await inputMin.fill(stock.cantidadMinima);
 
-            await this.page.getByRole('button', { name: 'Guardar stock' }).click();
+            await this.page.getByRole('button', {name: 'Guardar stock'}).click();
         }
     }
 
@@ -222,14 +222,14 @@ export class ProductoFormPage extends ItemFormBasePage {
         precioCompra: string;
         esPrimera: boolean;
     }): Promise<void> {
-        
+
         if (config.esPrimera) {
-            await this.page.getByText('AQUÍ', { exact: true }).first().click();
+            await this.page.getByText('AQUÍ', {exact: true}).first().click();
         } else {
-            await this.page.getByRole('button', { name: 'Agregar equivalencia' }).click();
+            await this.page.getByRole('button', {name: 'Agregar equivalencia'}).click();
         }
 
-        const inputNombre = this.page.getByRole('textbox', { name: 'Digita el nombre de la' });
+        const inputNombre = this.page.getByRole('textbox', {name: 'Digita el nombre de la'});
         await inputNombre.click();
         await inputNombre.fill(config.nombre);
 
@@ -239,18 +239,18 @@ export class ProductoFormPage extends ItemFormBasePage {
         await inputFactor.click();
         await inputFactor.fill(String(config.factor));
 
-        await this.page.locator('.v-select-header-base-form:visible').filter({ hasText: /^Seleccionar$/ }).first().click({ force: true });
+        await this.page.locator('.v-select-header-base-form:visible').filter({hasText: /^Seleccionar$/}).first().click({force: true});
         await this.page.getByText(config.tipoAfectacion).last().click();
 
-        const inputPrecioVenta = this.page.getByRole('textbox', { name: 'Monto final' }).first();
+        const inputPrecioVenta = this.page.getByRole('textbox', {name: 'Monto final'}).first();
         await inputPrecioVenta.click();
         await inputPrecioVenta.fill(config.precioVenta);
 
-        const inputPrecioCompra = this.page.getByRole('textbox', { name: 'Monto final' }).nth(1);
+        const inputPrecioCompra = this.page.getByRole('textbox', {name: 'Monto final'}).nth(1);
         await inputPrecioCompra.click();
         await inputPrecioCompra.fill(config.precioCompra);
 
-        await this.page.getByRole('button', { name: 'Crear Equivalencia' }).click();
+        await this.page.getByRole('button', {name: 'Crear Equivalencia'}).click();
     }
 
     async crearProducto(): Promise<void> {

@@ -4,9 +4,9 @@ import { BuscarYSeleccionarCliente } from '@screenplay/interactions/facturacion/
 import { FacturacionTargets } from '@screenplay/targets/facturacion/FacturacionTargets';
 import { CLIENTES } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Facturación — Incompatibilidad detracción y retención', () => {
+test.describe('FC-19 | Incompatibilidad detracción y retención', {tag: ['@facturacion', '@retencion']}, () => {
 
-    test('Valida que no se puedan activar detracción y retención simultáneamente', async ({ page, cajero }) => {
+    test('SC-01: Validar que no se puedan activar detracción y retención simultáneamente @FC-19.1', async ({ page, cajero }) => {
         await cajero.realiza(
             SeleccionarTipoComprobante('FACTURA'),
             BuscarYSeleccionarCliente(CLIENTES.EMPRESA_RUC_AUTO),

@@ -8,8 +8,8 @@ function indiceAlmacenStock(): number {
     return Number.isFinite(n) && n >= 0 ? n : 0;
 }
 
-test.describe('PS-7 | Actualización masiva — stock', {tag: ['@logistica', '@productos-stock']}, () => {
-    test('actualizar stock masivamente desde Excel @PS-7', async ({
+test.describe('PS-07 | Actualización masiva — stock', {tag: ['@logistica', '@productos-stock']}, () => {
+    test('SC-01: actualizar stock masivamente desde Excel @PS-07.1', async ({
                                                                 page,
                                                                 actualizacionMasiva,
                                                                 listaItems,

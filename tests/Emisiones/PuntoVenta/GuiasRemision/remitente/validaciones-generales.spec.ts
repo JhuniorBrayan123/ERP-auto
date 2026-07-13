@@ -4,7 +4,7 @@ import {GUIAS_DATA} from '@helpers/PuntoVenta/guias-data.helper';
 import {NavegarAGuiaRemitente} from '@task/PuntoVenta/guias-remision/NavegarAGuiaRemitente.task';
 import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
 
-test.describe('Guías de Remisión Remitente - Validaciones Generales', { tag: ['@guias', '@puntoventa'] }, () => {
+test.describe('GR-04 | Remitente — Validaciones Generales', {tag: ['@puntoventa', '@guias']}, () => {
     test.beforeEach(async ({ cajero }) => {
         await cajero.intentaRealizar(
             IniciarVentaEnCaja('caja-auto'),
@@ -12,7 +12,7 @@ test.describe('Guías de Remisión Remitente - Validaciones Generales', { tag: [
         );
     });
 
-    test('GRR-09: Validar campos obligatorios generales', async ({ cajero, page }) => {
+    test('SC-01: Validar campos obligatorios generales @GR-04.1', async ({ cajero, page }) => {
         await cajero.intentaRealizar(
             EmitirGuiaRemitenteConValidacionTask({
                 skipUbigeo: true
@@ -27,7 +27,7 @@ test.describe('Guías de Remisión Remitente - Validaciones Generales', { tag: [
         await expect(page.getByRole('textbox', { name: 'Kg' })).toHaveValue('0');
     });
 
-    test('GRR-07: Validar obligatorios por modalidad privada', async ({ cajero, page }) => {
+    test('SC-02: Validar obligatorios por modalidad privada @GR-04.2', async ({ cajero, page }) => {
         await cajero.intentaRealizar(
             EmitirGuiaRemitenteConValidacionTask({
                 motivo: GUIAS_DATA.MOTIVOS_TRASLADO.VENTA,
@@ -47,7 +47,7 @@ test.describe('Guías de Remisión Remitente - Validaciones Generales', { tag: [
         await expect(page.getByRole('textbox', { name: 'Ej. A23456723' })).toBeEmpty();
     });
 
-    test('GRR-08: Validar obligatorios por modalidad pública', async ({ cajero, page }) => {
+    test('SC-03: Validar obligatorios por modalidad pública @GR-04.3', async ({ cajero, page }) => {
         await cajero.intentaRealizar(
             EmitirGuiaRemitenteConValidacionTask({
                 motivo: GUIAS_DATA.MOTIVOS_TRASLADO.VENTA,

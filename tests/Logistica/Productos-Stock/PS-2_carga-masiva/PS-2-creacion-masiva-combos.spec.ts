@@ -8,10 +8,10 @@ import {
 const CONFIG = MASIVO_CONFIG.combos;
 
 test.describe(
-  "PS-2 | Carga masiva de combos desde Excel",
+  "PS-02 | Carga masiva de combos desde Excel",
   { tag: ["@logistica", "@productos-stock"] },
   () => {
-    test("crear combos masivamente desde excel @PS-2", async ({
+    test("SC-01: crear combos masivamente desde excel @PS-02.1", async ({
       page,
       cargaMasiva,
     }) => {

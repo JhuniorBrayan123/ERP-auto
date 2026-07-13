@@ -1,7 +1,7 @@
 import {test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('PV-03 | Factura con equivalencias, variantes y descuento global @PV-03', {tag: ['@punto-venta', '@factura', '@descuento']}, () => {
+test.describe('PV-03 | Factura con equivalencias, variantes y descuento global', {tag: ['@punto-venta', '@factura', '@descuento']}, () => {
 
     async function setupFacturaConClienteRUC(
         comprobantePage: any, clientePage: any, page: any,
@@ -12,7 +12,7 @@ test.describe('PV-03 | Factura con equivalencias, variantes y descuento global @
         await page.getByText(CLIENTES.EMPRESA_RUC_AUTO.textoSelector).click();
     }
 
-    test('Emitir factura con descuento ítem % y descuento global monto @PV-03.6', async ({
+    test('SC-01: Emitir factura con descuento ítem % y descuento global monto @PV-03.1', async ({
                                                                                              cajaPage,
                                                                                              comprobantePage,
                                                                                              emisionPage,
@@ -26,8 +26,8 @@ test.describe('PV-03 | Factura con equivalencias, variantes y descuento global @
         });
 
         await test.step('And: agregar dos ítems', async () => {
-            await emisionPage.buscarItem(ITEMS_PV.PRODUCTO_GRAVADO.codigo);
-            await emisionPage.seleccionarItem(ITEMS_PV.PRODUCTO_GRAVADO.nombre);
+            await emisionPage.buscarItem(ITEMS_PV.ESTRICTO_GRAVADO_4.codigo);
+            await emisionPage.seleccionarItem(ITEMS_PV.ESTRICTO_GRAVADO_4.nombre);
             await emisionPage.buscarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
             await emisionPage.seleccionarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
         });
@@ -73,7 +73,7 @@ test.describe('PV-03 | Factura con equivalencias, variantes y descuento global @
         });
     });
 
-    test('Visualizar precuenta de factura @PV-03.7', async ({
+    test('SC-02: Visualizar precuenta de factura @PV-03.2', async ({
                                                                 cajaPage, comprobantePage, emisionPage, page,
                                                             }) => {
         await test.step('Given: FACTURA con cliente RUC y producto', async () => {

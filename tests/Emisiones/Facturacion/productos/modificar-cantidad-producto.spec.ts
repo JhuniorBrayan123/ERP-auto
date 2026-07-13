@@ -6,9 +6,9 @@ import { IncrementarCantidadProducto } from '@screenplay/interactions/facturacio
 import { VentaGridTargets } from '@screenplay/targets/facturacion/VentaGridTargets';
 import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Facturación — Modificar cantidad de producto', () => {
+test.describe('FC-16 | Modificar cantidad de producto', {tag: ['@facturacion', '@productos']}, () => {
 
-    test('Incrementa cantidad de un producto en la grilla desde Vista Facturación', async ({ page, cajero }) => {
+    test('SC-01: Incrementar cantidad de un producto en la grilla desde Vista Facturación @FC-16.1', async ({ page, cajero }) => {
         await cajero.realiza(
             SeleccionarTipoComprobante('BOLETA'),
             BuscarYSeleccionarCliente(CLIENTES.PERSONA_DNI),

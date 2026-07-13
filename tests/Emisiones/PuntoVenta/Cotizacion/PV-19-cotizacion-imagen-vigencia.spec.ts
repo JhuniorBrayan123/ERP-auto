@@ -9,13 +9,13 @@ import { VistaPreviaCotizacion } from '@question/PuntoVenta/VistaPreviaCotizacio
 import { EmisionPage } from '@pages/PuntoVenta/EmisionPage';
 import { TIPOS_COMPROBANTE, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('PV-19: Opciones adicionales de Cotización', {tag: ['@punto-venta', '@cotizacion', '@opciones']}, () => {
+test.describe('PV-19 | Opciones adicionales de Cotización', {tag: ['@punto-venta', '@cotizacion', '@opciones']}, () => {
     test.beforeEach(async ({ page }) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(IniciarVentaEnCaja());
     });
 
-    test('C3: Cotización con imagen y descripción (Vista Previa) @PV-19.5', async ({ page }) => {
+    test('SC-01: Cotización con imagen y descripción (Vista Previa) @PV-19.1', async ({ page }) => {
         const cajero = Cajero.con(page);
 
         await cajero.intentaRealizar(
@@ -32,7 +32,7 @@ test.describe('PV-19: Opciones adicionales de Cotización', {tag: ['@punto-venta
         expect(await cajero.pregunta(VistaPreviaCotizacion.contieneDescripcion(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre))).toBe(true);
     });
 
-    test('C4: Cotización con vigencia de oferta configurada @PV-19.6', async ({ page }) => {
+    test('SC-02: Cotización con vigencia de oferta configurada @PV-19.2', async ({ page }) => {
         const cajero = Cajero.con(page);
 
         const opcionesDisponibles = [

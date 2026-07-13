@@ -18,7 +18,7 @@ import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@movimientos']}, () => {
 
-    test('Aumentar stock desde modal de producto @MS-12', async ({
+    test('SC-01: Aumentar stock desde modal de producto @MS-12.1', async ({
                                                                      movimientosNav,
                                                                      movimientoRapido,
                                                                      stockVerificacion,
@@ -47,7 +47,7 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
         });
     });
 
-    test('Aumentar stock con variante @MS-12', async ({
+    test('SC-02: Aumentar stock con variante @MS-12.2', async ({
                                                           movimientosNav,
                                                           movimientoRapido,
                                                           stockVerificacion,
@@ -72,7 +72,7 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
         });
     });
 
-    test('Disminuir stock desde modal de producto @MS-12', async ({
+    test('SC-03: Disminuir stock desde modal de producto @MS-12.3', async ({
                                                                       movimientosNav,
                                                                       movimientoRapido,
                                                                       stockVerificacion,
@@ -83,24 +83,24 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
             await movimientosNav.navegarAItemsProductos();
         });
 
-        await buscarItemEnListadoRapidoYAcceder(movimientoRapido, page, ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
+        await buscarItemEnListadoRapidoYAcceder(movimientoRapido, page, ITEMS_TEST.ESTRICTO_GRAVADO_5.codigo);
 
         await test.step('And: abrir menú y seleccionar disminuir stock', async () => {
-            await movimientoRapido.abrirMenuItemAcciones(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
+            await movimientoRapido.abrirMenuItemAcciones(ITEMS_TEST.ESTRICTO_GRAVADO_5.codigo);
             await movimientoRapido.clickDisminuirStockDesdeMenu();
         });
 
         await configurarYRetirarStockRapido(movimientoRapido, ALMACENES.VENTAS, MOTIVOS_SALIDA.VENTA, MOTIVOS_SALIDA.ABASTECIMIENTO, '5');
 
-        await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
+        await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.ESTRICTO_GRAVADO_5.codigo);
 
         await test.step('And: verificar kardex', async () => {
-            const kardexPage = await stockVerificacion.abrirKardexDesdeStock(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
+            const kardexPage = await stockVerificacion.abrirKardexDesdeStock(ITEMS_TEST.ESTRICTO_GRAVADO_5.codigo);
             const kardexPopup = new KardexVerificacionPage(kardexPage);
         });
     });
 
-    test('Disminuir stock con insumo @MS-12', async ({
+    test('SC-04: Disminuir stock con insumo @MS-12.4', async ({
                                                          movimientosNav,
                                                          movimientoRapido,
                                                          stockVerificacion,

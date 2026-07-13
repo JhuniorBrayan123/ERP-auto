@@ -17,7 +17,7 @@ import {esperarCargaOverlay} from "@utils/wait-helpers";
 import {Page} from "@playwright/test";
 
 
-test.describe('BC-18 | Abrir emisión de Factura desde NV', () => {
+test.describe('BC-18 | Abrir emisión de Factura desde NV', {tag: ['@busqueda']}, () => {
     let semillaNV: ComprobanteInfo;
 
     test.beforeAll(async ({browser}) => {
@@ -64,7 +64,7 @@ test.describe('BC-18 | Abrir emisión de Factura desde NV', () => {
         await page.goto('/punto-venta/comprobantes');
     });
 
-    test('BC-18 | Abrir emisión de Factura desde una Nota de Venta', async ({busquedaPage}) => {
+    test('SC-01: Abrir emisión de Factura desde una Nota de Venta @BC-18.1', async ({busquedaPage}) => {
         test.skip(!semillaNV, 'Semilla NV no disponible');
 
         const page = busquedaPage['page'];
@@ -94,7 +94,7 @@ test.describe('BC-18 | Abrir emisión de Factura desde NV', () => {
 });
 
 
-test.describe('BC-19 y BC-20 | Bitácora y Ver comprobante', () => {
+test.describe('BC-19 y BC-20 | Bitácora y Ver comprobante', {tag: ['@busqueda']}, () => {
     let semillaFactura: ComprobanteInfo;
 
     test.beforeAll(async ({browser}) => {
@@ -115,7 +115,7 @@ test.describe('BC-19 y BC-20 | Bitácora y Ver comprobante', () => {
         await page.goto('/punto-venta/comprobantes');
     });
 
-    test('BC-19 | Consultar bitácora de una boleta emitida', async ({busquedaPage}) => {
+    test('SC-01: Consultar bitácora de una boleta emitida @BC-19-20.1', async ({busquedaPage}) => {
         test.skip(!semillaFactura, 'Semilla boleta no disponible');
 
         const page = busquedaPage['page'];
@@ -147,7 +147,7 @@ test.describe('BC-19 y BC-20 | Bitácora y Ver comprobante', () => {
         });
     });
 
-    test('BC-20 | Ver comprobante en popup y validar datos opcionales', async ({busquedaPage}) => {
+    test('SC-02: Ver comprobante en popup y validar datos opcionales @BC-19-20.2', async ({busquedaPage}) => {
         test.skip(!semillaFactura?.datosOpcionales, 'Semilla con datos opcionales no disponible');
 
         await test.step('Given: filtrar la boleta semilla', async () => {
@@ -173,7 +173,7 @@ test.describe('BC-19 y BC-20 | Bitácora y Ver comprobante', () => {
         });
     });
 });
-test.describe('BC-21 | Clonar factura', () => {
+test.describe('BC-21 | Clonar factura', {tag: ['@busqueda']}, () => {
     let semillaParaClonar: ComprobanteInfo;
 
     test.beforeAll(async ({browser}) => {
@@ -217,7 +217,7 @@ test.describe('BC-21 | Clonar factura', () => {
         await page.goto('/punto-venta/comprobantes');
     });
 
-    test('BC-21 | Clonar una factura y validar que los datos se transfieren', async ({ busquedaPage }) => {
+    test('SC-01: Clonar una factura y validar que los datos se transfieren @BC-21.1', async ({ busquedaPage }) => {
         test.skip(!semillaParaClonar, 'Semilla para clonar no disponible');
 
         await test.step('Given: filtrar la factura semilla para clonar', async () => {

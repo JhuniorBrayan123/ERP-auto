@@ -12,14 +12,14 @@ import {BotonesPedidoCargadoVisibles} from '@question/PuntoVenta/BotonesPedidoCa
 import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
 
-test.describe('PV-20 Pedido - Búsqueda por correlativo', {tag: ['@punto-venta', '@pedido', '@busqueda']}, () => {
+test.describe('PV-20 | Búsqueda por correlativo', {tag: ['@punto-venta', '@pedido', '@busqueda']}, () => {
 
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(IniciarVentaEnCaja());
     });
 
-    test('P10: Buscar pedido por correlativo @PV-20.17', async ({page}) => {
+    test('SC-01: Buscar pedido por correlativo @PV-20.1', async ({page}) => {
         const cajero = Cajero.con(page);
 
         const pedido: EmisionOutputRef = { current: null };

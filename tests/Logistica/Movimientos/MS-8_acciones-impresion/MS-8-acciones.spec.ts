@@ -2,9 +2,9 @@ import {expect, test} from '@fixtures/Logistica/movimientos-fixture';
 import {DATOS_CONTACTO} from '@helpers/Logistica/movimiento-data.helper';
 import {navegarAIngresosYAbrirAccionesImpresion,} from '@helpers/Logistica/verificaciones-movimientos.helper';
 
-test.describe('MS-8 | Acciones de Movimientos @acciones', {tag: ['@logistica', '@movimientos']}, () => {
+test.describe('MS-08 | Acciones de Movimientos', {tag: ['@logistica', '@movimientos']}, () => {
 
-    test('Imprimir movimiento A4 @MS-8', async ({
+    test('SC-01: Imprimir movimiento A4 @MS-08.1', async ({
                                                     movimientosNav,
                                                     listadoMovimientos,
                                                 }) => {
@@ -14,7 +14,7 @@ test.describe('MS-8 | Acciones de Movimientos @acciones', {tag: ['@logistica', '
         });
     });
 
-    test('Imprimir movimiento Ticket @MS-8', async ({
+    test('SC-02: Imprimir movimiento Ticket @MS-08.2', async ({
                                                         movimientosNav,
                                                         listadoMovimientos,
                                                     }) => {
@@ -24,7 +24,7 @@ test.describe('MS-8 | Acciones de Movimientos @acciones', {tag: ['@logistica', '
         });
     });
 
-    test('Enviar movimiento por WhatsApp @MS-8', async ({
+    test('SC-03: Enviar movimiento por WhatsApp @MS-08.3', async ({
                                                             movimientosNav,
                                                             listadoMovimientos,
                                                         }) => {
@@ -35,7 +35,7 @@ test.describe('MS-8 | Acciones de Movimientos @acciones', {tag: ['@logistica', '
         });
     });
 
-    test('Enviar movimiento por Email @MS-8', async ({
+    test('SC-04: Enviar movimiento por Email @MS-08.4', async ({
                                                          movimientosNav,
                                                          listadoMovimientos,
                                                      }) => {
@@ -48,7 +48,7 @@ test.describe('MS-8 | Acciones de Movimientos @acciones', {tag: ['@logistica', '
         });
     });
 
-    test('Descargar PDF de movimiento @MS-8', async ({
+    test('SC-05: Descargar PDF de movimiento @MS-08.5', async ({
                                                          movimientosNav,
                                                          listadoMovimientos,
                                                      }) => {

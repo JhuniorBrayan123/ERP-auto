@@ -1,9 +1,9 @@
 import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('PV-04 | Vista previa de comprobante @PV-04', {tag: ['@punto-venta', '@boleta']}, () => {
+test.describe('PV-04 | Vista previa de comprobante', {tag: ['@punto-venta', '@boleta']}, () => {
 
-    test('Visualizar vista previa de una boleta antes de emitir @PV-04.5', async ({
+    test('SC-01: Visualizar vista previa de una boleta antes de emitir @PV-04.1', async ({
                                                                                       cajaPage,
                                                                                       comprobantePage,
                                                                                       emisionPage,

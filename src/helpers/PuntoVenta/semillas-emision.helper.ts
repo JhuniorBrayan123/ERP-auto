@@ -38,7 +38,7 @@ export async function crearCotizacionSemilla(page: Page): Promise<ComprobanteInf
         CLIENTES.PERSONA_DNI.documento,
         `DNIDoc. Nacional de Identidad${CLIENTES.PERSONA_DNI.documento}99999999${CLIENTES.PERSONA_DNI.nombre}`,
     );
-    await emision.clickPagar();
+    await emision.clickEmitir();
     const num = await post.obtenerCorrelativoDinamico();
     await emision.clickNuevaVenta();
     return buildInfo('Cotización', num, CLIENTES.PERSONA_DNI.nombre);

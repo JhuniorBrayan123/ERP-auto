@@ -1,21 +1,35 @@
 import {type Page} from '@playwright/test';
 import {ClientePage} from './ClientePage';
+import {type ConductorData, ConductorPage} from './ConductorPage';
 import type {
     CampoAdicionalPVConfig,
     ClienteSetupData,
     VendedorData,
-} from '../../helpers/PuntoVenta/punto-venta-setup-data.helper';
+} from '@helpers/PuntoVenta/punto-venta-setup-data.helper';
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 export class PuntoVentaSetupPage {
     private readonly clientePage: ClientePage;
+    private readonly conductorPage: ConductorPage;
 
     constructor(private readonly page: Page) {
         this.clientePage = new ClientePage(page);
+        this.conductorPage = new ConductorPage(page);
     }
 
     async navegarAVendedores(): Promise<void> {
         await this.page.getByText('Clientes y proveedores').click();
         await this.page.getByText('Vendedores').click();
+    }
+
+    async navegarAConductores(): Promise<void> {
+        await this.salirDeCaja();
+        await this.page.getByText('Clientes y proveedores').click();
+        await this.page.getByText('Conductores').click();
+    }
+
+    private async salirDeCaja(): Promise<void> {
+        await this.page.locator('.v-icon-back .icon').click();
     }
 
     async navegarANuevaVenta(): Promise<void> {
@@ -32,7 +46,7 @@ export class PuntoVentaSetupPage {
             '[id="pv_vendedores_cmp-lista-proveedores-filtro:filters_v-input:busqueda-compuesta"]',
         );
 
-        await inputBusqueda.waitFor({state: 'visible', timeout: 15_000});
+        await inputBusqueda.waitFor({state: 'visible', timeout: 30_000});
         await inputBusqueda.click();
         await inputBusqueda.fill(documento);
         await inputBusqueda.press('Enter');
@@ -130,7 +144,7 @@ export class PuntoVentaSetupPage {
         try {
             await this.page.locator('#undefined_delete').click({timeout: 2000});
         } catch {
-            
+
             await this.page.keyboard.press('Escape');
         }
 
@@ -138,16 +152,16 @@ export class PuntoVentaSetupPage {
     }
 
     async asegurarClienteDNI(datos: ClienteSetupData): Promise<boolean> {
-        console.log(`  🔍 Verificando cliente DNI ${datos.documento}...`);
+        console.log(`  Verificando cliente DNI ${datos.documento}...`);
 
         const existe = await this.clienteExiste(datos.documento);
 
         if (existe) {
-            console.log(`  ✅ Cliente DNI "${datos.documento}" ya existe`);
+            console.log(`  Cliente DNI "${datos.documento}" ya existe`);
             return false;
         }
 
-        console.log(`  🔧 Creando cliente DNI "${datos.documento}"...`);
+        console.log(`   Creando cliente DNI "${datos.documento}"...`);
         await this.clientePage.crearClienteDNI({
             documento: datos.documento,
             direccion: datos.direccion,
@@ -161,12 +175,12 @@ export class PuntoVentaSetupPage {
     }
 
     async asegurarClienteRUC(datos: ClienteSetupData): Promise<boolean> {
-        console.log(`  🔍 Verificando cliente RUC ${datos.documento}...`);
+        console.log(`  Verificando cliente RUC ${datos.documento}...`);
 
         const existe = await this.clienteExiste(datos.documento);
 
         if (existe) {
-            console.log(`  ✅ Cliente RUC "${datos.documento}" ya existe`);
+            console.log(`  Cliente RUC "${datos.documento}" ya existe`);
             return false;
         }
 
@@ -227,7 +241,7 @@ export class PuntoVentaSetupPage {
         await inputNombre.fill(campo.nombre);
 
         await this.page.getByText('Selecciona documentos').click();
-        await this.page.locator('.v-checkbox-default-label:visible').filter({ hasText: /^Todos$/ }).first().click();
+        await this.page.locator('.v-checkbox-default-label:visible').filter({hasText: /^Todos$/}).first().click();
         await this.page.locator('.v-multiselect-form-header .vector').click();
         await this.page.waitForTimeout(300);
 
@@ -243,7 +257,7 @@ export class PuntoVentaSetupPage {
         await inputNombre.fill(campo.nombre);
 
         await this.page.getByText('Selecciona documentos').click();
-        await this.page.locator('.v-checkbox-default-label:visible').filter({ hasText: /^Todos$/ }).first().click();
+        await this.page.locator('.v-checkbox-default-label:visible').filter({hasText: /^Todos$/}).first().click();
         await this.page.locator('.v-multiselect-form-header .vector').click();
         await this.page.waitForTimeout(300);
 
@@ -288,6 +302,32 @@ export class PuntoVentaSetupPage {
         }
 
         return creadoAlguno;
+    }
+
+    async asegurarConductor(datos: ConductorData): Promise<boolean> {
+        console.log(`   Verificando conductor ${datos.documento}...`);
+
+        await this.navegarAConductores();
+        await esperarCargaOverlay(this.page)
+        const existe = await this.conductorExiste(datos.documento);
+
+        if (existe) {
+            console.log(`  Conductor "${datos.nombre}" ya existe`);
+            return false;
+        }
+
+        console.log(`  Creando conductor "${datos.nombre}"...`);
+        await this.conductorPage.crearConductor(datos);
+        await this.page.waitForTimeout(2000);
+        console.log(`  Conductor "${datos.nombre}" creado exitosamente`);
+        return true;
+    }
+
+    private async conductorExiste(documento: string): Promise<boolean> {
+        await this.conductorPage.buscarConductor(documento);
+
+        const resultado = this.page.locator('tbody').getByText(documento).first();
+        return await resultado.isVisible().catch(() => false);
     }
 
     async guardarDatos(): Promise<void> {

@@ -17,9 +17,9 @@ import {
     verificarStockPorCodigoYClick
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
 
-test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movimientos']}, () => {
+test.describe('MS-02 | Salidas de Almacén', {tag: ['@logistica', '@movimientos']}, () => {
 
-    test('Registrar salida correctamente y reflejar disminución de stock @MS-2', async ({
+    test('SC-01: Registrar salida correctamente y reflejar disminución de stock @MS-02.1', async ({
                                                                                             movimientosNav,
                                                                                             registroMovimiento,
                                                                                             resultadoMovimiento,
@@ -29,18 +29,18 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
         await navegarASalidasYNuevo(movimientosNav, registroMovimiento);
 
         await definirAlmacenYMotivo(registroMovimiento, ALMACENES.AUTO, ALMACENES.VENTAS, MOTIVOS_SALIDA.VENTA, MOTIVOS_SALIDA.VENTA);
-        await buscarYSeleccionarItem(registroMovimiento, ITEMS_TEST.PRODUCTO_GRAVADO.codigo, ITEMS_TEST.PRODUCTO_GRAVADO.nombre);
+        await buscarYSeleccionarItem(registroMovimiento, ITEMS_TEST.ESTRICTO_GRAVADO_6.codigo, ITEMS_TEST.ESTRICTO_GRAVADO_6.nombre);
         await test.step('And: definir cantidad', async () => {
             await registroMovimiento.llenarCantidad('10');
         });
         await registrarSalidaYDespachar(registroMovimiento, resultadoMovimiento);
-        await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.PRODUCTO_GRAVADO.codigo, async () => {
+        await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.ESTRICTO_GRAVADO_6.codigo, async () => {
             await stockVerificacion.clickFlechaExpandir();
         });
         await verificarKardexDesdeStock(stockVerificacion, ALMACENES.VENTAS, PATRON_CODIGO.SALIDA);
     });
 
-    test('Registrar salida con insumo @MS-2', async ({
+    test('SC-02: Registrar salida con insumo @MS-02.2', async ({
                                                          movimientosNav,
                                                          registroMovimiento,
                                                          resultadoMovimiento,
@@ -65,7 +65,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
         });
     });
 
-    test('Registrar salida con variante @MS-2', async ({
+    test('SC-03: Registrar salida con variante @MS-02.3', async ({
                                                            movimientosNav,
                                                            registroMovimiento,
                                                            resultadoMovimiento,
@@ -95,7 +95,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
         });
     });
 
-    test('Registrar salida con ítem con equivalencia @MS-2', async ({
+    test('SC-04: Registrar salida con ítem con equivalencia @MS-02.4', async ({
                                                                         movimientosNav,
                                                                         registroMovimiento,
                                                                         resultadoMovimiento,
@@ -119,7 +119,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
         await verificarKardexDesdeStock(stockVerificacion, ALMACENES.VENTAS, PATRON_CODIGO.SALIDA);
     });
 
-    test('Despachar salida correctamente liberando stock comprometido @MS-2', async ({
+    test('SC-05: Despachar salida correctamente liberando stock comprometido @MS-02.5', async ({
                                                                                          movimientosNav,
                                                                                          registroMovimiento,
                                                                                          resultadoMovimiento,
@@ -165,7 +165,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
         });
     });
 
-    test('Registrar salida con datos adicionales @MS-2', async ({
+    test('SC-06: Registrar salida con datos adicionales @MS-02.6', async ({
                                                                     movimientosNav,
                                                                     registroMovimiento,
                                                                     datosOpcionales,
@@ -177,7 +177,7 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
 
         await navegarASalidasYNuevo(movimientosNav, registroMovimiento, false, true);
 
-        await buscarYSeleccionarItem(registroMovimiento, ITEMS_TEST.PRODUCTO_GRAVADO.codigo, ITEMS_TEST.PRODUCTO_GRAVADO.nombre);
+        await buscarYSeleccionarItem(registroMovimiento, ITEMS_TEST.ESTRICTO_GRAVADO_6.codigo, ITEMS_TEST.ESTRICTO_GRAVADO_6.nombre);
 
         await test.step('When: configurar datos opcionales', async () => {
             await datosOpcionales.abrirDatosOpcionales();
@@ -188,10 +188,10 @@ test.describe('MS-2 | Salidas de Almacén @salida', {tag: ['@logistica', '@movim
 
         await registrarSalidaYDespachar(registroMovimiento, resultadoMovimiento, true);
 
-        await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
+        await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.ESTRICTO_GRAVADO_6.codigo);
 
         await test.step('And: verificar kardex y datos opcionales', async () => {
-            const kardexPage = await stockVerificacion.abrirKardexDesdeStock(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
+            const kardexPage = await stockVerificacion.abrirKardexDesdeStock(ITEMS_TEST.ESTRICTO_GRAVADO_6.codigo);
             const kardexPopup = new KardexVerificacionPage(kardexPage);
             await kardexPage.waitForLoadState('networkidle');
             await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);

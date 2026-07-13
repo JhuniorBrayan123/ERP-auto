@@ -4,9 +4,9 @@ import { CrearNotaCreditoConVinculacion } from '@screenplay/tasks/notas-credito/
 import { ModalPostEmisionVisible } from '@screenplay/questions/notas/ModalPostEmisionVisible';
 import { CLIENTES, ITEMS_PV, TIPOS_DOCUMENTO_ORIGEN, TIPOS_COMPROBANTE } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Notas de Crédito — Motivos por Ítem @pv @nota-credito', () => {
+test.describe('NC-03 | Motivos por Ítem', {tag: ['@puntoventa', '@nota-credito']}, () => {
 
-  test('Emitir NC por descuento por ítem desde boleta @emision', async ({ facturador }) => {
+  test('SC-01: Emitir NC por descuento por ítem desde boleta @NC-03.1', async ({ facturador }) => {
     const origen = await facturador.realizaYObtiene(
       EmitirComprobanteOrigen({
         tipoComprobante: TIPOS_COMPROBANTE.BOLETA,
@@ -34,7 +34,7 @@ test.describe('Notas de Crédito — Motivos por Ítem @pv @nota-credito', () =>
     await expect(facturador.page.getByText(resultado.numero)).toBeVisible();
   });
 
-  test('Emitir NC por corrección de descripción desde boleta @emision', async ({ facturador }) => {
+  test('SC-02: Emitir NC por corrección de descripción desde boleta @NC-03.2', async ({ facturador }) => {
     const origen = await facturador.realizaYObtiene(
       EmitirComprobanteOrigen({
         tipoComprobante: TIPOS_COMPROBANTE.BOLETA,
@@ -62,7 +62,7 @@ test.describe('Notas de Crédito — Motivos por Ítem @pv @nota-credito', () =>
     await expect(facturador.page.getByText(resultado.numero)).toBeVisible();
   });
 
-  test('Emitir NC por bonificación desde boleta @emision', async ({ facturador }) => {
+  test('SC-03: Emitir NC por bonificación desde boleta @NC-03.3', async ({ facturador }) => {
     const origen = await facturador.realizaYObtiene(
       EmitirComprobanteOrigen({
         tipoComprobante: TIPOS_COMPROBANTE.BOLETA,
@@ -90,7 +90,7 @@ test.describe('Notas de Crédito — Motivos por Ítem @pv @nota-credito', () =>
     await expect(facturador.page.getByText(resultado.numero)).toBeVisible();
   });
 
-  test('Emitir NC por devolución por ítem SIN retorno de stock desde factura @emision', async ({ facturador }) => {
+  test('SC-04: Emitir NC por devolución por ítem SIN retorno de stock desde factura @NC-03.4', async ({ facturador }) => {
     const origen = await facturador.realizaYObtiene(
       EmitirComprobanteOrigen({
         tipoComprobante: TIPOS_COMPROBANTE.FACTURA,

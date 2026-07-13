@@ -15,14 +15,14 @@ import {BitacoraContiene} from '@question/PuntoVenta/BitacoraContiene.question';
 import {ModalPostEmision} from '@question/PuntoVenta/ModalPostEmision.question';
 import {AccionesPostEmisionCompletas} from '@question/PuntoVenta/AccionesPostEmisionCompletas.question';
 
-test.describe('PV-20 Pedido - Validaciones', {tag: ['@punto-venta', '@pedido', '@validaciones']}, () => {
+test.describe('PV-20 | Validaciones de Pedido', {tag: ['@punto-venta', '@pedido', '@validaciones']}, () => {
 
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(IniciarVentaEnCaja());
     });
 
-    test('P5: Validar que pedido no genera comprobante electrónico @PV-20.5', async ({page}) => {
+    test('SC-01: Validar que pedido no genera comprobante electrónico @PV-20.1', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             SeleccionarTipoComprobante(TIPOS_COMPROBANTE.PEDIDO),
@@ -51,7 +51,7 @@ test.describe('PV-20 Pedido - Validaciones', {tag: ['@punto-venta', '@pedido', '
         }
     });
 
-    test('P6: Validar acciones disponibles post-registro @PV-20.6', async ({page}) => {
+    test('SC-02: Validar acciones disponibles post-registro @PV-20.2', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             SeleccionarTipoComprobante(TIPOS_COMPROBANTE.PEDIDO),

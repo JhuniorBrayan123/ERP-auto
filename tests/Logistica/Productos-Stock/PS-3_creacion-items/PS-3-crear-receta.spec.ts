@@ -3,9 +3,9 @@ import {buildUniqueItemName} from '@helpers/Logistica/unique-name.helper';
 import type {InsumoReceta} from '@helpers/Logistica/item-data.types';
 import {confirmarCreacionEIrALista, prepararRecetaBase,} from '@helpers/Logistica/verificaciones-items.helper';
 
-test.describe('PS-3 | Creación de Recetas', {tag: ['@logistica', '@productos-stock']}, () => {
+test.describe('PS-03 | Creación de Recetas', {tag: ['@logistica', '@productos-stock']}, () => {
 
-    test('crear receta con insumos estrictos @PS-3', async ({
+    test('SC-01: crear receta con insumos estrictos @PS-03.1', async ({
                                                                 recetaForm,
                                                                 itemDetail,
                                                             }) => {
@@ -22,7 +22,7 @@ test.describe('PS-3 | Creación de Recetas', {tag: ['@logistica', '@productos-st
         });
     });
 
-    test('crear receta con insumos sin control @PS-3', async ({
+    test('SC-02: crear receta con insumos sin control @PS-03.2', async ({
                                                                   recetaForm,
                                                                   itemDetail,
                                                               }) => {
@@ -40,7 +40,7 @@ test.describe('PS-3 | Creación de Recetas', {tag: ['@logistica', '@productos-st
         });
     });
 
-    test('crear receta con productos estrictos @PS-3', async ({
+    test('SC-03: crear receta con productos estrictos @PS-03.3', async ({
                                                                   recetaForm,
                                                                   itemDetail,
                                                               }) => {

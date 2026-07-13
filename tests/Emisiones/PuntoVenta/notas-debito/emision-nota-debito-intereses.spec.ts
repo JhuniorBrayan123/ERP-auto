@@ -6,9 +6,9 @@ import { ModalPostEmisionVisible } from '@screenplay/questions/notas/ModalPostEm
 import { DetalleNotaDebitoCorrecto } from '@screenplay/questions/notas/DetalleNotaCorrecto';
 import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Notas de Débito — Intereses por Mora @pv @nota-debito', () => {
+test.describe('ND-02 | Intereses por Mora', {tag: ['@puntoventa', '@nota-debito']}, () => {
 
-  test('Emitir ND por intereses por mora vinculando una boleta @emision', async ({ facturador }) => {
+  test('SC-01: Emitir ND por intereses por mora vinculando una boleta @ND-02.1', async ({ facturador }) => {
     const origen = await facturador.realizaYObtiene(
       EmitirComprobanteOrigen({
         tipoComprobante: 'BOLETA',
@@ -33,7 +33,7 @@ test.describe('Notas de Débito — Intereses por Mora @pv @nota-debito', () => 
     await expect(facturador.page.getByText(resultado.numero)).toBeVisible();
   });
 
-  test('Emitir ND por intereses por mora vinculando una factura @emision', async ({ facturador }) => {
+  test('SC-02: Emitir ND por intereses por mora vinculando una factura @ND-02.2', async ({ facturador }) => {
     const origen = await facturador.realizaYObtiene(
       EmitirComprobanteOrigen({
         tipoComprobante: 'FACTURA',
@@ -57,7 +57,7 @@ test.describe('Notas de Débito — Intereses por Mora @pv @nota-debito', () => 
     expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
   });
 
-  test('Consultar ND por intereses y verificar detalle en vista comprobante @consulta', async ({ facturador }) => {
+  test('SC-03: Consultar ND por intereses y verificar detalle en vista comprobante @ND-02.3', async ({ facturador }) => {
     const origen = await facturador.realizaYObtiene(
       EmitirComprobanteOrigen({
         tipoComprobante: 'BOLETA',

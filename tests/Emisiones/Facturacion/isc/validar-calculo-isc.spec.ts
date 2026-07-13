@@ -7,9 +7,9 @@ import { TotalesDeVenta } from '@screenplay/questions/facturacion/TotalesDeVenta
 import { EmitirComprobanteSimple } from '@screenplay/tasks/facturacion/EmitirComprobanteSimple';
 import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Facturación — Cálculo de ISC', () => {
+test.describe('FC-13 | Cálculo de ISC', {tag: ['@facturacion', '@isc']}, () => {
 
-    test('Muestra columna ISC y valor calculado en la grilla para producto con ISC', async ({ cajero }) => {
+    test('SC-01: Mostrar columna ISC y valor calculado en la grilla para producto con ISC @FC-13.1', async ({ cajero }) => {
         await cajero.realiza(
             SeleccionarTipoComprobante('BOLETA'),
             BuscarYSeleccionarCliente(CLIENTES.PERSONA_DNI),
@@ -25,7 +25,7 @@ test.describe('Facturación — Cálculo de ISC', () => {
         expect(parseFloat(subtotal.replace(',', '.'))).toBeGreaterThan(0);
     });
 
-    test('Refleja ISC proporcional al aumentar cantidad del producto', async ({ cajero }) => {
+    test('SC-02: Reflejar ISC proporcional al aumentar cantidad del producto @FC-13.2', async ({ cajero }) => {
         await cajero.realiza(
             SeleccionarTipoComprobante('BOLETA'),
             BuscarYSeleccionarCliente(CLIENTES.PERSONA_DNI),
@@ -39,7 +39,7 @@ test.describe('Facturación — Cálculo de ISC', () => {
         expect(parseFloat(iscValor.replace(',', '.'))).toBeGreaterThan(0);
     });
 
-    test('Emite Boleta con producto ISC correctamente', async ({ cajero }) => {
+    test('SC-03: Emitir Boleta con producto ISC correctamente @FC-13.3', async ({ cajero }) => {
         const resultado = await cajero.realizaYObtiene(
             EmitirComprobanteSimple({
                 tipoComprobante: 'BOLETA',

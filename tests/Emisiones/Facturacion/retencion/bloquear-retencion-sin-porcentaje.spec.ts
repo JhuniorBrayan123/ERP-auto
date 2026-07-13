@@ -5,9 +5,9 @@ import {BuscarYAgregarProducto} from '@screenplay/interactions/facturacion/Busca
 import {FacturacionTargets} from '@screenplay/targets/facturacion/FacturacionTargets';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Facturación — Bloquear retención sin porcentaje', () => {
+test.describe('FC-17 | Bloquear retención sin porcentaje', {tag: ['@facturacion', '@retencion']}, () => {
 
-    test('Bloquea la emisión con retención cuando no se ingresa un porcentaje', async ({page, cajero}) => {
+    test('SC-01: Bloquear la emisión con retención cuando no se ingresa un porcentaje @FC-17.1', async ({page, cajero}) => {
         await cajero.realiza(
             SeleccionarTipoComprobante('FACTURA'),
             BuscarYSeleccionarCliente(CLIENTES.EMPRESA_RUC_AUTO),

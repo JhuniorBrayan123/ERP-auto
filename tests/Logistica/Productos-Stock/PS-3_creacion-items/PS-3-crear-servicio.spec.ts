@@ -2,9 +2,9 @@ import {test} from '@fixtures/Logistica/items-fixture';
 import {buildUniqueItemName} from '@helpers/Logistica/unique-name.helper';
 import {confirmarCreacionEIrALista} from '@helpers/Logistica/verificaciones-items.helper';
 
-test.describe('PS-3 | Creación de Servicios', {tag: ['@logistica', '@productos-stock']}, () => {
+test.describe('PS-03 | Creación de Servicios', {tag: ['@logistica', '@productos-stock']}, () => {
 
-    test('crear servicio gravado @PS-3', async ({servicioForm, itemDetail}) => {
+    test('SC-01: crear servicio gravado @PS-03.1', async ({servicioForm, itemDetail}) => {
         const nombre = buildUniqueItemName('servicio', 'gravado');
 
         await test.step('Iniciar creación de servicio', async () => {
@@ -28,7 +28,7 @@ test.describe('PS-3 | Creación de Servicios', {tag: ['@logistica', '@productos-
         });
     });
 
-    test('crear servicio exonerado @PS-3', async ({servicioForm, itemDetail}) => {
+    test('SC-02: crear servicio exonerado @PS-03.2', async ({servicioForm, itemDetail}) => {
         const nombre = buildUniqueItemName('servicio', 'exonerado');
 
         await test.step('Iniciar creación de servicio', async () => {

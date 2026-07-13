@@ -4,13 +4,13 @@
 
 111222 = item sin stock estricto  // este es nuevo item creacion manual Se usa para movimientos tambien
 
-313131= item con variante flexible //Se usa para movimientos tambien
+await page.getByRole('textbox', { name: 'Escanea o busca por nombre, c' }).fill('313131');= item con variante flexible //Se usa para movimientos tambien
 131313 = item variante estricto gravado
 333333 =item variante sin control gravado
 
 101010 = item equivalente estricto
 202020 = item equivalente flexible //Se usa para movimientos tambien
-303030 = item ewquivalente sin control
+303030 = item equivalente sin control
 
 454545 = item selector gravado estricto con item manual
 545454 = item selector flexible
@@ -72,6 +72,17 @@ Exportación
 Se debe crear vendedor para la emision con datos adicionales
 se debe crear los campos adicionales sobre los datos adicionales tal como se hizo con los movimientos
 
+111112 = Item control estricto gravado 1
+111113 = Item control estricto gravado 2
+111114 = Item control estricto gravado 3
+111115 = Item control estricto gravado 4
+111116 = Item control estricto gravado 5
+111117 = Item control estricto gravado 6
+111118 = Item control estricto gravado 7
+111119 = Item control estricto gravado 8
+111120 = Item control estricto gravado 9
+111121 = Item control estricto gravado 10
+
 Mios:
 {
   "RUN_ID": "60221",
@@ -89,6 +100,8 @@ Mios:
   "LISTA_ITEMS": "443444-60221",
   "ITEM_SELECTOR_GRAVADO": "454545",
   "ITEM_SELECTOR_FLEXIBLE": "545454",
+  "ITEM_EQUIVALENTE_SIN_CONTROL": "303030",
+  "ITEM_VARIANTE_SIN_CONTROL": "333333",
   "SOLO_EN_AUTO": "83838383",
   "SOLO_EN_VENTAS": "38383838",
   "COMBO_EXONERADO": "222222",

@@ -8,9 +8,9 @@ import {FacturacionTargets} from '@screenplay/targets/facturacion/FacturacionTar
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 
-test.describe('Facturación — Descuento por ítem en Factura', () => {
+test.describe('FC-07 | Descuento por Ítem en Factura', {tag: ['@facturacion', '@descuentos']}, () => {
 
-    test('Emite factura con descuento por ítem desde Vista Facturación', async ({page, cajero}) => {
+    test('SC-01: Emitir factura con descuento por ítem desde Vista Facturación @FC-07.1', async ({page, cajero}) => {
         await cajero.realiza(
             SeleccionarTipoComprobante('FACTURA'),
             BuscarYSeleccionarCliente(CLIENTES.EMPRESA_RUC_AUTO),

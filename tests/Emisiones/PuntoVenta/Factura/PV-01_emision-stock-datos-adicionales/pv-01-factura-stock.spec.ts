@@ -1,7 +1,7 @@
 import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01', {tag: ['@punto-venta', '@factura', '@stock']}, () => {
+test.describe('PV-01 | Emisión con control de stock y datos adicionales', {tag: ['@punto-venta', '@factura', '@stock']}, () => {
 
     async function setupFacturaConClienteRUC(
         comprobantePage: any, clientePage: any, page: any,
@@ -12,7 +12,7 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
         await page.getByText(CLIENTES.EMPRESA_RUC_AUTO.textoSelector).click();
     }
 
-    test('Emitir factura con producto con control de stock @PV-01.7', async ({
+    test('SC-01: Emitir factura con producto con control de stock @PV-01.1', async ({
                                                                                  cajaPage,
                                                                                  comprobantePage,
                                                                                  emisionPage,
@@ -74,7 +74,7 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
         });
     });
 
-    test('Emitir factura con ítem afecto a ISC @PV-01.9', async ({
+    test('SC-02: Emitir factura con ítem afecto a ISC @PV-01.2', async ({
                                                                      cajaPage,
                                                                      comprobantePage,
                                                                      emisionPage,
@@ -116,7 +116,7 @@ test.describe('PV-01 | Emisión con control de stock y datos adicionales @PV-01'
         });
     });
 
-    test('Emitir factura con ítem afecto a ICBPER @PV-01.10', async ({
+    test('SC-03: Emitir factura con ítem afecto a ICBPER @PV-01.3', async ({
                                                                          cajaPage,
                                                                          comprobantePage,
                                                                          emisionPage,

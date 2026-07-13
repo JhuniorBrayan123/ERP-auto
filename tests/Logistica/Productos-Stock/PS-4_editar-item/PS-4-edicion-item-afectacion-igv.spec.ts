@@ -1,9 +1,9 @@
 import {expect, test} from '@fixtures/Logistica/edicion-clonado-fixture';
 import {getRandomAffectationType} from '@helpers/Logistica/afectacion-igv.helper';
 
-test.describe('Edición de tipo de afectación de item', () => {
+test.describe('PS-04 | Edición de tipo de afectación de item', {tag: ['@logistica', '@productos-stock']}, () => {
 
-    test('cambiar el tipo de afectación IGV de un producto existente', async ({
+    test('SC-01: cambiar el tipo de afectación IGV de un producto existente @PS-04.1', async ({
                                                                                   page,
                                                                                   listaItems,
                                                                                   edicionItem,

@@ -11,13 +11,13 @@ import {BitacoraComprobante} from '@question/PuntoVenta/BitacoraComprobante.ques
 import {CLIENTES, ITEMS_PV, TIPOS_COMPROBANTE} from '@helpers/PuntoVenta/emision-data.helper';
 import {EmisionResult} from "@app-types/emision.types";
 
-test.describe('PV-20: Registro de Pedido Básico', {tag: ['@punto-venta', '@pedido', '@emision']}, () => {
+test.describe('PV-20 | Registro de Pedido Básico', {tag: ['@punto-venta', '@pedido', '@emision']}, () => {
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(IniciarVentaEnCaja());
     });
 
-    test('P1: Registrar pedido con cliente @PV-20.1', async ({page}) => {
+    test('SC-01: Registrar pedido con cliente @PV-20.1', async ({page}) => {
         const cajero = Cajero.con(page);
         const resultadoPedido = {current: null as EmisionResult | null};
         await cajero.intentaRealizar(
@@ -32,7 +32,7 @@ test.describe('PV-20: Registro de Pedido Básico', {tag: ['@punto-venta', '@pedi
         expect(await cajero.pregunta(BitacoraComprobante.noMuestraDescargoInventario(resultadoPedido))).toBe(true);
     });
 
-    test('P2: Pedido no afecta stock físico @PV-20.2', async ({page}) => {
+    test('SC-02: Pedido no afecta stock físico @PV-20.2', async ({page}) => {
         const cajero = Cajero.con(page);
         const resultadoPedido = {current: null as EmisionResult | null};
         await cajero.intentaRealizar(
@@ -45,7 +45,7 @@ test.describe('PV-20: Registro de Pedido Básico', {tag: ['@punto-venta', '@pedi
         expect(await cajero.pregunta(BitacoraComprobante.noMuestraDescargoInventario(resultadoPedido))).toBe(true);
     });
 
-    test('P17: Registrar pedido con cliente sin documento @PV-20.3', async ({page}) => {
+    test('SC-03: Registrar pedido con cliente sin documento @PV-20.3', async ({page}) => {
         const cajero = Cajero.con(page);
         await cajero.intentaRealizar(
             SeleccionarTipoComprobante(TIPOS_COMPROBANTE.PEDIDO),
@@ -58,7 +58,7 @@ test.describe('PV-20: Registro de Pedido Básico', {tag: ['@punto-venta', '@pedi
         expect(await cajero.pregunta(ModalPostEmision.tieneCorrelativo())).toBe(true);
     });
 
-    test('P18: Registrar pedido con productos sin stock @PV-20.4', async ({page}) => {
+    test('SC-04: Registrar pedido con productos sin stock @PV-20.4', async ({page}) => {
         const cajero = Cajero.con(page);
         const resultadoPedido = {current: null as EmisionResult | null};
         await cajero.intentaRealizar(

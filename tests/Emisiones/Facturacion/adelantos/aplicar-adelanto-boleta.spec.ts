@@ -3,9 +3,9 @@ import { EmitirDocumentoDeAdelanto } from '@screenplay/tasks/facturacion/EmitirD
 import { AplicarAdelantoAVenta } from '@screenplay/tasks/facturacion/AplicarAdelantoAVenta';
 import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Facturación — Aplicar Adelanto a Boleta', () => {
+test.describe('FC-24 | Aplicar Adelanto a Boleta', {tag: ['@facturacion', '@adelantos']}, () => {
 
-    test('Aplica un adelanto de Boleta a una nueva venta de Boleta', async ({ cajero }) => {
+    test('SC-01: Aplicar un adelanto de Boleta a una nueva venta de Boleta @FC-24.1', async ({ cajero }) => {
         const adelanto = await cajero.realizaYObtiene(
             EmitirDocumentoDeAdelanto({
                 tipoComprobante: 'BOLETA',

@@ -5,9 +5,9 @@ import { AbrirMenuCaja, RegresarANuevaVenta } from '@screenplay/tasks/caja/Abrir
 import { MenuCajaTargets } from '@screenplay/targets/caja/MenuCajaTargets';
 import { UsarNavegador } from '@abilities/usarnavegador';
 
-test.describe('Menú lateral de Caja', () => {
+test.describe('CC-07 | Menú lateral', {tag: ['@cierre-caja']}, () => {
 
-    test('validar apertura del menú lateral y opciones de movimientos de dinero', async ({ cajero }) => {
+    test('SC-01: Validar apertura del menú lateral y opciones de movimientos de dinero @CC-07.1', async ({ cajero }) => {
         
         await cajero.realiza(AbrirMenuCaja());
 
@@ -23,7 +23,7 @@ test.describe('Menú lateral de Caja', () => {
         await cajero.realiza(RegresarANuevaVenta());
     });
 
-    test('validar opciones de comprobantes y módulos disponibles en el menú', async ({ cajero }) => {
+    test('SC-02: Validar opciones de comprobantes y módulos disponibles en el menú @CC-07.2', async ({ cajero }) => {
         
         await cajero.realiza(AbrirMenuCaja());
 

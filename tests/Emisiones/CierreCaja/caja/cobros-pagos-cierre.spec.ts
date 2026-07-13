@@ -11,10 +11,10 @@ import {
 import { CobroVisibleEnCierre } from '@screenplay/questions/cierre-caja/MovimientoVisibleEnCierre';
 import { UsarNavegador } from '@abilities/usarnavegador';
 
-test.describe('Cobros y Pagos en Cierre de Caja', () => {
+test.describe('CC-02 | Cobros y Pagos', {tag: ['@cierre-caja']}, () => {
     test.describe.configure({ mode: 'serial' });
 
-    test('registrar cobro de venta a crédito y verificar reflejo en cierre de caja', async ({
+    test('SC-01: Registrar cobro de venta a crédito y verificar reflejo en cierre de caja @CC-02.1', async ({
         cajero,
         ventaCreditoBoleta,
     }) => {
@@ -65,7 +65,7 @@ test.describe('Cobros y Pagos en Cierre de Caja', () => {
         await cajero.realiza(RegresarANuevaVenta());
     });
 
-    test('validar que el cobro aparece en la sección Cobros con datos correctos', async ({
+    test('SC-02: Validar que el cobro aparece en la sección Cobros con datos correctos @CC-02.2', async ({
         cajero,
         ventaCreditoFactura,
     }) => {

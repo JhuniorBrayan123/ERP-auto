@@ -19,6 +19,10 @@ export class EmisionPage {
         return this.page.getByRole('button', {name: 'PAGAR'});
     }
 
+    private get btnEmitir(): Locator {
+        return this.page.getByRole('button', {name: 'EMITIR'});
+    }
+
     private get btnMontoExacto(): Locator {
         return this.page.getByRole('button', {name: 'Monto exacto'});
     }
@@ -80,7 +84,8 @@ export class EmisionPage {
         try {
             await this.searchInput.click();
             await this.searchInput.fill(codigo);
-            await esperarDebounce(this.page, 800, 'Debounce del buscador de items en ERP');
+            await this.searchInput.press('Enter');
+            await esperarCargaOverlay(this.page, 30_000);
         } catch (error) {
             await throwFunctionalError({
                 page: this.page,
@@ -305,6 +310,10 @@ export class EmisionPage {
 
     async clickPagar(): Promise<void> {
         await this.btnPagar.click();
+    }
+
+    async clickEmitir(): Promise<void> {
+        await this.btnEmitir.click();
     }
 
     async clickMontoExacto(): Promise<void> {

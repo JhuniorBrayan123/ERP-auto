@@ -1,7 +1,7 @@
 import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('PV-00 | Validaciones generales de emisión — Factura @PV-00', {tag: ['@punto-venta', '@factura', '@validaciones']}, () => {
+test.describe('PV-00 | Validaciones generales de emisión — Factura', {tag: ['@punto-venta', '@factura', '@validaciones']}, () => {
 
     async function setupFacturaConClienteRUC(
         comprobantePage: any, clientePage: any, page: any,
@@ -12,7 +12,7 @@ test.describe('PV-00 | Validaciones generales de emisión — Factura @PV-00', {
         await page.getByText(CLIENTES.EMPRESA_RUC_AUTO.textoSelector).click();
     }
 
-    test('Bloquear factura sin cliente RUC @PV-00.3', async ({
+    test('SC-01: Bloquear factura sin cliente RUC @PV-00.1', async ({
                                                                 cajaPage, comprobantePage, emisionPage, page,
                                                             }) => {
         await test.step('Given: caja abierta, FACTURA sin cliente', async () => {
@@ -37,7 +37,7 @@ test.describe('PV-00 | Validaciones generales de emisión — Factura @PV-00', {
         });
     });
 
-    test('Bloquear emisión de factura con fecha fuera del rango permitido @PV-00.4', async ({
+    test('SC-02: Bloquear emisión de factura con fecha fuera del rango permitido @PV-00.2', async ({
                                                                                                 cajaPage,
                                                                                                 comprobantePage,
                                                                                                 emisionPage,

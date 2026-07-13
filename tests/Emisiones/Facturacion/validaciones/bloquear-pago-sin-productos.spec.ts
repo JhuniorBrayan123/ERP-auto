@@ -3,9 +3,9 @@ import { SeleccionarTipoComprobante } from '@screenplay/interactions/facturacion
 import { BuscarYSeleccionarCliente } from '@screenplay/interactions/facturacion/BuscarYSeleccionarCliente';
 import { CLIENTES } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Facturación — Bloquear pago sin productos', () => {
+test.describe('FC-20 | Bloquear pago sin productos', {tag: ['@facturacion', '@validaciones']}, () => {
 
-    test('Bloquea el pago cuando no hay ningún producto en la grilla', async ({ page, cajero }) => {
+    test('SC-01: Bloquear el pago cuando no hay ningún producto en la grilla @FC-20.1', async ({ page, cajero }) => {
         await cajero.realiza(
             SeleccionarTipoComprobante('BOLETA'),
             BuscarYSeleccionarCliente(CLIENTES.PERSONA_DNI),

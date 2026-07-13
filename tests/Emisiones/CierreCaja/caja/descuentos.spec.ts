@@ -14,9 +14,9 @@ import { ClientePage } from '@pages/PuntoVenta/ClientePage';
 import { ComprobantePage } from '@pages/PuntoVenta/ComprobantePage';
 import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Descuentos en Cierre de Caja', () => {
+test.describe('CC-04 | Descuentos', {tag: ['@cierre-caja']}, () => {
 
-    test('validar comprobante con descuento global aparece en pestaña Descuentos', async ({ cajero, page }) => {
+    test('SC-01: Validar comprobante con descuento global aparece en pestaña Descuentos @CC-04.1', async ({ cajero, page }) => {
         
         const emisionPage = new EmisionPage(page);
         const clientePage = new ClientePage(page);

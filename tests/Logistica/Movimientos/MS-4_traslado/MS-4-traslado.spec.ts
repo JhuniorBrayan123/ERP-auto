@@ -18,9 +18,9 @@ import {
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
 import {SucursalesPage} from "@pages/Logistica/SucursalesPage";
 
-test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@movimientos']}, () => {
+test.describe('MS-04 | Traslados de Almacén', {tag: ['@logistica', '@movimientos']}, () => {
 
-    test('Registrar traslado correctamente @MS-4', async ({
+    test('SC-01: Registrar traslado correctamente @MS-04.1', async ({
                                                               movimientosNav,
                                                               registroMovimiento,
                                                               resultadoMovimiento,
@@ -30,7 +30,7 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
 
         await navegarATrasladosYNuevo(movimientosNav, registroMovimiento);
 
-        await buscarYSeleccionarItem(registroMovimiento, ITEMS_TEST.PRODUCTO_GRAVADO.codigo, ITEMS_TEST.PRODUCTO_GRAVADO.nombre);
+        await buscarYSeleccionarItem(registroMovimiento, ITEMS_TEST.ESTRICTO_GRAVADO_7.codigo, ITEMS_TEST.ESTRICTO_GRAVADO_7.nombre);
 
         await test.step('When: definir cantidad', async () => {
             await registroMovimiento.llenarCantidad('100');
@@ -38,12 +38,12 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
 
         await registrarTrasladoEIrAlListado(registroMovimiento, resultadoMovimiento);
 
-        await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
+        await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.ESTRICTO_GRAVADO_7.codigo);
 
         await verificarKardexDesdeStock(stockVerificacion, ALMACENES.AUTO, PATRON_CODIGO.TRASLADO, true);
     });
 
-    test('Validar traslado con mismo almacén @MS-4', async ({
+    test('SC-02: Validar traslado con mismo almacén @MS-04.2', async ({
                                                                 movimientosNav,
                                                                 registroMovimiento,
                                                                 page,
@@ -68,7 +68,7 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
         });
     });
 
-    test('Registrar traslado con variante @MS-4', async ({
+    test('SC-03: Registrar traslado con variante @MS-04.3', async ({
                                                              movimientosNav,
                                                              registroMovimiento,
                                                              resultadoMovimiento,
@@ -105,7 +105,7 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
         });
     });
 
-    test('Registrar traslado con datos adicionales @MS-4', async ({
+    test('SC-04: Registrar traslado con datos adicionales @MS-04.4', async ({
                                                                       movimientosNav,
                                                                       registroMovimiento,
                                                                       datosOpcionales,
@@ -117,8 +117,8 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
         await navegarATrasladosYNuevo(movimientosNav, registroMovimiento);
 
         await test.step('When: buscar ítem', async () => {
-            await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
-            await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.PRODUCTO_GRAVADO.nombre);
+            await registroMovimiento.buscarItem(ITEMS_TEST.ESTRICTO_GRAVADO_7.codigo);
+            await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.ESTRICTO_GRAVADO_7.nombre);
         });
         await test.step('And: configurar datos opcionales', async () => {
             await datosOpcionales.abrirDatosOpcionales();
@@ -132,12 +132,12 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
 
         await registrarTrasladoEIrAlListado(registroMovimiento, resultadoMovimiento);
 
-        await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.PRODUCTO_GRAVADO.codigo, async () => {
+        await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.ESTRICTO_GRAVADO_7.codigo, async () => {
             
         });
 
         await test.step('And: verificar kardex y datos opcionales', async () => {
-            const kardexPage = await stockVerificacion.abrirKardexDesdeStock(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
+            const kardexPage = await stockVerificacion.abrirKardexDesdeStock(ITEMS_TEST.ESTRICTO_GRAVADO_7.codigo);
             const kardexPopup = new KardexVerificacionPage(kardexPage);
             await kardexPage.waitForLoadState('networkidle');
             await kardexPopup.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
@@ -148,7 +148,7 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
         });
     });
 
-    test('Registrar traslado por confirmar + configuración @MS-4', async ({
+    test('SC-05: Registrar traslado por confirmar + configuración @MS-04.5', async ({
                                                                               movimientosNav,
                                                                               registroMovimiento,
                                                                               resultadoMovimiento,
@@ -167,8 +167,8 @@ test.describe('MS-4 | Traslados de Almacén @traslado', {tag: ['@logistica', '@m
         await test.step('When: registrar traslado', async () => {
             await movimientosNav.navegarATraslados();
             await registroMovimiento.clickAgregarTraslado();
-            await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
-            await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.PRODUCTO_GRAVADO.nombre);
+            await registroMovimiento.buscarItem(ITEMS_TEST.ESTRICTO_GRAVADO_7.codigo);
+            await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.ESTRICTO_GRAVADO_7.nombre);
         });
 
         await registrarTrasladoEIrAlListado(registroMovimiento, resultadoMovimiento);

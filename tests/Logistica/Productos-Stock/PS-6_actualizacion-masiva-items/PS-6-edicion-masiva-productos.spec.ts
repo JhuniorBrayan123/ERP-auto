@@ -8,8 +8,8 @@ import {verificarItemActualizadoEnDetalle} from '@helpers/Logistica/verificacion
 
 const CONFIG = ACTUALIZACION_DATOS_CONFIG.productos;
 
-test.describe('PS-6 | Actualización masiva — datos de productos', {tag: ['@logistica', '@productos-stock']}, () => {
-    test('actualizar datos de productos masivamente desde Excel @PS-6', async ({
+test.describe('PS-06 | Actualización masiva — datos de productos', {tag: ['@logistica', '@productos-stock']}, () => {
+    test('SC-01: actualizar datos de productos masivamente desde Excel @PS-06.1', async ({
                                                                              page,
                                                                              actualizacionMasiva,
                                                                              listaItems,

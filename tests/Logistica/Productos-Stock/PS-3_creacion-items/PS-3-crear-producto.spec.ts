@@ -3,10 +3,10 @@ import {buildUniqueItemName} from "@helpers/Logistica/unique-name.helper";
 import {confirmarCreacionEIrALista, prepararProductoBase,} from "@helpers/Logistica/verificaciones-items.helper";
 
 test.describe(
-    "PS-3 | Creación de Productos",
+    "PS-03 | Creación de Productos",
     {tag: ["@logistica", "@productos-stock"]},
     () => {
-        test("crear producto gravado con control estricto @PS-3", async ({
+        test("SC-01: crear producto gravado con control estricto @PS-03.1", async ({
                                                                              productoForm,
                                                                              itemDetail,
                                                                          }) => {
@@ -48,7 +48,7 @@ test.describe(
             });
         });
 
-        test("crear producto gravado sin control de stock @PS-3", async ({
+        test("SC-02: crear producto gravado sin control de stock @PS-03.2", async ({
                                                                              productoForm,
                                                                              itemDetail,
                                                                          }) => {
@@ -80,7 +80,7 @@ test.describe(
             });
         });
 
-        test("crear producto gravado con control flexible @PS-3", async ({
+        test("SC-03: crear producto gravado con control flexible @PS-03.3", async ({
                                                                              productoForm,
                                                                              itemDetail,
                                                                          }) => {
@@ -120,7 +120,7 @@ test.describe(
             });
         });
 
-        test("crear producto exonerado con control estricto @PS-3", async ({
+        test("SC-04: crear producto exonerado con control estricto @PS-03.4", async ({
                                                                                productoForm,
                                                                                itemDetail,
                                                                            }) => {
@@ -160,7 +160,7 @@ test.describe(
             });
         });
 
-        test("crear producto con ICBPER @PS-3", async ({
+        test("SC-05: crear producto con ICBPER @PS-03.5", async ({
                                                            productoForm,
                                                            itemDetail,
                                                        }) => {
@@ -196,7 +196,7 @@ test.describe(
             });
         });
 
-        test("crear producto con ISC sistema al valor @PS-3", async ({
+        test("SC-06: crear producto con ISC sistema al valor @PS-03.6", async ({
                                                                          productoForm,
                                                                          itemDetail,
                                                                      }) => {
@@ -239,7 +239,7 @@ test.describe(
             });
         });
 
-        test("crear producto con ISC monto fijo @PS-3", async ({
+        test("SC-07: crear producto con ISC monto fijo @PS-03.7", async ({
                                                                    productoForm,
                                                                    itemDetail,
                                                                }) => {
@@ -281,7 +281,7 @@ test.describe(
                 });
             });
         });
-        test("crear producto gravado con control estricto solo un almacen @PS-3", async ({
+        test("SC-08: crear producto gravado con control estricto solo un almacen @PS-03.8", async ({
                                                                                              productoForm,
                                                                                              itemDetail,
                                                                                          }) => {

@@ -6,9 +6,9 @@ import { RegistrarDatosOpcionales } from '@screenplay/tasks/facturacion/Registra
 import { ConfirmarPago } from '@screenplay/interactions/facturacion/ConfirmarPago';
 import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Facturación — Emitir con Datos Opcionales', () => {
+test.describe('FC-03 | Emitir con Datos Opcionales', {tag: ['@facturacion', '@comprobantes']}, () => {
 
-    test('Emite Factura con Orden de Compra y Observaciones', async ({ cajero }) => {
+    test('SC-01: Emitir Factura con Orden de Compra y Observaciones @FC-03.1', async ({ cajero }) => {
         await cajero.realiza(
             SeleccionarTipoComprobante('FACTURA'),
             BuscarYSeleccionarCliente(CLIENTES.EMPRESA_RUC_AUTO),

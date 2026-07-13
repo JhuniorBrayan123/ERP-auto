@@ -2,15 +2,15 @@ import {test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {esperarCargaOverlay, recargarSiHayError} from "@utils/wait-helpers";
 
-test.describe('PV-03 | Nota de venta con equivalencias y lista @PV-03', {tag: ['@punto-venta', '@nota-venta', '@equivalencias']}, () => {
+test.describe('PV-03 | Nota de venta con equivalencias y lista', {tag: ['@punto-venta', '@nota-venta', '@equivalencias']}, () => {
 
-    test('Emitir nota de venta con lista de productos @PV-03.8', async ({
-                                                                            cajaPage,
-                                                                            comprobantePage,
-                                                                            emisionPage,
-                                                                            busquedaComprobantes,
-                                                                            page,
-                                                                        }) => {
+    test('SC-01: Emitir nota de venta con lista de productos @PV-03.1', async ({
+                                                                                   cajaPage,
+                                                                                   comprobantePage,
+                                                                                   emisionPage,
+                                                                                   busquedaComprobantes,
+                                                                                   page,
+                                                                               }) => {
         await test.step('Given: caja abierta y NOTA DE VENTA', async () => {
             await cajaPage.continuarVendiendo();
             await comprobantePage.seleccionarNotaVenta();
@@ -20,8 +20,8 @@ test.describe('PV-03 | Nota de venta con equivalencias y lista @PV-03', {tag: ['
             await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).click();
             await page.getByRole('textbox', {name: 'Buscar por nombre, razón'}).fill(CLIENTES.PERSONA_DNI_2.documento);
             await page.getByText(CLIENTES.PERSONA_DNI_2.textoSelector).click();
-            await emisionPage.buscarItem(ITEMS_PV.LISTA_ITEMS.codigo);
-            await page.getByText(ITEMS_PV.LISTA_ITEMS.nombre).first().click();
+            await emisionPage.buscarItem(ITEMS_PV.LISTA_ITEMS_ESTRICTOS.codigo);
+            await page.getByText(ITEMS_PV.LISTA_ITEMS_ESTRICTOS.nombre).first().click();
             await page.locator('[id="_div:increase"]').first().click();
             await page.getByRole('button', {name: 'Agregar a venta'}).click();
         });
@@ -48,13 +48,13 @@ test.describe('PV-03 | Nota de venta con equivalencias y lista @PV-03', {tag: ['
         });
     });
 
-    test('Emitir nota de venta con equivalencia @PV-03.9', async ({
-                                                                      cajaPage,
-                                                                      comprobantePage,
-                                                                      emisionPage,
-                                                                      busquedaComprobantes,
-                                                                      page,
-                                                                  }) => {
+    test('SC-02: Emitir nota de venta con equivalencia @PV-03.2', async ({
+                                                                             cajaPage,
+                                                                             comprobantePage,
+                                                                             emisionPage,
+                                                                             busquedaComprobantes,
+                                                                             page,
+                                                                         }) => {
         await test.step('Given: caja abierta y NOTA DE VENTA', async () => {
             await cajaPage.continuarVendiendo();
             await comprobantePage.seleccionarNotaVenta();

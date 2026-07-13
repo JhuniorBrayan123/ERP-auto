@@ -10,9 +10,9 @@ import {
 import { ItemVendidoVisible } from '@screenplay/questions/cierre-caja/MovimientoVisibleEnCierre';
 import { ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Ítems Vendidos en Cierre de Caja', () => {
+test.describe('CC-06 | Ítems Vendidos', {tag: ['@cierre-caja']}, () => {
 
-    test('validar que ítem gravado sin control aparece en Items vendidos', async ({
+    test('SC-01: Validar que ítem gravado sin control aparece en Items vendidos @CC-06.1', async ({
         cajero,
         boletaEmitida: _,
     }) => {

@@ -8,9 +8,9 @@ import {PagoTargets} from '@screenplay/targets/facturacion/PagoTargets';
 import {DetraccionPage} from '@pages/PuntoVenta/detraccion.page';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Facturación — Emitir Factura con Detracción', () => {
+test.describe('FC-11 | Emitir Factura con Detracción', {tag: ['@facturacion', '@detraccion']}, () => {
 
-    test('Emite Factura con Detracción simple (10% - cuenta estándar)', async ({cajero}) => {
+    test('SC-01: Emitir Factura con Detracción simple (10% - cuenta estándar) @FC-11.1', async ({cajero}) => {
         const resultado = await cajero.realizaYObtiene(
             EmitirFacturaConDetraccion({
                 cliente: CLIENTES.EMPRESA_RUC_AUTO,
@@ -25,7 +25,7 @@ test.describe('Facturación — Emitir Factura con Detracción', () => {
         expect(resultado.numero).toMatch(/^F001-\d{8}$/);
     });
 
-    test('Bloquea emisión con Detracción activada sin completar datos obligatorios', async ({page, cajero}) => {
+    test('SC-02: Bloquear emisión con Detracción activada sin completar datos obligatorios @FC-11.2', async ({page, cajero}) => {
         await cajero.realiza(
             SeleccionarTipoComprobante('FACTURA'),
             BuscarYSeleccionarCliente(CLIENTES.EMPRESA_RUC_AUTO),

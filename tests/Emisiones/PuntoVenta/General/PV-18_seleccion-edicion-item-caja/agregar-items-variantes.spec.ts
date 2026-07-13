@@ -9,7 +9,7 @@ import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
 
-test.describe('Selección, edición de ítem en caja de venta — Variantes y equivalencias', {tag: ['@punto-venta', '@seleccion-edicion-item', '@variantes']}, () => {
+test.describe('PV-18 | Variantes y equivalencias', {tag: ['@puntoventa', '@pv-18', '@variantes']}, () => {
 
     test.beforeEach(async ({page}) => {
         const cajero = Cajero.con(page);

@@ -36,10 +36,10 @@ const EGRESO_DATOS = {
 
 
 
-test.describe('Ingresos y Egresos de Caja', () => {
+test.describe('CC-05 | Ingresos y Egresos', {tag: ['@cierre-caja']}, () => {
     test.describe.configure({ mode: 'serial' });
 
-    test('registrar ingreso de dinero y verificar reflejo en cierre de caja', async ({ cajero }) => {
+    test('SC-01: Registrar ingreso de dinero y verificar reflejo en cierre de caja @CC-05.1', async ({ cajero }) => {
         
         
 
@@ -82,7 +82,7 @@ test.describe('Ingresos y Egresos de Caja', () => {
         await cajero.realiza(RegresarANuevaVenta());
     });
 
-    test('registrar egreso de dinero y verificar reflejo en cierre de caja', async ({ cajero }) => {
+    test('SC-02: Registrar egreso de dinero y verificar reflejo en cierre de caja @CC-05.2', async ({ cajero }) => {
         
         
 
@@ -124,7 +124,7 @@ test.describe('Ingresos y Egresos de Caja', () => {
         await cajero.realiza(RegresarANuevaVenta());
     });
 
-    test('buscar ingreso por correlativo y validar separación de ingresos y egresos', async ({
+    test('SC-03: Buscar ingreso por correlativo y validar separación de ingresos y egresos @CC-05.3', async ({
         cajero,
     }) => {
         

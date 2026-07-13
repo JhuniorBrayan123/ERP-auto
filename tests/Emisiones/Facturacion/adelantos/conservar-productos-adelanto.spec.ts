@@ -3,9 +3,9 @@ import { EmitirDocumentoDeAdelanto } from '@screenplay/tasks/facturacion/EmitirD
 import { AplicarAdelantoAVenta } from '@screenplay/tasks/facturacion/AplicarAdelantoAVenta';
 import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 
-test.describe('Facturación — Conservar productos al aplicar adelanto', () => {
+test.describe('FC-28 | Conservar productos al aplicar adelanto', {tag: ['@facturacion', '@adelantos']}, () => {
 
-    test('La venta conserva los productos al aplicar un adelanto', async ({ cajero }) => {
+    test('SC-01: La venta conserva los productos al aplicar un adelanto @FC-28.1', async ({ cajero }) => {
         const adelanto = await cajero.realizaYObtiene(
             EmitirDocumentoDeAdelanto({
                 tipoComprobante: 'BOLETA',

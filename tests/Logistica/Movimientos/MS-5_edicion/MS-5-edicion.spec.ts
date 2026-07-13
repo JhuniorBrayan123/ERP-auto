@@ -15,9 +15,9 @@ import {
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
 import { esperarCargaOverlay } from '@utils/wait-helpers';
 
-test.describe('MS-5 | Edición de Movimientos @edicion', { tag: ['@logistica', '@movimientos'] }, () => {
+test.describe('MS-05 | Edición de Movimientos', { tag: ['@logistica', '@movimientos'] }, () => {
 
-    test('Editar movimiento correctamente (cantidad) @MS-5', async ({
+    test('SC-01: Editar movimiento correctamente (cantidad) @MS-05.1', async ({
         movimientosNav,
         registroMovimiento,
         resultadoMovimiento,
@@ -28,18 +28,18 @@ test.describe('MS-5 | Edición de Movimientos @edicion', { tag: ['@logistica', '
     }) => {
         test.setTimeout(120_000)
 
-        await crearIngresoEstandarParaPrecondicion(movimientosNav, registroMovimiento, resultadoMovimiento, page, ITEMS_TEST.PRODUCTO_GRAVADO.codigo, ITEMS_TEST.PRODUCTO_GRAVADO.nombre, '100', true);
+        await crearIngresoEstandarParaPrecondicion(movimientosNav, registroMovimiento, resultadoMovimiento, page, ITEMS_TEST.ESTRICTO_GRAVADO_8.codigo, ITEMS_TEST.ESTRICTO_GRAVADO_8.nombre, '100', true);
 
         await editarCantidadDeMovimiento(listadoMovimientos, registroMovimiento, '10');
 
         await verificarBitacoraEdicion(listadoMovimientos, ['Creación', 'Actualización']);
 
-        await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
+        await verificarStockPorCodigoYClick(movimientosNav, stockVerificacion, ITEMS_TEST.ESTRICTO_GRAVADO_8.codigo);
 
-        await verificarKardexTotalEstandar(movimientosNav, kardexVerificacion, page, ITEMS_TEST.PRODUCTO_GRAVADO.codigo, ALMACENES.AUTO, PATRON_CODIGO.INGRESO);
+        await verificarKardexTotalEstandar(movimientosNav, kardexVerificacion, page, ITEMS_TEST.ESTRICTO_GRAVADO_8.codigo, ALMACENES.AUTO, PATRON_CODIGO.INGRESO);
     });
 
-    test('Editar movimiento con variante @MS-5', async ({
+    test('SC-02: Editar movimiento con variante @MS-05.2', async ({
         movimientosNav,
         registroMovimiento,
         resultadoMovimiento,
@@ -80,7 +80,7 @@ test.describe('MS-5 | Edición de Movimientos @edicion', { tag: ['@logistica', '
         });
     });
 
-    test('Editar movimiento con control estricto válido @MS-5', async ({
+    test('SC-03: Editar movimiento con control estricto válido @MS-05.3', async ({
         movimientosNav,
         registroMovimiento,
         resultadoMovimiento,
@@ -102,7 +102,7 @@ test.describe('MS-5 | Edición de Movimientos @edicion', { tag: ['@logistica', '
         await verificarKardexTotalEstandar(movimientosNav, kardexVerificacion, page, ITEMS_TEST.PRODUCTO_ESTRICTO.codigo, ALMACENES.AUTO, PATRON_CODIGO.INGRESO);
     });
 
-    test('Bloquear edición por integridad @MS-5', async ({
+    test('SC-04: Bloquear edición por integridad @MS-05.4', async ({
         movimientosNav,
         registroMovimiento,
         resultadoMovimiento,
@@ -114,8 +114,8 @@ test.describe('MS-5 | Edición de Movimientos @edicion', { tag: ['@logistica', '
             await movimientosNav.navegarASalidasDesdeMenu();
             await registroMovimiento.clickAgregarSalida();
             await esperarCargaOverlay(page);
-            await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
-            await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.PRODUCTO_GRAVADO.nombre);
+            await registroMovimiento.buscarItem(ITEMS_TEST.ESTRICTO_GRAVADO_8.codigo);
+            await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.ESTRICTO_GRAVADO_8.nombre);
             await registroMovimiento.clickTextoRegistrarSalida();
             await registroMovimiento.clickRegistrarYDespachar();
             await resultadoMovimiento.irAlListado();
@@ -135,7 +135,7 @@ test.describe('MS-5 | Edición de Movimientos @edicion', { tag: ['@logistica', '
         });
     });
 
-    test('Editar movimiento con datos adicionales @MS-5', async ({
+    test('SC-05: Editar movimiento con datos adicionales @MS-05.5', async ({
         movimientosNav,
         registroMovimiento,
         datosOpcionales,
@@ -148,8 +148,8 @@ test.describe('MS-5 | Edición de Movimientos @edicion', { tag: ['@logistica', '
         await test.step('Arrange: crear ingreso con datos adicionales completos', async () => {
             await movimientosNav.navegarAIngresosDesdeMenu();
             await registroMovimiento.clickAgregarIngreso();
-            await registroMovimiento.buscarItem(ITEMS_TEST.PRODUCTO_GRAVADO.codigo);
-            await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.PRODUCTO_GRAVADO.nombre);
+            await registroMovimiento.buscarItem(ITEMS_TEST.ESTRICTO_GRAVADO_8.codigo);
+            await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.ESTRICTO_GRAVADO_8.nombre);
 
             await datosOpcionales.abrirDatosOpcionales();
             await datosOpcionales.buscarProveedor(PROVEEDOR_EXISTENTE.numDocumento);
