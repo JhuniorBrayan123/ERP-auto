@@ -1,13 +1,14 @@
-﻿import { expect, type Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 import { esperarCargaOverlay } from '@utils/wait-helpers';
 
-type TipoComprobante = 'BOLETA' | 'FACTURA' | 'NOTA DE VENTA' | 'COTIZACION';
+type TipoComprobante = 'BOLETA' | 'FACTURA' | 'NOTA DE VENTA' | 'COTIZACION' | 'PEDIDO';
 
 const ID_POR_TIPO: Record<TipoComprobante, number> = {
     BOLETA: 1004,
     FACTURA: 1003,
     'NOTA DE VENTA': 2016,
     COTIZACION: 3007,
+    PEDIDO: 2011,
 };
 
 export const SeleccionarTipoComprobante = (tipo: TipoComprobante) => {
