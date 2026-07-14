@@ -1,6 +1,7 @@
 import {expect, type Page} from '@playwright/test';
 import type {ComprobanteInfo} from '@helpers/PuntoVenta/busqueda-comprobantes.data';
 import {ComprobantesAccionesComponent} from './ComprobantesAccionesComponent';
+import {esperarCargaOverlay} from '@utils/wait-helpers';
 
 export class ComprobantesBitacoraComponent {
     constructor(private readonly page: Page) {
@@ -119,12 +120,33 @@ export class ComprobantesBitacoraComponent {
     }
 
     async validarBitacoraDelPrimerComprobante(eventos: string[]): Promise<void> {
+        const {expect} = await import('@playwright/test');
         const acciones = new ComprobantesAccionesComponent(this.page);
+
         await acciones.abrirAccionesDelPrimerComprobante();
         await this.abrirBitacora();
+        await this.page.locator('.drape.is-open').waitFor({state: 'visible', timeout: 5_000});
+        await esperarCargaOverlay(this.page);
+
+        const drapeText = await this.page.locator('.drape.is-open').innerText().catch(() => '');
+        const faltantes = eventos.filter(e => !drapeText.includes(e));
+
+        if (faltantes.length === 0) {
+            await this.cerrarBitacora();
+            console.log(`  Bitácora: [${eventos.join(', ')}]`);
+            return;
+        }
+
+        console.log(`   Bitácora: reintentando por [${faltantes.join(', ')}]...`);
+        await this.cerrarBitacora();
+        await new Promise(r => setTimeout(r, 3_000));
+        await acciones.abrirAccionesDelPrimerComprobante();
+        await this.abrirBitacora();
+        await this.page.locator('.drape.is-open').waitFor({state: 'visible', timeout: 5_000});
+        await esperarCargaOverlay(this.page);
+
         for (const evento of eventos) {
-            const {expect} = await import('@playwright/test');
-            await expect(this.page.locator('body')).toContainText(evento, {timeout: 25_000});
+            await expect(this.page.locator('.drape.is-open')).toContainText(evento, {timeout: 15_000});
         }
         await this.cerrarBitacora();
     }
