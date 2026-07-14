@@ -1,4 +1,5 @@
 import {test} from '@fixtures/Logistica/items-fixture';
+import {ITEMS_TEST} from '@helpers/Logistica/movimiento-data.helper';
 import {buildUniqueItemName} from '@helpers/Logistica/unique-name.helper';
 import type {ComponenteCombo} from '@helpers/Logistica/item-data.types';
 import {confirmarCreacionEIrALista, prepararComboBase,} from '@helpers/Logistica/verificaciones-items.helper';
@@ -62,8 +63,8 @@ test.describe('PS-03 | Creación de Combos', {tag: ['@logistica', '@productos-st
 
         const componentes: ComponenteCombo[] = [
             {codigoBusqueda: '151515', textoSeleccion: 'item gravado sin control'},
-            {codigoBusqueda: '333333', textoSeleccion: 'item con variante sin control gravado', variante: 'Variante 1'},
-            {codigoBusqueda: '303030', textoSeleccion: 'item equivalente sin control', equivalencia: 'Equivalente X2'},
+            {codigoBusqueda: ITEMS_TEST.VARIANTE_SIN_CONTROL.codigo, textoSeleccion: ITEMS_TEST.VARIANTE_SIN_CONTROL.nombre, variante: 'Variante sin control 1'},
+            {codigoBusqueda: ITEMS_TEST.EQUIVALENTE_SIN_CONTROL.codigo, textoSeleccion: ITEMS_TEST.EQUIVALENTE_SIN_CONTROL.nombre, equivalencia: 'Equivalente X2'},
         ];
         await prepararComboBase(comboForm, nombre, {venta: '155.52', compra: '155.50'}, componentes);
 

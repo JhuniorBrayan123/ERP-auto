@@ -1,0 +1,81 @@
+{
+  "version": 2,
+  "profiles": {
+    "crt-group_gutierrezmamanijhuniorb+201@gmail.com": {
+      "setups": {
+        "auth": {
+          "completed": true,
+          "timestamp": "2026-07-09T23:54:47.291Z"
+        },
+        "datos-adicionales": {
+          "completed": true,
+          "timestamp": "2026-06-24T20:34:19.276Z"
+        },
+        "punto-venta-datos": {
+          "completed": true,
+          "timestamp": "2026-06-24T20:34:19.276Z"
+        },
+        "punto-venta-items": {
+          "completed": true,
+          "timestamp": "2026-06-24T20:34:19.276Z"
+        }
+      }
+    },
+    "prd_automatizacionerp2@gmail.com": {
+      "setups": {
+        "auth": {
+          "completed": true,
+          "timestamp": "2026-07-09T22:34:54.985Z"
+        },
+        "punto-venta-datos": {
+          "completed": true,
+          "timestamp": "2026-06-24T20:34:19.276Z"
+        },
+        "punto-venta-items": {
+          "completed": true,
+          "timestamp": "2026-06-24T20:34:19.276Z"
+        },
+        "datos-adicionales": {
+          "completed": true,
+          "timestamp": "2026-06-24T20:34:19.276Z"
+        }
+      }
+    },
+    "crt-group_gutierrezmamanijhuniorb+111@gmail.com": {
+      "setups": {
+        "auth": {
+          "completed": true,
+          "timestamp": "2026-07-10T14:17:06.493Z"
+        }
+      }
+    },
+    "crt-group_gutierrezmamanijhuniorb+122@gmail.com": {
+      "setups": {
+        "auth": {
+          "completed": true,
+          "timestamp": "2026-07-10T19:10:50.923Z"
+        }
+      }
+    },
+    "crt-group_srqapruebaserp2+1023@gmail.com": {
+      "setups": {
+        "auth": {
+          "completed": true,
+          "timestamp": "2026-07-11T16:53:42.491Z"
+        },
+        "punto-venta-datos": {
+          "completed": true,
+          "timestamp": "2026-07-10T21:33:23.221Z"
+        },
+        "datos-adicionales": {
+          "completed": true,
+          "timestamp": "2026-07-10T21:36:43.340Z"
+        },
+        "punto-venta-items": {
+          "completed": true,
+          "timestamp": "2026-07-11T16:49:31.612Z"
+        }
+      }
+    }
+  }
+}

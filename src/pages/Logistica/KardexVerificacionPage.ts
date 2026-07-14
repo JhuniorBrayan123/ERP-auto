@@ -1,6 +1,6 @@
-import {expect, type Locator, type Page} from '@playwright/test';
-import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
-import {throwFunctionalError} from '../../utils/functional-error';
+import { expect, type Locator, type Page } from '@playwright/test';
+import { FUNCTIONAL_CATALOG } from '../../utils/functional-catalog';
+import { throwFunctionalError } from '../../utils/functional-error';
 
 export class KardexVerificacionPage {
     constructor(private readonly page: Page) {
@@ -9,12 +9,12 @@ export class KardexVerificacionPage {
     private readonly overloadLoading = this.page.locator('[id="cmn_cmp-overload:loading"]');
 
     public async esperarSinOverload(timeout = 35_000): Promise<void> {
-        await this.overloadLoading.waitFor({state: 'hidden', timeout}).catch(() => {
+        await this.overloadLoading.waitFor({ state: 'hidden', timeout }).catch(() => {
         });
     }
 
     private verDetalleButtons(): Locator {
-        return this.page.getByRole('button', {name: /ver detalle/i});
+        return this.page.getByRole('button', { name: /ver detalle/i });
     }
 
     private async esperarKardexListo(): Promise<void> {
@@ -23,11 +23,11 @@ export class KardexVerificacionPage {
         await this.page.waitForFunction(() => {
             const titulos = document.querySelectorAll('.cmp-cards-almacen .info-almacen .title');
             return titulos.length > 0 && Array.from(titulos).every(t => t.textContent?.trim() !== '');
-        }, {timeout: 25_000});
+        }, { timeout: 25_000 });
 
         const overload = this.page.locator('.cmp-overload');
         if (await overload.isVisible().catch(() => true)) {
-            await overload.waitFor({state: 'hidden', timeout: 25_000});
+            await overload.waitFor({ state: 'hidden', timeout: 25_000 });
         }
 
         const pageError = this.page.locator('.cmp-page-error');
@@ -39,16 +39,16 @@ export class KardexVerificacionPage {
     async buscarPorCodigo(codigo: string): Promise<void> {
         try {
             await this.esperarSinOverload(25_000);
-            const searchInput = this.page.getByRole('textbox', {name: 'Buscar por nombre, código o c'});
+            const searchInput = this.page.getByRole('textbox', { name: 'Buscar por nombre, código o c' });
             await searchInput.click();
             await searchInput.fill(codigo);
             await searchInput.press('Enter');
 
             const { esperarDebounce } = require('../../utils/wait-helpers');
             await esperarDebounce(this.page, 1000, 'Debounce búsqueda kardex');
-            
+
             await this.esperarSinOverload(25_000);
-            await expect(this.page.getByRole('table').getByText(codigo).first()).toBeVisible({timeout: 15_000});
+            await expect(this.page.getByRole('table').getByText(codigo).first()).toBeVisible({ timeout: 15_000 });
         } catch (error) {
             await throwFunctionalError({
                 page: this.page,
@@ -62,14 +62,14 @@ export class KardexVerificacionPage {
     async clickAlmacenMultiple(): Promise<void> {
         await this.page
             .locator('div')
-            .filter({hasText: /^Varios\*$/})
+            .filter({ hasText: /^Varios\*$/ })
             .first()
             .click();
     }
 
     async clickVariosTexto(itemCodigo?: string): Promise<void> {
         if (itemCodigo) {
-            await this.page.getByRole('row', {name: new RegExp(itemCodigo, 'i')})
+            await this.page.getByRole('row', { name: new RegExp(itemCodigo, 'i') })
                 .getByText('Varios*').first().click();
         } else {
             await this.page.getByText('Varios*').first().click();
@@ -83,14 +83,14 @@ export class KardexVerificacionPage {
     async clickKardexPorProducto(itemCodigo?: string): Promise<void> {
         try {
             if (itemCodigo) {
-                await this.page.getByRole('row', {name: new RegExp(itemCodigo, 'i')})
-                    .getByRole('button', {name: 'Kardex por producto'}).first().click();
+                await this.page.getByRole('row', { name: new RegExp(itemCodigo, 'i') })
+                    .getByRole('button', { name: 'Kardex por producto' }).first().click();
             } else {
-                await this.page.getByRole('button', {name: 'Kardex por producto'}).first().click();
+                await this.page.getByRole('button', { name: 'Kardex por producto' }).first().click();
             }
             await this.esperarSinOverload();
-            await expect(this.page.getByText('Información básica')).toBeVisible({timeout: 25_000});
-            await this.verDetalleButtons().first().waitFor({state: 'visible', timeout: 25_000}).catch(() => {
+            await expect(this.page.getByText('Información básica')).toBeVisible({ timeout: 25_000 });
+            await this.verDetalleButtons().first().waitFor({ state: 'visible', timeout: 25_000 }).catch(() => {
             });
         } catch (error) {
             await throwFunctionalError({
@@ -104,12 +104,12 @@ export class KardexVerificacionPage {
     async clickKardexPorProductoAlmacen(nombreAlmacen: string): Promise<void> {
         await this.page
             .getByRole('row')
-            .filter({hasText: new RegExp(nombreAlmacen, 'i')})
-            .getByRole('button', {name: 'Kardex por producto'})
+            .filter({ hasText: new RegExp(nombreAlmacen, 'i') })
+            .getByRole('button', { name: 'Kardex por producto' })
             .first()
             .click();
         await this.esperarSinOverload();
-        await this.verDetalleButtons().first().waitFor({state: 'visible', timeout: 25_000}).catch(() => {
+        await this.verDetalleButtons().first().waitFor({ state: 'visible', timeout: 25_000 }).catch(() => {
         });
     }
 
@@ -118,7 +118,7 @@ export class KardexVerificacionPage {
     }
 
     async abrirKardexVariante(rowName: string): Promise<void> {
-        await this.page.getByRole('row', {name: rowName}).getByRole('button').click();
+        await this.page.getByRole('row', { name: rowName }).getByRole('button').click();
     }
 
     async abrirVerDetalle(indice: number = 0): Promise<void> {
@@ -126,12 +126,12 @@ export class KardexVerificacionPage {
         const btn = this.verDetalleButtons();
 
         if (indice === 0) {
-            await btn.first().waitFor({state: 'visible', timeout: 25_000});
-            await this.esperarSinOverload(); 
+            await btn.first().waitFor({ state: 'visible', timeout: 25_000 });
+            await this.esperarSinOverload();
             await btn.first().click();
         } else {
-            await btn.nth(indice).waitFor({state: 'visible', timeout: 25_000});
-            await this.esperarSinOverload(); 
+            await btn.nth(indice).waitFor({ state: 'visible', timeout: 25_000 });
+            await this.esperarSinOverload();
             await btn.nth(indice).click();
         }
     }
@@ -146,7 +146,7 @@ export class KardexVerificacionPage {
 
         const cardAlmacen = this.page
             .locator('div, article, section')
-            .filter({hasText: nombreRx})
+            .filter({ hasText: nombreRx })
             .filter({
                 has: this.page.locator(
                     'button[id="lgt_kardexs_cmp-cards-almacen:card-almacen_v-button:ver-detalle"]'
@@ -160,7 +160,7 @@ export class KardexVerificacionPage {
             'button[id="lgt_kardexs_cmp-cards-almacen:card-almacen_v-button:ver-detalle"]'
         ).first();
 
-        await boton.waitFor({state: 'visible', timeout: 10_000});
+        await boton.waitFor({ state: 'visible', timeout: 10_000 });
         await boton.click();
 
         await this.esperarSinOverload();
@@ -179,7 +179,7 @@ export class KardexVerificacionPage {
             await this.page.waitForFunction(() => {
                 const titulos = document.querySelectorAll('.cmp-cards-almacen .info-almacen .title');
                 return titulos.length > 0 && Array.from(titulos).every(t => t.textContent?.trim() !== '');
-            }, {timeout: 20_000});
+            }, { timeout: 20_000 });
 
             const total = await cards.count();
 
@@ -190,8 +190,8 @@ export class KardexVerificacionPage {
                 const tituloNormalizado = strip(titulo).trim().toLowerCase();
 
                 if (tituloNormalizado.includes(nombreNormalizado)) {
-                    const boton = card.getByRole('button', {name: /ver detalle/i});
-                    await boton.waitFor({state: 'visible', timeout: 10_000});
+                    const boton = card.getByRole('button', { name: /ver detalle/i });
+                    await boton.waitFor({ state: 'visible', timeout: 10_000 });
                     await card.scrollIntoViewIfNeeded();
                     await boton.click();
                     await this.esperarSinOverload();
@@ -217,12 +217,12 @@ export class KardexVerificacionPage {
 
     async clickCodigoMovimientoRegex(regex: RegExp): Promise<void> {
         const elemento = this.page.getByText(regex).first();
-        await elemento.waitFor({state: 'visible'});
+        await elemento.waitFor({ state: 'visible' });
         await elemento.click();
     }
 
     async expectPatronCodigoMovimientoVisible(patron: RegExp): Promise<void> {
-        await expect(this.page.getByText(patron).first()).toBeVisible({timeout: 15_000});
+        await expect(this.page.getByText(patron).first()).toBeVisible({ timeout: 15_000 });
     }
 
     async cerrarModalDetalle(): Promise<void> {
@@ -230,14 +230,14 @@ export class KardexVerificacionPage {
             this.page.locator('.v-modal .button-close .icon').first(),
             this.page.locator('.v-modal .button-close').first(),
             this.page.locator('.v-dialog--active .button-close .icon').first(),
-            this.page.getByRole('button', {name: /^Cerrar$/i}).first(),
+            this.page.getByRole('button', { name: /^Cerrar$/i }).first(),
             this.page.locator('.v-modal > div').first(),
         ];
 
         for (const loc of candidatos) {
             try {
-                if (await loc.isVisible({timeout: 1_500})) {
-                    await loc.click({timeout: 5_000});
+                if (await loc.isVisible({ timeout: 1_500 })) {
+                    await loc.click({ timeout: 5_000 });
                     await this.page.locator('.v-dialog--active').waitFor({
                         state: 'hidden',
                         timeout: 3_000
@@ -259,7 +259,7 @@ export class KardexVerificacionPage {
     async clickDatosOpcionalesDiv(): Promise<void> {
         await this.page
             .locator('div')
-            .filter({hasText: /^Datos opcionales$/})
+            .filter({ hasText: /^Datos opcionales$/ })
             .first()
             .click();
     }
@@ -267,14 +267,14 @@ export class KardexVerificacionPage {
     async expectDatosOpcionalesVisible(): Promise<void> {
         const contenido = this.page
             .locator('div')
-            .filter({hasText: /^Datos opcionales$/})
+            .filter({ hasText: /^Datos opcionales$/ })
             .first()
-            .locator('..')  
+            .locator('..')
             .locator('div, span, p')
-            .filter({hasText: /.+/}) 
+            .filter({ hasText: /.+/ })
             .first();
 
-        await expect(contenido).toBeVisible({timeout: 5_000});
+        await expect(contenido).toBeVisible({ timeout: 5_000 });
     }
 
     async navegarAIngresosDesdeKardex(): Promise<void> {
