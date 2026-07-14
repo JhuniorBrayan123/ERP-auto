@@ -1,30 +1,30 @@
-import type {ComprobanteData, ItemTest, ProveedorData} from './movimiento.types';
+import type { ComprobanteData, ItemTest, ProveedorData } from './movimiento.types';
 
 export const ITEMS_TEST = {
-    PRODUCTO_ESTRICTO: {codigo: '111111', nombre: 'Item para combos estricto'} as ItemTest,
-    PRODUCTO_GRAVADO: {codigo: '121212', nombre: 'item para combos gravado'} as ItemTest,
-    VARIANTE_FLEXIBLE: {codigo: '313131', nombre: 'item con variante flexible'} as ItemTest,
-    EQUIVALENTE_FLEX: {codigo: '202020', nombre: 'item equivalente flexible'} as ItemTest,
-    EQUIVALENTE_EST: {codigo: '101010', nombre: 'item equivalente estricto gravado'} as ItemTest,
-    INSUMO_FLEXIBLE: {codigo: '666444', nombre: 'nuevo insumo flexible'} as ItemTest,
-    INSUMO_TEST1: {codigo: '464646', nombre: 'Nuevo insumo test1'} as ItemTest,
-    VARIANTE_ESTRICTO: {codigo: '131313', nombre: 'item variante estricto gravado'} as ItemTest,
-    SIN_STOCK: {codigo: '111222', nombre: 'Item sin stock estricto'} as ItemTest,
-    MASIVO_PROD: {codigo: 'EDPROD00', nombre: 'Tippy'} as ItemTest,
-    MASIVO_INSUMO: {codigo: 'EDINS002', nombre: ''} as ItemTest,
+    PRODUCTO_ESTRICTO: { codigo: '111111', nombre: 'Item para combos estricto' } as ItemTest,
+    PRODUCTO_GRAVADO: { codigo: '121212', nombre: 'item para combos gravado' } as ItemTest,
+    VARIANTE_FLEXIBLE: { codigo: '313131', nombre: 'item con variante flexible' } as ItemTest,
+    EQUIVALENTE_FLEX: { codigo: '202020', nombre: 'item equivalente flexible' } as ItemTest,
+    EQUIVALENTE_EST: { codigo: '101010', nombre: 'item equivalente estricto gravado' } as ItemTest,
+    INSUMO_FLEXIBLE: { codigo: '666444', nombre: 'nuevo insumo flexible' } as ItemTest,
+    INSUMO_TEST1: { codigo: '464646', nombre: 'Nuevo insumo test1' } as ItemTest,
+    VARIANTE_ESTRICTO: { codigo: '131313', nombre: 'item variante estricto gravado' } as ItemTest,
+    SIN_STOCK: { codigo: '111222', nombre: 'Item sin stock estricto' } as ItemTest,
+    MASIVO_PROD: { codigo: 'EDPROD00', nombre: 'Tippy' } as ItemTest,
+    MASIVO_INSUMO: { codigo: 'EDINS002', nombre: '' } as ItemTest,
 
-    ESTRICTO_GRAVADO_1: {codigo: '111112', nombre: 'Item control estricto gravado 1'} as ItemTest,
-    ESTRICTO_GRAVADO_2: {codigo: '111113', nombre: 'Item control estricto gravado 2'} as ItemTest,
-    ESTRICTO_GRAVADO_3: {codigo: '111114', nombre: 'Item control estricto gravado 3'} as ItemTest,
-    ESTRICTO_GRAVADO_4: {codigo: '111115', nombre: 'Item control estricto gravado 4'} as ItemTest,
-    ESTRICTO_GRAVADO_5: {codigo: '111116', nombre: 'Item control estricto gravado 5'} as ItemTest,
-    ESTRICTO_GRAVADO_6: {codigo: '111117', nombre: 'Item control estricto gravado 6'} as ItemTest,
-    ESTRICTO_GRAVADO_7: {codigo: '111118', nombre: 'Item control estricto gravado 7'} as ItemTest,
-    ESTRICTO_GRAVADO_8: {codigo: '111119', nombre: 'Item control estricto gravado 8'} as ItemTest,
-    ESTRICTO_GRAVADO_9: {codigo: '111120', nombre: 'Item control estricto gravado 9'} as ItemTest,
-    ESTRICTO_GRAVADO_10: {codigo: '111121', nombre: 'Item control estricto gravado 10'} as ItemTest,
-    EQUIVALENTE_SIN_CONTROL: {codigo: '303030', nombre: 'item equivalente sin control gravado'} as ItemTest,
-    VARIANTE_SIN_CONTROL: {codigo: '333333', nombre: 'item variante sin control gravado'} as ItemTest,
+    ESTRICTO_GRAVADO_1: { codigo: '111112', nombre: 'Item control estricto gravado 1' } as ItemTest,
+    ESTRICTO_GRAVADO_2: { codigo: '111113', nombre: 'Item control estricto gravado 2' } as ItemTest,
+    ESTRICTO_GRAVADO_3: { codigo: '111114', nombre: 'Item control estricto gravado 3' } as ItemTest,
+    ESTRICTO_GRAVADO_4: { codigo: '111115', nombre: 'Item control estricto gravado 4' } as ItemTest,
+    ESTRICTO_GRAVADO_5: { codigo: '111116', nombre: 'Item control estricto gravado 5' } as ItemTest,
+    ESTRICTO_GRAVADO_6: { codigo: '111117', nombre: 'Item control estricto gravado 6' } as ItemTest,
+    ESTRICTO_GRAVADO_7: { codigo: '111118', nombre: 'Item control estricto gravado 7' } as ItemTest,
+    ESTRICTO_GRAVADO_8: { codigo: '111119', nombre: 'Item control estricto gravado 8' } as ItemTest,
+    ESTRICTO_GRAVADO_9: { codigo: '111120', nombre: 'Item control estricto gravado 9' } as ItemTest,
+    ESTRICTO_GRAVADO_10: { codigo: '111121', nombre: 'Item control estricto gravado 10' } as ItemTest,
+    EQUIVALENTE_SIN_CONTROL: { codigo: '303030', nombre: 'item equivalente sin control gravado' } as ItemTest,
+    VARIANTE_SIN_CONTROL: { codigo: '333333', nombre: 'item variante sin control gravado' } as ItemTest,
 
 };
 
@@ -84,7 +84,7 @@ export const DATOS_CONTACTO = {
 export const PROVEEDOR_TEST: ProveedorData = {
     tipoDocumento: 'DNI',
     numDocumento: '76975258',
-    razonSocial: 'JHUNIOR BRAYAN GUTIERREZ',  
+    razonSocial: 'JHUNIOR BRAYAN GUTIERREZ',
     direccion: 'av-ejemplo-auto',
     telefono: '99999999',
     email: 'ejemploauto@gmail.com',
@@ -110,7 +110,7 @@ export const COMPROBANTE_VACIO: ComprobanteData = {
 }
 
 try {
-    const {cargarMapaCodigos} = require('../../factories/item-factory');
+    const { cargarMapaCodigos } = require('../../factories/item-factory');
     const mapa = cargarMapaCodigos();
     if (mapa) {
         console.log(`[movimiento-data] Códigos dinámicos activos (RUN_ID: ${mapa.RUN_ID})`);
@@ -141,7 +141,7 @@ try {
             const itemTest = (ITEMS_TEST as Record<string, { codigo: string, nombre: string }>)[testKey];
 
             if (dynamicCode && itemTest) {
-                
+
                 itemTest.codigo = dynamicCode.replace(/-/g, '');
 
                 const runIdSuffix = dynamicCode.split('-')[1];

@@ -49,7 +49,7 @@ test.describe('MS-09 | Eliminación de Movimientos', { tag: ['@logistica', '@mov
 
         await verificarEventoEnBitacora(listadoMovimientos, 'Eliminación');
 
-        await verificarKardexTotalEstandar(movimientosNav, kardexVerificacion, page, ITEMS_TEST.ESTRICTO_GRAVADO_10.codigo, ALMACENES.VENTAS, PATRON_CODIGO.SALIDA);
+        await verificarKardexTotalEstandar(movimientosNav, kardexVerificacion, page, ITEMS_TEST.ESTRICTO_GRAVADO_10.codigo, ALMACENES.AUTO, PATRON_CODIGO.SALIDA);
 
         await test.step('API Assert: verificar que el backend sumó el saldo tras eliminación', async () => {
             const saldoPostEliminacion = await kardexApi.obtenerSaldoPorProducto({

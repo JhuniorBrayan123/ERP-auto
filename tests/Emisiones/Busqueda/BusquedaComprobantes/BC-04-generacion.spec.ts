@@ -274,7 +274,7 @@ test.describe('BC-15 | Generar pedido desde una cotización', {tag: ['@busqueda'
             );
             await emision.buscarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
             await emision.seleccionarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
-            await emision.clickPagar();
+            await emision.clickEmitir();
             const numero = await postEmision.obtenerCorrelativoDinamico();
             const [serie, correlativo] = numero.split('-');
             semilla = {
