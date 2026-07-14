@@ -34,14 +34,11 @@ export default defineConfig({
 
     testIgnore: ["**/_*", "**/_codegen/**"],
 
+    outputDir: "report/artifacts",
+
     reporter: [
         ["./src/utils/maven-reporter.ts"], // consola estilo Maven/Surefire
-        ["json", { outputFile: process.env.PW_REPORT_OUTPUT || "results.json" }],
-        ["junit", { outputFile: process.env.PW_JUNIT_OUTPUT || "junit.xml" }],
-        [
-            "html",
-            { outputFolder: process.env.PW_HTML_OUTPUT || "report", open: "never" },
-        ],
+        ["html", { outputFolder: "report", open: "never" }],
     ],
 
     use: {
