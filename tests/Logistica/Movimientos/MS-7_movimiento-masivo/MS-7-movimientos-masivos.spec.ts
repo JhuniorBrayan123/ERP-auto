@@ -1,5 +1,5 @@
-import {expect, test} from '@fixtures/Logistica/movimientos-fixture';
-import {ALMACENES, EXCEL_MASIVOS, ITEMS_TEST, PATRON_CODIGO,} from '@helpers/Logistica/movimiento-data.helper';
+import { expect, test } from '@fixtures/Logistica/movimientos-fixture';
+import { ALMACENES, EXCEL_MASIVOS, ITEMS_TEST, PATRON_CODIGO, } from '@helpers/Logistica/movimiento-data.helper';
 import {
     abrirYCerrarBitacora,
     cargarMovimientoMasivoDesdeExcel,
@@ -7,16 +7,16 @@ import {
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
 import * as path from 'path';
 
-test.describe('MS-07 | Movimientos Masivos', {tag: ['@logistica', '@movimientos']}, () => {
+test.describe('MS-07 | Movimientos Masivos', { tag: ['@logistica', '@movimientos'] }, () => {
 
     test('SC-01: Registrar movimiento masivo correctamente @MS-07.1', async ({
-                                                                       movimientosNav,
-                                                                       listadoMovimientos,
-                                                                       stockVerificacion,
-                                                                       kardexVerificacion,
-                                                                       movimientoRapido,
-                                                                       page,
-                                                                   }) => {
+        movimientosNav,
+        listadoMovimientos,
+        stockVerificacion,
+        kardexVerificacion,
+        movimientoRapido,
+        page,
+    }) => {
 
         const excelPath = path.resolve(__dirname, '../../../../src/data', EXCEL_MASIVOS.INGRESOS);
         await test.step('Given: navegar a Ingresos', async () => {
@@ -30,19 +30,18 @@ test.describe('MS-07 | Movimientos Masivos', {tag: ['@logistica', '@movimientos'
         await test.step('And: verificar kardex del producto masivo', async () => {
             await movimientosNav.navegarAKardexTotal();
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.MASIVO_PROD.codigo);
-            await kardexVerificacion.clickVariosNth(0);
-            await page.getByRole('row', {name: `1 P Producto ${ITEMS_TEST.MASIVO_PROD.codigo}5 Tippy`}).getByRole('button').click();
+            await kardexVerificacion.clickKardexPorProducto();
         });
     });
 
     test('SC-02: Movimiento masivo con productos e insumos @MS-07.2', async ({
-                                                                       movimientosNav,
-                                                                       listadoMovimientos,
-                                                                       stockVerificacion,
-                                                                       kardexVerificacion,
-                                                                       movimientoRapido,
-                                                                       page,
-                                                                   }) => {
+        movimientosNav,
+        listadoMovimientos,
+        stockVerificacion,
+        kardexVerificacion,
+        movimientoRapido,
+        page,
+    }) => {
 
         const excelPath = path.resolve(__dirname, '../../../../src/data', EXCEL_MASIVOS.INGRESOS_INSUMOS);
 

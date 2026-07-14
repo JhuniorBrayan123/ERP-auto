@@ -112,7 +112,7 @@ export async function buildActualizacionDatosExcel(
   }
   const tempFilePath = path.join(
     tempDir,
-    `actualizacion_${tipo}_${Date.now()}_${config.excelFile}`,
+    `actualizacion_${tipo}_${Date.now()}_${path.basename(config.excelFile)}`,
   );
   await workbook.xlsx.writeFile(tempFilePath);
 

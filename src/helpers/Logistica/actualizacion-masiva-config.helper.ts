@@ -29,7 +29,7 @@ export const ACTUALIZACION_DATOS_CONFIG: Record<
   productos: {
     tipo: 'productos',
     cardLabel: 'Productos',
-    excelFile: 'FORMATO_EDICION_PRODUCTOS_Masivos.xlsx',
+    excelFile: 'Manual/FORMATO_EDICION_PRODUCTOS_Masivos.xlsx',
     sheetName: 'PRODUCTOS',
     dataRow: 2,
     nombreColumnHeader: 'NOMBRE',
@@ -40,7 +40,7 @@ export const ACTUALIZACION_DATOS_CONFIG: Record<
   servicios: {
     tipo: 'servicios',
     cardLabel: 'Servicios',
-    excelFile: 'FORMATO_EDICION_SERVICIOS_Masivos.xlsx',
+    excelFile: 'Manual/FORMATO_EDICION_SERVICIOS_Masivos.xlsx',
     sheetName: 'SERVICIOS',
     dataRow: 2,
     
@@ -52,7 +52,7 @@ export const ACTUALIZACION_DATOS_CONFIG: Record<
   insumos: {
     tipo: 'insumos',
     cardLabel: 'Insumos',
-    excelFile: 'FORMATO_EDICION_INSUMOS_Masivos.xlsx',
+    excelFile: 'Manual/FORMATO_EDICION_INSUMOS_Masivos.xlsx',
     sheetName: 'INSUMOS',
     dataRow: 2,
     
