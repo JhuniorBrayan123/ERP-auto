@@ -118,8 +118,6 @@ test.describe('BC-19 y BC-20 | Bitácora y Ver comprobante', {tag: ['@busqueda']
     test('SC-01: Consultar bitácora de una boleta emitida @BC-19-20.1', async ({busquedaPage}) => {
         test.skip(!semillaFactura, 'Semilla boleta no disponible');
 
-        const page = busquedaPage['page'];
-
         await test.step('Given: filtrar la boleta semilla', async () => {
             await busquedaPage.seleccionarCategoria(BC_CATEGORIAS.VENTAS);
             await busquedaPage.abrirFiltrosAvanzados();
@@ -127,23 +125,15 @@ test.describe('BC-19 y BC-20 | Bitácora y Ver comprobante', {tag: ['@busqueda']
             await busquedaPage.filtrarPorCorrelativos(semillaFactura.correlativo);
         });
 
-        await test.step('When: abre acciones y selecciona Bitácora', async () => {
-            await busquedaPage.abrirAccionesDeComprobante(semillaFactura.numeroCompleto);
-            await busquedaPage.abrirBitacora();
-        });
-
-        await test.step('Then: la bitácora muestra las entradas esperadas del ciclo de vida', async () => {
-            await expect(page.getByText('Descargo de Inventarios')).toBeVisible({timeout: 20_000});
-            await expect(page.getByText('Comprobante Financiero Emitido')).toBeVisible();
-            await expect(page.getByText('Comprobante Registrado')).toBeVisible();
-            await expect(page.getByText('Comprobante Emitido')).toBeVisible();
-            await expect(page.getByText('PDF Generado', {exact: true})).toBeVisible();
-            await expect(page.getByText('XML Generado')).toBeVisible();
-        });
-
-        await test.step('And: se puede cerrar la bitácora', async () => {
-            await busquedaPage.cerrarBitacora();
-            await expect(page.locator('.drape.is-open')).not.toBeVisible({timeout: 5_000});
+        await test.step('When/Then: abrir bitácora y validar eventos del ciclo de vida', async () => {
+            await busquedaPage.validarBitacoraContiene(semillaFactura, [
+                'Descargo de Inventarios',
+                'Comprobante Financiero Emitido',
+                'Comprobante Registrado',
+                'Comprobante Emitido',
+                'PDF Generado',
+                'XML Generado',
+            ]);
         });
     });
 

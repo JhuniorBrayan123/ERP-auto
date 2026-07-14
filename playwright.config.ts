@@ -146,11 +146,12 @@ export default defineConfig({
         {
             name: "Logistica",
             testMatch: "tests/Logistica/**",
+            testIgnore: ["**/*.setup.ts"],
             use: {
                 ...devices["Desktop Chrome"],
                 storageState: resolveStoragePath(),
             },
-            dependencies: ["setup"],
+            dependencies: ["setup", "datos-setup"],
             workers: isCI ? 2 : 1,
         },
     ],

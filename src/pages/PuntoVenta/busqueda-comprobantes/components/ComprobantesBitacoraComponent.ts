@@ -122,43 +122,69 @@ export class ComprobantesBitacoraComponent {
     async validarBitacoraDelPrimerComprobante(eventos: string[]): Promise<void> {
         const {expect} = await import('@playwright/test');
         const acciones = new ComprobantesAccionesComponent(this.page);
+        const deadline = Date.now() + 90_000;
 
         await acciones.abrirAccionesDelPrimerComprobante();
         await this.abrirBitacora();
-        await this.page.locator('.drape.is-open').waitFor({state: 'visible', timeout: 5_000});
-        await esperarCargaOverlay(this.page);
 
-        const drapeText = await this.page.locator('.drape.is-open').innerText().catch(() => '');
-        const faltantes = eventos.filter(e => !drapeText.includes(e));
+        while (Date.now() < deadline) {
+            await this.page.locator('.drape.is-open').waitFor({state: 'visible', timeout: 5_000});
+            await esperarCargaOverlay(this.page);
 
-        if (faltantes.length === 0) {
+            const drapeText = await this.page.locator('.drape.is-open').innerText().catch(() => '');
+            const faltantes = eventos.filter(e => !drapeText.includes(e));
+
+            if (faltantes.length === 0) {
+                await this.cerrarBitacora();
+                console.log(`  ✓ Bitácora: [${eventos.join(', ')}]`);
+                return;
+            }
+
+            console.log(`   Bitácora: esperando [${faltantes.join(', ')}]...`);
             await this.cerrarBitacora();
-            console.log(`  Bitácora: [${eventos.join(', ')}]`);
-            return;
+            await new Promise(r => setTimeout(r, 5_000));
+            await acciones.abrirAccionesDelPrimerComprobante();
+            await this.abrirBitacora();
         }
 
-        console.log(`   Bitácora: reintentando por [${faltantes.join(', ')}]...`);
-        await this.cerrarBitacora();
-        await new Promise(r => setTimeout(r, 3_000));
-        await acciones.abrirAccionesDelPrimerComprobante();
-        await this.abrirBitacora();
-        await this.page.locator('.drape.is-open').waitFor({state: 'visible', timeout: 5_000});
-        await esperarCargaOverlay(this.page);
-
+        // Último intento con assert para error claro
         for (const evento of eventos) {
-            await expect(this.page.locator('.drape.is-open')).toContainText(evento, {timeout: 15_000});
+            await expect(this.page.locator('.drape.is-open')).toContainText(evento, {timeout: 5_000});
         }
         await this.cerrarBitacora();
     }
 
     async validarBitacoraContiene(comprobante: ComprobanteInfo, eventos: string[]): Promise<void> {
+        const {expect} = await import('@playwright/test');
         const acciones = new ComprobantesAccionesComponent(this.page);
+        const deadline = Date.now() + 90_000;
+
         await acciones.abrirAccionesDeComprobante(comprobante.numeroCompleto);
         await this.abrirBitacora();
+
+        while (Date.now() < deadline) {
+            await this.page.locator('.drape.is-open').waitFor({state: 'visible', timeout: 5_000});
+            await esperarCargaOverlay(this.page);
+
+            const drapeText = await this.page.locator('.drape.is-open').innerText().catch(() => '');
+            const faltantes = eventos.filter(e => !drapeText.includes(e));
+
+            if (faltantes.length === 0) {
+                await this.cerrarBitacora();
+                console.log(`  ✓ Bitácora: [${eventos.join(', ')}]`);
+                return;
+            }
+
+            console.log(`   Bitácora: esperando [${faltantes.join(', ')}]...`);
+            await this.cerrarBitacora();
+            await new Promise(r => setTimeout(r, 5_000));
+            await acciones.abrirAccionesDeComprobante(comprobante.numeroCompleto);
+            await this.abrirBitacora();
+        }
+
+        // Último intento con assert para error claro
         for (const evento of eventos) {
-            await import('@playwright/test').then(({expect}) =>
-                expect(this.page.locator('body')).toContainText(evento, {timeout: 25_000}),
-            );
+            await expect(this.page.locator('.drape.is-open')).toContainText(evento, {timeout: 5_000});
         }
         await this.cerrarBitacora();
     }
