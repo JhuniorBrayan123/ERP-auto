@@ -9,7 +9,7 @@ import {GenerarComprobanteDesdeBusqueda} from '@screenplay/interactions/facturac
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
 
-test.describe.skip('FC-CT-PAGAR | Pagar/Generar Comprobantes desde Cotización — sin producción', {
+test.describe.serial('FC-CT-PAGAR | Pagar/Generar Comprobantes desde Cotización', {
     tag: ['@facturacion', '@cotizacion', '@pago', '@generar']
 }, () => {
     let correlativoCotizacion = '';
@@ -26,7 +26,7 @@ test.describe.skip('FC-CT-PAGAR | Pagar/Generar Comprobantes desde Cotización �
         expect(correlativoCotizacion).toBeTruthy();
     });
 
-    test.describe('Pagar Cotización desde Vista (CT.10-CT.12)', () => {
+    test.describe.skip('Pagar Cotización desde Vista (CT.10-CT.12) — sin producción', () => {
         for (const tipo of tiposComprobante) {
             test(`Generar ${tipo} pagando cotización cargada @FC-CT.Pagar${tipo.replace(/ /g, '')}`, async ({
                                                                                                                 vendedor,
