@@ -1,19 +1,21 @@
-import { type Locator, type Page } from '@playwright/test';
+import {type Locator, type Page} from '@playwright/test';
 import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 export class PedidoListaPage {
-    constructor(private readonly page: Page) {}
+    constructor(private readonly page: Page) {
+    }
 
     private get btnBuscarPedidos(): Locator {
-        return this.page.getByRole('button', { name: 'Buscar pedidos' });
+        return this.page.getByRole('button', {name: 'Buscar pedidos'});
     }
 
-    private get btnVerTodos(): Locator {
-        return this.page.getByText('Ver todos');
+    private get btnListarPedidos(): Locator {
+        return this.page.locator('[id="pv_punto-venta_cmp-pedido-header_v-button:lista-pedidos"]')
     }
+
 
     private get inputNroPedido(): Locator {
-        return this.page.getByRole('textbox', { name: 'N° de pedido' });
+        return this.page.getByRole('textbox', {name: 'N° de pedido'});
     }
 
     private get dropdownOpciones(): Locator {
@@ -33,14 +35,14 @@ export class PedidoListaPage {
     }
 
     async clickVerTodos(): Promise<void> {
-        await this.btnVerTodos.click();
+        await this.btnListarPedidos.click();
         await esperarCargaOverlay(this.page)
     }
 
     async filtrarPorNroPedido(numero: string): Promise<void> {
         await this.inputNroPedido.click();
         await this.inputNroPedido.fill(numero);
-        
+
         await this.page.waitForTimeout(800);
     }
 

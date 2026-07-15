@@ -22,16 +22,17 @@ export const PedidoTargets = {
         page.locator('label:has(> input[id*="sin-documento"]) > .slider'),
 
     inputRazonSocialSinDoc: (page: Page) =>
-        page.locator('[id*="cmp-pedido-header"][id*="v-input:razon-social-sin-documento"]'),
+        page.locator('[id="pv_punto-venta_cmp-factura-boleta-header_v-input:razon-social-sin-documento"]'),
 
     inputDireccionSinDoc: (page: Page) =>
-        page.locator('[id*="cmp-pedido-header"][id*="v-input:direccion-sin-documento"]'),
+        page.locator('[id="pv_punto-venta_cmp-factura-boleta-header_v-input:direccion-sin-documento"]'),
 
     btnEmitir: (page: Page) =>
         page.getByRole('button', {name: 'EMITIR'}),
 
     btnGuardarPedido: (page: Page) =>
         page.locator('[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-footer_v-button:pago-rapido"]'),
+
     btnGuardarPedidoFactura: (page: Page) =>
         page.locator('[id="pv_cmp-facturacion_cmp-pedido_cmp-nc-body_cmp-pedido-totales_v-button:guardar"]'),
 

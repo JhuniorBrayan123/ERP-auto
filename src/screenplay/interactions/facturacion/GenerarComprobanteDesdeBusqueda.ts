@@ -38,7 +38,6 @@ export const GenerarComprobanteDesdeBusqueda = (numeroComprobante: string, tipoD
         const response = await emisionPromise;
         const body = await response.json();
 
-        // Validar mensaje de éxito dentro del popup antes de cerrarlo
         await popup.getByText('¡Buen trabajo!').waitFor({state: 'visible', timeout: 10_000});
 
         const nombrePdf: string = body.FilePdf?.Nombre ?? '';
