@@ -111,7 +111,7 @@ test.describe.serial('FC-PD-BUSQUEDA | Búsqueda y Edición de Pedido en Vista F
             CargarPedidoDesdeLista(soloCorrelativo)
         );
 
-        expect(await vendedor.pregunta(DatosPedidoCargado.contieneItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre))).toBe(true);
+        expect(await vendedor.pregunta(DatosPedidoCargado.contieneItemEnVF(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre))).toBe(true);
     });
 
     test('SC-06: Ver pedido desde la lista de pedidos @FC-PD.Ver', async ({vendedor}) => {

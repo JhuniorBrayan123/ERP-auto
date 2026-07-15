@@ -15,6 +15,20 @@ export const DatosPedidoCargado = {
         };
     },
 
+    /** Valida que un item esté presente en la grilla de Vista Facturación (cotización/pedido).
+     *  Selector basado en la estructura real de VF: .nombre-item > .text-container > span */
+    contieneItemEnVF: (nombreItem: string) => {
+        return async (page: Page): Promise<boolean> => {
+            try {
+                const item = page.locator('.nombre-item .text-container').filter({hasText: nombreItem}).first();
+                await expect(item).toBeVisible({timeout: 10_000});
+                return true;
+            } catch {
+                return false;
+            }
+        };
+    },
+
     contieneMontoItem: (precioEsperado: string) => {
         return async (page: Page): Promise<boolean> => {
             try {
