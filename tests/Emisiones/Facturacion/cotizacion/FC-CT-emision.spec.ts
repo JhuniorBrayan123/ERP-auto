@@ -5,6 +5,7 @@ import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {SeleccionarTipoComprobante} from '@screenplay/interactions/facturacion/SeleccionarTipoComprobante';
 import {CotizacionTargets} from '@screenplay/targets/cotizacion/CotizacionTargets';
 import {BitacoraComprobante} from '@question/PuntoVenta/BitacoraComprobante.question';
+import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 
 test.describe('FC-CT-EMISION | Emisión de Cotización desde Vista Facturación', {
     tag: ['@facturacion', '@cotizacion', '@emision']
@@ -84,7 +85,26 @@ test.describe('FC-CT-EMISION | Emisión de Cotización desde Vista Facturación'
         expect(await vendedor.pregunta(BitacoraComprobante.noMuestraDescargoInventario(mockEmisionResult))).toBe(true);
     });
 
-    test('SC-05: Validar emisión de cotización sin productos impide emisión @FC-CT.5', async ({vendedor, page}) => {
+    test('SC-05: Emitir cotización con IGV 10.5% @FC-CT.IGV', async ({vendedor, page}) => {
+        const resultado = await vendedor.realizaYObtiene(
+            CrearCotizacionVF({
+                cliente: CLIENTES.EMPRESA_RUC_AUTO,
+                items: [ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL],
+                igv: '10.5%',
+                observaciones: 'Cotización con IGV 10.5%',
+            })
+        );
+
+        expect(resultado.numero).toMatch(/^CT\d{2}-\d{8}$/);
+
+        // Navegar a búsqueda y verificar IGV en el Ver comprobante
+        const busqueda = new BusquedaComprobantesPage(page);
+        await busqueda.navegarABusquedaComprobantes(resultado);
+        const verPopup = await busqueda.verComprobante.abrirVerComprobante();
+        await expect(verPopup.getByText('10.5%')).toBeVisible();
+    });
+
+    test('SC-06: Validar emisión de cotización sin productos impide emisión @FC-CT.5', async ({vendedor, page}) => {
         await vendedor.realiza(
             SeleccionarTipoComprobante('COTIZACION'),
         );
