@@ -24,14 +24,14 @@ export const CotizacionTargets = {
         page.locator('.v-select-base-header').filter({hasText: /^\d+ días?$/}).first(),
 
     opcionVigencia: (page: Page, dias: string) =>
-        page.locator('.v-select-form-option').getByText(dias, {exact: true}),
+        page.locator('.v-select-base-options.is-open .v-select-form-option').getByText(dias, {exact: true}),
 
     // ─── IGV ────────────────────────────────────────────────────────
     selectorIGV: (page: Page) =>
         page.locator('.v-select-base-header').filter({hasText: /^\d+\.?\d*%$/}).first(),
 
     opcionIGV: (page: Page, porcentaje: string) =>
-        page.locator('.v-select-form-option').getByText(porcentaje, {exact: true}),
+        page.locator('.v-select-base-options.is-open .v-select-form-option').getByText(porcentaje, {exact: true}),
 
     switchClienteSinDoc: (page: Page) =>
         page.locator('label:has(> input[id*="sin-documento"]) > .slider'),
