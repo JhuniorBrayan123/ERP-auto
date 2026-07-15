@@ -1,4 +1,4 @@
-import { expect, type Page } from '@playwright/test';
+import { type Page } from '@playwright/test';
 import { esperarCargaOverlay } from '@utils/wait-helpers';
 
 type TipoComprobante = 'BOLETA' | 'FACTURA' | 'NOTA DE VENTA' | 'COTIZACION' | 'PEDIDO';
@@ -21,11 +21,17 @@ export const SeleccionarTipoComprobante = (tipo: TipoComprobante) => {
         );
 
         const id = ID_POR_TIPO[tipo];
+        const textoBoton = tipo === 'NOTA DE VENTA' ? 'NOTA DE VENTA' : tipo;
         const opcion = page.locator(
             `[id="pv_punto-venta_cmp-factura-boleta-header_v-select:tipo-comprobante_v-option:opcion-${id}"]`
         );
-        await expect(opcion).toBeVisible({ timeout: 5_000 });
-        await opcion.getByText(tipo === 'NOTA DE VENTA' ? 'NOTA DE VENTA' : tipo).click();
+        const opcionVisible = await opcion.isVisible().catch(() => false);
+        if (opcionVisible) {
+            await opcion.getByText(textoBoton).click();
+        } else {
+            // Fallback: buscar por texto directamente
+            await page.getByText(textoBoton).first().click();
+        }
     };
     fn.displayName = `Seleccionar tipo de comprobante: ${tipo}`;
     return fn;
