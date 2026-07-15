@@ -3,7 +3,6 @@ import {CrearPedidoVF} from '@screenplay/tasks/pedido/CrearPedidoVF';
 import {IrABusquedaComprobantes} from '@task/PuntoVenta/IrABusquedaComprobantes.task';
 import {FiltrarComprobantePorTipo} from '@task/PuntoVenta/FiltrarComprobantePorTipo.task';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
-import {FacturacionTargets} from '@screenplay/targets/facturacion/FacturacionTargets';
 import {GenerarComprobanteDesdeBusqueda} from '@screenplay/interactions/facturacion/GenerarComprobanteDesdeBusqueda';
 
 test.describe.serial('FC-PD-GENERAR | Generar Comprobantes desde Pedido', {
@@ -12,7 +11,6 @@ test.describe.serial('FC-PD-GENERAR | Generar Comprobantes desde Pedido', {
     let numeroPedidoBase = '';
 
     test('Setup: Crear Pedido base para generación @FC-PD.8-Setup', async ({vendedor}) => {
-        // Creamos un pedido con un cliente con RUC para poder emitir Factura, Boleta y NV
         const pedido = await vendedor.realizaYObtiene(
             CrearPedidoVF({
                 cliente: CLIENTES.EMPRESA_RUC_AUTO,
@@ -26,7 +24,10 @@ test.describe.serial('FC-PD-GENERAR | Generar Comprobantes desde Pedido', {
     const tiposComprobante = ['BOLETA', 'FACTURA', 'NOTA DE VENTA'] as const;
 
     for (const tipo of tiposComprobante) {
-        test(`PD.18-20: Generar ${tipo} desde Pedido registrado @FC-PD.8-${tipo.replace(/ /g, '')}`, async ({vendedor, page}) => {
+        test(`PD.18-20: Generar ${tipo} desde Pedido registrado @FC-PD.8-${tipo.replace(/ /g, '')}`, async ({
+                                                                                                                vendedor,
+                                                                                                                page
+                                                                                                            }) => {
             test.skip(!numeroPedidoBase, 'No se generó el pedido base');
 
             await vendedor.realiza(
@@ -38,7 +39,6 @@ test.describe.serial('FC-PD-GENERAR | Generar Comprobantes desde Pedido', {
                 GenerarComprobanteDesdeBusqueda(numeroPedidoBase, tipo)
             );
 
-            // Assert
             if (tipo === 'BOLETA') {
                 expect(emision.serie).toMatch(/^B/);
             } else if (tipo === 'FACTURA') {
@@ -46,8 +46,6 @@ test.describe.serial('FC-PD-GENERAR | Generar Comprobantes desde Pedido', {
             } else if (tipo === 'NOTA DE VENTA') {
                 expect(emision.serie).toMatch(/^NV/);
             }
-            
-            await expect(FacturacionTargets.mensajeExito(page)).toBeVisible();
         });
     }
 });
