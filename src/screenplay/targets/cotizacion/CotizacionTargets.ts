@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import type {Page} from '@playwright/test';
 
 /**
  * Targets específicos de Cotización en Vista Facturación.
@@ -17,26 +17,24 @@ export const CotizacionTargets = {
         page.locator('[id="pv_punto-venta_cmp-cotizacion_cmp-cotizacion-header:header_v-input:correlativo"]'),
 
     btnBuscar: (page: Page) =>
-        page.getByRole('button', { name: 'Buscar' }),
+        page.getByRole('button', {name: 'Buscar'}),
 
     // ─── Vigencia de oferta ────────────────────────────────────────
     selectorVigencia: (page: Page) =>
-        page.locator('div').filter({ hasText: /^0 días$/ }).nth(3),
+        page.locator('div').filter({hasText: /^0 días$/}).nth(3),
 
     opcionVigencia: (page: Page, dias: string) =>
-        page.getByText(dias, { exact: true }),
+        page.getByText(dias, {exact: true}),
 
     // ─── IGV ───────────────────────────────────────────────────────
     selectorIGV: (page: Page) =>
-        page.locator('div').filter({ hasText: /^18%$/ }).nth(3),
+        page.locator('div').filter({hasText: /^18%$/}).nth(3),
 
     opcionIGV: (page: Page, porcentaje: string) =>
         page.getByText(porcentaje),
 
-    // ─── Cliente sin documento ─────────────────────────────────────
-    /** Label que envuelve el switch "sin documento". Clickear el label togglea el checkbox correctamente en Vue */
     switchClienteSinDoc: (page: Page) =>
-        page.locator('label:has(> input[id*="sin-documento"])'),
+        page.locator('label:has(> input[id*="sin-documento"]) > .slider'),
 
     inputRazonSocialSinDoc: (page: Page) =>
         page.locator('[id="pv_punto-venta_cmp-cotizacion-header_v-input:razon-social-sin-documento"]'),
@@ -53,27 +51,27 @@ export const CotizacionTargets = {
 
     // ─── Observaciones ─────────────────────────────────────────────
     inputObservaciones: (page: Page) =>
-        page.getByRole('textbox', { name: 'Ingresa tus observaciones' }),
+        page.getByRole('textbox', {name: 'Ingresa tus observaciones'}),
 
     // ─── Acciones ──────────────────────────────────────────────────
     btnEmitir: (page: Page) =>
-        page.getByRole('button', { name: 'EMITIR' }),
+        page.getByRole('button', {name: 'EMITIR'}),
 
     btnActualizarCotizacion: (page: Page) =>
-        page.getByRole('button', { name: 'ACTUALIZAR COTIZACIÓN' }),
+        page.getByRole('button', {name: 'ACTUALIZAR COTIZACIÓN'}),
 
     btnPagarCotizacion: (page: Page) =>
-        page.getByRole('button', { name: 'PAGAR COTIZ.' }),
+        page.getByRole('button', {name: 'PAGAR COTIZ.'}),
 
     // ─── Pagar cotización — modal selección tipo doc ───────────────
     selectorTipoDocPago: (page: Page) =>
-        page.locator('div').filter({ hasText: /^BOLETA$/ }).nth(4),
+        page.locator('div').filter({hasText: /^BOLETA$/}).nth(4),
 
     opcionTipoDocPago: (page: Page, tipo: string) =>
         page.getByText(tipo).nth(2),
 
     btnConfirmarPago: (page: Page) =>
-        page.getByRole('button', { name: 'Confirmar' }),
+        page.getByRole('button', {name: 'Confirmar'}),
 
     // ─── Grilla cotización ─────────────────────────────────────────
     gridCotizacion: (page: Page) =>

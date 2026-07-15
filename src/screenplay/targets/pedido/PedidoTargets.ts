@@ -14,14 +14,12 @@ export const PedidoTargets = {
     btnBuscar: (page: Page) =>
         page.getByRole('button', {name: 'Buscar'}),
 
-    // ─── Observaciones ─────────────────────────────────────────────
+
     inputObservaciones: (page: Page) =>
         page.getByRole('textbox', {name: 'Ingresa tus observaciones'}),
 
-    // ─── Cliente sin documento ─────────────────────────────────────
-    /** Label que envuelve el switch "sin documento". Clickear el label togglea el checkbox correctamente en Vue */
     switchClienteSinDoc: (page: Page) =>
-        page.locator('label:has(> input[id*="sin-documento"])'),
+        page.locator('label:has(> input[id*="sin-documento"]) > .slider'),
 
     inputRazonSocialSinDoc: (page: Page) =>
         page.locator('[id*="cmp-pedido-header"][id*="v-input:razon-social-sin-documento"]'),
