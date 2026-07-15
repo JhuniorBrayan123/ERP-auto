@@ -1,16 +1,16 @@
-import { test, expect } from '@fixtures/PuntoVenta/cotizacion-pedido.fixture';
-import { CrearCotizacionVF } from '@screenplay/tasks/cotizacion/CrearCotizacionVF';
-import { ModalPostEmision } from '@question/PuntoVenta/ModalPostEmision.question';
-import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
-import { SeleccionarTipoComprobante } from '@screenplay/interactions/facturacion/SeleccionarTipoComprobante';
-import { CotizacionTargets } from '@screenplay/targets/cotizacion/CotizacionTargets';
-import { BitacoraComprobante } from '@question/PuntoVenta/BitacoraComprobante.question';
+import {expect, test} from '@fixtures/PuntoVenta/cotizacion-pedido.fixture';
+import {CrearCotizacionVF} from '@screenplay/tasks/cotizacion/CrearCotizacionVF';
+import {ModalPostEmision} from '@question/PuntoVenta/ModalPostEmision.question';
+import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import {SeleccionarTipoComprobante} from '@screenplay/interactions/facturacion/SeleccionarTipoComprobante';
+import {CotizacionTargets} from '@screenplay/targets/cotizacion/CotizacionTargets';
+import {BitacoraComprobante} from '@question/PuntoVenta/BitacoraComprobante.question';
 
 test.describe('FC-CT-EMISION | Emisión de Cotización desde Vista Facturación', {
     tag: ['@facturacion', '@cotizacion', '@emision']
 }, () => {
 
-    test('SC-01: Emitir cotización con cliente registrado @FC-CT.1', async ({ vendedor }) => {
+    test('SC-01: Emitir cotización con cliente registrado @FC-CT.1', async ({vendedor}) => {
         const resultado = await vendedor.realizaYObtiene(
             CrearCotizacionVF({
                 cliente: CLIENTES.PERSONA_DNI,
@@ -24,7 +24,7 @@ test.describe('FC-CT-EMISION | Emisión de Cotización desde Vista Facturación'
         expect(await vendedor.pregunta(ModalPostEmision.tieneCorrelativo())).toBe(true);
     });
 
-    test('SC-04: Emitir cotización con validez de oferta de varios días @FC-CT.4', async ({ vendedor }) => {
+    test('SC-04: Emitir cotización con validez de oferta de varios días @FC-CT.4', async ({vendedor}) => {
         const resultado = await vendedor.realizaYObtiene(
             CrearCotizacionVF({
                 cliente: CLIENTES.PERSONA_DNI,
@@ -37,11 +37,11 @@ test.describe('FC-CT-EMISION | Emisión de Cotización desde Vista Facturación'
         expect(resultado.numero).toMatch(/^CT\d{2}-\d{8}$/);
     });
 
-    test('SC-02: Emitir cotización con cliente sin documento @FC-CT.2', async ({ vendedor }) => {
+    test('SC-02: Emitir cotización con cliente sin documento @FC-CT.2', async ({vendedor}) => {
         const resultado = await vendedor.realizaYObtiene(
             CrearCotizacionVF({
                 items: [ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL],
-                clienteSinDoc: { nombre: 'cliente sin documento auto', direccion: 'direccion automatizada' },
+                clienteSinDoc: {nombre: 'cliente sin documento auto', direccion: 'direccion automatizada'},
                 observaciones: 'Cotización auto — sin doc',
             })
         );
@@ -50,7 +50,7 @@ test.describe('FC-CT-EMISION | Emisión de Cotización desde Vista Facturación'
         expect(await vendedor.pregunta(ModalPostEmision.estaVisible())).toBe(true);
     });
 
-    test('SC-03: Emitir cotización con imágenes y descripción @FC-CT.3', async ({ vendedor }) => {
+    test('SC-03: Emitir cotización con imágenes y descripción @FC-CT.3', async ({vendedor}) => {
         const resultado = await vendedor.realizaYObtiene(
             CrearCotizacionVF({
                 cliente: CLIENTES.PERSONA_DNI,
@@ -64,9 +64,7 @@ test.describe('FC-CT-EMISION | Emisión de Cotización desde Vista Facturación'
         expect(resultado.numero).toMatch(/^CT\d{2}-\d{8}$/);
     });
 
-    test('SC-04: Emitir cotización con producto sin stock no genera descargo @FC-CT.6', async ({ vendedor }) => {
-        // En Vista Facturación/PV, la cotización nunca descarga stock. 
-        // Verificaremos que no exista evento de descargo.
+    test('SC-04: Emitir cotización con producto sin stock no genera descargo @FC-CT.6', async ({vendedor}) => {
         const resultadoCotizacion = await vendedor.realizaYObtiene(
             CrearCotizacionVF({
                 cliente: CLIENTES.PERSONA_DNI,
@@ -75,18 +73,23 @@ test.describe('FC-CT-EMISION | Emisión de Cotización desde Vista Facturación'
         );
 
         expect(resultadoCotizacion.numero).toMatch(/^CT\d{2}-\d{8}$/);
-        
-        // Aquí pasamos un mock de EmisionResult porque ModalPostEmision espera la estructura
-        const mockEmisionResult = { current: { serie: resultadoCotizacion.serie, correlativo: resultadoCotizacion.correlativo, comprobanteId: 0 } };
+
+        const mockEmisionResult = {
+            current: {
+                serie: resultadoCotizacion.serie,
+                correlativo: resultadoCotizacion.correlativo,
+                comprobanteId: 0
+            }
+        };
         expect(await vendedor.pregunta(BitacoraComprobante.noMuestraDescargoInventario(mockEmisionResult))).toBe(true);
     });
 
-    test('SC-05: Validar emisión de cotización sin productos impide emisión @FC-CT.5', async ({ vendedor, page }) => {
+    test('SC-05: Validar emisión de cotización sin productos impide emisión @FC-CT.5', async ({vendedor, page}) => {
         await vendedor.realiza(
             SeleccionarTipoComprobante('COTIZACION'),
         );
 
         await CotizacionTargets.btnEmitir(page).click();
-        await expect(CotizacionTargets.mensajeSinItems(page)).toBeVisible({ timeout: 5_000 });
+        await expect(CotizacionTargets.mensajeSinItems(page)).toBeVisible({timeout: 5_000});
     });
 });

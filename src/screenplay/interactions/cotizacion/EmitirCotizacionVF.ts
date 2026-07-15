@@ -17,10 +17,8 @@ export const EmitirCotizacionVF = () => {
 
         await CotizacionTargets.btnEmitir(page).click();
         try {
-            await FacturacionTargets.btnNuevaVenta(page).click({timeout: 10_000});
+            await FacturacionTargets.btnNuevaVenta(page).click({timeout: 25_000});
         } catch {
-            // El modal post-emisión puede re-renderizarse (ej: advertencia sin stock)
-            // No es crítico — el test o el siguiente test limpian si es necesario
         }
 
         const response = await emisionPromise;
