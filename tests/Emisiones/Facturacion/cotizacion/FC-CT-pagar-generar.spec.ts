@@ -9,7 +9,7 @@ import {GenerarComprobanteDesdeBusqueda} from '@screenplay/interactions/facturac
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
 
-test.describe.serial('FC-CT-PAGAR | Pagar/Generar Comprobantes desde Cotización', {
+test.describe.skip('FC-CT-PAGAR | Pagar/Generar Comprobantes desde Cotización — sin producción', {
     tag: ['@facturacion', '@cotizacion', '@pago', '@generar']
 }, () => {
     let correlativoCotizacion = '';
