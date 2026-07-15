@@ -10,7 +10,8 @@ export const BitacoraComprobante = {
             const postEmisionPage = new PostEmisionPage(page);
             const busquedaComprobantesPage = new BusquedaComprobantesPage(page);
 
-            await postEmisionPage.clickNuevaVenta()
+            // Cerrar modal post-emisión si sigue abierto (ya pudo cerrarlo la tarea de emisión)
+            await postEmisionPage.clickNuevaVenta().catch(() => {});
             await busquedaComprobantesPage.navegarABusquedaComprobantes(resultadoPedido?.current)
 
             await busquedaPage.abrirBitacoraDelPrimerComprobante();
