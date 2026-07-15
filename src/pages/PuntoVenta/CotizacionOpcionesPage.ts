@@ -34,14 +34,17 @@ export class CotizacionOpcionesPage {
     }
 
     private get selectorVigencia(): Locator {
-        return this.page.locator('div').filter({ hasText: /^(0 días|1 día)$/ }).nth(1);
+        return this.page.locator('[class*="v-select"]').filter({ hasText: /^\d+ días?$/ }).first();
     }
 
     async seleccionarVigencia(dias: string): Promise<void> {
-       await this.selectorVigencia.click();
-        await this.page
-            .locator('.v-select-small-option')  
-            .getByText(dias, { exact: true })   
-            .click();
+        await this.selectorVigencia.click();
+        const opcion = this.page.locator('.v-select-small-option').getByText(dias, { exact: true });
+        if (await opcion.isVisible({ timeout: 3_000 }).catch(() => false)) {
+            await opcion.click();
+        } else {
+            // Fallback: buscar opción con clase alternativa
+            await this.page.getByText(dias, { exact: true }).first().click();
+        }
     }
 }
