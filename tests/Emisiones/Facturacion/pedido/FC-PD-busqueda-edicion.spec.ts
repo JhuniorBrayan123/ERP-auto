@@ -3,7 +3,7 @@ import {CrearPedidoVF} from '@screenplay/tasks/pedido/CrearPedidoVF';
 import {EditarPedidoVF} from '@screenplay/tasks/pedido/EditarPedidoVF';
 import {SeleccionarTipoComprobante} from '@screenplay/interactions/facturacion/SeleccionarTipoComprobante';
 import {PedidoTargets} from '@screenplay/targets/pedido/PedidoTargets';
-import {CLIENTES, ITEMS_PV, CAJAS} from '@helpers/PuntoVenta/emision-data.helper';
+import {CAJAS, CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {FacturacionTargets} from '@screenplay/targets/facturacion/FacturacionTargets';
 import {esperarCargaOverlay} from '@utils/wait-helpers';
 import {AbrirListaPedidos} from '@task/PuntoVenta/AbrirListaPedidos.task';
@@ -18,9 +18,9 @@ import {VerPedidoDesdeLista} from '@task/PuntoVenta/VerPedidoDesdeLista.task';
 test.describe.serial('FC-PD-BUSQUEDA | Búsqueda y Edición de Pedido en Vista Facturación', {
     tag: ['@facturacion', '@pedido', '@busqueda']
 }, () => {
-    let pedidoBase = { numero: '', correlativo: '' };
+    let pedidoBase = {numero: '', correlativo: ''};
 
-    test('Setup: Crear Pedido base para pruebas de búsqueda', async ({ vendedor }) => {
+    test('Setup: Crear Pedido base para pruebas de búsqueda', async ({vendedor}) => {
         const pedido = await vendedor.realizaYObtiene(
             CrearPedidoVF({
                 cliente: CLIENTES.PERSONA_DNI,
@@ -31,18 +31,20 @@ test.describe.serial('FC-PD-BUSQUEDA | Búsqueda y Edición de Pedido en Vista F
         expect(pedidoBase.numero).toBeTruthy();
     });
 
-    test('SC-01: Buscar pedido existente por correlativo (Búsqueda Directa) @FC-PD.5', async ({ vendedor, page }) => {
+    test('SC-01: Buscar pedido existente por correlativo (Búsqueda Directa) @FC-PD.5', async ({vendedor, page}) => {
         test.skip(!pedidoBase.correlativo, 'No se generó el pedido base');
         await vendedor.realiza(
             SeleccionarTipoComprobante('PEDIDO')
         );
 
-        await esperarCargaOverlay(page).catch(() => {});
+        await esperarCargaOverlay(page).catch(() => {
+        });
         const inputCorrelativo = PedidoTargets.inputCorrelativo(page);
         await inputCorrelativo.click();
         await inputCorrelativo.fill(pedidoBase.correlativo);
         await PedidoTargets.btnBuscar(page).click();
-        await esperarCargaOverlay(page).catch(() => {});
+        await esperarCargaOverlay(page).catch(() => {
+        });
 
         await expect(page.locator('main')).toContainText(CLIENTES.PERSONA_DNI.nombre);
         await expect(page.locator('tbody')).toContainText(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
@@ -52,71 +54,79 @@ test.describe.serial('FC-PD-BUSQUEDA | Búsqueda y Edición de Pedido en Vista F
         await vendedor.realiza(
             SeleccionarTipoComprobante('PEDIDO')
         );
-        await esperarCargaOverlay(page).catch(() => {});
+        await esperarCargaOverlay(page).catch(() => {
+        });
         const inputCorrelativo = PedidoTargets.inputCorrelativo(page);
         await inputCorrelativo.click();
         await inputCorrelativo.fill('99999999');
         await PedidoTargets.btnBuscar(page).click();
+        await esperarCargaOverlay(page);
+        await expect(
+            page.getByText('No se encontró el comprobante con los datos ingresados. Por favor, verifica e intenta nuevamente.')
+        ).toBeVisible();
 
         await expect(FacturacionTargets.inputBuscarCliente(page)).toBeVisible();
         await expect(FacturacionTargets.inputBuscarCliente(page)).toBeEmpty();
     });
 
-    test('SC-03: Listar y filtrar pedido desde la opción Ver Todos (Número) @FC-PD.Listar', async ({ vendedor }) => {
-        test.skip(!pedidoBase.numero, 'No se generó el pedido base');
+    test('SC-03: Listar y filtrar pedido desde la opción Ver Todos (Número) @FC-PD.Listar', async ({vendedor}) => {
+        test.skip(!pedidoBase.correlativo, 'No se generó el pedido base');
+        const soloCorrelativo = String(parseInt(pedidoBase.correlativo, 10));
         await vendedor.realiza(
             SeleccionarTipoComprobante('PEDIDO'),
             AbrirListaPedidos(),
-            FiltrarListaPedidosPorNumero(pedidoBase.numero)
+            FiltrarListaPedidosPorNumero(soloCorrelativo)
         );
-        
-        expect(await vendedor.pregunta(PedidoEnListaVisible(pedidoBase.numero))).toBe(true);
+
+        expect(await vendedor.pregunta(PedidoEnListaVisible(soloCorrelativo))).toBe(true);
     });
 
-    test('SC-04: Filtrar pedido por cliente en lista @FC-PD.FiltroCliente', async ({ vendedor }) => {
-        test.skip(!pedidoBase.numero, 'No se generó el pedido base');
+    test('SC-04: Filtrar pedido por cliente en lista @FC-PD.FiltroCliente', async ({vendedor}) => {
+        test.skip(!pedidoBase.correlativo, 'No se generó el pedido base');
         await vendedor.realiza(
             SeleccionarTipoComprobante('PEDIDO'),
             AbrirListaPedidos(),
             FiltrarListaPedidosPorCliente(CLIENTES.PERSONA_DNI)
         );
 
-        expect(await vendedor.pregunta(PedidoEnListaVisible(pedidoBase.numero))).toBe(true);
+        expect(await vendedor.pregunta(PedidoEnListaVisible(pedidoBase.correlativo))).toBe(true);
     });
 
-    test('SC-04.5: Filtrar pedido por caja en lista @FC-PD.FiltroCaja', async ({ vendedor }) => {
-        test.skip(!pedidoBase.numero, 'No se generó el pedido base');
+    test('SC-04.5: Filtrar pedido por caja en lista @FC-PD.FiltroCaja', async ({vendedor}) => {
+        test.skip(!pedidoBase.correlativo, 'No se generó el pedido base');
         await vendedor.realiza(
             SeleccionarTipoComprobante('PEDIDO'),
             AbrirListaPedidos(),
             FiltrarListaPedidosPorCaja(CAJAS.VENTA.nombre)
         );
 
-        expect(await vendedor.pregunta(PedidoEnListaVisible(pedidoBase.numero))).toBe(true);
+        expect(await vendedor.pregunta(PedidoEnListaVisible(pedidoBase.correlativo))).toBe(true);
     });
 
-    test('SC-05: Cargar pedido desde la lista @FC-PD.Cargar', async ({ vendedor }) => {
-        test.skip(!pedidoBase.numero, 'No se generó el pedido base');
+    test('SC-05: Cargar pedido desde la lista @FC-PD.Cargar', async ({vendedor}) => {
+        test.skip(!pedidoBase.correlativo, 'No se generó el pedido base');
+        const soloCorrelativo = String(parseInt(pedidoBase.correlativo, 10));
         await vendedor.realiza(
             SeleccionarTipoComprobante('PEDIDO'),
-            CargarPedidoDesdeLista(pedidoBase.numero)
+            CargarPedidoDesdeLista(soloCorrelativo)
         );
-        
+
         expect(await vendedor.pregunta(DatosPedidoCargado.contieneItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre))).toBe(true);
     });
 
-    test('SC-06: Ver pedido desde la lista de pedidos @FC-PD.Ver', async ({ vendedor }) => {
-        test.skip(!pedidoBase.numero, 'No se generó el pedido base');
+    test('SC-06: Ver pedido desde la lista de pedidos @FC-PD.Ver', async ({vendedor}) => {
+        test.skip(!pedidoBase.correlativo, 'No se generó el pedido base');
+        const soloCorrelativo = String(parseInt(pedidoBase.correlativo, 10));
         await vendedor.realiza(
             SeleccionarTipoComprobante('PEDIDO'),
             AbrirListaPedidos()
         );
 
-        const popup = await vendedor.realizaYObtiene(VerPedidoDesdeLista(pedidoBase.numero));
-        await expect(popup.getByText(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre).first()).toBeVisible({ timeout: 30_000 });
+        const popup = await vendedor.realizaYObtiene(VerPedidoDesdeLista(soloCorrelativo));
+        await expect(popup.getByText(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre).first()).toBeVisible({timeout: 30_000});
     });
 
-    test('SC-07: Editar y actualizar pedido cargado @FC-PD.6', async ({ vendedor, page }) => {
+    test('SC-07: Editar y actualizar pedido cargado @FC-PD.6', async ({vendedor, page}) => {
         test.skip(!pedidoBase.correlativo, 'No se generó el pedido base');
         // Para editar partimos desde un pedido fresco recién creado en lugar de usar el base que ya pudimos modificar
         const pedido = await vendedor.realizaYObtiene(
