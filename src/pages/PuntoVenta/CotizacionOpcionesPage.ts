@@ -34,17 +34,22 @@ export class CotizacionOpcionesPage {
     }
 
     private get selectorVigencia(): Locator {
-        return this.page.locator('[class*="v-select"]').filter({ hasText: /^\d+ días?$/ }).first();
+        return this.page.locator('.v-select-base-header').filter({ hasText: /^\d+ días?$/ }).first();
     }
 
     async seleccionarVigencia(dias: string): Promise<void> {
         await this.selectorVigencia.click();
-        const opcion = this.page.locator('.v-select-small-option').getByText(dias, { exact: true });
-        if (await opcion.isVisible({ timeout: 3_000 }).catch(() => false)) {
-            await opcion.click();
-        } else {
-            // Fallback: buscar opción con clase alternativa
-            await this.page.getByText(dias, { exact: true }).first().click();
-        }
+        await this.page
+            .locator('.v-select-form-option, .v-select-small-option')
+            .getByText(dias, { exact: true })
+            .click();
+    }
+
+    async seleccionarIGV(porcentaje: string): Promise<void> {
+        await this.page.locator('.v-select-base-header').filter({ hasText: /^\d+\.?\d*%$/ }).first().click();
+        await this.page
+            .locator('.v-select-form-option, .v-select-small-option')
+            .getByText(porcentaje, { exact: true })
+            .click();
     }
 }

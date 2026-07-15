@@ -31,14 +31,13 @@ export const CrearCotizacionVF = (datos: DatosCotizacionVF) => {
             await BuscarYSeleccionarCliente(datos.cliente)(page);
         }
 
+        const opcionesPage = new CotizacionOpcionesPage(page);
         if (datos.validezOferta) {
-            const opcionesPage = new CotizacionOpcionesPage(page);
             await opcionesPage.seleccionarVigencia(datos.validezOferta);
         }
 
         if (datos.igv) {
-            await CotizacionTargets.selectorIGV(page).click();
-            await CotizacionTargets.opcionIGV(page, datos.igv).click();
+            await opcionesPage.seleccionarIGV(datos.igv);
         }
 
         if (datos.incluirImagenes) {
