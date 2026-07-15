@@ -18,11 +18,20 @@ export const CotizacionTargets = {
 
     btnBuscar: (page: Page) =>
         page.getByRole('button', {name: 'Buscar'}),
+
+    // ─── Vigencia de oferta ────────────────────────────────────────
+    selectorVigencia: (page: Page) =>
+        page.locator('.v-select-base-header').filter({hasText: /^\d+ días?$/}).first(),
+
+    opcionVigencia: (page: Page, dias: string) =>
+        page.locator('.v-select-form-option').getByText(dias, {exact: true}),
+
+    // ─── IGV ────────────────────────────────────────────────────────
     selectorIGV: (page: Page) =>
-        page.locator('div').filter({hasText: /^18%$/}).nth(3),
+        page.locator('.v-select-base-header').filter({hasText: /^\d+\.?\d*%$/}).first(),
 
     opcionIGV: (page: Page, porcentaje: string) =>
-        page.getByText(porcentaje),
+        page.locator('.v-select-form-option').getByText(porcentaje, {exact: true}),
 
     switchClienteSinDoc: (page: Page) =>
         page.locator('label:has(> input[id*="sin-documento"]) > .slider'),
