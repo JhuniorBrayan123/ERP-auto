@@ -14,6 +14,7 @@ import {PedidoEnListaVisible} from '@question/PuntoVenta/PedidoEnListaVisible.qu
 import {CargarPedidoDesdeLista} from '@task/PuntoVenta/CargarPedidoDesdeLista.task';
 import {DatosPedidoCargado} from '@question/PuntoVenta/DatosPedidoCargado.question';
 import {VerPedidoDesdeLista} from '@task/PuntoVenta/VerPedidoDesdeLista.task';
+import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
 
 test.describe.serial('FC-PD-BUSQUEDA | Búsqueda y Edición de Pedido en Vista Facturación', {
     tag: ['@facturacion', '@pedido', '@busqueda']
@@ -128,13 +129,16 @@ test.describe.serial('FC-PD-BUSQUEDA | Búsqueda y Edición de Pedido en Vista F
 
     test('SC-07: Editar y actualizar pedido cargado @FC-PD.6', async ({vendedor, page}) => {
         test.skip(!pedidoBase.correlativo, 'No se generó el pedido base');
-        // Para editar partimos desde un pedido fresco recién creado en lugar de usar el base que ya pudimos modificar
         const pedido = await vendedor.realizaYObtiene(
             CrearPedidoVF({
                 cliente: CLIENTES.PERSONA_DNI,
                 items: [ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL],
             })
         );
+        const postEmisionPage = new PostEmisionPage(page);
+        if (await postEmisionPage.estaVisible()) {
+            await postEmisionPage.clickNuevaVenta();
+        }
 
         await vendedor.realiza(
             SeleccionarTipoComprobante('PEDIDO'),
