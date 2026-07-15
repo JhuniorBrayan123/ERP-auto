@@ -18,15 +18,6 @@ export const CotizacionTargets = {
 
     btnBuscar: (page: Page) =>
         page.getByRole('button', {name: 'Buscar'}),
-
-    // ─── Vigencia de oferta ────────────────────────────────────────
-    selectorVigencia: (page: Page) =>
-        page.locator('div').filter({hasText: /^0 días$/}).nth(3),
-
-    opcionVigencia: (page: Page, dias: string) =>
-        page.getByText(dias, {exact: true}),
-
-    // ─── IGV ───────────────────────────────────────────────────────
     selectorIGV: (page: Page) =>
         page.locator('div').filter({hasText: /^18%$/}).nth(3),
 
@@ -42,14 +33,12 @@ export const CotizacionTargets = {
     inputDireccionSinDoc: (page: Page) =>
         page.locator('[id="pv_punto-venta_cmp-cotizacion-header_v-input:direccion-sin-documento"]'),
 
-    // ─── Imágenes / Descripción ────────────────────────────────────
     switchIncluirImagenes: (page: Page) =>
         page.locator('.advance-doc > .switch-component > .v-switch > .switch-content > .switch > .slider').first(),
 
     switchIncluirDescripcion: (page: Page) =>
         page.locator('.right > div:nth-child(3) > .switch-component > .v-switch > .switch-content > .switch > .slider'),
 
-    // ─── Observaciones ─────────────────────────────────────────────
     inputObservaciones: (page: Page) =>
         page.getByRole('textbox', {name: 'Ingresa tus observaciones'}),
 

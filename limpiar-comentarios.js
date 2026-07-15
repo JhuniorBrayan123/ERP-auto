@@ -15,12 +15,9 @@ function cleanDirectory(dirPath) {
             cleanDirectory(fullPath);
         } else if (stat.isFile() && fullPath.endsWith('.ts')) {
             const content = fs.readFileSync(fullPath, 'utf8');
-            
-            // Remueve comentarios de línea (//) y bloque (/* */),
-            // pero es inteligente para no borrar los "http://" dentro de strings.
+
             const cleanedContent = stripComments(content);
 
-            // Solo guardamos si hubo un cambio real para no modificar timestamps innecesariamente
             if (content !== cleanedContent) {
                 fs.writeFileSync(fullPath, cleanedContent, 'utf8');
                 console.log(`[LIMPIO] ${fullPath}`);

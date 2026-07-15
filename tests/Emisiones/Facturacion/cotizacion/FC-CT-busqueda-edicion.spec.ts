@@ -4,8 +4,8 @@ import {EditarCotizacionVF} from '@screenplay/tasks/cotizacion/EditarCotizacionV
 import {BuscarCotizacionPorCorrelativo} from '@screenplay/interactions/cotizacion/BuscarCotizacionPorCorrelativo';
 import {SeleccionarTipoComprobante} from '@screenplay/interactions/facturacion/SeleccionarTipoComprobante';
 import {CotizacionTargets} from '@screenplay/targets/cotizacion/CotizacionTargets';
-import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {FacturacionTargets} from '@screenplay/targets/facturacion/FacturacionTargets';
+import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {BuscarYAgregarProducto} from '@screenplay/interactions/facturacion/BuscarYAgregarProducto';
 import {BuscarYSeleccionarCliente} from '@screenplay/interactions/facturacion/BuscarYSeleccionarCliente';
 
@@ -27,7 +27,7 @@ test.describe.skip('FC-CT-BUSQUEDA | Búsqueda y Edición de Cotización en Vist
         );
 
         await expect(page.locator('main')).toContainText(CLIENTES.PERSONA_DNI.nombre);
-        await expect(CotizacionTargets.opcionVigencia(page, '35 días')).toBeVisible();
+        await expect(page.getByText('35 días').first()).toBeVisible();
         await expect(page.locator('tbody')).toContainText(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
     });
 

@@ -5,6 +5,7 @@ import {BuscarYAgregarProducto} from '@screenplay/interactions/facturacion/Busca
 import {EmitirCotizacionVF, type ResultadoEmisionVF} from '@screenplay/interactions/cotizacion/EmitirCotizacionVF';
 import {LlenarObservaciones} from '@screenplay/interactions/common/LlenarObservaciones';
 import {CotizacionTargets} from '@screenplay/targets/cotizacion/CotizacionTargets';
+import {CotizacionOpcionesPage} from '@pages/PuntoVenta/CotizacionOpcionesPage';
 import type {DatosCliente, ItemVenta} from '@app-types/emision.types';
 
 export interface DatosCotizacionVF {
@@ -31,8 +32,8 @@ export const CrearCotizacionVF = (datos: DatosCotizacionVF) => {
         }
 
         if (datos.validezOferta) {
-            await CotizacionTargets.selectorVigencia(page).click();
-            await CotizacionTargets.opcionVigencia(page, datos.validezOferta).click();
+            const opcionesPage = new CotizacionOpcionesPage(page);
+            await opcionesPage.seleccionarVigencia(datos.validezOferta);
         }
 
         if (datos.igv) {
