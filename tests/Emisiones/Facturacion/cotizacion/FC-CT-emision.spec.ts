@@ -24,12 +24,12 @@ test.describe('FC-CT-EMISION | Emisión de Cotización desde Vista Facturación'
         expect(await vendedor.pregunta(ModalPostEmision.tieneCorrelativo())).toBe(true);
     });
 
-    test('SC-04: Emitir cotización con validez de oferta de varios días @FC-CT.4', async ({vendedor}) => {
+    test('SC-04: Emitir cotización con validez de oferta de 1 día @FC-CT.4', async ({vendedor}) => {
         const resultado = await vendedor.realizaYObtiene(
             CrearCotizacionVF({
                 cliente: CLIENTES.PERSONA_DNI,
                 items: [ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL],
-                validezOferta: '45 días',
+                validezOferta: '1 día',
                 observaciones: 'Cotización con validez de oferta',
             })
         );
