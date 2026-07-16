@@ -32,7 +32,12 @@ test.describe('FC-11 | Emitir Factura con Detracción', {tag: ['@facturacion', '
         );
         await BuscarYAgregarProducto(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL)(page);
         const detraccionPage = new DetraccionPage(page);
-        await detraccionPage.seleccionarOperacionTransporteCarga();
+        // Se llenan porcentaje y cuenta, pero NO los detalles de transporte (origen, destino, etc.)
+        // El sistema debe bloquear el pago porque faltan datos obligatorios del transporte
+        await detraccionPage.seleccionarOperacionTransporteCarga({
+            porcentaje: '10',
+            numeroCuenta: '11282847580',
+        });
         await VentaGridTargets.btnPagar(page).click();
         const pagoVisible = await PagoTargets.btnRealizarPago(page).isVisible({timeout: 3_000}).catch(() => false);
         expect(pagoVisible).toBe(false);
