@@ -111,7 +111,7 @@ export default defineConfig({
             // NO correr en paralelo con PuntoVenta ni con Facturacion.
             // mode:'serial' forzado dentro del spec.
             name: "Facturacion-Vista",
-            testMatch: "tests/Emisiones/Facturacion/General/FC-19_vista-facturacion/**/*.spec.ts",
+            testMatch: "tests/Emisiones/Facturacion/FC-19_vista-facturacion/**/*.spec.ts",
             use: {
                 ...devices["Desktop Chrome"],
                 storageState: resolveStoragePath(),
@@ -124,7 +124,7 @@ export default defineConfig({
             // No correr junto con vista-facturacion (ya excluido por testMatch).
             name: "Facturacion",
             testMatch: "tests/Emisiones/Facturacion/**/*.spec.ts",
-            testIgnore: ["**/General/FC-19_vista-facturacion/**"],
+            testIgnore: ["**/FC-19_vista-facturacion/**"],
             use: {
                 ...devices["Desktop Chrome"],
                 storageState: resolveStoragePath(),
