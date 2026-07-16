@@ -29,6 +29,6 @@
       "@abilities/*": ["./src/abilities/*"]
     }
   },
-  "include": ["tests/**/*.ts", "config/**/*.ts", "src/**/*.ts"],
+  "include": ["tests/**/*.ts", "config/**/*.ts", "src/**/*.ts", "scripts/**/*.mts"],
   "exclude": ["node_modules", "dist"]
 }

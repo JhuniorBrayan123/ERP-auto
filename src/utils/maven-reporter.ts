@@ -1,3 +1,4 @@
+import path from 'node:path';
 import type {
     FullResult,
     Reporter,
@@ -16,10 +17,46 @@ const GREEN   = '\x1b[32m';
 const YELLOW  = '\x1b[33m';
 const CYAN    = '\x1b[36m';
 const MAGENTA = '\x1b[35m';
+const BLUE    = '\x1b[34m';
 
 const SEPARATOR  = '-------------------------------------------------------';
 const DOUBLE_SEP = '------------------------------------------------------------------------';
 const OVERWRITE_LINE = '\r\x1b[K';
+
+/** Resuelve módulo y submódulo desde la ruta del archivo .spec.ts */
+function resolveModuleAndSubmodule(filePath: string): { module: string; submodule: string | null } {
+    const normalized = filePath.replace(/\\/g, '/');
+    // Emisiones/PuntoVenta/Boleta/PV-01_foo.spec.ts
+    // Emisiones/Facturacion/Boleta/FC-01_foo.spec.ts
+    // Logistica/Movimientos/MS-1_ingreso/foo.spec.ts
+    const parts = normalized.split('/');
+    const testsIdx = parts.indexOf('tests');
+    if (testsIdx === -1 || parts.length < testsIdx + 3) {
+        return { module: 'unknown', submodule: null };
+    }
+    const root = parts[testsIdx + 1];
+    const mod = parts[testsIdx + 2];
+
+    if (root === 'Logistica') {
+        return { module: 'Logistica', submodule: mod };
+    }
+    if (mod === 'Facturacion' && parts.length >= testsIdx + 4) {
+        return { module: 'Facturacion', submodule: parts[testsIdx + 3] };
+    }
+    if (['PuntoVenta', 'Busqueda', 'CierreCaja'].includes(mod)) {
+        const sub = parts.length >= testsIdx + 4 ? parts[testsIdx + 3] : null;
+        return { module: mod, submodule: sub };
+    }
+    return { module: mod, submodule: null };
+}
+
+interface ModuleCounter {
+    total: number;
+    passed: number;
+    failed: number;
+    skipped: number;
+    errors: number;
+}
 
 class MavenReporter implements Reporter {
     private passed  = 0;
@@ -39,6 +76,10 @@ class MavenReporter implements Reporter {
         userMessage: string;
         failureCategory: string;
     }> = [];
+
+    // Module-level tracking
+    private modules = new Map<string, ModuleCounter>();
+    private submodules = new Map<string, Map<string, ModuleCounter>>();
 
     private activeTestInfo: { title: string; attempt: number; isRetry: boolean } | null = null;
     private currentTestPrinted = false;
@@ -121,6 +162,9 @@ class MavenReporter implements Reporter {
             return;
         }
 
+        // Track by module/submodule
+        this.trackModuleResult(test, result);
+
         switch (result.status) {
             case 'passed':
                 this.passed++;
@@ -140,6 +184,40 @@ class MavenReporter implements Reporter {
             default:
                 break;
         }
+    }
+
+    private trackModuleResult(test: TestCase, result: TestResult): void {
+        const { module: mod, submodule } = resolveModuleAndSubmodule(test.location?.file ?? '');
+        if (mod === 'unknown') return;
+
+        const status = result.status;
+
+        // Track module
+        if (!this.modules.has(mod)) {
+            this.modules.set(mod, { total: 0, passed: 0, failed: 0, skipped: 0, errors: 0 });
+        }
+        const m = this.modules.get(mod)!;
+        m.total++;
+        if (status === 'passed') m.passed++;
+        else if (status === 'failed' || status === 'timedOut') m.failed++;
+        else if (status === 'skipped') m.skipped++;
+        else m.errors++;
+
+        // Track submodule
+        const subKey = submodule || mod;
+        if (!this.submodules.has(mod)) {
+            this.submodules.set(mod, new Map());
+        }
+        const subs = this.submodules.get(mod)!;
+        if (!subs.has(subKey)) {
+            subs.set(subKey, { total: 0, passed: 0, failed: 0, skipped: 0, errors: 0 });
+        }
+        const s = subs.get(subKey)!;
+        s.total++;
+        if (status === 'passed') s.passed++;
+        else if (status === 'failed' || status === 'timedOut') s.failed++;
+        else if (status === 'skipped') s.skipped++;
+        else s.errors++;
     }
 
     async onEnd(result: FullResult): Promise<void> {
@@ -198,6 +276,9 @@ class MavenReporter implements Reporter {
         console.log(`Time elapsed: ${timeFormatted}`);
         console.log(SEPARATOR);
 
+        // Module breakdown report
+        this.printModuleReport();
+
         console.log('');
         console.log(DOUBLE_SEP);
         console.log(hasFailures
@@ -207,6 +288,71 @@ class MavenReporter implements Reporter {
         console.log(`${CYAN}[INFO]${RESET} Total time:  ${timeFormatted}`);
         console.log(`${CYAN}[INFO]${RESET} Finished at: ${this.formatDate(new Date())}`);
         console.log(DOUBLE_SEP);
+        console.log('');
+    }
+
+    private printModuleReport(): void {
+        if (this.modules.size <= 1) return; // Only show when multiple modules or submodules
+
+        const lineLen = 62;
+        const sep = '\u2550'.repeat(lineLen);
+
+        console.log('');
+        console.log(`${CYAN}${sep}${RESET}`);
+        console.log(`${CYAN}${BOLD}  REPORTE POR M\u00d3DULO${RESET}`);
+        console.log(`${CYAN}${sep}${RESET}`);
+
+        // Sort modules by name
+        const sortedMods = [...this.modules.entries()].sort(([a], [b]) => a.localeCompare(b, 'es'));
+
+        let grandTotal = 0, grandPassed = 0, grandFailed = 0, grandSkipped = 0, grandErrors = 0;
+
+        for (const [mod, modStat] of sortedMods) {
+            const statusColor = modStat.failed > 0 || modStat.errors > 0 ? RED : GREEN;
+            const modLine =
+                ` ${statusColor}\uD83D\uDCC1 ${mod}${RESET}` +
+                ` ${String(modStat.total).padStart(5)}` +
+                `  ${GREEN}\u2705 ${String(modStat.passed).padStart(4)}${RESET}` +
+                `  ${RED}\u274C ${String(modStat.failed).padStart(4)}${RESET}` +
+                (modStat.skipped > 0 ? `  ${YELLOW}\u23ED ${modStat.skipped}${RESET}` : '') +
+                (modStat.errors > 0 ? `  ${YELLOW}\u26A0 ${modStat.errors}${RESET}` : '');
+            console.log(modLine);
+
+            // Show submodules
+            const subs = this.submodules.get(mod);
+            if (subs && subs.size > 0) {
+                const sortedSubs = [...subs.entries()].sort(([a], [b]) => a.localeCompare(b, 'es'));
+                for (const [subName, subStat] of sortedSubs) {
+                    const subColor = subStat.failed > 0 || subStat.errors > 0 ? RED : GREEN;
+                    const paddedName = (subName + '                         ').slice(0, 22);
+                    console.log(
+                        `   ${subColor}\uD83D\uDCC2 ${paddedName}${RESET}` +
+                        ` ${String(subStat.total).padStart(3)}` +
+                        `   ${GREEN}${String(subStat.passed).padStart(3)}${RESET}` +
+                        `   ${RED}${String(subStat.failed).padStart(3)}${RESET}`,
+                    );
+                }
+            }
+
+            grandTotal += modStat.total;
+            grandPassed += modStat.passed;
+            grandFailed += modStat.failed;
+            grandSkipped += modStat.skipped;
+            grandErrors += modStat.errors;
+        }
+
+        const dashLine = '\u2500'.repeat(lineLen);
+        console.log(` ${dashLine}`);
+        const totalColor = grandFailed > 0 || grandErrors > 0 ? RED : GREEN;
+        const totalLine =
+            ` ${CYAN}\uD83D\uDCE6 TOTAL${RESET}` +
+            ` ${String(grandTotal).padStart(5)}` +
+            `  ${GREEN}\u2705 ${String(grandPassed).padStart(4)}${RESET}` +
+            `  ${RED}\u274C ${String(grandFailed).padStart(4)}${RESET}` +
+            (grandSkipped > 0 ? `  ${YELLOW}\u23ED ${grandSkipped}${RESET}` : '') +
+            (grandErrors > 0 ? `  ${YELLOW}\u26A0 ${grandErrors}${RESET}` : '');
+        console.log(totalLine);
+        console.log(`${CYAN}${sep}${RESET}`);
         console.log('');
     }
 
