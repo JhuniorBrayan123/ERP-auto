@@ -18,7 +18,7 @@ test.describe.serial('FC-CT-PAGAR | Pagar/Generar Comprobantes desde Cotización
     test('Setup: Crear Cotización base para los tests @FC-CT.Setup', async ({vendedor}) => {
         const cotizacion = await vendedor.realizaYObtiene(
             CrearCotizacionVF({
-                cliente: CLIENTES.EMPRESA_RUC_AUTO, // Requiere RUC para factura
+                cliente: CLIENTES.EMPRESA_RUC_AUTO, 
                 items: [ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL],
             })
         );

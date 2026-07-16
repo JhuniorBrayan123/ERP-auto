@@ -23,12 +23,12 @@ const SEPARATOR  = '-------------------------------------------------------';
 const DOUBLE_SEP = '------------------------------------------------------------------------';
 const OVERWRITE_LINE = '\r\x1b[K';
 
-/** Resuelve módulo y submódulo desde la ruta del archivo .spec.ts */
+
 function resolveModuleAndSubmodule(filePath: string): { module: string; submodule: string | null } {
     const normalized = filePath.replace(/\\/g, '/');
-    // Emisiones/PuntoVenta/Boleta/PV-01_foo.spec.ts
-    // Emisiones/Facturacion/Boleta/FC-01_foo.spec.ts
-    // Logistica/Movimientos/MS-1_ingreso/foo.spec.ts
+    
+    
+    
     const parts = normalized.split('/');
     const testsIdx = parts.indexOf('tests');
     if (testsIdx === -1 || parts.length < testsIdx + 3) {
@@ -77,7 +77,7 @@ class MavenReporter implements Reporter {
         failureCategory: string;
     }> = [];
 
-    // Module-level tracking
+    
     private modules = new Map<string, ModuleCounter>();
     private submodules = new Map<string, Map<string, ModuleCounter>>();
 
@@ -162,7 +162,7 @@ class MavenReporter implements Reporter {
             return;
         }
 
-        // Track by module/submodule
+        
         this.trackModuleResult(test, result);
 
         switch (result.status) {
@@ -192,7 +192,7 @@ class MavenReporter implements Reporter {
 
         const status = result.status;
 
-        // Track module
+        
         if (!this.modules.has(mod)) {
             this.modules.set(mod, { total: 0, passed: 0, failed: 0, skipped: 0, errors: 0 });
         }
@@ -203,7 +203,7 @@ class MavenReporter implements Reporter {
         else if (status === 'skipped') m.skipped++;
         else m.errors++;
 
-        // Track submodule
+        
         const subKey = submodule || mod;
         if (!this.submodules.has(mod)) {
             this.submodules.set(mod, new Map());
@@ -276,7 +276,7 @@ class MavenReporter implements Reporter {
         console.log(`Time elapsed: ${timeFormatted}`);
         console.log(SEPARATOR);
 
-        // Module breakdown report
+        
         this.printModuleReport();
 
         console.log('');

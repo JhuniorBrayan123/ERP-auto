@@ -220,7 +220,7 @@ export class DetraccionPage {
             .filter({ hasText: 'Operación Sujeta a Detracción - Servicio de Transporte de Carga' })
             .click();
 
-        // Llenar porcentaje y número de cuenta si se proporcionan
+        
         if (datos) {
             const inputPorcentaje = this.page.locator('[id$="v-input:porcentaje"]');
             await inputPorcentaje.waitFor({ state: 'visible' });
@@ -230,7 +230,7 @@ export class DetraccionPage {
             const inputCuenta = this.page.locator('[id$="v-input:numero-cuenta"]');
             await inputCuenta.waitFor({ state: 'visible' });
             await inputCuenta.clear();
-            // Escribir dígito por dígito para que la máscara del ERP formatee el número de cuenta
+            
             await inputCuenta.pressSequentially(datos.numeroCuenta.replace(/\D/g, ''), { delay: 50 });
         }
 
