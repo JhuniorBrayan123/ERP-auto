@@ -107,24 +107,10 @@ export default defineConfig({
             workers: isCI ? 2 : 1,
         },
         {
-            // Vista Facturación es GLOBAL por empresa.
-            // NO correr en paralelo con PuntoVenta ni con Facturacion.
-            // mode:'serial' forzado dentro del spec.
-            name: "Facturacion-Vista",
-            testMatch: "tests/Emisiones/Facturacion/FC-19_vista-facturacion/**/*.spec.ts",
-            use: {
-                ...devices["Desktop Chrome"],
-                storageState: resolveStoragePath(),
-            },
-            dependencies: ["setup", "pv-items-setup"],
-            workers: 1,
-        },
-        {
-            // Tests transaccionales de Facturación — correlativo via API intercept.
-            // No correr junto con vista-facturacion (ya excluido por testMatch).
+            // Tests de Facturación — incluye vista (serial) y transaccionales.
+            // NO correr en paralelo con PuntoVenta (proyecto separado).
             name: "Facturacion",
             testMatch: "tests/Emisiones/Facturacion/**/*.spec.ts",
-            testIgnore: ["**/FC-19_vista-facturacion/**"],
             use: {
                 ...devices["Desktop Chrome"],
                 storageState: resolveStoragePath(),
