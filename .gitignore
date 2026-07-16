@@ -24,4 +24,8 @@ exploration.md
 coverage/
 openspec/
 config/environment.env
-_codegen/
+
+# Scripts auxiliares / limpieza
+limpiar-comentarios.js
+remove-comments.js
+clean_and_fix.js

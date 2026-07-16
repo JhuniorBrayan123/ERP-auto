@@ -1,5 +1,6 @@
-﻿import { type Page } from '@playwright/test';
+import { type Page } from '@playwright/test';
 import type { EmisionResult } from '@app-types/emision.types';
+import { PagoTargets } from '@screenplay/targets/facturacion/PagoTargets';
 
 type MetodoPago = 'efectivo' | 'cheque' | 'niubiz' | 'yape' | 'plin' | 'transferencia';
 
@@ -11,10 +12,10 @@ export const ConfirmarPago = (metodo: MetodoPago = 'efectivo') => {
             { timeout: 45_000 }
         );
 
-        await page.getByRole('button', { name: 'PAGAR' }).click();
+        await PagoTargets.btnPagar(page).click();
 
         if (metodo === 'efectivo') {
-            await page.getByRole('button', { name: 'Monto exacto' }).click();
+            await PagoTargets.btnMontoExacto(page).click();
         } else {
             const nombres: Record<MetodoPago, string> = {
                 efectivo: 'Monto exacto',
@@ -24,10 +25,10 @@ export const ConfirmarPago = (metodo: MetodoPago = 'efectivo') => {
                 plin: 'PLIN',
                 transferencia: 'TRANSFERENCIA',
             };
-            await page.getByRole('button', { name: nombres[metodo] }).click();
+            await PagoTargets.btnMetodoPago(page, nombres[metodo]).click();
         }
 
-        await page.getByRole('button', { name: 'Realizar Pago' }).click();
+        await PagoTargets.btnRealizarPago(page).click();
 
         const response = await emisionPromise;
         const body = await response.json();

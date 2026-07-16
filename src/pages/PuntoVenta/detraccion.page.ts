@@ -189,7 +189,7 @@ export class DetraccionPage {
         await this.page.waitForTimeout(500);
     }
 
-    async seleccionarOperacionTransporteCarga(): Promise<void> {
+    async seleccionarOperacionTransporteCarga(datos?: { porcentaje: string; numeroCuenta: string }): Promise<void> {
         const checkboxId = 'pv_punto-venta_cmp-factura-boleta-header_v-switch:documento-detraccion';
         const isChecked = await this.page.evaluate((id) => {
             const el = document.getElementById(id) as HTMLInputElement;
@@ -219,6 +219,20 @@ export class DetraccionPage {
             .locator('.v-select-form-option')
             .filter({ hasText: 'Operación Sujeta a Detracción - Servicio de Transporte de Carga' })
             .click();
+
+        
+        if (datos) {
+            const inputPorcentaje = this.page.locator('[id$="v-input:porcentaje"]');
+            await inputPorcentaje.waitFor({ state: 'visible' });
+            await inputPorcentaje.clear();
+            await inputPorcentaje.fill(datos.porcentaje);
+
+            const inputCuenta = this.page.locator('[id$="v-input:numero-cuenta"]');
+            await inputCuenta.waitFor({ state: 'visible' });
+            await inputCuenta.clear();
+            
+            await inputCuenta.pressSequentially(datos.numeroCuenta.replace(/\D/g, ''), { delay: 50 });
+        }
 
         await this.page.getByRole('button', { name: 'Actualizar', exact: true }).click();
 

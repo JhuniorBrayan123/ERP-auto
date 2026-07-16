@@ -25,14 +25,20 @@ test.describe('FC-11 | Emitir Factura con Detracción', {tag: ['@facturacion', '
         expect(resultado.numero).toMatch(/^F001-\d{8}$/);
     });
 
-    test('SC-02: Bloquear emisión con Detracción activada sin completar datos obligatorios @FC-11.2', async ({page, cajero}) => {
+    test('SC-02: Bloquear emisión con Detracción activada sin completar datos obligatorios @FC-11.2', async ({
+                                                                                                                 page,
+                                                                                                                 cajero
+                                                                                                             }) => {
         await cajero.realiza(
             SeleccionarTipoComprobante('FACTURA'),
             BuscarYSeleccionarCliente(CLIENTES.EMPRESA_RUC_AUTO),
         );
         await BuscarYAgregarProducto(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL)(page);
         const detraccionPage = new DetraccionPage(page);
-        await detraccionPage.seleccionarOperacionTransporteCarga();
+        await detraccionPage.seleccionarOperacionTransporteCarga({
+            porcentaje: '10',
+            numeroCuenta: '11282847580',
+        });
         await VentaGridTargets.btnPagar(page).click();
         const pagoVisible = await PagoTargets.btnRealizarPago(page).isVisible({timeout: 3_000}).catch(() => false);
         expect(pagoVisible).toBe(false);

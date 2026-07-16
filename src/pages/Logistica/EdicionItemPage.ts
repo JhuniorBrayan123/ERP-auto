@@ -117,7 +117,7 @@ export class EdicionItemPage {
     }
 
     async clickAnadirSelector(): Promise<void> {
-        // Click en el toggle "Añadir selector" para abrir el menú
+        
         const toggle = this.page.locator('.cmp-option-button-toggle').filter({hasText: 'Añadir selector'});
         await toggle.waitFor({state: 'visible', timeout: 15_000});
         await toggle.click();
@@ -145,20 +145,20 @@ export class EdicionItemPage {
     }
 
     async buscarYAgregarItemSelector(codigo: string): Promise<void> {
-        // Input de búsqueda de items desde el modal de selector de inventario
+        
         const inputBusqueda = this.page.locator('[id="lgt_reg-item_v-modal:busqueda-item-selector_v-input:search"]');
         await inputBusqueda.waitFor({state: 'visible', timeout: 30_000});
         await inputBusqueda.click();
         await inputBusqueda.fill(codigo);
         await this.page.waitForTimeout(1500);
 
-        // Hacer clic en el resultado de la búsqueda (item 111111)
+        
         const resultado = this.page.getByText(codigo, {exact: false}).first();
         await resultado.waitFor({state: 'visible', timeout: 10_000});
         await resultado.click();
         await this.page.waitForTimeout(500);
 
-        // Cerrar/clicar fuera si hay algún panel abierto
+        
         const btnAgregar = this.page.getByRole('button', {name: /Agregar|Seleccionar/i}).first();
         if (await btnAgregar.isVisible().catch(() => false)) {
             await btnAgregar.click();

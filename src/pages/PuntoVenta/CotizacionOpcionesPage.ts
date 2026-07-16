@@ -34,14 +34,22 @@ export class CotizacionOpcionesPage {
     }
 
     private get selectorVigencia(): Locator {
-        return this.page.locator('div').filter({ hasText: /^(0 días|1 día)$/ }).nth(1);
+        return this.page.locator('.v-select-base-header').filter({ hasText: /^\d+ días?$/ }).first();
     }
 
     async seleccionarVigencia(dias: string): Promise<void> {
-       await this.selectorVigencia.click();
+        await this.selectorVigencia.click();
         await this.page
-            .locator('.v-select-small-option')  
-            .getByText(dias, { exact: true })   
+            .locator('.v-select-form-option, .v-select-small-option')
+            .getByText(dias, { exact: true })
+            .click();
+    }
+
+    async seleccionarIGV(porcentaje: string): Promise<void> {
+        await this.page.locator('.v-select-base-header').filter({ hasText: /^\d+\.?\d*%$/ }).first().click();
+        await this.page
+            .locator('.v-select-form-option, .v-select-small-option')
+            .getByText(porcentaje, { exact: true })
             .click();
     }
 }

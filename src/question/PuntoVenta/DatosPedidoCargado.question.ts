@@ -5,8 +5,20 @@ export const DatosPedidoCargado = {
     contieneItem: (nombreItem: string) => {
         return async (page: Page): Promise<boolean> => {
             try {
-                
+
                 const item = page.locator('.cmp-pedido-item').filter({hasText: nombreItem}).first();
+                await expect(item).toBeVisible({timeout: 10_000});
+                return true;
+            } catch {
+                return false;
+            }
+        };
+    },
+
+    contieneItemEnVF: (nombreItem: string) => {
+        return async (page: Page): Promise<boolean> => {
+            try {
+                const item = page.locator('.nombre-item .text-container').filter({hasText: nombreItem}).first();
                 await expect(item).toBeVisible({timeout: 10_000});
                 return true;
             } catch {
@@ -18,7 +30,7 @@ export const DatosPedidoCargado = {
     contieneMontoItem: (precioEsperado: string) => {
         return async (page: Page): Promise<boolean> => {
             try {
-                
+
                 const precioLocator = page.locator('.cmp-pedido-item .precio').filter({hasText: precioEsperado}).first();
                 await expect(precioLocator).toBeVisible({timeout: 10_000});
                 return true;

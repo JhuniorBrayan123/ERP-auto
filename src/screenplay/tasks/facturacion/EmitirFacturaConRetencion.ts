@@ -3,6 +3,7 @@ import {SeleccionarTipoComprobante} from '@screenplay/interactions/facturacion/S
 import {BuscarYSeleccionarCliente} from '@screenplay/interactions/facturacion/BuscarYSeleccionarCliente';
 import {BuscarYAgregarProducto} from '@screenplay/interactions/facturacion/BuscarYAgregarProducto';
 import {FacturacionTargets} from '@screenplay/targets/facturacion/FacturacionTargets';
+import {ConfirmarPago} from '@screenplay/interactions/facturacion/ConfirmarPago';
 
 import type {DatosCliente, ItemVenta} from '@helpers/PuntoVenta/emision.types';
 import type {ResultadoEmision} from './EmitirComprobanteSimple';
@@ -30,20 +31,7 @@ export const EmitirFacturaConRetencion = (datos: DatosRetencion) => {
         await inputRetencion.fill('');
         await inputRetencion.pressSequentially(datos.porcentajeRetencion, {delay: 150});
 
-        const emisionPromise = page.waitForResponse(
-            (resp) => resp.url().includes('DocumentosContables/Emisiones') && resp.status() === 200,
-            {timeout: 45_000}
-        );
-        await page.getByRole('button', {name: 'PAGAR'}).click();
-        await page.getByRole('button', {name: 'Monto exacto'}).click();
-        await page.getByRole('button', {name: 'Realizar Pago'}).click();
-
-        const response = await emisionPromise;
-        const body = await response.json();
-        const nombrePdf: string = body.FilePdf?.Nombre ?? '';
-        const serie = nombrePdf.split('-')[0] ?? '';
-        const correlativo = String(body.CorrelativoDocumento ?? '');
-        const comprobanteId = body.IdComprobante ?? 0;
+        const {serie, correlativo, comprobanteId} = await ConfirmarPago('efectivo')(page);
 
         await expect(FacturacionTargets.mensajeExito(page)).toBeVisible({timeout: 15_000});
         await FacturacionTargets.btnNuevaVenta(page).click();

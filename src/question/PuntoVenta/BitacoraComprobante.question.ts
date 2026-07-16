@@ -10,7 +10,8 @@ export const BitacoraComprobante = {
             const postEmisionPage = new PostEmisionPage(page);
             const busquedaComprobantesPage = new BusquedaComprobantesPage(page);
 
-            await postEmisionPage.clickNuevaVenta()
+            
+            await postEmisionPage.clickNuevaVenta().catch(() => {});
             await busquedaComprobantesPage.navegarABusquedaComprobantes(resultadoPedido?.current)
 
             await busquedaPage.abrirBitacoraDelPrimerComprobante();
