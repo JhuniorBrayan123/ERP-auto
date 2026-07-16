@@ -1,13 +1,8 @@
 import type {Page} from '@playwright/test';
 
-/**
- * Targets específicos de Pedido en Vista Facturación.
- * Los selectores de grilla, buscador de producto y cliente se reutilizan
- * de VentaGridTargets y FacturacionTargets respectivamente.
- */
 export const PedidoTargets = {
 
-    // ─── Serie / Correlativo (búsqueda) ────────────────────────────
+    
     inputCorrelativo: (page: Page) =>
         page.locator('[id*="cmp-pedido_cmp-pedido-header"][id*="v-input:correlativo"]'),
 

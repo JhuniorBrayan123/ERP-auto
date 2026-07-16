@@ -13,26 +13,26 @@ export interface DatosEdicionCotizacion {
 
 export const EditarCotizacionVF = (datos: DatosEdicionCotizacion) => {
     const fn = async (page: Page): Promise<void> => {
-        // 1. Buscar cotización
+        
         await BuscarCotizacionPorCorrelativo(datos.correlativo)(page);
 
-        // 2. Nuevos items
+        
         if (datos.nuevosItems) {
             for (const item of datos.nuevosItems) {
                 await BuscarYAgregarProducto(item)(page);
             }
         }
 
-        // 3. Nuevo IGV
+        
         if (datos.nuevoIGV) {
             await CotizacionTargets.selectorIGV(page).click();
             await CotizacionTargets.opcionIGV(page, datos.nuevoIGV).click();
         }
 
-        // 4. Click Actualizar
+        
         await CotizacionTargets.btnActualizarCotizacion(page).click();
         
-        // 5. Validar éxito
+        
         await expect(FacturacionTargets.mensajeExito(page)).toBeVisible({ timeout: 15_000 });
     };
 

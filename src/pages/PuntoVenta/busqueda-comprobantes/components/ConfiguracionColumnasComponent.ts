@@ -77,7 +77,7 @@ export class ConfiguracionColumnasComponent {
             ],
         };
 
-        // Import dinámico para evitar dependencia circular
+        
         const {ComprobantesFiltrosComponent} = await import('./ComprobantesFiltrosComponent.js');
         const filtros = new ComprobantesFiltrosComponent(this.page);
 

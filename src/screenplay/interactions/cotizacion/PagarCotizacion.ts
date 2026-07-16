@@ -8,26 +8,26 @@ type TipoDocPago = 'BOLETA' | 'FACTURA' | 'NOTA DE VENTA';
 
 export const PagarCotizacion = (tipoDoc: TipoDocPago) => {
     const fn = async (page: Page): Promise<EmisionResult> => {
-        // Registrar intercept ANTES de los clicks para no perder la respuesta
+        
         const emisionPromise = page.waitForResponse(
             (resp) =>
                 resp.url().includes('DocumentosContables/Emisiones') && resp.status() === 200,
             { timeout: 45_000 }
         );
 
-        // 1. Click en PAGAR COTIZ.
+        
         await CotizacionTargets.btnPagarCotizacion(page).click();
         await esperarCargaOverlay(page).catch(() => {});
 
-        // 2. Seleccionar tipo de documento en el modal
+        
         await CotizacionTargets.selectorTipoDocPago(page).click();
         await CotizacionTargets.opcionTipoDocPago(page, tipoDoc).click();
 
-        // 3. Confirmar — abre el modal de pago (Monto exacto / Realizar Pago)
+        
         await CotizacionTargets.btnConfirmarPago(page).click();
         await esperarCargaOverlay(page).catch(() => {});
 
-        // 4. Completar pago
+        
         await PagoTargets.btnMontoExacto(page).click();
         await PagoTargets.btnRealizarPago(page).click();
 

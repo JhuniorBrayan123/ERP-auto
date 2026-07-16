@@ -26,8 +26,8 @@ export const AsegurarVistaFacturacion = () => {
         if (!estaActiva) {
             await FacturacionTargets.btnCambiarVista(page).click();
             await FacturacionTargets.opcionVistaFacturacion(page).click();
-            // Activación temporal: evitamos hacer clic en Guardar vista para no afectar la DB
-            await page.waitForTimeout(500); // pequeña espera para que Vue renderice la nueva vista
+            
+            await page.waitForTimeout(500); 
         }
 
 

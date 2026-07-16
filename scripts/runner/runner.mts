@@ -72,7 +72,11 @@ export function formatCommandWithContext(args: string[], projectContext?: Projec
 export function runPlaywright(args: string[], projectContext?: ProjectContext): Promise<string[]> {
     return new Promise((resolve, reject) => {
         const ctx = projectContext || { key: 'Emisiones', projectFlag: 'PuntoVenta', testDir: '', outputDir: 'test-results/puntoventa', isRunAll: false } as ProjectContext;
-        const prefixedArgs = buildArgs(ctx, args, args);
+        // Separar paths de archivos de los flags (--grep, etc.) para que buildArgs detecte correctamente Facturacion
+        const flagIdx = args.findIndex(a => a.startsWith('--'));
+        const runPaths = flagIdx < 0 ? args : args.slice(0, flagIdx);
+        const extraArgs = flagIdx < 0 ? [] : args.slice(flagIdx);
+        const prefixedArgs = buildArgs(ctx, extraArgs, runPaths);
 
         console.log('\nComando generado:\n');
         console.log(formatCommandWithContext(args, ctx));

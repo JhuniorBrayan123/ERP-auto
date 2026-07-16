@@ -97,21 +97,14 @@ test.describe('FC-CT-EMISION | Emisión de Cotización desde Vista Facturación'
 
         expect(resultado.numero).toMatch(/^CT\d{2}-\d{8}$/);
 
-        // Navegar a búsqueda y verificar IGV en el Ver comprobante
         const busqueda = new BusquedaComprobantesPage(page);
-        await busqueda.salirDeCaja();
-        await page.getByText('Ventas y compras').click();
-        await page.getByText('Búsqueda de comprobantes').click();
+        await busqueda.navegarABusquedaComprobantes();
 
-        // Seleccionar categoría COTIZACIONES para que el filtro busque en el tab correcto
-        await busqueda.filtros.seleccionarCategoria('COTIZACIONES');
+        await busqueda.seleccionarCategoria('COTIZACIONES');
 
-        // Aplicar filtro avanzado por correlativo
-        await busqueda.filtros.filtrarPorCorrelativo(resultado.correlativo);
+        await busqueda.filtrarPorCorrelativo(resultado.correlativo);
 
-        // Abrir dropdown del primer comprobante y hacer clic en Ver comprobante
-        await busqueda.acciones.abrirDropdownPrimerComprobante();
-        const verPopup = await busqueda.verComprobante.abrirVerComprobante();
+        const verPopup = await busqueda.abrirVerComprobante();
         await expect(verPopup.getByText('10.5%')).toBeVisible();
     });
 

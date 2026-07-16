@@ -21,7 +21,7 @@ export class ComprobantesFiltrosComponent {
             await btn.waitFor({state: 'visible', timeout: 30_000});
             await btn.click();
         } catch {
-            // Si ya está abierto, continuar
+            
         }
     }
 

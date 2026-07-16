@@ -12,7 +12,7 @@ export interface DatosEdicionPedido {
 
 export const EditarPedidoVF = (datos: DatosEdicionPedido) => {
     const fn = async (page: Page): Promise<void> => {
-        // 1. Buscar pedido por correlativo
+        
         await esperarCargaOverlay(page).catch(() => {});
         const inputCorrelativo = PedidoTargets.inputCorrelativo(page);
         await inputCorrelativo.click();
@@ -20,17 +20,17 @@ export const EditarPedidoVF = (datos: DatosEdicionPedido) => {
         await PedidoTargets.btnBuscar(page).click();
         await esperarCargaOverlay(page).catch(() => {});
 
-        // 2. Agregar nuevos items si hay
+        
         if (datos.nuevosItems) {
             for (const item of datos.nuevosItems) {
                 await BuscarYAgregarProducto(item)(page);
             }
         }
 
-        // 3. Click Actualizar
+        
         await PedidoTargets.btnActualizarPedido(page).click();
         
-        // 4. Validar éxito
+        
         await expect(FacturacionTargets.mensajeExito(page)).toBeVisible({ timeout: 15_000 });
     };
 

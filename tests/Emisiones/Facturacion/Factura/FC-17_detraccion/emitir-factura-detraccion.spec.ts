@@ -25,15 +25,16 @@ test.describe('FC-11 | Emitir Factura con Detracción', {tag: ['@facturacion', '
         expect(resultado.numero).toMatch(/^F001-\d{8}$/);
     });
 
-    test('SC-02: Bloquear emisión con Detracción activada sin completar datos obligatorios @FC-11.2', async ({page, cajero}) => {
+    test('SC-02: Bloquear emisión con Detracción activada sin completar datos obligatorios @FC-11.2', async ({
+                                                                                                                 page,
+                                                                                                                 cajero
+                                                                                                             }) => {
         await cajero.realiza(
             SeleccionarTipoComprobante('FACTURA'),
             BuscarYSeleccionarCliente(CLIENTES.EMPRESA_RUC_AUTO),
         );
         await BuscarYAgregarProducto(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL)(page);
         const detraccionPage = new DetraccionPage(page);
-        // Se llenan porcentaje y cuenta, pero NO los detalles de transporte (origen, destino, etc.)
-        // El sistema debe bloquear el pago porque faltan datos obligatorios del transporte
         await detraccionPage.seleccionarOperacionTransporteCarga({
             porcentaje: '10',
             numeroCuenta: '11282847580',

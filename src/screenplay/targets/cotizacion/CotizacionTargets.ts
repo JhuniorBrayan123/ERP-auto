@@ -1,12 +1,8 @@
 import type {Page} from '@playwright/test';
 
-/**
- * Targets específicos de Cotización en Vista Facturación.
- * Extraídos del codegen facturacion_2da_parte.spec.ts.
- */
 export const CotizacionTargets = {
 
-    // ─── Serie / Correlativo (búsqueda) ────────────────────────────
+    
     selectorSerie: (page: Page) =>
         page.locator('.v-select-header-form > .text').first(),
 
@@ -19,14 +15,14 @@ export const CotizacionTargets = {
     btnBuscar: (page: Page) =>
         page.getByRole('button', {name: 'Buscar'}),
 
-    // ─── Vigencia de oferta ────────────────────────────────────────
+    
     selectorVigencia: (page: Page) =>
         page.locator('.v-select-base-header').filter({hasText: /^\d+ días?$/}).first(),
 
     opcionVigencia: (page: Page, dias: string) =>
         page.locator('.v-select-base-options.is-open .v-select-form-option').getByText(dias, {exact: true}),
 
-    // ─── IGV ────────────────────────────────────────────────────────
+    
     selectorIGV: (page: Page) =>
         page.locator('.v-select-base-header').filter({hasText: /^\d+\.?\d*%$/}).first(),
 
@@ -51,7 +47,7 @@ export const CotizacionTargets = {
     inputObservaciones: (page: Page) =>
         page.getByRole('textbox', {name: 'Ingresa tus observaciones'}),
 
-    // ─── Acciones ──────────────────────────────────────────────────
+    
     btnEmitir: (page: Page) =>
         page.getByRole('button', {name: 'EMITIR'}),
 
@@ -61,7 +57,7 @@ export const CotizacionTargets = {
     btnPagarCotizacion: (page: Page) =>
         page.getByRole('button', {name: 'PAGAR COTIZ.'}),
 
-    // ─── Pagar cotización — modal selección tipo doc ───────────────
+    
     selectorTipoDocPago: (page: Page) =>
         page.locator('div').filter({hasText: /^BOLETA$/}).nth(4),
 
@@ -71,18 +67,18 @@ export const CotizacionTargets = {
     btnConfirmarPago: (page: Page) =>
         page.getByRole('button', {name: 'Confirmar'}),
 
-    // ─── Grilla cotización ─────────────────────────────────────────
+    
     gridCotizacion: (page: Page) =>
         page.locator('[id*="cmp-cotizacion-grid"]'),
 
     btnIncrementarCantidad: (page: Page, indice: number = 0) =>
         page.locator(`[id="pv_cmp-cotizacion-grid_cmp-cotizacion-grid-body:grilla_v-step:cantidad-item-${indice}_div:increase"]`),
 
-    // ─── Búsqueda de comprobantes (pill) ───────────────────────────
+    
     pillCotizaciones: (page: Page) =>
         page.locator('[id="pv_comprobantes_cmp-header-comprobantes_categorias:pill-COTIZACIONES"]'),
 
-    // ─── Mensajes de validación ────────────────────────────────────
+    
     mensajeNoEncontrado: (page: Page) =>
         page.getByText('No se encontró el comprobante con los datos ingresados. Por favor, verifica e intenta nuevamente.'),
 

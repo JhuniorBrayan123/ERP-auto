@@ -38,7 +38,7 @@ export const SeleccionarTipoComprobante = (tipo: TipoComprobante) => {
         if (opcionVisible) {
             await opcion.getByText(textoBoton).click();
         } else {
-            // Fallback: buscar por texto directamente
+            
             await page.getByText(textoBoton).first().click();
         }
     };

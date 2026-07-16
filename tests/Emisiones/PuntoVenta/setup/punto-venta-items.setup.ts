@@ -298,47 +298,47 @@ setup(CASO_ACTUAL, async ({page}) => {
             await page.waitForTimeout(1000);
 
             if (!await edicionItemPage.isSelectorCreado()) {
-                // Crear selector desde cero: Añadir selector → Nuevo selector
+                
                 await edicionItemPage.clickAnadirSelector();
                 await page.waitForTimeout(500);
                 await edicionItemPage.clickNuevoSelector();
                 await page.waitForTimeout(1000);
 
-                // Llenar nombre del selector
+                
                 await edicionItemPage.fillSelectorNombre('Selectores manuales simples');
                 await page.waitForTimeout(500);
 
-                // Crear option desde inventario (item 111111)
+                
                 await edicionItemPage.clickCrearSelectorInventario();
                 await page.waitForTimeout(500);
                 await edicionItemPage.buscarYAgregarItemSelector('111111');
 
-                // Opción 0: item de inventario (111111) — ya agregado arriba
-                // Primera opción manual: click "Crear selectores libres"
+                
+                
                 await edicionItemPage.clickCrearSelectorLibre();
                 await page.waitForTimeout(500);
                 await edicionItemPage.fillManualOptionNombre(1, 'Selector manual 1');
                 await edicionItemPage.fillManualOptionPrecio(1, '5.00');
                 await page.waitForTimeout(300);
 
-                // Segunda opción manual: click "Añadir opción"
+                
                 await edicionItemPage.clickAnadirOpcion();
                 await page.waitForTimeout(500);
                 await edicionItemPage.fillManualOptionNombre(2, 'Selector manual 2');
                 await edicionItemPage.fillManualOptionPrecio(2, '10.00');
                 await page.waitForTimeout(300);
 
-                // Tercera opción manual: click "Añadir opción"
+                
                 await edicionItemPage.clickAnadirOpcion();
                 await page.waitForTimeout(500);
                 await edicionItemPage.fillManualOptionNombre(3, 'Selector manual 3');
                 await edicionItemPage.fillManualOptionPrecio(3, '15.00');
                 await page.waitForTimeout(300);
 
-                // Crear el selector
+                
                 await edicionItemPage.clickCrearSelector();
 
-                // Activar switch obligatorio
+                
                 await edicionItemPage.waitForObligatorioSwitch();
                 await edicionItemPage.setSelectorObligatorioSwitch();
 
