@@ -1,6 +1,7 @@
 import {type Page} from '@playwright/test';
 import {ItemFormBasePage} from './ItemFormBasePage';
 import type {InsumoReceta, SelectorConfig} from '@app-types/item-data.types';
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 export class RecetaFormPage extends ItemFormBasePage {
     constructor(page: Page) {
@@ -8,6 +9,7 @@ export class RecetaFormPage extends ItemFormBasePage {
     }
 
     async iniciarCreacionReceta(): Promise<void> {
+        await esperarCargaOverlay(this.page)
         await this.botonCrearItems.click();
         await this.page.getByText('RNueva receta').click();
     }

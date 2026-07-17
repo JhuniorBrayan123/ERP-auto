@@ -1,6 +1,6 @@
 import {type Page} from '@playwright/test';
 import {ItemFormBasePage} from './ItemFormBasePage';
-import type {ComponenteCombo} from '../../helpers/Logistica/item-data.types';
+import type {ComponenteCombo} from '@app-types/item-data.types';
 import {esperarCargaOverlay, esperarDebounce} from '@utils/wait-helpers';
 
 export class ComboFormPage extends ItemFormBasePage {
