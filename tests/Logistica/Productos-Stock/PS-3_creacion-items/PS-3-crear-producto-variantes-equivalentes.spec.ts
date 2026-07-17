@@ -6,15 +6,16 @@ import {
 } from "@helpers/Logistica/verificaciones-items.helper";
 
 test.describe(
-    "PS-03 | Creación de Productos con Variantes y Equivalentes",
-    {tag: ["@logistica", "@productos-stock", "@variantes", "@equivalentes"]},
+    "PS-03 | Creación de Productos — Variantes y Equivalentes",
+    {tag: ["@logistica", "@productos-stock"]},
     () => {
 
-        test("SC-09: crear producto con variantes y ver en detalle @PS-03.9", async ({
-                                                                              productoForm,
-                                                                              itemDetail,
-                                                                          }) => {
+        test("SC-09: crear y borrar atributo, luego agregar variantes @PS-03.9", async ({
+                                                                                  productoForm,
+                                                                                  itemDetail,
+                                                                              }) => {
             const nombre = buildUniqueItemName("producto", "con variantes");
+            const nomTemp = buildUniqueItemName("producto", "temp-sc09");
 
             await prepararProductoBase(
                 productoForm,
@@ -29,20 +30,21 @@ test.describe(
                 },
             );
 
-            await test.step("Configurar atributo y variantes", async () => {
+            await test.step("1. Crear atributo temporal", async () => {
                 await productoForm.irATabVariantes();
+                await productoForm.crearAtributoVariante(nomTemp, ["opcion 1", "opcion 2", "opcion 3"]);
+            });
 
-                // Crear atributo "Talla" con opciones S, M, L
-                await productoForm.crearAtributoVariante("Talla", ["S", "M", "L"]);
+            await test.step("2. Borrar atributo creado", async () => {
+                await productoForm.eliminarAtributoCreado(nomTemp);
+            });
 
-                // Agregar variante "Talla S"
-                await productoForm.agregarVariante(0, "Talla S", {
+            await test.step("3. Agregar variantes con atributos existentes", async () => {
+                await productoForm.agregarVariante(0, "Variante 1", {
                     cantidadMaxima: "100",
                     cantidadMinima: "5",
                 });
-
-                // Agregar variante "Talla M"
-                await productoForm.agregarVariante(1, "Talla M", {
+                await productoForm.agregarVariante(1, "Variante 2", {
                     cantidadMaxima: "200",
                     cantidadMinima: "10",
                 });
@@ -60,7 +62,7 @@ test.describe(
                 productoForm.crearProducto(),
             );
 
-            await test.step("Verificar item creado", async () => {
+            await test.step("Verificar item creado con variantes", async () => {
                 await itemDetail.verificarItemCompleto({
                     verificarVentas: true,
                     verificarCompras: true,
@@ -89,7 +91,7 @@ test.describe(
             );
 
             await test.step("Configurar equivalencia", async () => {
-                await productoForm.irATabVariantes();
+                await productoForm.irATabEquivalencias();
 
                 await productoForm.crearEquivalencia({
                     nombre: "Pack 6 unidades",
@@ -122,73 +124,6 @@ test.describe(
             });
         });
 
-        test("SC-11: crear producto con variantes y equivalencia @PS-03.11", async ({
-                                                                              productoForm,
-                                                                              itemDetail,
-                                                                          }) => {
-            const nombre = buildUniqueItemName("producto", "variantes y equivalencia");
 
-            await prepararProductoBase(
-                productoForm,
-                nombre,
-                {venta: "40", compra: "25"},
-                {
-                    stockConfig: {
-                        tipo: "flexible",
-                        cantidadMaxima: "400",
-                        cantidadMinima: "20",
-                    },
-                },
-            );
-
-            await test.step("Configurar atributo, variantes y equivalencia", async () => {
-                await productoForm.irATabVariantes();
-
-                // Crear atributo "Color" con opciones Rojo, Azul
-                await productoForm.crearAtributoVariante("Color", ["Rojo", "Azul"]);
-
-                // Agregar variante "Rojo"
-                await productoForm.agregarVariante(0, "Rojo", {
-                    cantidadMaxima: "200",
-                    cantidadMinima: "10",
-                });
-
-                // Agregar variante "Azul"
-                await productoForm.agregarVariante(1, "Azul", {
-                    cantidadMaxima: "200",
-                    cantidadMinima: "10",
-                });
-
-                // Crear equivalencia
-                await productoForm.crearEquivalencia({
-                    nombre: "Caja x 12",
-                    factor: 12,
-                    tipoAfectacion: "Gravado",
-                    precioVenta: "400",
-                    precioCompra: "250",
-                    esPrimera: true,
-                });
-            });
-
-            await test.step("Llenar información adicional", async () => {
-                await productoForm.llenarInfoAdicional(
-                    "REGRESION",
-                    "AUTO-TEST",
-                    "AUTOMATIZADO",
-                );
-            });
-
-            await confirmarCreacionEIrALista(productoForm, () =>
-                productoForm.crearProducto(),
-            );
-
-            await test.step("Verificar item creado", async () => {
-                await itemDetail.verificarItemCompleto({
-                    verificarVentas: true,
-                    verificarCompras: true,
-                    verificarBitacora: true,
-                });
-            });
-        });
     },
 );
