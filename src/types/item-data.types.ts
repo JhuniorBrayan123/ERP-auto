@@ -5,9 +5,9 @@ export interface InfoAdicional {
 }
 
 export interface StockConfig {
-    tipo: 'estricto' | 'flexible';
-    cantidadMaxima: string;
-    cantidadMinima: string;
+    tipo: 'estricto' | 'flexible' | 'sin_control';
+    cantidadMaxima?: string;
+    cantidadMinima?: string;
 }
 
 export interface AlmacenConfig {

@@ -11,6 +11,7 @@ const ROOT_DIR = process.cwd();
 const PROJECT_OUTPUT_DIRS: Record<string, string> = {
     PuntoVenta: path.join(ROOT_DIR, "test-results", "puntoventa"),
     Logistica: path.join(ROOT_DIR, "test-results", "logistica"),
+    Clientes: path.join(ROOT_DIR, "test-results", "clientes"),
 };
 
 export function parseResultsFile(filePath: string): string[] {

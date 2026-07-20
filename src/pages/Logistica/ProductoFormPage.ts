@@ -1,4 +1,4 @@
-import {type Page} from '@playwright/test';
+import {expect, type Page} from '@playwright/test';
 import {ItemFormBasePage} from './ItemFormBasePage';
 import type {ISCConfig, StockConfig} from '@app-types/item-data.types';
 
@@ -7,19 +7,23 @@ export class ProductoFormPage extends ItemFormBasePage {
         super(page);
     }
 
+    
+
     async iniciarCreacionProducto(): Promise<void> {
         await this.botonCrearItems.click();
         await this.page.getByText('PNuevo producto').click();
     }
 
-    async llenarPrecios(precioVenta: string, precioCompra: string): Promise<void> {
-        const inputPrecioVenta = this.page.getByRole('textbox', {name: 'Monto final'}).first();
-        const inputPrecioCompra = this.page.getByRole('textbox', {name: 'Monto final'}).nth(1);
+    async crearProducto(): Promise<void> {
+        await this.clickBotonCrear('producto');
+    }
 
-        await inputPrecioVenta.click();
-        await inputPrecioVenta.fill(precioVenta);
-        await inputPrecioCompra.click();
-        await inputPrecioCompra.fill(precioCompra);
+    async llenarPrecios(precioVenta: string, precioCompra: string): Promise<void> {
+        const input = this.page.getByRole('textbox', {name: 'Monto final'});
+        await input.first().click();
+        await input.first().fill(precioVenta);
+        await input.nth(1).click();
+        await input.nth(1).fill(precioCompra);
     }
 
     async llenarCodigo(codigo: number): Promise<void> {
@@ -29,11 +33,39 @@ export class ProductoFormPage extends ItemFormBasePage {
         await this.page.locator('[id="lgt_reg-item_v-tab:informacion-basica_v-input:codigo"]').fill(codigo.toString());
     }
 
+    
+
     async irATabStock(): Promise<void> {
         await this.page
             .locator('[id="lgt_cmp-registro-item_cmp-body-item_cmp-tabs-item.v-tabs:tabs-1"]')
             .nth(1)
             .click();
+    }
+
+    async configurarStock(config: StockConfig): Promise<void> {
+        await this.irATabStock();
+        await this.seleccionarControlStock(config.tipo);
+        if (config.tipo !== 'sin_control' && config.cantidadMaxima) {
+            await this.llenarCantidadesStock(config.cantidadMaxima);
+        }
+    }
+
+    async seleccionarControlStock(tipo: 'estricto' | 'flexible' | 'sin_control'): Promise<void> {
+        const ids: Record<string, string> = {
+            estricto: 'lgt_reg-item_v-tab:stock-almacen_cmp-card-stock:control-estricto',
+            flexible: 'lgt_reg-item_v-tab:stock-almacen_cmp-card-stock:control-flexible',
+            sin_control: 'lgt_reg-item_v-tab:stock-almacen_cmp-card-stock:sin-control-stock',
+        };
+        await this.page.locator(`[id="${ids[tipo]}"]`).click();
+    }
+
+    async llenarCantidadesStock(cantidad: string): Promise<void> {
+        const cards = this.page.locator('.cmp-card-almacen');
+        const count = await cards.count();
+        for (let i = 0; i < count; i++) {
+            await cards.nth(i).locator('[id="lgt_cmp-card-almacen_v-step:cantidad"]').click();
+            await cards.nth(i).locator('[id="lgt_cmp-card-almacen_v-step:cantidad"]').fill(cantidad);
+        }
     }
 
     async seleccionarAlmacenEspecifico(nombreAlmacen: string): Promise<void> {
@@ -43,89 +75,7 @@ export class ProductoFormPage extends ItemFormBasePage {
         await this.page.locator('.vector').click();
     }
 
-    async seleccionarControlStock(tipo: 'estricto' | 'flexible' | 'sin_control'): Promise<void> {
-        let id: string;
-        if (tipo === 'estricto') {
-            id = 'lgt_reg-item_v-tab:stock-almacen_cmp-card-stock:control-estricto';
-        } else if (tipo === 'flexible') {
-            id = 'lgt_reg-item_v-tab:stock-almacen_cmp-card-stock:control-flexible';
-        } else {
-            id = 'lgt_reg-item_v-tab:stock-almacen_cmp-card-stock:sin-control-stock';
-        }
-        await this.page.locator(`[id="${id}"]`).click();
-    }
-
-    async llenarCantidadesStock(cantidad: string): Promise<void> {
-        const cards = this.page.locator('.cmp-card-almacen');
-        const count = await cards.count();
-
-        for (let i = 0; i < count; i++) {
-            const input = cards.nth(i).locator('[id="lgt_cmp-card-almacen_v-step:cantidad"]');
-            await input.click();
-            await input.fill(cantidad);
-        }
-    }
-
-    async configurarStock(config: StockConfig): Promise<void> {
-        await this.irATabStock();
-        await this.seleccionarControlStock(config.tipo);
-        await this.llenarCantidadesStock(config.cantidadMaxima);
-    }
-
-    async seleccionarTipoAfectacionIGV(opcionTexto: string): Promise<void> {
-        await this.page.locator('.v-select-header-form-arrow.form.form-control').click();
-        await this.page.getByText(opcionTexto, {exact: true}).click();
-    }
-
-    async activarICBPER(): Promise<void> {
-        await this.page
-            .locator(
-                '.impuestos > div:nth-child(2) > .v-switch > .switch-content > .switch > .slider',
-            )
-            .first()
-            .click();
-    }
-
-    async configurarISC(config: ISCConfig): Promise<void> {
-        await this.page
-            .locator(
-                '.row > div:nth-child(2) > div:nth-child(2) > .v-switch > .switch-content > .switch > .slider',
-            )
-            .click();
-
-        if (config.tipoSistema === 'Sistema al valor') {
-            await this.page.locator('.v-select-header-form-arrow.invalid').click();
-            await this.page
-                .locator('div')
-                .filter({hasText: /^Sistema al valor$/})
-                .click();
-        } else {
-            await this.page
-                .locator('div')
-                .filter({hasText: /^Tipo de sistema ISC$/})
-                .nth(2)
-                .click();
-            await this.page.getByText('Aplicación al monto fijo').click();
-        }
-
-        const inputName = config.tipoSistema === 'Sistema al valor' ? '%' : 'S/';
-        const inputMonto = this.page.getByRole('textbox', {name: inputName, exact: true});
-        await inputMonto.click();
-        await inputMonto.fill(config.monto);
-    }
-
-    async esperarLoader(): Promise<void> {
-        await this.page
-            .locator('[id="cmn_cmp-overload:loading"]')
-            .waitFor({state: 'visible', timeout: 2_000})
-            .catch(() => {
-            });
-        await this.page
-            .locator('[id="cmn_cmp-overload:loading"]')
-            .waitFor({state: 'hidden', timeout: 15_000})
-            .catch(() => {
-            });
-    }
+    
 
     async llenarInfoAdicional(
         categoria: string,
@@ -147,6 +97,39 @@ export class ProductoFormPage extends ItemFormBasePage {
         await this.esperarLoader();
     }
 
+    async seleccionarTipoAfectacionIGV(opcionTexto: string): Promise<void> {
+        await this.page.locator('.v-select-header-form-arrow.form.form-control').click();
+        await this.page.getByText(opcionTexto, {exact: true}).click();
+    }
+
+    async activarICBPER(): Promise<void> {
+        await this.page
+            .locator('.impuestos > div:nth-child(2) > .v-switch > .switch-content > .switch > .slider')
+            .first()
+            .click();
+    }
+
+    async configurarISC(config: ISCConfig): Promise<void> {
+        await this.page
+            .locator('.row > div:nth-child(2) > div:nth-child(2) > .v-switch > .switch-content > .switch > .slider')
+            .click();
+
+        if (config.tipoSistema === 'Sistema al valor') {
+            await this.page.locator('.v-select-header-form-arrow.invalid').click();
+            await this.page.locator('div').filter({hasText: /^Sistema al valor$/}).click();
+        } else {
+            await this.page.locator('div').filter({hasText: /^Tipo de sistema ISC$/}).nth(2).click();
+            await this.page.getByText('Aplicación al monto fijo').click();
+        }
+
+        const inputName = config.tipoSistema === 'Sistema al valor' ? '%' : 'S/';
+        const inputMonto = this.page.getByRole('textbox', {name: inputName, exact: true});
+        await inputMonto.click();
+        await inputMonto.fill(config.monto);
+    }
+
+    
+
     async irATabVariantes(): Promise<void> {
         await this.page.getByText('Variantes(Opcional)').click();
     }
@@ -166,7 +149,18 @@ export class ProductoFormPage extends ItemFormBasePage {
         }
 
         await this.page.getByRole('button', {name: 'Crear atributo'}).click();
+        await expect(this.page.locator('body')).toContainText('El atributo fue creado exitosamente');
+        await this.page.locator('.v-modal > div').first().click();
+    }
 
+    async eliminarAtributoCreado(nombreAtributo: string): Promise<void> {
+        await this.page.locator('div').filter({hasText: /^Añadir atributo$/}).nth(1).click();
+
+        const opcion = this.page.locator('.opcion').filter({hasText: nombreAtributo});
+        await opcion.locator('.v-checkbox-grid-label').click();
+        await opcion.locator('.icon.eliminacion').click();
+
+        await this.page.getByRole('button', {name: 'Eliminar'}).click();
         await this.page.locator('.v-modal > div').first().click();
     }
 
@@ -186,11 +180,11 @@ export class ProductoFormPage extends ItemFormBasePage {
             '[id="lgt_reg-item_v-tab:variantes-item_cmp-dropdown:btn-cambiar-nombre"]',
         ).nth(indice).click();
 
-        const inputNombreVariante = this.page.locator(
+        const inputNombre = this.page.locator(
             '[id="lgt_reg-item_v-tab:variantes-item_combinacion-variante-item-list:combinacion_v-input:nombre"]',
         );
-        await inputNombreVariante.click();
-        await inputNombreVariante.fill(nombre);
+        await inputNombre.click();
+        await inputNombre.fill(nombre);
 
         await this.page.locator(
             '[id="lgt_reg-item_v-tab:variantes-item_combinacion-variantes-item-list:item_div:btn-editar-combinacion"]',
@@ -214,6 +208,8 @@ export class ProductoFormPage extends ItemFormBasePage {
         }
     }
 
+    
+
     async crearEquivalencia(config: {
         nombre: string;
         factor: number;
@@ -222,6 +218,8 @@ export class ProductoFormPage extends ItemFormBasePage {
         precioCompra: string;
         esPrimera: boolean;
     }): Promise<void> {
+
+        await this.irATabEquivalencias();
 
         if (config.esPrimera) {
             await this.page.getByText('AQUÍ', {exact: true}).first().click();
@@ -239,21 +237,25 @@ export class ProductoFormPage extends ItemFormBasePage {
         await inputFactor.click();
         await inputFactor.fill(String(config.factor));
 
-        await this.page.locator('.v-select-header-base-form:visible').filter({hasText: /^Seleccionar$/}).first().click({force: true});
+        await this.page.locator('.v-select-header-base-form:visible')
+            .filter({hasText: /^Seleccionar$/}).first().click({force: true});
         await this.page.getByText(config.tipoAfectacion).last().click();
 
-        const inputPrecioVenta = this.page.getByRole('textbox', {name: 'Monto final'}).first();
-        await inputPrecioVenta.click();
-        await inputPrecioVenta.fill(config.precioVenta);
-
-        const inputPrecioCompra = this.page.getByRole('textbox', {name: 'Monto final'}).nth(1);
-        await inputPrecioCompra.click();
-        await inputPrecioCompra.fill(config.precioCompra);
+        const inputPrecio = this.page.getByRole('textbox', {name: 'Monto final'});
+        await inputPrecio.first().click();
+        await inputPrecio.first().fill(config.precioVenta);
+        await inputPrecio.nth(1).click();
+        await inputPrecio.nth(1).fill(config.precioCompra);
 
         await this.page.getByRole('button', {name: 'Crear Equivalencia'}).click();
     }
 
-    async crearProducto(): Promise<void> {
-        await this.clickBotonCrear('producto');
+    
+
+    async esperarLoader(): Promise<void> {
+        await this.page.locator('[id="cmn_cmp-overload:loading"]')
+            .waitFor({state: 'visible', timeout: 2_000}).catch(() => {});
+        await this.page.locator('[id="cmn_cmp-overload:loading"]')
+            .waitFor({state: 'hidden', timeout: 15_000}).catch(() => {});
     }
 }
