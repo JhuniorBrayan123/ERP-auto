@@ -1,15 +1,10 @@
 import {expect, test} from '@fixtures/clientes-proveedores/proveedores.fixture';
-import {
-    CerrarModalExito,
-    CrearProveedor,
-    LlenarFormularioBasicoProveedor
-} from '@screenplay/tasks/clientes-proveedores/proveedores/CrearProveedor';
+import {CrearProveedor, LlenarFormularioBasicoProveedor} from '@screenplay/tasks/clientes-proveedores/proveedores/CrearProveedor';
 import {BuscarProveedorEnListado} from '@screenplay/tasks/clientes-proveedores/proveedores/BuscarProveedor';
 import {EliminarProveedor} from '@screenplay/tasks/clientes-proveedores/proveedores/EliminarProveedor';
 import {CancelarCreacion} from '@screenplay/tasks/clientes-proveedores/proveedores/EditarProveedor';
 import {
     MensajeCampoObligatorioVisible,
-    MensajeCreacionExitosaVisible,
     ProveedorVisibleEnListado,
 } from '@screenplay/questions/clientes-proveedores/ProveedorQuestions';
 import {generarProveedorDNI, generarProveedorRUC} from '@data/clientes-proveedores/proveedores.data';
@@ -21,8 +16,6 @@ test.describe('PR-01 | Creación de Proveedores', {tag: ['@proveedores', '@creac
 
         const datos = generarProveedorDNI();
         await proveedorActor.realiza(CrearProveedor(datos));
-        await proveedorActor.realiza(MensajeCreacionExitosaVisible());
-        await proveedorActor.realiza(CerrarModalExito());
         await proveedorActor.realiza(BuscarProveedorEnListado(datos.numeroDocumento));
         await proveedorActor.realiza(ProveedorVisibleEnListado(datos.nombreRazonSocial));
 

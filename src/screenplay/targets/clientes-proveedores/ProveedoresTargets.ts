@@ -56,7 +56,7 @@ export const ProveedoresTargets = {
         page.locator('[id="pv_proveedores_cmp-grid-options:opciones_proveedor_cmp-dropdown:options-li:eliminar-proveedor"]'),
 
     btnConfirmarEliminarProveedor: (page: Page) =>
-        page.locator('[id="pv_proveedores_v-modal:confirmacion-eliminacion-movimiento_v-button:aceptar-eliminacion"]'),
+        page.locator('div[id="pv_proveedores_v-modal:confirmacion-eliminacion-movimiento_v-button:aceptar-eliminacion"]'),
 
 
     selectTipoDocumento: (page: Page) =>
