@@ -160,4 +160,95 @@ export const ClientesTargets = {
 
     btnAceptarError: (page: Page) =>
         page.getByRole('button', {name: 'Aceptar'}),
+
+    // ─── Filtros avanzados detallados ───────────────────────────
+    filtroTipoDocumento: (page: Page) =>
+        page.locator('div').filter({hasText: /^Tipo documento$/}).nth(2),
+
+    filtroTipoDocEnTabla: (page: Page, tipo: string) =>
+        page.locator('thead').getByText(tipo),
+
+    inputFiltroDocumento: (page: Page) =>
+        page.getByRole('textbox', {name: 'N° de documento', exact: true}),
+
+    inputFiltroCodigo: (page: Page) =>
+        page.getByRole('textbox', {name: 'Cod cliente'}),
+
+    inputFiltroTelefono: (page: Page) =>
+        page.getByRole('textbox', {name: 'Teléfono', exact: true}),
+
+    // ─── Notas adicionales - menú contextual ────────────────────
+    botonContextualNota: (page: Page) =>
+        page.locator('[id=\"pv_clientes_notas-adicionales_cliente_item:cmp-dropdown:opciones\"]').first(),
+
+    opcionEliminarNota: (page: Page) =>
+        page.getByText('Eliminar nota adicional').first(),
+
+    btnConfirmarSi: (page: Page) =>
+        page.getByRole('button', {name: 'Sí'}),
+
+    seccionNotasAdicionales: (page: Page) =>
+        page.getByText('Notas adicionales'),
+
+    // ─── Botón cerrar drape alternativo ─────────────────────────
+    btnCerrarDrapeAlt: (page: Page) =>
+        page.locator('.drape.is-open > .button-close'),
+
+    // ─── Configuración de Columnas ──────────────────────────────
+    btnAñadirCampos: (page: Page) =>
+        page.locator('.v-icon-head-plus > .icon').first(),
+
+    etiquetaCampoObligatorio: (page: Page, nombreCampo: string) =>
+        page.locator('.item', { hasText: nombreCampo }).locator('.v-psmall', { hasText: 'Obligatorio' }),
+
+    checkboxColumna: (page: Page, nombreCampo: string) =>
+        page.locator('.item', { hasText: nombreCampo }).locator('.v-checkbox-grid-label > span'),
+
+    thead: (page: Page) =>
+        page.locator('thead'),
+
+    // ─── Menú Opciones (Descarga / Carga Masiva) ────────────────
+    btnOpcionesGenerales: (page: Page) =>
+        page.locator('.icon-container > .icon'),
+
+    opcionDescargarFiltrados: (page: Page) =>
+        page.getByText('Descargar clientes filtrados'),
+
+    opcionDescargarTodos: (page: Page) =>
+        page.getByText('Descargar todos los clientes'),
+
+    opcionCrearDesdeExcel: (page: Page) =>
+        page.getByText('Crear clientes desde excel'),
+
+    // ─── Flujo de Carga Masiva ──────────────────────────────────
+    btnSiguiente: (page: Page) =>
+        page.getByText('Siguiente'),
+
+    btnSeleccionarArchivo: (page: Page) =>
+        page.getByRole('button', { name: 'Seleccionar archivo' }),
+
+    btnProcesarExcel: (page: Page) =>
+        page.getByText('Procesar', { exact: true }),
+
+    mensajeExitoMasivo: (page: Page) =>
+        page.getByText('¡Clientes procesados correctamente!'),
+
+    mensajeErrorMasivo: (page: Page) =>
+        page.getByText('Archivo con errores'),
+
+    btnIrAlInicio: (page: Page) =>
+        page.getByRole('button', { name: 'Ir al inicio' }),
+
+    // ─── Acciones Masivas (Eliminación) ─────────────────────────
+    checkboxSeleccionarTodo: (page: Page) =>
+        page.locator('.v-checkbox-default-label > span').first(),
+
+    btnAccionesMasivas: (page: Page) =>
+        page.getByText('Acciones masivas'),
+
+    opcionEliminarClientesMasivo: (page: Page) =>
+        page.getByText('ELIMINAR CLIENTES', { exact: true }),
+
+    mensajeExitoEliminacionMasiva: (page: Page) =>
+        page.locator('body').getByText('Los clientes fueron eliminados exitosamente'),
 };

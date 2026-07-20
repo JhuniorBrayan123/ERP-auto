@@ -1,41 +1,54 @@
 import {test, expect} from '@fixtures/clientes-proveedores/clientes.fixture';
-import {CrearCliente, CerrarModalExito, LlenarNombreRazonSocialCliente} from '@screenplay/tasks/clientes-proveedores/clientes/CrearCliente';
-import {BuscarClienteEnListado, AbrirAccionYEsperarDrape} from '@screenplay/tasks/clientes-proveedores/clientes/BuscarCliente';
-import {ClickGuardarCambios, CambiarEstadoClienteEnFormulario} from '@screenplay/tasks/clientes-proveedores/clientes/EditarCliente';
-import {AbrirDetalleCliente, AbrirBitacora, CerrarDrape, ClickAtras} from '@screenplay/tasks/clientes-proveedores/clientes/NotaAdicionalCliente';
-import {generarClienteDNI} from '@data/clientes-proveedores/clientes.data';
+import {CrearCliente, CerrarModalExito} from '@screenplay/tasks/clientes-proveedores/clientes/CrearCliente';
+import {BuscarClienteEnListado, AbrirAccionContextualCliente} from '@screenplay/tasks/clientes-proveedores/clientes/BuscarCliente';
+import {EditarNombreCliente, EditarCampoAdicional, ClickGuardarCambios, CambiarEstadoClienteEnFormulario} from '@screenplay/tasks/clientes-proveedores/clientes/EditarCliente';
+import {AbrirDetalleCliente, AbrirBitacora, CerrarDrape, ClickAtras, SeleccionarPestaniaBitacora} from '@screenplay/tasks/clientes-proveedores/clientes/NotaAdicionalCliente';
+import {
+    ClienteVisibleEnListado,
+    ClienteContieneTextoEnDetalle,
+    MensajeEdicionVisible,
+    BitacoraContieneAccion,
+    EstadoClienteEnListado,
+} from '@screenplay/questions/clientes-proveedores/ClienteQuestions';
+import {generarClienteParaEdicion} from '@data/clientes-proveedores/clientes.data';
 import {ClientesTargets} from '@screenplay/targets/clientes-proveedores/ClientesTargets';
 
 test.describe('CL-03 | Edición de Clientes', {tag: ['@clientes', '@edicion']}, () => {
 
-    test('SC-01: Editar nombre y verificar en listado y bitácora @CL-03.1', async ({cliente, page}) => {
-        const datos = generarClienteDNI();
+    test('SC-01: Editar razón social, estado y campo adicional @CL-03.1', async ({cliente, page}) => {
+        // Arrange: Crear cliente con estado Inactivo y campo adicional
+        const datos = generarClienteParaEdicion();
         await cliente.realiza(CrearCliente(datos));
 
-        // Buscar y editar
+        // Validar estado Inactivo en detalle
         await cliente.realiza(BuscarClienteEnListado(datos.numeroDocumento));
-        await cliente.realiza(AbrirAccionYEsperarDrape('Ver cliente'));
-        await expect(ClientesTargets.appContainer(page)).toContainText(datos.nombreRazonSocial);
+        await cliente.realiza(AbrirDetalleCliente());
+        await cliente.realiza(ClienteContieneTextoEnDetalle('INACTIVO'));
         await cliente.realiza(ClickAtras());
 
-        // Editar
-        await cliente.realiza(async (p: typeof page) => {
-            await ClientesTargets.botonContextual(p).click();
-            await p.getByText('Editar cliente').click();
-        });
+        // Act: Abrir edición
+        await cliente.realiza(AbrirAccionContextualCliente('Editar cliente'));
+
         const nombreEditado = `${datos.nombreRazonSocial}-editado`;
-        await cliente.realiza(LlenarNombreRazonSocialCliente(nombreEditado));
+        const campoEditado = `apodo-editado-${Date.now().toString().slice(-4)}`;
+
+        await cliente.realiza(EditarNombreCliente(nombreEditado));
+        await cliente.realiza(CambiarEstadoClienteEnFormulario('Activo'));
+        await cliente.realiza(EditarCampoAdicional(campoEditado));
         await cliente.realiza(ClickGuardarCambios());
-        await expect(page.locator('body')).toContainText('Los cambios se guardaron exitosamente');
+
+        // Assert: Mensaje de éxito
+        await cliente.realiza(MensajeEdicionVisible());
         await ClientesTargets.btnCerrarModal(page).click();
 
-        // Validar en listado
+        // Assert: Nombre actualizado en listado
         await cliente.realiza(BuscarClienteEnListado(datos.numeroDocumento));
-        await expect(ClientesTargets.tbody(page)).toContainText(nombreEditado);
+        await cliente.realiza(ClienteVisibleEnListado(nombreEditado));
 
-        // Validar en bitácora
+        // Assert: Bitácora de actualización con detalles
         await cliente.realiza(AbrirBitacora());
-        await expect(page.locator('body')).toContainText('Actualización de cliente');
+        await cliente.realiza(SeleccionarPestaniaBitacora('Actualización'));
+        await cliente.realiza(BitacoraContieneAccion('Actualización de cliente'));
         await cliente.realiza(CerrarDrape());
     });
 });

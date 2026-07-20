@@ -69,3 +69,33 @@ export const CerrarDrape = () => {
     fn.displayName = 'Cerrar panel drape';
     return fn;
 };
+
+export const AgregarNotaDesdePanel = (titulo: string, mensaje: string) => {
+    const fn = async (page: Page): Promise<void> => {
+        await page.getByRole('button', {name: 'Nueva nota adicional'}).click();
+        await ClientesTargets.inputTituloNota(page).fill(titulo);
+        await ClientesTargets.textareaMensajeNota(page).fill(mensaje);
+        await ClientesTargets.btnGuardarNota(page).click();
+    };
+    fn.displayName = `Agregar nota desde panel: ${titulo}`;
+    return fn;
+};
+
+export const EliminarNotaAdicional = () => {
+    const fn = async (page: Page): Promise<void> => {
+        await ClientesTargets.botonContextualNota(page).click();
+        await ClientesTargets.opcionEliminarNota(page).click();
+        await ClientesTargets.btnConfirmarSi(page).click();
+    };
+    fn.displayName = 'Eliminar nota adicional';
+    return fn;
+};
+
+export const SeleccionarPestaniaBitacora = (pestania: string) => {
+    const fn = async (page: Page): Promise<void> => {
+        await ClientesTargets.pestaniaBitacora(page, pestania).click();
+    };
+    fn.displayName = `Seleccionar pestaña bitácora: ${pestania}`;
+    return fn;
+};
+

@@ -1,0 +1,64 @@
+import {type Page} from '@playwright/test';
+import {ProveedoresTargets} from '@screenplay/targets/clientes-proveedores/ProveedoresTargets';
+import {DatosProveedorInput} from '@data/clientes-proveedores/proveedores.data';
+
+export const LlenarFormularioBasicoProveedor = (datos: Partial<DatosProveedorInput>) => {
+    const fn = async (page: Page): Promise<void> => {
+        if (datos.tipoDocumento) {
+            await ProveedoresTargets.selectTipoDocumento(page).click();
+            await ProveedoresTargets.opcionTipoDocumento(page, datos.tipoDocumento).click();
+        }
+        
+        if (datos.numeroDocumento !== undefined) {
+            await ProveedoresTargets.inputNumeroDocumento(page).click();
+            await ProveedoresTargets.inputNumeroDocumento(page).fill(datos.numeroDocumento);
+        }
+        
+        if (datos.nombreRazonSocial !== undefined) {
+            await ProveedoresTargets.inputRazonSocial(page).click();
+            await ProveedoresTargets.inputRazonSocial(page).fill(datos.nombreRazonSocial);
+        }
+
+        if (datos.codigo) {
+            await ProveedoresTargets.selectModoCodigo(page).click();
+            await ProveedoresTargets.opcionCodigoManual(page).click();
+            await ProveedoresTargets.inputCodigoManual(page).click();
+            await ProveedoresTargets.inputCodigoManual(page).fill(datos.codigo);
+        }
+
+        if (datos.direccion) {
+            await ProveedoresTargets.inputDireccion(page).click();
+            await ProveedoresTargets.inputDireccion(page).fill(datos.direccion);
+        }
+
+        if (datos.telefono) {
+            await ProveedoresTargets.inputTelefono(page).click();
+            await ProveedoresTargets.inputTelefono(page).fill(datos.telefono);
+        }
+
+        if (datos.email) {
+            await ProveedoresTargets.inputEmail(page).click();
+            await ProveedoresTargets.inputEmail(page).fill(datos.email);
+        }
+    };
+    fn.displayName = `Llenar formulario básico proveedor: ${datos.nombreRazonSocial || 'parcial'}`;
+    return fn;
+};
+
+export const CrearProveedor = (datos: DatosProveedorInput) => {
+    const fn = async (page: Page): Promise<void> => {
+        await ProveedoresTargets.btnCrearProveedor(page).click();
+        await LlenarFormularioBasicoProveedor(datos)(page);
+        await ProveedoresTargets.btnCrearProveedorForm(page).click();
+    };
+    fn.displayName = `Crear proveedor: ${datos.nombreRazonSocial}`;
+    return fn;
+};
+
+export const CerrarModalExito = () => {
+    const fn = async (page: Page): Promise<void> => {
+        await ProveedoresTargets.btnCerrarModal(page).click();
+    };
+    fn.displayName = 'Cerrar modal de éxito';
+    return fn;
+};
