@@ -105,8 +105,8 @@ export const ProveedoresTargets = {
     btnEliminarConfirmar: (page: Page) =>
         page.getByRole('button', {name: 'Eliminar'}),
 
-    sliderEstado: (page: Page) =>
-        page.locator('.slider'),
+    switchEstado: (page: Page) =>
+        page.locator('.opcion-item .v-switch label.switch'),
 
     selectEstadoEnFormulario: (page: Page) =>
         page.locator('[id="pv_proveedores_form-registro-relacionado-entidad:form_basico:v-select:estado"]'),
