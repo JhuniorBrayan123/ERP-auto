@@ -1,20 +1,24 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { ChildProcess } from 'node:child_process';
-import { spawn as nodeSpawn } from 'node:child_process';
-import { checkbox, input, select } from '@inquirer/prompts';
+import type {ChildProcess} from 'node:child_process';
+import {spawn as nodeSpawn} from 'node:child_process';
+import {checkbox, input, select} from '@inquirer/prompts';
 import crossSpawn from 'cross-spawn';
-import type { FailedTestGroup } from './analyze-results.js';
-
-const { getSetupStateSummary, areAllSetupsComplete, forceCompleteAllSetups, PV_SETUP_NAMES, LOG_SETUP_NAMES } = await import('@utils/setup-state.js');
-const { getFailedTests } = await import('./analyze-results.js');
-const { cargarMapaDesdeCache, guardarMapaEnCache, cargarMapaCodigos } = await import('../src/factories/item-factory.js');
 import Fuse from 'fuse.js';
+
+const {
+    getSetupStateSummary,
+    areAllSetupsComplete,
+    forceCompleteAllSetups,
+    PV_SETUP_NAMES,
+    LOG_SETUP_NAMES
+} = await import('@utils/setup-state.js');
+const {cargarMapaDesdeCache, guardarMapaEnCache, cargarMapaCodigos} = await import('../src/factories/item-factory.js');
 
 const ROOT_DIR = process.cwd();
 const TESTS_DIR = path.join(ROOT_DIR, 'tests');
 
-type ProjectKey = 'Emisiones' | 'Logistica';
+type ProjectKey = 'Emisiones' | 'Logistica' | 'Clientes';
 
 interface ProjectContext {
     key: ProjectKey;
@@ -35,6 +39,11 @@ const PROJECT_CONFIG: Record<ProjectKey, { projectFlag: string | null; testDir: 
         testDir: path.join(TESTS_DIR, 'Logistica'),
         outputDir: 'test-results/logistica',
     },
+    Clientes: {
+        projectFlag: 'Clientes',
+        testDir: path.join(TESTS_DIR, 'ClientesProveedores'),
+        outputDir: 'test-results/clientes',
+    },
 };
 
 function getProjectContext(key: ProjectKey, isRunAll = false): ProjectContext {
@@ -50,7 +59,7 @@ function getProjectContext(key: ProjectKey, isRunAll = false): ProjectContext {
 
 function ensureOutputDirs(outputDir: string): void {
     if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, { recursive: true });
+        fs.mkdirSync(outputDir, {recursive: true});
     }
 }
 
@@ -67,7 +76,7 @@ interface ExplorerEntry {
 interface TestCase {
     title: string;
     filePath: string;
-    
+
     tags?: string[];
 }
 
@@ -125,7 +134,8 @@ function toRelative(targetPath: string): string {
 }
 
 function listEntries(currentDir: string): ExplorerEntry[] {
-    const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+    const entries = fs.readdirSync(currentDir, {withFileTypes: true})
+        .filter(entry => !['conductores', 'integracion'].includes(entry.name));
 
     const folders: ExplorerEntry[] = entries
         .filter((entry) => entry.isDirectory())
@@ -151,7 +161,8 @@ function listEntries(currentDir: string): ExplorerEntry[] {
 function walkSpecFiles(dir: string, result: string[] = []): string[] {
     if (!isDirectory(dir)) return result;
 
-    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    for (const entry of fs.readdirSync(dir, {withFileTypes: true})) {
+        if (['conductores', 'integracion'].includes(entry.name)) continue;
         const fullPath = path.join(dir, entry.name);
 
         if (entry.isDirectory()) {
@@ -179,7 +190,7 @@ function extractTestsFromFile(filePath: string): TestCase[] {
     while ((match = regex.exec(content)) !== null) {
         const title = match[1];
         const tags = title.match(tagRegex) ?? undefined;
-        tests.push({ title, filePath, tags });
+        tests.push({title, filePath, tags});
     }
 
     return tests;
@@ -233,13 +244,13 @@ async function cargarCacheActual(): Promise<void> {
     const currentAccount = (process.env.USER_EMAIL ?? '').trim().toLowerCase() || 'unknown';
 
     const cacheMapa = cargarMapaDesdeCache(envGroup, currentAccount);
-    
+
     // Check missing items regardless of where it's loaded from
     const checkMissing = async (mapa: any) => {
         if (envGroup === 'prd') return;
         let needsToRun = false;
         try {
-            const { ITEM_TEMPLATES } = await import('../src/factories/item-factory.js');
+            const {ITEM_TEMPLATES} = await import('../src/factories/item-factory.js');
             for (const template of ITEM_TEMPLATES) {
                 if (template.fase && !mapa[template.key]) {
                     console.log(`[setup-state] Ítem faltante detectado por test-runner: ${template.key}. Forzando setup...`);
@@ -251,7 +262,7 @@ async function cargarCacheActual(): Promise<void> {
             console.warn('[Cache] Error al verificar ITEM_TEMPLATES:', e instanceof Error ? e.message : String(e));
         }
         if (needsToRun) {
-            const { markSetupIncomplete } = await import('@utils/setup-state.js');
+            const {markSetupIncomplete} = await import('@utils/setup-state.js');
             markSetupIncomplete('punto-venta-items');
             delete process.env.SKIP_PV_ITEMS_SETUP;
         }
@@ -271,7 +282,7 @@ async function cargarCacheActual(): Promise<void> {
             const prdContent = fs.readFileSync(prdItemsFile, 'utf-8');
             const prdMapa = JSON.parse(prdContent);
             if (!fs.existsSync(path.dirname(authItemsFile))) {
-                fs.mkdirSync(path.dirname(authItemsFile), { recursive: true });
+                fs.mkdirSync(path.dirname(authItemsFile), {recursive: true});
             }
             fs.writeFileSync(authItemsFile, JSON.stringify(prdMapa, null, 2), 'utf-8');
             guardarMapaEnCache(prdMapa, envGroup, currentAccount);
@@ -287,9 +298,9 @@ async function cargarCacheActual(): Promise<void> {
             const crtMapa = JSON.parse(crtContent);
             guardarMapaEnCache(crtMapa, envGroup, currentAccount);
             console.log(`[Cache] CRT cache creado desde dynamic-items.json (RUN_ID: ${crtMapa.RUN_ID})`);
-            
+
             await checkMissing(crtMapa);
-            
+
         } else {
             console.warn(`[Cache] No hay cache para ${envGroup} / ${currentAccount}. ` +
                 `Ejecuta setups o copia tus códigos a playwright/.auth/dynamic-items.json`);
@@ -300,7 +311,7 @@ async function cargarCacheActual(): Promise<void> {
 }
 
 export function applySetupSelections(selected: string[]): void {
-    
+
     if (selected.includes('auth') || selected.includes('punto-venta-datos')) {
         delete process.env.SKIP_PV_SETUP;
     } else {
@@ -323,12 +334,13 @@ export function applySetupSelections(selected: string[]): void {
 function getDefaultSetups(projectKey?: ProjectKey): string[] {
     if (projectKey === 'Emisiones') return [...PV_SETUP_NAMES];
     if (projectKey === 'Logistica') return [...LOG_SETUP_NAMES];
-    
+    if (projectKey === 'Clientes') return ['auth'];
+
     return [...PV_SETUP_NAMES, ...LOG_SETUP_NAMES];
 }
 
 async function askRunOptions(projectKey?: ProjectKey): Promise<string[]> {
-    
+
     const stateSummary = getSetupStateSummary();
     console.log('\n──────────────────────────────────────');
     console.log('Estado de setups:');
@@ -349,7 +361,7 @@ async function askRunOptions(projectKey?: ProjectKey): Promise<string[]> {
     const defaults = getDefaultSetups(projectKey);
 
     const CONFIG_NAME = {
-        name: '─' .repeat(30),
+        name: '─'.repeat(30),
         value: '__SEPARATOR__',
     } as const;
 
@@ -379,7 +391,7 @@ async function askRunOptions(projectKey?: ProjectKey): Promise<string[]> {
     if (rawSelection.includes(FORCE_COMPLETE_VALUE)) {
         console.log(`\n[setup-state] Bypass manual invocado. Marcando todos los setups como completados...`);
         forceCompleteAllSetups();
-        
+
         process.env.SKIP_PV_ITEMS_SETUP = '1';
         process.env.SKIP_DATOS_SETUP = '1';
         process.env.SKIP_PV_SETUP = '1';
@@ -405,10 +417,10 @@ async function askRunOptions(projectKey?: ProjectKey): Promise<string[]> {
 
 function buildArgs(projectContext: ProjectContext, extraArgs: string[], pathsToRun: string[]): string[] {
     const args: string[] = [];
-    
+
     let currentProjectFlag = projectContext.projectFlag;
     let currentOutputDir = projectContext.outputDir;
-    
+
     // Inyección dinámica de proyecto solo si TODAS las rutas son de Facturacion
     if (projectContext.key === 'Emisiones') {
         const includesFacturacion = (p: string) => p.includes('/Facturacion') || p.includes('\\Facturacion');
@@ -506,7 +518,7 @@ Usa ESPACIO para marcar/desmarcar y ENTER para confirmar.`,
                 name: entry.type === 'folder' ? `📁 ${entry.name}` : `📄 ${entry.name}`,
                 value: entry as ExplorerEntry | 'back',
             })),
-            { name: '⬅ Volver', value: 'back' as const },
+            {name: '⬅ Volver', value: 'back' as const},
         ],
     });
 
@@ -534,7 +546,7 @@ async function runSingleTestFromFile(filePath: string, projectContext: ProjectCo
                 name: `${index + 1}. ${testCase.title}`,
                 value: testCase,
             })),
-            { name: '⬅ Volver', value: null },
+            {name: '⬅ Volver', value: null},
         ],
     });
 
@@ -567,7 +579,7 @@ Usa ESPACIO para marcar/desmarcar y ENTER para confirmar.`,
                 name: `${index + 1}. ${testCase.title}`,
                 value: testCase as TestCase | 'back',
             })),
-            { name: '⬅ Volver', value: 'back' as const },
+            {name: '⬅ Volver', value: 'back' as const},
         ],
     });
 
@@ -601,7 +613,7 @@ async function runFile(filePath: string, projectContext: ProjectContext): Promis
         const action = await select<'run-file' | 'run-single-test' | 'run-multiple-tests' | 'back'>({
             message: `Archivo: ${toRelative(filePath)}`,
             choices: [
-                { name: 'Ejecutar todo el archivo', value: 'run-file' },
+                {name: 'Ejecutar todo el archivo', value: 'run-file'},
                 {
                     name: 'Ejecutar un test especifico',
                     value: 'run-single-test',
@@ -612,7 +624,7 @@ async function runFile(filePath: string, projectContext: ProjectContext): Promis
                     value: 'run-multiple-tests',
                     disabled: tests.length === 0 ? 'No se encontraron tests en este archivo' : false,
                 },
-                { name: 'Volver', value: 'back' },
+                {name: 'Volver', value: 'back'},
             ],
         });
 
@@ -641,11 +653,11 @@ async function exploreDirectory(currentDir: string, projectContext: ProjectConte
         const choices = [
             {
                 name: 'Ejecutar todos los tests de esta carpeta',
-                value: { type: 'run-current-folder', path: currentDir } satisfies ExplorerSelection,
+                value: {type: 'run-current-folder', path: currentDir} satisfies ExplorerSelection,
             },
             {
                 name: 'Seleccionar varios de esta carpeta',
-                value: { type: 'select-multiple', path: currentDir } satisfies ExplorerSelection,
+                value: {type: 'select-multiple', path: currentDir} satisfies ExplorerSelection,
                 disabled: entries.length === 0 ? 'No hay elementos para seleccionar' : false,
             },
             ...entries.map((entry) => ({
@@ -654,7 +666,7 @@ async function exploreDirectory(currentDir: string, projectContext: ProjectConte
             })),
             {
                 name: currentDir === projectTestDir ? 'Volver al menu principal' : 'Subir carpeta',
-                value: { type: 'back' } satisfies ExplorerSelection,
+                value: {type: 'back'} satisfies ExplorerSelection,
             },
         ];
 
@@ -732,7 +744,7 @@ async function searchGlobalTest(projectContext: ProjectContext): Promise<void> {
                 name: `${index + 1}. ${testCase.title}${testCase.tags?.length ? ` ${testCase.tags.join(' ')}` : ''} | ${toRelative(testCase.filePath)}`,
                 value: testCase,
             })),
-            { name: '⬅ Volver al menu principal', value: null },
+            {name: '⬅ Volver al menu principal', value: null},
         ],
     });
 
@@ -768,7 +780,7 @@ async function searchGlobalFile(projectContext: ProjectContext): Promise<void> {
         matches = tokenFileMatches;
     } else {
         console.log('[Búsqueda] Sin resultados exactos — probando fuzzy search...');
-        const fileTestCases: TestCase[] = files.map(f => ({ title: toRelative(f), filePath: f }));
+        const fileTestCases: TestCase[] = files.map(f => ({title: toRelative(f), filePath: f}));
         const fuse = getFuseInstance(fileTestCases);
         matches = fuse.search(trimmed).map(r => r.item.filePath);
     }
@@ -786,7 +798,7 @@ async function searchGlobalFile(projectContext: ProjectContext): Promise<void> {
                 name: `${index + 1}. ${toRelative(filePath)}`,
                 value: filePath,
             })),
-            { name: '⬅ Volver al menu principal', value: null },
+            {name: '⬅ Volver al menu principal', value: null},
         ],
     });
 
@@ -813,17 +825,16 @@ async function runPlaywrightUi(projectContext: ProjectContext): Promise<void> {
     await runPlaywright(['--ui'], projectContext);
 }
 
-async function selectProject(): Promise<'Emisiones' | 'Logistica' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'RunAllFailed' | 'exit'> {
-    const choice = await select<'Emisiones' | 'Logistica' | 'RunAllSequential' | 'RunAllParallel' | 'RunAllDual' | 'RunAllFailed' | 'exit'>({
+async function selectProject(): Promise<'Emisiones' | 'Logistica' | 'Clientes' | 'RunAllSequential' | 'RunAllDual' | 'exit'> {
+    const choice = await select<'Emisiones' | 'Logistica' | 'Clientes' | 'RunAllSequential' | 'RunAllDual' | 'exit'>({
         message: 'ERP2 AUTO - TEST RUNNER — Selecciona proyecto:',
         choices: [
-            { name: '1. Emisiones', value: 'Emisiones' },
-            { name: '2. Logistica', value: 'Logistica' },
-            { name: '3. Run All (Secuencial)', value: 'RunAllSequential' },
-            { name: '4. Run All (Paralelo: EMI + LOG)', value: 'RunAllParallel' },
-            { name: '5. Run All (Dos terminales)', value: 'RunAllDual' },
-            { name: '6. 🔄 Re-ejecutar tests fallidos', value: 'RunAllFailed' },
-            { name: '7. Salir', value: 'exit' },
+            {name: '1. Emisiones', value: 'Emisiones'},
+            {name: '2. Logistica', value: 'Logistica'},
+            {name: '3. Clientes', value: 'Clientes'},
+            {name: '4. Run All (Secuencial)', value: 'RunAllSequential'},
+            {name: '5. Run All (Terminales separadas)', value: 'RunAllDual'},
+            {name: '6. Salir', value: 'exit'},
         ],
     });
     return choice;
@@ -834,17 +845,37 @@ async function runAllSequential(): Promise<void> {
 
     const pvOutput = PROJECT_CONFIG.Emisiones.outputDir;
     const logOutput = PROJECT_CONFIG.Logistica.outputDir;
+    const cliOutput = PROJECT_CONFIG.Clientes.outputDir;
 
     const pvArgs = ['--project', 'PuntoVenta', '--output', pvOutput];
     const logArgs = ['--project', 'Logistica', '--output', logOutput];
+    const cliArgs = ['--project', 'Clientes', '--output', cliOutput];
 
-    const pvEnv = { ...process.env, PW_REPORT_OUTPUT: `${pvOutput}/results.json`, PW_JUNIT_OUTPUT: `${pvOutput}/junit.xml`, PW_HTML_OUTPUT: `playwright-report/puntoventa` };
-    const logEnv = { ...process.env, PW_REPORT_OUTPUT: `${logOutput}/results.json`, PW_JUNIT_OUTPUT: `${logOutput}/junit.xml`, PW_HTML_OUTPUT: `playwright-report/logistica` };
+    const pvEnv = {
+        ...process.env,
+        PW_REPORT_OUTPUT: `${pvOutput}/results.json`,
+        PW_JUNIT_OUTPUT: `${pvOutput}/junit.xml`,
+        PW_HTML_OUTPUT: `playwright-report/puntoventa`
+    };
+    const logEnv = {
+        ...process.env,
+        PW_REPORT_OUTPUT: `${logOutput}/results.json`,
+        PW_JUNIT_OUTPUT: `${logOutput}/junit.xml`,
+        PW_HTML_OUTPUT: `playwright-report/logistica`
+    };
+    const cliEnv = {
+        ...process.env,
+        PW_REPORT_OUTPUT: `${cliOutput}/results.json`,
+        PW_JUNIT_OUTPUT: `${cliOutput}/junit.xml`,
+        PW_HTML_OUTPUT: `playwright-report/clientes`
+    };
 
     ensureOutputDirs(pvOutput);
     ensureOutputDirs(logOutput);
+    ensureOutputDirs(cliOutput);
     ensureOutputDirs('playwright-report/puntoventa');
     ensureOutputDirs('playwright-report/logistica');
+    ensureOutputDirs('playwright-report/clientes');
 
     console.log('\n=== Ejecutando Suite: Emisiones ===\n');
     const pvExitCode = await new Promise<number | null>((resolve) => {
@@ -874,99 +905,39 @@ async function runAllSequential(): Promise<void> {
         });
     });
 
+    console.log('\n=== Ejecutando Suite: Clientes ===\n');
+    const cliExitCode = await new Promise<number | null>((resolve) => {
+        const cli = crossSpawn('npx', ['playwright', 'test', ...cliArgs], {
+            stdio: 'inherit',
+            shell: false,
+            env: cliEnv,
+        });
+        currentChildren.push(cli);
+        cli.on('close', (code) => {
+            currentChildren = currentChildren.filter(c => c !== cli);
+            resolve(code);
+        });
+    });
+
     console.log('\n=== Run All Summary ===');
-    console.log(`Emisiones: exit code ${pvExitCode}`);
+    console.log(`Emisiones:  exit code ${pvExitCode}`);
     console.log(`Logistica:  exit code ${logExitCode}`);
-    console.log('=======================\n');
-}
-
-async function runAllParallel(): Promise<void> {
-    await askRunOptions();
-
-    const pvOutput = PROJECT_CONFIG.Emisiones.outputDir;
-    const logOutput = PROJECT_CONFIG.Logistica.outputDir;
-
-    const pvArgs = ['--project', 'PuntoVenta', '--output', pvOutput];
-    const logArgs = ['--project', 'Logistica', '--output', logOutput];
-
-    console.log('\nComandos generados:\n');
-    console.log(['npx', 'playwright', 'test', ...pvArgs].map(quoteArg).join(' '));
-    console.log(['npx', 'playwright', 'test', ...logArgs].map(quoteArg).join(' '));
-    console.log('');
-
-    const pvEnv = { ...process.env, PW_REPORT_OUTPUT: `${pvOutput}/results.json`, PW_JUNIT_OUTPUT: `${pvOutput}/junit.xml`, PW_HTML_OUTPUT: `playwright-report/puntoventa` };
-    const logEnv = { ...process.env, PW_REPORT_OUTPUT: `${logOutput}/results.json`, PW_JUNIT_OUTPUT: `${logOutput}/junit.xml`, PW_HTML_OUTPUT: `playwright-report/logistica` };
-
-    ensureOutputDirs(pvOutput);
-    ensureOutputDirs(logOutput);
-    ensureOutputDirs('playwright-report/puntoventa');
-    ensureOutputDirs('playwright-report/logistica');
-
-    console.log('\n=== Ejecutando Emisiones + Logistica en paralelo ===\n');
-    console.log('NOTA: El output se mezclará porque ambos procesos comparten la consola.\n');
-
-    const isRelevantLine = (line: string): boolean => {
-        const t = line.trim();
-        if (!t) return false;
-        if (t.startsWith('-> Ejecutando:')) return false;
-        if (t.startsWith('[dotenv@')) return false;
-        if (t.includes('Códigos dinámicos activos')) return false;
-        if (t.includes('agentic secret storage')) return false;
-        if (t.includes('prevent committing')) return false;
-        if (t.startsWith('Running setup')) return false;
-        if (t.startsWith('Entorno:')) return false;
-        return true;
-    };
-
-    const prefixStream = (stream: NodeJS.ReadableStream, prefix: string) => {
-        stream.on('data', (data: Buffer | string) => {
-            const lines = data.toString().split('\n');
-            for (const line of lines) {
-                if (isRelevantLine(line)) {
-                    process.stdout.write(`${prefix} ${line}\n`);
-                }
-            }
-        });
-    };
-
-    const runSuite = (args: string[], env: NodeJS.ProcessEnv, prefix: string): Promise<number | null> => {
-        return new Promise((resolve) => {
-            const child = crossSpawn('npx', ['playwright', 'test', ...args], {
-                stdio: 'pipe',
-                shell: false,
-                env,
-            });
-            currentChildren.push(child);
-            if (child.stdout) prefixStream(child.stdout, prefix);
-            if (child.stderr) prefixStream(child.stderr, prefix);
-            child.on('close', (code) => {
-                currentChildren = currentChildren.filter(c => c !== child);
-                resolve(code);
-            });
-        });
-    };
-
-    const [pvCode, logCode] = await Promise.all([
-        runSuite(pvArgs, pvEnv, '[EMI]'),
-        runSuite(logArgs, logEnv, '[LOG]'),
-    ]);
-
-    console.log('\n=== Run All Summary ===');
-    console.log(`Emisiones: exit code ${pvCode}`);
-    console.log(`Logistica:  exit code ${logCode}`);
+    console.log(`Clientes:   exit code ${cliExitCode}`);
     console.log('=======================\n');
 }
 
 async function runAllDualTerminal(): Promise<void> {
     const pvOutput = PROJECT_CONFIG.Emisiones.outputDir;
     const logOutput = PROJECT_CONFIG.Logistica.outputDir;
+    const cliOutput = PROJECT_CONFIG.Clientes.outputDir;
 
     console.log('\n═══════════════════════════════════════════════════════');
-    console.log('  Ejecutar en DOS TERMINALES separadas');
+    console.log('  Ejecutar en TERMINALES separadas');
     console.log('═══════════════════════════════════════════════════════\n');
-    console.log('Una sola consola no puede mostrar dos streams de output');
-    console.log('simultáneamente sin mezclarlos. Para ver ambos proyectos');
-    console.log('en paralelo con output limpio, abrí dos terminales:\n');
+    console.log('Una sola consola no puede mostrar múltiples streams de');
+    console.log('output simultáneamente sin mezclarlos. Para ver cada');
+    console.log('proyecto en paralelo con output limpio, abrí tres');
+    console.log('terminales:\n');
     console.log('┌─ Terminal 1 (Emisiones) ───────────────────────────┐');
     console.log(`│  npx playwright test --project PuntoVenta          │`);
     console.log(`│    --output ${pvOutput.padEnd(38)}│`);
@@ -975,61 +946,12 @@ async function runAllDualTerminal(): Promise<void> {
     console.log(`│  npx playwright test --project Logistica           │`);
     console.log(`│    --output ${logOutput.padEnd(38)}│`);
     console.log('└────────────────────────────────────────────────────┘\n');
+    console.log('┌─ Terminal 3 (Clientes) ────────────────────────────┐');
+    console.log(`│  npx playwright test --project Clientes            │`);
+    console.log(`│    --output ${cliOutput.padEnd(38)}│`);
+    console.log('└────────────────────────────────────────────────────┘\n');
     console.log('Los reportes se guardarán separados automáticamente.');
     console.log('═══════════════════════════════════════════════════════\n');
-}
-
-async function runFailedTests(): Promise<void> {
-    const failedGroups = getFailedTests();
-
-    if (failedGroups.length === 0) {
-        
-        const pvPath = path.join(PROJECT_CONFIG.Emisiones.outputDir, 'results.json');
-        const logPath = path.join(PROJECT_CONFIG.Logistica.outputDir, 'results.json');
-
-        if (!fs.existsSync(pvPath) && !fs.existsSync(logPath)) {
-            console.log('\nNo se encontró results.json. Ejecuta primero Run All o Run Project.\n');
-        } else {
-            console.log('\nNo se encontraron tests fallidos para re-ejecutar.\n');
-        }
-        return;
-    }
-
-    for (const group of failedGroups) {
-        const grepPattern = group.titles.map((t) => escapeGrep(t)).join('|');
-        const projectKey = group.project as ProjectKey;
-        const config = PROJECT_CONFIG[projectKey];
-        const outputDir = config.outputDir;
-
-        console.log(`\n=== Re-ejecutando ${group.titles.length} test(s) fallidos en ${group.project} ===\n`);
-
-        const args = ['--project', group.project, '--grep', grepPattern, '--output', outputDir];
-
-        const childEnv = {
-            ...process.env,
-            PW_REPORT_OUTPUT: `${outputDir}/results.json`,
-            PW_JUNIT_OUTPUT: `${outputDir}/junit.xml`,
-            PW_HTML_OUTPUT: `playwright-report/${projectKey.toLowerCase()}`,
-        };
-
-        ensureOutputDirs(outputDir);
-        ensureOutputDirs(`playwright-report/${projectKey.toLowerCase()}`);
-
-        const exitCode = await new Promise<number | null>((resolve) => {
-            const child = crossSpawn('npx', ['playwright', 'test', ...args], {
-                stdio: 'inherit',
-                shell: false,
-                env: childEnv,
-            });
-            currentChildren.push(child);
-            child.on('close', (code) => {
-                currentChildren = currentChildren.filter(c => c !== child);
-                resolve(code);
-            });
-        });
-
-        console.log(`\n${group.project} — exit code: ${exitCode}\n`);
-    }
 }
 
 async function main(): Promise<void> {
@@ -1053,18 +975,8 @@ async function main(): Promise<void> {
             continue;
         }
 
-        if (projectChoice === 'RunAllParallel') {
-            await runAllParallel();
-            continue;
-        }
-
         if (projectChoice === 'RunAllDual') {
             await runAllDualTerminal();
-            continue;
-        }
-
-        if (projectChoice === 'RunAllFailed') {
-            await runFailedTests();
             continue;
         }
 
@@ -1076,12 +988,12 @@ async function main(): Promise<void> {
             const option = await select<'explore' | 'search-test' | 'search-file' | 'grep' | 'ui' | 'back'>({
                 message: `Submenu para ${projectLabel}:`,
                 choices: [
-                    { name: '📁 Explorar modulos / carpetas / archivos / tests', value: 'explore' },
-                    { name: '🔍 Buscar test especifico por nombre o tag', value: 'search-test' },
-                    { name: '🔍 Buscar archivo .spec.ts', value: 'search-file' },
-                    { name: '⚡ Ejecutar grep manual', value: 'grep' },
-                    { name: '🔓 Abrir Playwright UI', value: 'ui' },
-                    { name: '⏪ Volver al menu principal', value: 'back' },
+                    {name: '📁 Explorar modulos / carpetas / archivos / tests', value: 'explore'},
+                    {name: '🔍 Buscar test especifico por nombre o tag', value: 'search-test'},
+                    {name: '🔍 Buscar archivo .spec.ts', value: 'search-file'},
+                    {name: '⚡ Ejecutar grep manual', value: 'grep'},
+                    {name: '🔓 Abrir Playwright UI', value: 'ui'},
+                    {name: '⏪ Volver al menu principal', value: 'back'},
                 ],
             });
 

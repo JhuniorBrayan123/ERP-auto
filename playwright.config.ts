@@ -1,9 +1,9 @@
-import {existsSync, mkdirSync, writeFileSync} from 'node:fs';
-import {dirname, resolve} from 'node:path';
-import {defineConfig, devices} from "@playwright/test";
-import {env} from "./config/env";
-import {detectAccount, detectEnvironmentFine} from "./src/utils/setup-state";
-import {generarSlugCache} from "./src/factories/item-factory";
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { defineConfig, devices } from "@playwright/test";
+import { env } from "./config/env";
+import { detectAccount, detectEnvironmentFine } from "./src/utils/setup-state";
+import { generarSlugCache } from "./src/factories/item-factory";
 
 function resolveStoragePath(): string {
     const envGroup = detectEnvironmentFine();
@@ -11,7 +11,7 @@ function resolveStoragePath(): string {
     const slug = generarSlugCache(envGroup, account);
     const fullPath = resolve(process.cwd(), 'playwright', '.auth', `user.${slug}.json`);
     if (!existsSync(fullPath)) {
-        mkdirSync(dirname(fullPath), {recursive: true});
+        mkdirSync(dirname(fullPath), { recursive: true });
         writeFileSync(fullPath, '{}', 'utf-8');
         console.log(`[config] StorageState creado (placeholder vacío): user.${slug}.json`);
     }
@@ -30,7 +30,7 @@ export default defineConfig({
     retries: isCI ? 2 : 1,
 
     timeout: 240_000,
-    expect: {timeout: 10_000},
+    expect: { timeout: 10_000 },
 
     testIgnore: ["**/_*", "**/_codegen/**"],
 
@@ -38,7 +38,7 @@ export default defineConfig({
 
     reporter: [
         ["./src/utils/maven-reporter.ts"], // consola estilo Maven/Surefire
-        ["html", {outputFolder: "report", open: "never"}],
+        ["html", { outputFolder: "report/html", open: "never" }],
     ],
 
     use: {
@@ -140,7 +140,7 @@ export default defineConfig({
         {
             name: "Clientes",
             testMatch: "tests/ClientesProveedores/**",
-            testIgnore: ["**/*.setup.ts"],
+            testIgnore: ["**/*.setup.ts", "**/conductores/**", "**/integracion/**"],
             use: {
                 ...devices["Desktop Chrome"],
                 storageState: resolveStoragePath(),

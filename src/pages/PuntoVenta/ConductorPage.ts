@@ -1,4 +1,4 @@
-import {type Locator, type Page} from '@playwright/test';
+import { type Locator, type Page } from '@playwright/test';
 
 export interface ConductorData {
     tipoDocumento: string;
@@ -18,11 +18,11 @@ export class ConductorPage {
     }
 
     private get inputBusqueda(): Locator {
-        return this.page.getByRole('textbox', {name: 'Buscar por nombre, N° de'});
+        return this.page.getByRole('textbox', { name: 'Buscar por nombre, N° de' });
     }
 
     private get btnCrearConductor(): Locator {
-        return this.page.getByText('Crear conductor', {exact: true});
+        return this.page.getByText('Crear conductor', { exact: true });
     }
 
     async buscarConductor(documento: string): Promise<void> {
@@ -48,17 +48,17 @@ export class ConductorPage {
         }
 
         await selector.click();
-        await this.page.getByText(tipo, {exact: true}).first().click();
+        await this.page.getByText(tipo, { exact: true }).first().click();
     }
 
     async llenarDocumento(numero: string): Promise<void> {
-        const input = this.page.getByRole('textbox', {name: 'Ej. 12345678'});
+        const input = this.page.getByRole('textbox', { name: 'Ej. 12345678' });
         await input.click();
         await input.fill(numero);
     }
 
     async llenarNombre(nombre: string): Promise<void> {
-        const input = this.page.getByRole('textbox', {name: 'Ej. Ladrillería Distribuidora'});
+        const input = this.page.getByRole('textbox', { name: 'Ej. Ladrillería Distribuidora' });
         await input.click();
         await input.fill(nombre);
     }
@@ -75,45 +75,45 @@ export class ConductorPage {
     }
 
     async seleccionarCategoria(categoria: string): Promise<void> {
-        const selector = this.page.locator('.v-select-header-form').filter({hasText: 'Seleccionar'}).first();
+        const selector = this.page.locator('.v-select-header-form').filter({ hasText: 'Seleccionar' }).first();
         await selector.click();
 
-        await this.page.locator('.v-select-base-options.is-open').first().waitFor({state: 'visible', timeout: 5_000});
-        await this.page.getByText(categoria, {exact: true}).first().click({force: true});
+        await this.page.locator('.v-select-base-options.is-open').first().waitFor({ state: 'visible', timeout: 5_000 });
+        await this.page.getByText(categoria, { exact: true }).first().click({ force: true });
     }
 
     async llenarPlaca(placa: string): Promise<void> {
-        const input = this.page.getByRole('textbox', {name: 'Ej. AB12CD34EF'});
+        const input = this.page.getByRole('textbox', { name: 'Ej. AB12CD34EF' });
         await input.click();
         await input.fill(placa);
     }
 
     async llenarZona(zona: string): Promise<void> {
-        const input = this.page.getByRole('textbox', {name: 'Lima sur'});
+        const input = this.page.getByRole('textbox', { name: 'Lima sur' });
         await input.click();
         await input.fill(zona);
     }
 
     async llenarDireccion(direccion: string): Promise<void> {
-        const input = this.page.getByRole('textbox', {name: 'Ej. Calle Los Manzanos 120,'});
+        const input = this.page.getByRole('textbox', { name: 'Ej. Calle Los Manzanos 120,' });
         await input.click();
         await input.fill(direccion);
     }
 
     async llenarTelefono(telefono: string): Promise<void> {
-        const input = this.page.getByRole('textbox', {name: 'Ej. 954588556'});
+        const input = this.page.getByRole('textbox', { name: 'Ej. 954588556' });
         await input.click();
         await input.fill(telefono);
     }
 
     async llenarEmail(email: string): Promise<void> {
-        const input = this.page.getByRole('textbox', {name: 'Ej. usuario@correo.com'});
+        const input = this.page.getByRole('textbox', { name: 'Ej. usuario@correo.com' });
         await input.click();
         await input.fill(email);
     }
 
     async clickCrearConductor(): Promise<void> {
-        await this.page.getByRole('button', {name: 'Crear conductor'}).click();
+        await this.page.locator('[idx="pv_cmp-header-relacionado-entidad_opciones_add_relacionado_conductor:button"]').first().click();
     }
 
     async cerrarModalExito(): Promise<void> {

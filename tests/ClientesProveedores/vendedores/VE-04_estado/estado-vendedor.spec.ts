@@ -19,14 +19,10 @@ test.describe('VE-04 | Estado de Vendedores', {tag: ['@vendedores', '@estado']},
         await vendedorActor.realiza(BuscarVendedorEnListado(datos.numeroDocumento));
         await vendedorActor.realiza(AbrirAccionContextualVendedor('Desactivar vendedor'));
         await vendedorActor.realiza(ToggleSliderEstadoVendedor());
-
         await vendedorActor.realiza(BuscarVendedorEnListado(datos.numeroDocumento));
-
         await vendedorActor.realiza(EstadoVendedorEnListado('INACTIVO'));
-
         await vendedorActor.realiza(AbrirAccionContextualVendedor('Activar vendedor'));
         await vendedorActor.realiza(ToggleSliderEstadoVendedor());
-
         await vendedorActor.realiza(EstadoVendedorEnListado('ACTIVO'));
 
         await vendedorActor.realiza(EliminarVendedor(datos.numeroDocumento));
