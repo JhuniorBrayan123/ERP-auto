@@ -17,6 +17,19 @@ export const ProveedoresTargets = {
     btnBorrarFiltros: (page: Page) =>
         page.getByRole('button', {name: 'Borrar filtros'}),
 
+    
+    inputFiltroRazonSocial: (page: Page) =>
+        page.locator('[id="pv_proveedores_cmp-lista-proveedores-grid-header:headers_proveedores_row:v-input:RazonSocial"]'),
+
+    inputFiltroDocumento: (page: Page) =>
+        page.locator('[id="pv_proveedores_cmp-lista-proveedores-grid-header:headers_proveedores_row:v-input:Documento"]'),
+
+    inputFiltroCodigo: (page: Page) =>
+        page.locator('[id="pv_proveedores_cmp-lista-proveedores-grid-header:headers_proveedores_row:v-input:Codigo"]'),
+
+    inputFiltroTelefono: (page: Page) =>
+        page.locator('[id="pv_proveedores_cmp-lista-proveedores-grid-header:headers_proveedores_row:v-input:Telefonos"]'),
+
     tbody: (page: Page) =>
         page.locator('tbody'),
 
