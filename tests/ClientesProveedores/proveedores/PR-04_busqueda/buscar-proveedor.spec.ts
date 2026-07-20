@@ -1,4 +1,4 @@
-import {test, expect} from '@fixtures/clientes-proveedores/proveedores.fixture';
+import {test} from '@fixtures/clientes-proveedores/proveedores.fixture';
 import {CrearProveedor} from '@screenplay/tasks/clientes-proveedores/proveedores/CrearProveedor';
 import {BuscarProveedorEnListado} from '@screenplay/tasks/clientes-proveedores/proveedores/BuscarProveedor';
 import {EliminarProveedor} from '@screenplay/tasks/clientes-proveedores/proveedores/EliminarProveedor';
@@ -15,18 +15,17 @@ test.describe('PR-04 | Búsqueda General de Proveedores', {tag: ['@proveedores',
         const datos = generarProveedorIdentificacionExtranjera();
         await proveedorActor.realiza(CrearProveedor(datos));
 
-        
+
         await proveedorActor.realiza(BuscarProveedorEnListado(datos.nombreRazonSocial));
         await proveedorActor.realiza(ProveedorVisibleEnListado(datos.numeroDocumento));
 
-        
+
         await proveedorActor.realiza(BuscarProveedorEnListado(datos.numeroDocumento));
         await proveedorActor.realiza(ProveedorVisibleEnListado(datos.nombreRazonSocial));
 
-        
+
         await proveedorActor.realiza(EliminarProveedor(datos.numeroDocumento));
     });
-
     test('SC-02: Filtros avanzados (Tipo Documento) @PR-04.2', async ({proveedorActor, page}) => {
         const datos = generarProveedorIdentificacionExtranjera();
         await proveedorActor.realiza(CrearProveedor(datos));
@@ -34,10 +33,10 @@ test.describe('PR-04 | Búsqueda General de Proveedores', {tag: ['@proveedores',
         
         await ProveedoresTargets.btnFiltrosAvanzados(page).click();
         await ProveedoresTargets.filtroTipoDocumento(page).click();
-        await ProveedoresTargets.filtroTipoDocEnTabla(page, 'Identification.Number.IN.Doc.').click();
-        await ProveedoresTargets.btnOpcionesGenerales(page).click(); 
+        await ProveedoresTargets.opcionFiltroTipoDoc(page, 'Identification.Number.IN.Doc.').click();
+
         
-        await proveedorActor.realiza(BuscarProveedorEnListado(datos.numeroDocumento));
+        await ProveedoresTargets.inputFiltroDocumento(page).fill(datos.numeroDocumento);
         await proveedorActor.realiza(ProveedorVisibleEnListado(datos.numeroDocumento));
 
         
@@ -46,7 +45,6 @@ test.describe('PR-04 | Búsqueda General de Proveedores', {tag: ['@proveedores',
         
         await proveedorActor.realiza(EliminarProveedor(datos.numeroDocumento));
     });
-
     test('SC-03: Buscar proveedor inexistente @PR-04.3', async ({proveedorActor}) => {
         await proveedorActor.realiza(BuscarProveedorEnListado('INVENTADO-NO-EXISTE-9999'));
         await proveedorActor.realiza(SinResultadosBusqueda());

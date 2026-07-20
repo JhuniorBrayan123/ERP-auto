@@ -20,8 +20,7 @@ test.describe('PR-05 | Exportación de Proveedores', {tag: ['@proveedores', '@ex
         
         await ProveedoresTargets.btnFiltrosAvanzados(page).click();
         await ProveedoresTargets.filtroTipoDocumento(page).click();
-        await ProveedoresTargets.filtroTipoDocEnTabla(page, 'DNI').click();
-        await ProveedoresTargets.btnOpcionesGenerales(page).click(); 
+        await ProveedoresTargets.opcionFiltroTipoDoc(page, 'DNI').click();
 
         await proveedorActor.realiza(AbrirMenuDescargasProveedor());
         await proveedorActor.realiza(DescargarProveedoresFiltrados());
