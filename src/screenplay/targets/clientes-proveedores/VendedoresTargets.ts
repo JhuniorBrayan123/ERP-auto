@@ -31,10 +31,10 @@ export const VendedoresTargets = {
         page.locator('[id$="cmp-dropdown:options-li:ver-bitacora"]'),
 
     opcionDesactivarVendedor: (page: Page) =>
-        page.locator('[id$="cmp-dropdown:options-li:desactivar-vendedor"]'),
+        page.locator('[id="pv_vendedores_cmp-grid-options:opciones_vendedor_cmp-dropdown:options-li:desactivar-vendedor"]').getByText('Desactivar vendedor'),
 
     opcionActivarVendedor: (page: Page) =>
-        page.getByText('Activar vendedor'),
+        page.locator('[id="pv_vendedores_cmp-grid-options:opciones_vendedor_cmp-dropdown:options-li:activar-vendedor"]').getByText('Activar vendedor'),
 
 
     selectTipoDocumento: (page: Page) =>
@@ -117,7 +117,7 @@ export const VendedoresTargets = {
     btnCerrarDrape: (page: Page) =>
         page.locator('.drape.is-open > .button-close'),
 
-    
+
     opcionEliminarVendedor: (page: Page) =>
         page.locator('.icon.eliminacion-vendedor'),
 
