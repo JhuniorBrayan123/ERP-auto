@@ -63,7 +63,7 @@ export const ProveedoresTargets = {
         page.locator('[id="pv_proveedores_form-registro-relacionado-entidad:form_basico:v-select:tipo-documento"].v-select-header-form'),
 
     opcionTipoDocumento: (page: Page, tipo: string) =>
-        page.locator('.v-select-base-options.is-open .v-select-form-option').getByText(tipo, {exact: true}),
+        page.locator('[id="pv_proveedores_form-registro-relacionado-entidad:form_basico:v-select:tipo-documento"] .v-select-form-option').getByText(tipo, {exact: true}),
 
     inputNumeroDocumento: (page: Page) =>
         page.locator('[id="pv_proveedores_form-registro-relacionado-entidad:form_basico:v-input:num-document"]'),
