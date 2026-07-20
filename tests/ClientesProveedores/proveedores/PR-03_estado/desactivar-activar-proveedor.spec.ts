@@ -1,6 +1,7 @@
 import {test, expect} from '@fixtures/clientes-proveedores/proveedores.fixture';
 import {CrearProveedor} from '@screenplay/tasks/clientes-proveedores/proveedores/CrearProveedor';
 import {BuscarProveedorEnListado, AbrirAccionContextualProveedor} from '@screenplay/tasks/clientes-proveedores/proveedores/BuscarProveedor';
+import {EliminarProveedor} from '@screenplay/tasks/clientes-proveedores/proveedores/EliminarProveedor';
 import {ToggleSliderEstadoProveedor} from '@screenplay/tasks/clientes-proveedores/proveedores/ToggleEstadoProveedor';
 import {
     EstadoProveedorEnListado,
@@ -35,5 +36,8 @@ test.describe('PR-03 | Estado de Proveedores', {tag: ['@proveedores', '@estado']
         await proveedorActor.realiza(BitacoraContieneAccion('Desactivar proveedor'));
         
         await ProveedoresTargets.btnCerrarDrape(page).click();
+
+        
+        await proveedorActor.realiza(EliminarProveedor(datos.numeroDocumento));
     });
 });

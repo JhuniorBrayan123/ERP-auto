@@ -1,6 +1,7 @@
 import {test, expect} from '@fixtures/clientes-proveedores/proveedores.fixture';
 import {CrearProveedor} from '@screenplay/tasks/clientes-proveedores/proveedores/CrearProveedor';
 import {BuscarProveedorEnListado} from '@screenplay/tasks/clientes-proveedores/proveedores/BuscarProveedor';
+import {EliminarProveedor} from '@screenplay/tasks/clientes-proveedores/proveedores/EliminarProveedor';
 import {
     ProveedorVisibleEnListado,
     SinResultadosBusqueda,
@@ -21,6 +22,9 @@ test.describe('PR-04 | Búsqueda General de Proveedores', {tag: ['@proveedores',
         
         await proveedorActor.realiza(BuscarProveedorEnListado(datos.numeroDocumento));
         await proveedorActor.realiza(ProveedorVisibleEnListado(datos.nombreRazonSocial));
+
+        
+        await proveedorActor.realiza(EliminarProveedor(datos.numeroDocumento));
     });
 
     test('SC-02: Filtros avanzados (Tipo Documento) @PR-04.2', async ({proveedorActor, page}) => {
@@ -38,6 +42,9 @@ test.describe('PR-04 | Búsqueda General de Proveedores', {tag: ['@proveedores',
 
         
         await ProveedoresTargets.btnBorrarFiltros(page).click();
+
+        
+        await proveedorActor.realiza(EliminarProveedor(datos.numeroDocumento));
     });
 
     test('SC-03: Buscar proveedor inexistente @PR-04.3', async ({proveedorActor}) => {

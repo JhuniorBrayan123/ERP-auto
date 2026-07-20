@@ -1,28 +1,24 @@
 import {type Page} from '@playwright/test';
 import {ProveedoresTargets} from '@screenplay/targets/clientes-proveedores/ProveedoresTargets';
+import {esperarCargaOverlay} from '@utils/wait-helpers';
 
-export const BuscarProveedorEnListado = (textoBusqueda: string) => {
+export const BuscarProveedorEnListado = (criterio: string) => {
     const fn = async (page: Page): Promise<void> => {
         const input = ProveedoresTargets.inputBuscar(page);
         await input.click();
-        await input.fill('');
-        await input.fill(textoBusqueda);
-        
-        // Simular Enter u otro evento para gatillar la búsqueda, o un pequeño delay para el debounce
+        await input.fill(criterio);
         await page.keyboard.press('Enter');
-        await page.waitForTimeout(1000); 
+        await esperarCargaOverlay(page).catch(() => {});
     };
-    fn.displayName = `Buscar proveedor: ${textoBusqueda}`;
+    fn.displayName = `Buscar proveedor por: ${criterio}`;
     return fn;
 };
 
-export const AbrirAccionContextualProveedor = (accion: 'Editar proveedor' | 'Ver bitácora' | 'Desactivar proveedor' | 'Activar proveedor' | 'Eliminar proveedor') => {
+export const AbrirAccionContextualProveedor = (accion: string) => {
     const fn = async (page: Page): Promise<void> => {
-        
-        
-        await page.locator('.button-actions').first().click();
-        await page.getByText(accion, {exact: true}).click();
+        await ProveedoresTargets.botonContextualProveedor(page).click();
+        await page.getByText(accion).click();
     };
-    fn.displayName = `Acción contextual: ${accion}`;
+    fn.displayName = `Abrir acción contextual: ${accion}`;
     return fn;
 };

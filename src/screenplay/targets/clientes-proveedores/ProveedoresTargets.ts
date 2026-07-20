@@ -1,26 +1,26 @@
-import {type Page, type Locator} from '@playwright/test';
+import {type Page} from '@playwright/test';
 
 export const ProveedoresTargets = {
-    
+
     appContainer: (page: Page) =>
         page.locator('[id="single-spa-application:@sreasons/erp-mf-punto-venta"]'),
-    
+
     btnAtras: (page: Page) =>
         page.getByRole('button', {name: 'Atrás'}),
 
-    
+
     btnCrearProveedor: (page: Page) =>
-        page.locator('div').filter({ hasText: /^Crear proveedor$/ }),
-    
+        page.locator('div').filter({hasText: /^Crear proveedor$/}),
+
     inputBuscar: (page: Page) =>
         page.getByRole('textbox', {name: 'Buscar por nombre, N° de'}),
-    
+
     btnBorrarFiltros: (page: Page) =>
         page.getByRole('button', {name: 'Borrar filtros'}),
-    
+
     tbody: (page: Page) =>
         page.locator('tbody'),
-    
+
     thead: (page: Page) =>
         page.locator('thead'),
 
@@ -33,8 +33,7 @@ export const ProveedoresTargets = {
     filtroTipoDocEnTabla: (page: Page, tipo: string) =>
         page.locator('thead').getByText(tipo),
 
-    
-    
+
     botonContextualPorProveedor: (page: Page, textoBusqueda: string) =>
         page.locator('tr', {hasText: textoBusqueda}).locator('.button-actions'),
 
@@ -46,47 +45,53 @@ export const ProveedoresTargets = {
 
     opcionDesactivarProveedor: (page: Page) =>
         page.getByText('Desactivar proveedor'),
-        
+
     opcionActivarProveedor: (page: Page) =>
         page.getByText('Activar proveedor'),
 
-    opcionEliminarProveedor: (page: Page) =>
-        page.getByText('Eliminar proveedor'),
+    botonContextualProveedor: (page: Page) =>
+        page.locator('[id^="pv_proveedores_cmp-lista-proveedores-body-options:cmp-dropdown:opciones-proveedores:proveedor-"]'),
 
-    
+    opcionEliminarProveedor: (page: Page) =>
+        page.locator('[id="pv_proveedores_cmp-grid-options:opciones_proveedor_cmp-dropdown:options-li:eliminar-proveedor"]'),
+
+    btnConfirmarEliminarProveedor: (page: Page) =>
+        page.locator('[id="pv_proveedores_v-modal:confirmacion-eliminacion-movimiento_v-button:aceptar-eliminacion"]'),
+
+
     selectTipoDocumento: (page: Page) =>
         page.locator('[id="pv_proveedores_form-registro-relacionado-entidad:form_basico:v-select:tipo-documento"].v-select-header-form'),
 
     opcionTipoDocumento: (page: Page, tipo: string) =>
         page.locator('.v-select-base-options.is-open .v-select-form-option').getByText(tipo, {exact: true}),
-        
+
     inputNumeroDocumento: (page: Page) =>
-        page.getByRole('textbox', {name: /Ej. \d+|IN\d+/}), 
-        
+        page.locator('[id="pv_proveedores_form-registro-relacionado-entidad:form_basico:v-input:num-document"]'),
+
     inputRazonSocial: (page: Page) =>
-        page.getByRole('textbox', {name: 'Ej. Ladrillería Distribuidora'}),
-        
+        page.locator('[id="pv_proveedores_form-registro-relacionado-entidad:form_basico:v-input:razon-social"]'),
+
     selectModoCodigo: (page: Page) =>
         page.locator('[id="_div:dropdown"]').filter({hasText: /Automático|Manual/}),
 
     opcionCodigoManual: (page: Page) =>
         page.getByText('Manual', {exact: true}),
-        
+
     inputCodigoManual: (page: Page) =>
         page.locator('[id="pv_proveedores_form-registro-relacionado-entidad:form_basico:v-input:codigo"]'),
 
     inputDireccion: (page: Page) =>
-        page.getByRole('textbox', {name: 'Ej. Calle Los Manzanos 120,'}),
-        
-    inputTelefono: (page: Page) =>
-        page.getByRole('textbox', {name: 'Ej. 954588556'}),
-        
-    inputEmail: (page: Page) =>
-        page.getByRole('textbox', {name: 'Ej. usuario@correo.com'}),
+        page.locator('[id="pv_proveedores_form-registro-relacionado-campo-multiple:form_campos:v-input:Direcciones-0"]'),
 
-    
+    inputTelefono: (page: Page) =>
+        page.locator('[id="pv_proveedores_form-registro-relacionado-campo-multiple:form_campos:v-input:Telefonos-0"]'),
+
+    inputEmail: (page: Page) =>
+        page.locator('[id="pv_proveedores_form-registro-relacionado-entidad:form_basico:v-input:email"]'),
+
+
     btnCrearProveedorForm: (page: Page) =>
-        page.getByRole('button', {name: 'Crear proveedor'}),
+        page.locator('[id="pv_proveedores_registro-proveedor:draper_v_button:registrar-proveedor"]'),
 
     btnGuardarCambios: (page: Page) =>
         page.getByRole('button', {name: 'Guardar cambios'}),
@@ -96,46 +101,44 @@ export const ProveedoresTargets = {
 
     btnConfirmarCancelar: (page: Page) =>
         page.getByRole('button', {name: 'Sí, cancelar'}),
-        
+
     btnEliminarConfirmar: (page: Page) =>
         page.getByRole('button', {name: 'Eliminar'}),
 
     sliderEstado: (page: Page) =>
         page.locator('.slider'),
-        
+
     selectEstadoEnFormulario: (page: Page) =>
         page.locator('[id="pv_proveedores_form-registro-relacionado-entidad:form_basico:v-select:estado"]'),
 
     opcionEstadoFormulario: (page: Page, estado: string) =>
-        page.getByText(estado, { exact: true }).nth(1),
+        page.getByText(estado, {exact: true}).nth(1),
 
-    
     mensajeBuenTrabajo: (page: Page) =>
         page.getByText('¡Buen trabajo!'),
-        
+
     mensajeExitoCreacion: (page: Page) =>
         page.getByText('Tu nuevo proveedor fue agregado exitosamente'),
-        
+
     mensajeExitoEdicion: (page: Page) =>
         page.getByText('Los cambios se guardaron exitosamente'),
 
     mensajeExitoEliminacion: (page: Page) =>
         page.getByText('El proveedor fue eliminado exitosamente'),
-        
+
     btnCerrarModal: (page: Page) =>
         page.locator('.v-modal > div').first(),
-        
-    mensajeCampoObligatorio: (page: Page) =>
-        page.locator('body'), 
 
-    
+    mensajeCampoObligatorio: (page: Page) =>
+        page.locator('body'),
+
     pestaniaBitacora: (page: Page, pestania: string) =>
         page.getByText(pestania, {exact: true}),
-        
+
     btnCerrarDrape: (page: Page) =>
         page.locator('.drape.is-open > .button-close'),
 
-    
+
     btnOpcionesGenerales: (page: Page) =>
         page.locator('.icon-container > .icon').first(),
 

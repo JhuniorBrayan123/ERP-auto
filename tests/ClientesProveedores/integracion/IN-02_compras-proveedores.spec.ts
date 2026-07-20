@@ -1,6 +1,7 @@
 import {test, expect} from '@fixtures/clientes-proveedores/proveedores.fixture';
 import {CrearProveedor} from '@screenplay/tasks/clientes-proveedores/proveedores/CrearProveedor';
 import {BuscarProveedorEnListado, AbrirAccionContextualProveedor} from '@screenplay/tasks/clientes-proveedores/proveedores/BuscarProveedor';
+import {EliminarProveedor} from '@screenplay/tasks/clientes-proveedores/proveedores/EliminarProveedor';
 import {ToggleSliderEstadoProveedor} from '@screenplay/tasks/clientes-proveedores/proveedores/ToggleEstadoProveedor';
 import {NavegarANuevaCompra} from '@screenplay/tasks/cross-modules/NavegarA';
 import {BuscarProveedorEnCompra} from '@screenplay/tasks/cross-modules/BuscarEntidadPos';
@@ -41,5 +42,10 @@ test.describe('IN-02 | Integración Proveedor - Compras', {tag: ['@integracion',
         
         await expect(PosTargets.opcionDropdownPersona(page, datos.numeroDocumento)).toBeVisible();
         await PosTargets.opcionDropdownPersona(page, datos.numeroDocumento).click();
+
+        
+        await page.goto('/punto-venta/entidades/proveedores');
+        await page.waitForLoadState('networkidle').catch(() => {});
+        await proveedorActor.realiza(EliminarProveedor(datos.numeroDocumento));
     });
 });

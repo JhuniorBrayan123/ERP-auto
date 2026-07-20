@@ -15,7 +15,7 @@ export function generarProveedorDNI(): DatosProveedorInput {
     const s = SUFFIX();
     return {
         tipoDocumento: 'DNI',
-        numeroDocumento: `7777${s}`,
+        numeroDocumento: `77${s}`,
         nombreRazonSocial: `PROV-AUTO-${s}`,
         codigo: s,
         direccion: `Lima-${s}`,
