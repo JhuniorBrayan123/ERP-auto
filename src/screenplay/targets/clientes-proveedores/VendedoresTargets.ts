@@ -28,13 +28,13 @@ export const VendedoresTargets = {
         page.locator('[id$="cmp-dropdown:options-li:edicion-vendedor"]'),
 
     opcionVerBitacora: (page: Page) =>
-        page.getByText('Ver bitácora').or(page.getByText('Visualiza el historial de tu')),
+        page.locator('[id$="cmp-dropdown:options-li:ver-bitacora"]'),
 
     opcionDesactivarVendedor: (page: Page) =>
-        page.getByRole('listitem').filter({hasText: 'Desactivar vendedor'}).or(page.getByText('Desactivar vendedor')),
+        page.locator('[id$="cmp-dropdown:options-li:desactivar-vendedor"]'),
 
     opcionActivarVendedor: (page: Page) =>
-        page.getByRole('listitem').filter({hasText: 'Activar vendedor'}).or(page.getByText('Activar vendedor')),
+        page.getByText('Activar vendedor'),
 
 
     selectTipoDocumento: (page: Page) =>
