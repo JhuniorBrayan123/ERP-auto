@@ -6,8 +6,8 @@ export const AbrirImportacionMasiva = () => {
     const fn = async (page: Page): Promise<void> => {
         await ClientesTargets.btnOpcionesGenerales(page).click();
         await ClientesTargets.opcionCrearDesdeExcel(page).click();
-        // Seleccionar tipo 'Clientes' en el modal (si no está seleccionado por defecto)
-        await page.getByText('Clientes', { exact: true }).click();
+        await ClientesTargets.btnCerrarPopup(page).click();
+        await page.getByText('Clientes', {exact: true}).click();
         await ClientesTargets.btnSiguiente(page).click();
     };
     fn.displayName = 'Abrir modal de importación masiva';
@@ -17,7 +17,6 @@ export const AbrirImportacionMasiva = () => {
 export const SubirArchivoExcel = (nombreArchivo: string) => {
     const fn = async (page: Page): Promise<void> => {
         const filePath = path.resolve(process.cwd(), 'src/data', nombreArchivo);
-        await ClientesTargets.btnSeleccionarArchivo(page).click();
         await ClientesTargets.btnSeleccionarArchivo(page).setInputFiles(filePath);
         await ClientesTargets.btnSiguiente(page).click();
     };
@@ -43,10 +42,10 @@ export const FinalizarImportacionVolverInicio = () => {
 
 export const EliminarMasivamente = () => {
     const fn = async (page: Page): Promise<void> => {
-        await ClientesTargets.checkboxSeleccionarTodo(page).click();
+        await ClientesTargets.checkboxSeleccionarTodo(page).click({force: true});
         await ClientesTargets.btnAccionesMasivas(page).click();
         await ClientesTargets.opcionEliminarClientesMasivo(page).click();
-        await page.getByRole('button', { name: 'Eliminar' }).click();
+        await page.getByRole('button', {name: 'Eliminar'}).click();
     };
     fn.displayName = 'Eliminar masivamente clientes seleccionados';
     return fn;

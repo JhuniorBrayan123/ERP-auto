@@ -36,7 +36,7 @@ export const ClickGuardarCambiosVendedor = () => {
 export const CancelarCreacionVendedor = () => {
     const fn = async (page: Page): Promise<void> => {
         await VendedoresTargets.btnCancelarForm(page).click();
-        // A veces vendedores no pide confirmación o si la pide, el botón debe ser 'Sí, cancelar'
+        
         const btnConfirmar = page.getByRole('button', {name: 'Sí, cancelar'});
         if (await btnConfirmar.isVisible({timeout: 1000}).catch(() => false)) {
             await btnConfirmar.click();

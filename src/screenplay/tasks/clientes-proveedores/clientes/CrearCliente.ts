@@ -1,11 +1,11 @@
-import {expect, type Page} from '@playwright/test';
-import {ClientesTargets} from '@screenplay/targets/clientes-proveedores/ClientesTargets';
-import type {DatosClienteInput} from '@data/clientes-proveedores/clientes.data';
-import {esperarCargaOverlay} from '@utils/wait-helpers';
+import { expect, type Page } from '@playwright/test';
+import { ClientesTargets } from '@screenplay/targets/clientes-proveedores/ClientesTargets';
+import type { DatosClienteInput } from '@data/clientes-proveedores/clientes.data';
+import { esperarCargaOverlay } from '@utils/wait-helpers';
 
 export const NavegarAClientes = () => {
     const fn = async (page: Page): Promise<void> => {
-        await ClientesTargets.btnCrearCliente(page).waitFor({state: 'visible', timeout: 15_000});
+        await ClientesTargets.btnCrearCliente(page).waitFor({ state: 'visible', timeout: 15_000 });
     };
     fn.displayName = 'Navegar a submódulo Clientes';
     return fn;
@@ -94,11 +94,11 @@ export const AgregarCampoAdicional = (nombre: string, valor: string) => {
     const fn = async (page: Page): Promise<void> => {
         await ClientesTargets.btnNuevoCampoAdicional(page).click();
         await ClientesTargets.tipoCampoTexto(page).click();
+        
+        await ClientesTargets.inputValorCampo(page).fill(valor);
+        
         await ClientesTargets.inputNombreCampo(page).fill(nombre);
-
-        const inputValor = ClientesTargets.inputValorCampo(page);
-        await inputValor.click();
-        await inputValor.fill(valor);
+        await expect(ClientesTargets.inputNombreCampo(page)).toHaveValue(nombre, {timeout: 5_000});
 
         await ClientesTargets.btnCrearCampo(page).click();
         await expect(ClientesTargets.mensajeBuenTrabajo(page)).toBeVisible();
@@ -120,7 +120,7 @@ export const ClickCrearCliente = () => {
 export const CerrarModalExito = () => {
     const fn = async (page: Page): Promise<void> => {
         await ClientesTargets.btnCerrarModal(page).click();
-        await esperarCargaOverlay(page).catch(() => {});
+        await esperarCargaOverlay(page).catch(() => { });
     };
     fn.displayName = 'Cerrar modal de éxito';
     return fn;
@@ -142,13 +142,13 @@ export const CrearCliente = (datos: DatosClienteInput) => {
         }
 
         if (datos.estado === 'Inactivo') {
-            await ClientesTargets.estadoActivo(page).click();
+            await ClientesTargets.estadoSelect(page).click();
             await ClientesTargets.estadoInactivo(page).click();
         }
 
         await ClickCrearCliente()(page);
-
-        await expect(ClientesTargets.mensajeBuenTrabajo(page)).toBeVisible({timeout: 10_000});
+        await esperarCargaOverlay(page);
+        await expect(ClientesTargets.mensajeBuenTrabajo(page)).toBeVisible({ timeout: 30_000 });
         await expect(ClientesTargets.mensajeExitoCreacion(page)).toBeVisible();
         await CerrarModalExito()(page);
     };

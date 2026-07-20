@@ -1,11 +1,7 @@
 import type {Page} from '@playwright/test';
 
-/**
- * Locators estables para el submódulo Clientes (CRM).
- * IDs reales extraídos del Codegen.
- */
 export const ClientesTargets = {
-    // ─── Formulario ─────────────────────────────────────────────
+    
     selectTipoDocumento: (page: Page) =>
         page.locator('[id="pv_clientes_form-registro-relacionado-entidad:form_basico:v-select:tipo-documento"] > .text'),
 
@@ -45,7 +41,7 @@ export const ClientesTargets = {
     btnGuardarCambios: (page: Page) =>
         page.getByRole('button', {name: 'Guardar cambios'}),
 
-    // ─── Campo adicional ────────────────────────────────────────
+    
     btnNuevoCampoAdicional: (page: Page) =>
         page.getByText('Nuevo campo adicional'),
 
@@ -53,7 +49,7 @@ export const ClientesTargets = {
         page.getByText('Campo de texto'),
 
     inputNombreCampo: (page: Page) =>
-        page.getByRole('textbox', {name: 'Digitar nombre'}),
+        page.locator('[id="pv_clientes_campo-adicional-generico:form_campos:v-input:nombre-campo"]'),
 
     inputValorCampo: (page: Page) =>
         page.locator('[id="pv_clientes_campo-adicional-generico:form_campos:v-input:valor-por-defecto"]'),
@@ -61,10 +57,19 @@ export const ClientesTargets = {
     btnCrearCampo: (page: Page) =>
         page.getByRole('button', {name: 'Crear campo'}),
 
-    inputCampoAdicionalCreado: (page: Page) =>
-        page.locator('[id^="pv_clientes_form-registro-relacionado-campo-adicional:form_campos:v-input:campo-texto"]'),
+    inputCampoAdicionalCreado: (page: Page, nombreCampo: string) =>
+        page.locator('.campo')
+            .filter({hasText: nombreCampo})
+            .locator('input[id^="pv_clientes_form-registro-relacionado-campo-adicional:form_campos:v-input:campo-texto"]'),
 
-    // ─── Listado / Búsqueda ─────────────────────────────────────
+    btnEliminarCampoAdicional: (page: Page, nombreCampo: string) =>
+        page.locator('.campo')
+            .filter({hasText: nombreCampo})
+            .locator('.v-icon-delete'),
+
+    btnConfirmarEliminarCampo: (page: Page) =>
+        page.locator('[id^="pv_clientes_form-registro-relacionado-campo-adicional:form_campos:v-button:eliminar-"]'),
+
     inputBuscar: (page: Page) =>
         page.getByRole('textbox', {name: /Buscar por nombre, N/}),
 
@@ -74,18 +79,53 @@ export const ClientesTargets = {
     celdaSinResultados: (page: Page) =>
         page.getByRole('cell').getByText('NO HAY RESULTADOS'),
 
-    // ─── Menú contextual en tabla ──────────────────────────────
     botonContextual: (page: Page) =>
         page.locator('[id^="pv_clientes_cmp-lista-clientes-body-options:cmp-dropdown:opciones-clientes:cliente-"]'),
 
-    // ─── Filtros avanzados ──────────────────────────────────────
+    opcionVerCliente: (page: Page) =>
+        page.locator('[id="pv_clientes_cmp-grid-options:opciones_cliente_cmp-dropdown:options-li:visualizacion-cliente"]'),
+
+    opcionEditarCliente: (page: Page) =>
+        page.locator('[id="pv_clientes_cmp-grid-options:opciones_cliente_cmp-dropdown:options-li:edicion-cliente"]'),
+
+    opcionVerBitacora: (page: Page) =>
+        page.locator('[id="pv_clientes_cmp-grid-options:opciones_cliente_cmp-dropdown:options-li:ver-bitacora"]'),
+
+    opcionVerVentas: (page: Page) =>
+        page.locator('[id="pv_clientes_cmp-grid-options:opciones_cliente_cmp-dropdown:options-li:ver-ventas"]'),
+
+    opcionVerNotas: (page: Page) =>
+        page.locator('[id="pv_clientes_cmp-grid-options:opciones_cliente_cmp-dropdown:options-li:notas-cliente"]'),
+
+    opcionEliminarCliente: (page: Page) =>
+        page.locator('[id="pv_clientes_cmp-grid-options:opciones_cliente_cmp-dropdown:options-li:eliminar-cliente"]'),
+
+    opcionToggleEstado: (page: Page) =>
+        page.locator('[id="pv_clientes_cmp-grid-options:opciones_cliente_cmp-dropdown:options-li:desactivar-cliente"]'),
+
     btnVerFiltros: (page: Page) =>
-        page.getByRole('button', {name: 'Ver filtros avanzados'}),
+        page.locator('[id="pv_clientes_cmp-lista-clientes-filtro:filters_v-button:button-activar-filtro"]'),
 
     btnBorrarFiltros: (page: Page) =>
         page.getByRole('button', {name: 'Borrar filtros'}),
 
-    // ─── Mensajes ───────────────────────────────────────────────
+    
+    inputFiltroRazonSocial: (page: Page) =>
+        page.locator('[id="pv_clientes_cmp-lista-clientes-grid-header:headers_clientes_row:v-input:RazonSocial"]'),
+
+    inputFiltroDocumento: (page: Page) =>
+        page.locator('[id="pv_clientes_cmp-lista-clientes-grid-header:headers_clientes_row:v-input:Documento"]'),
+
+    inputFiltroTelefono: (page: Page) =>
+        page.locator('[id="pv_clientes_cmp-lista-clientes-grid-header:headers_clientes_row:v-input:Telefonos"]'),
+
+    
+    multiselectFiltroTipoDoc: (page: Page) =>
+        page.locator('[id="pv_clientes_cmp-lista-clientes-grid-header:headers_clientes_row:v-multiselect:TipoDocumento"]'),
+
+    opcionFiltroTipoDoc: (page: Page, tipo: string) =>
+        page.locator('.v-multiselect-base-options').getByText(tipo, {exact: true}),
+
     mensajeBuenTrabajo: (page: Page) =>
         page.getByText('¡Buen trabajo!'),
 
@@ -110,14 +150,15 @@ export const ClientesTargets = {
     btnCerrarModal: (page: Page) =>
         page.locator('.v-modal > div').first(),
 
-    // ─── Detalle del cliente ────────────────────────────────────
+    btnCerrarPopup: (page: Page) =>
+        page.locator('.popup-container > .button-close > .icon'),
+
     appContainer: (page: Page) =>
         page.locator('[id="single-spa-application:@sreasons/erp-mf-punto-venta"]'),
 
     btnAtras: (page: Page) =>
         page.getByRole('button', {name: 'Atrás'}),
 
-    // ─── Notas adicionales ──────────────────────────────────────
     btnNuevaNota: (page: Page) =>
         page.getByRole('button', {name: 'Nueva nota adicional'}),
 
@@ -130,25 +171,24 @@ export const ClientesTargets = {
     btnGuardarNota: (page: Page) =>
         page.locator('.icon.check'),
 
-    // ─── Bitácora ───────────────────────────────────────────────
     pestaniaBitacora: (page: Page, texto: string) =>
         page.getByText(texto, {exact: true}),
 
     btnCerrarDrape: (page: Page) =>
         page.locator('.drape.is-open > .button-close > .icon'),
 
-    // ─── Slider Activar/Desactivar ──────────────────────────────
     sliderEstado: (page: Page) =>
         page.locator('.slider'),
 
-    // ─── Selector Activo/Inactivo en formulario ────────────────────
+    estadoSelect: (page: Page) =>
+        page.locator('[id="pv_clientes_form-registro-relacionado-entidad:form_basico:v-select:estado"].v-select-header-form'),
+
     estadoActivo: (page: Page) =>
-        page.getByText('Activo', {exact: true}),
+        page.locator('.v-select-base-options.is-open').getByText('Activo', {exact: true}),
 
     estadoInactivo: (page: Page) =>
-        page.getByText('Inactivo'),
+        page.locator('.v-select-base-options.is-open').getByText('Inactivo', {exact: true}),
 
-    // ─── Modal de confirmación ──────────────────────────────────
     btnConfirmarEliminar: (page: Page) =>
         page.getByRole('button', {name: 'Eliminar'}),
 
@@ -161,23 +201,10 @@ export const ClientesTargets = {
     btnAceptarError: (page: Page) =>
         page.getByRole('button', {name: 'Aceptar'}),
 
-    // ─── Filtros avanzados detallados ───────────────────────────
-    filtroTipoDocumento: (page: Page) =>
-        page.locator('div').filter({hasText: /^Tipo documento$/}).nth(2),
-
-    filtroTipoDocEnTabla: (page: Page, tipo: string) =>
-        page.locator('thead').getByText(tipo),
-
-    inputFiltroDocumento: (page: Page) =>
-        page.getByRole('textbox', {name: 'N° de documento', exact: true}),
-
+    
     inputFiltroCodigo: (page: Page) =>
         page.getByRole('textbox', {name: 'Cod cliente'}),
 
-    inputFiltroTelefono: (page: Page) =>
-        page.getByRole('textbox', {name: 'Teléfono', exact: true}),
-
-    // ─── Notas adicionales - menú contextual ────────────────────
     botonContextualNota: (page: Page) =>
         page.locator('[id=\"pv_clientes_notas-adicionales_cliente_item:cmp-dropdown:opciones\"]').first(),
 
@@ -188,26 +215,26 @@ export const ClientesTargets = {
         page.getByRole('button', {name: 'Sí'}),
 
     seccionNotasAdicionales: (page: Page) =>
-        page.getByText('Notas adicionales'),
+        page.getByText('Notas adicionales', {exact: true}),
 
-    // ─── Botón cerrar drape alternativo ─────────────────────────
+    
     btnCerrarDrapeAlt: (page: Page) =>
         page.locator('.drape.is-open > .button-close'),
 
-    // ─── Configuración de Columnas ──────────────────────────────
+    
     btnAñadirCampos: (page: Page) =>
         page.locator('.v-icon-head-plus > .icon').first(),
 
     etiquetaCampoObligatorio: (page: Page, nombreCampo: string) =>
-        page.locator('.item', { hasText: nombreCampo }).locator('.v-psmall', { hasText: 'Obligatorio' }),
+        page.locator('.item', {hasText: nombreCampo}).locator('.v-psmall', {hasText: 'Obligatorio'}),
 
     checkboxColumna: (page: Page, nombreCampo: string) =>
-        page.locator('.item', { hasText: nombreCampo }).locator('.v-checkbox-grid-label > span'),
+        page.locator('.item', {hasText: nombreCampo}).locator('.v-checkbox-grid-label > span'),
 
     thead: (page: Page) =>
         page.locator('thead'),
 
-    // ─── Menú Opciones (Descarga / Carga Masiva) ────────────────
+    
     btnOpcionesGenerales: (page: Page) =>
         page.locator('.icon-container > .icon'),
 
@@ -220,15 +247,15 @@ export const ClientesTargets = {
     opcionCrearDesdeExcel: (page: Page) =>
         page.getByText('Crear clientes desde excel'),
 
-    // ─── Flujo de Carga Masiva ──────────────────────────────────
+    
     btnSiguiente: (page: Page) =>
         page.getByText('Siguiente'),
 
     btnSeleccionarArchivo: (page: Page) =>
-        page.getByRole('button', { name: 'Seleccionar archivo' }),
+        page.locator('input[type="file"]'),
 
     btnProcesarExcel: (page: Page) =>
-        page.getByText('Procesar', { exact: true }),
+        page.getByText('Procesar', {exact: true}),
 
     mensajeExitoMasivo: (page: Page) =>
         page.getByText('¡Clientes procesados correctamente!'),
@@ -237,17 +264,17 @@ export const ClientesTargets = {
         page.getByText('Archivo con errores'),
 
     btnIrAlInicio: (page: Page) =>
-        page.getByRole('button', { name: 'Ir al inicio' }),
+        page.getByRole('button', {name: 'Ir al inicio'}),
 
-    // ─── Acciones Masivas (Eliminación) ─────────────────────────
+    
     checkboxSeleccionarTodo: (page: Page) =>
-        page.locator('.v-checkbox-default-label > span').first(),
+        page.locator('[id="pv_clientes_cmp-lista-clientes-grid-header:headers_clientes_row:v-checkbox:select-all"]'),
 
     btnAccionesMasivas: (page: Page) =>
-        page.getByText('Acciones masivas'),
+        page.locator('[id="pv_common_cmp-header-relacionado-entidad.cmp-option-button:opciones-masivas"]'),
 
     opcionEliminarClientesMasivo: (page: Page) =>
-        page.getByText('ELIMINAR CLIENTES', { exact: true }),
+        page.locator('[id="pv_common_cmp-header-relacionado-entidad.cmp-option-button.li:eliminar-masivo"]'),
 
     mensajeExitoEliminacionMasiva: (page: Page) =>
         page.locator('body').getByText('Los clientes fueron eliminados exitosamente'),

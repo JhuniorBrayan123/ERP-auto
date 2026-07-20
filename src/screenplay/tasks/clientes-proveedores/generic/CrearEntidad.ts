@@ -2,7 +2,6 @@ import {expect, type Page} from '@playwright/test';
 import type {DatosClienteInput} from '@data/clientes-proveedores/clientes.data';
 import {esperarCargaOverlay} from '@utils/wait-helpers';
 
-/** Crea tasks genéricos de CRUD parametrizados por targets y etiquetas */
 export function crearTasksEntidad<T extends Record<string, Function>>(T: T, label: string) {
 
     const NavegarAEntidad = () => {
@@ -146,7 +145,7 @@ export function crearTasksEntidad<T extends Record<string, Function>>(T: T, labe
             }
 
             if (datos.estado === 'Inactivo') {
-                await T.estadoActivo(page).click();
+                await T.estadoSelect(page).click();
                 await T.estadoInactivo(page).click();
             }
 

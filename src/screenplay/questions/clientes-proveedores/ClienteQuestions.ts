@@ -17,6 +17,7 @@ export const ClienteVisibleEnListado = (texto: string) => {
     return fn;
 };
 
+
 export const ClienteContieneTextoEnDetalle = (texto: string) => {
     const fn = async (page: Page): Promise<void> => {
         await expect(ClientesTargets.appContainer(page)).toContainText(texto);

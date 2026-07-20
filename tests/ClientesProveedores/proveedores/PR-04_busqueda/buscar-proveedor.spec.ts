@@ -14,11 +14,11 @@ test.describe('PR-04 | Búsqueda General de Proveedores', {tag: ['@proveedores',
         const datos = generarProveedorIdentificacionExtranjera();
         await proveedorActor.realiza(CrearProveedor(datos));
 
-        // Act: Buscar por nombre
+        
         await proveedorActor.realiza(BuscarProveedorEnListado(datos.nombreRazonSocial));
         await proveedorActor.realiza(ProveedorVisibleEnListado(datos.numeroDocumento));
 
-        // Act: Buscar por documento
+        
         await proveedorActor.realiza(BuscarProveedorEnListado(datos.numeroDocumento));
         await proveedorActor.realiza(ProveedorVisibleEnListado(datos.nombreRazonSocial));
     });
@@ -27,16 +27,16 @@ test.describe('PR-04 | Búsqueda General de Proveedores', {tag: ['@proveedores',
         const datos = generarProveedorIdentificacionExtranjera();
         await proveedorActor.realiza(CrearProveedor(datos));
 
-        // Act: Usar filtro avanzado
+        
         await ProveedoresTargets.btnFiltrosAvanzados(page).click();
         await ProveedoresTargets.filtroTipoDocumento(page).click();
         await ProveedoresTargets.filtroTipoDocEnTabla(page, 'Identification.Number.IN.Doc.').click();
-        await ProveedoresTargets.btnOpcionesGenerales(page).click(); // Cerrar dropdown clickeando fuera o en opciones
+        await ProveedoresTargets.btnOpcionesGenerales(page).click(); 
         
         await proveedorActor.realiza(BuscarProveedorEnListado(datos.numeroDocumento));
         await proveedorActor.realiza(ProveedorVisibleEnListado(datos.numeroDocumento));
 
-        // Teardown
+        
         await ProveedoresTargets.btnBorrarFiltros(page).click();
     });
 

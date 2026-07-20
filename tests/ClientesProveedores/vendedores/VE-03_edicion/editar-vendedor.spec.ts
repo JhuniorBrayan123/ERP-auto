@@ -13,12 +13,12 @@ import {VendedoresTargets} from '@screenplay/targets/clientes-proveedores/Vended
 test.describe('VE-03 | Edición de Vendedores', {tag: ['@vendedores', '@edicion']}, () => {
 
     test('SC-01: Editar nombre y metas del vendedor @VE-03.1', async ({vendedorActor, page}) => {
-        // Arrange
+        
         const datos = generarVendedorRUC();
         await vendedorActor.realiza(CrearVendedor(datos));
         await vendedorActor.realiza(BuscarVendedorEnListado(datos.numeroDocumento));
 
-        // Act
+        
         await vendedorActor.realiza(AbrirAccionContextualVendedor('Editar vendedor'));
 
         const nombreEditado = `${datos.nombreRazonSocial}-editado`;
@@ -30,15 +30,15 @@ test.describe('VE-03 | Edición de Vendedores', {tag: ['@vendedores', '@edicion'
 
         await vendedorActor.realiza(ClickGuardarCambiosVendedor());
 
-        // Assert: Mensaje de éxito
+        
         await vendedorActor.realiza(MensajeEdicionVendedorExitosaVisible());
         await vendedorActor.realiza(CerrarModalExitoVendedor());
 
-        // Assert: Nombre actualizado en listado
+        
         await vendedorActor.realiza(BuscarVendedorEnListado(datos.numeroDocumento));
         await vendedorActor.realiza(VendedorVisibleEnListado(nombreEditado));
 
-        // Assert: Bitácora
+        
         await vendedorActor.realiza(AbrirAccionContextualVendedor('Ver bitácora'));
         await VendedoresTargets.pestaniaBitacora(page, 'Actualización').click();
         

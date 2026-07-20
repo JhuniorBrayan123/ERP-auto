@@ -7,7 +7,7 @@ export class ProductoFormPage extends ItemFormBasePage {
         super(page);
     }
 
-    // ─── Creación ───────────────────────────────────────────────
+    
 
     async iniciarCreacionProducto(): Promise<void> {
         await this.botonCrearItems.click();
@@ -33,7 +33,7 @@ export class ProductoFormPage extends ItemFormBasePage {
         await this.page.locator('[id="lgt_reg-item_v-tab:informacion-basica_v-input:codigo"]').fill(codigo.toString());
     }
 
-    // ─── Stock ──────────────────────────────────────────────────
+    
 
     async irATabStock(): Promise<void> {
         await this.page
@@ -75,7 +75,7 @@ export class ProductoFormPage extends ItemFormBasePage {
         await this.page.locator('.vector').click();
     }
 
-    // ─── Información adicional e impuestos ──────────────────────
+    
 
     async llenarInfoAdicional(
         categoria: string,
@@ -128,7 +128,7 @@ export class ProductoFormPage extends ItemFormBasePage {
         await inputMonto.fill(config.monto);
     }
 
-    // ─── Variantes (atributos) ──────────────────────────────────
+    
 
     async irATabVariantes(): Promise<void> {
         await this.page.getByText('Variantes(Opcional)').click();
@@ -208,7 +208,7 @@ export class ProductoFormPage extends ItemFormBasePage {
         }
     }
 
-    // ─── Equivalencias ──────────────────────────────────────────
+    
 
     async crearEquivalencia(config: {
         nombre: string;
@@ -250,7 +250,7 @@ export class ProductoFormPage extends ItemFormBasePage {
         await this.page.getByRole('button', {name: 'Crear Equivalencia'}).click();
     }
 
-    // ─── Helpers ────────────────────────────────────────────────
+    
 
     async esperarLoader(): Promise<void> {
         await this.page.locator('[id="cmn_cmp-overload:loading"]')

@@ -10,23 +10,23 @@ import {PosTargets} from '@screenplay/targets/cross-modules/PosTargets';
 test.describe('IN-04 | Integración Vendedor - Caja', {tag: ['@integracion', '@caja', '@vendedores']}, () => {
 
     test('SC-01: Comportamiento de vendedor inactivo y activo en datos de caja @IN-04.1', async ({vendedorActor, page}) => {
-        // 1. Arrange: Crear vendedor
+        
         const datos = generarVendedorDNI();
         await vendedorActor.realiza(CrearVendedor(datos));
 
-        // 2. Act: Desactivar vendedor
+        
         await vendedorActor.realiza(BuscarVendedorEnListado(datos.numeroDocumento));
         await vendedorActor.realiza(AbrirAccionContextualVendedor('Desactivar vendedor'));
         await vendedorActor.realiza(ToggleSliderEstadoVendedor());
 
-        // 3. Act: Navegar a Caja POS
+        
         await vendedorActor.realiza(NavegarACajaPos());
 
-        // 4. Assert: Vendedor INACTIVO no debe aparecer
+        
         await vendedorActor.realiza(BuscarVendedorEnCaja(datos.numeroDocumento));
         await expect(PosTargets.mensajeVendedorNoEncontrado(page)).toBeVisible();
 
-        // 5. Act: Volver a Vendedores y Activar
+        
         await page.goto('/punto-venta/entidades/vendedores');
         await page.waitForLoadState('networkidle').catch(() => {});
         
@@ -34,7 +34,7 @@ test.describe('IN-04 | Integración Vendedor - Caja', {tag: ['@integracion', '@c
         await vendedorActor.realiza(AbrirAccionContextualVendedor('Activar vendedor'));
         await vendedorActor.realiza(ToggleSliderEstadoVendedor());
 
-        // 6. Assert: Vendedor ACTIVO debe aparecer en Caja
+        
         await vendedorActor.realiza(NavegarACajaPos());
         await vendedorActor.realiza(BuscarVendedorEnCaja(datos.numeroDocumento));
         

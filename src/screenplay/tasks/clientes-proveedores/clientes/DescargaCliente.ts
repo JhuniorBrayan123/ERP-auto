@@ -14,8 +14,8 @@ export const DescargarClientesFiltrados = () => {
         const downloadPromise = page.waitForEvent('download');
         await ClientesTargets.opcionDescargarFiltrados(page).click();
         const download = await downloadPromise;
-        // The download object is handled by playwright, we just wait for it.
-        // We could also assert the filename ends with .xlsx if needed.
+        
+        
     };
     fn.displayName = 'Descargar clientes filtrados';
     return fn;

@@ -14,26 +14,25 @@ import {ClientesTargets} from '@screenplay/targets/clientes-proveedores/Clientes
 test.describe('CL-05 | Eliminación de Clientes', {tag: ['@clientes', '@eliminacion']}, () => {
 
     test('SC-01: Eliminar cliente sin ventas, validar éxito y desaparición @CL-05.1', async ({cliente, page}) => {
-        // Arrange: Crear cliente RUC sin ventas
+        
         const datos = generarClienteRUC();
         await cliente.realiza(CrearCliente(datos));
 
-        // Validar que existe y bitácora tiene creación
+        
         await cliente.realiza(BuscarClienteEnListado(datos.numeroDocumento));
         await cliente.realiza(AbrirBitacora());
         await cliente.realiza(BitacoraContieneAccion('Creación de cliente'));
         await cliente.realiza(CerrarDrape());
 
-        // Act: Eliminar cliente
+        
         await cliente.realiza(AbrirAccionContextualCliente('Eliminar cliente'));
         await cliente.realiza(ClickEliminarConfirmar());
 
-        // Assert: Mensaje de eliminación exitosa
+        
         await cliente.realiza(MensajeEliminacionVisible());
         await ClientesTargets.btnCerrarModal(page).click();
 
-        // Assert: Buscar y verificar que no aparece
-        await ClientesTargets.btnBorrarFiltros(page).click().catch(() => {});
+        
         await cliente.realiza(BuscarClienteEnListado(datos.numeroDocumento));
         await cliente.realiza(SinResultadosBusqueda());
     });

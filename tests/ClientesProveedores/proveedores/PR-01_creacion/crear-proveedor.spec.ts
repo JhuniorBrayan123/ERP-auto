@@ -13,23 +13,23 @@ import {ProveedoresTargets} from '@screenplay/targets/clientes-proveedores/Prove
 test.describe('PR-01 | Creación de Proveedores', {tag: ['@proveedores', '@creacion']}, () => {
 
     test('SC-01: Crear proveedor válido con DNI @PR-01.1', async ({proveedorActor}) => {
-        // Arrange
+        
         const datos = generarProveedorDNI();
 
-        // Act
+        
         await proveedorActor.realiza(CrearProveedor(datos));
 
-        // Assert: Mensaje de éxito
+        
         await proveedorActor.realiza(MensajeCreacionExitosaVisible());
         await proveedorActor.realiza(CerrarModalExito());
 
-        // Assert: Visualización en listado
+        
         await proveedorActor.realiza(BuscarProveedorEnListado(datos.numeroDocumento));
         await proveedorActor.realiza(ProveedorVisibleEnListado(datos.nombreRazonSocial));
     });
 
     test('SC-02: Validar campos obligatorios al crear proveedor @PR-01.2', async ({proveedorActor, page}) => {
-        // Arrange: Datos parciales
+        
         const datos = generarProveedorRUC();
         datos.numeroDocumento = ''; // Forzamos vacío
         datos.nombreRazonSocial = '';
@@ -47,10 +47,10 @@ test.describe('PR-01 | Creación de Proveedores', {tag: ['@proveedores', '@creac
         await ProveedoresTargets.inputNumeroDocumento(page).fill('41');
         await ProveedoresTargets.btnCrearProveedorForm(page).click();
 
-        // Assert: Formato inválido
-        await expect(page.locator('body')).toContainText('Debe ingresar 11 dígitos'); // Porque elegimos RUC en generarProveedorRUC
+        
+        await expect(page.locator('body')).toContainText('Debe ingresar 11 dígitos'); 
 
-        // Teardown
+        
         await proveedorActor.realiza(CancelarCreacion());
     });
 });

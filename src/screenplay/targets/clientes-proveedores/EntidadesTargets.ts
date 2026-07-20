@@ -1,9 +1,7 @@
 import type {Page} from '@playwright/test';
 
-/** Tipos de entidad soportados en Clientes y Proveedores */
 export type TipoEntidad = 'clientes' | 'proveedores' | 'vendedores' | 'conductores';
 
-/** Acciones contextuales del menú de 3 puntos en la tabla */
 export type AccionEntidad =
     | 'Ver cliente'
     | 'Ver proveedor'
@@ -37,14 +35,14 @@ const ID_SUBMODULO: Record<TipoEntidad, string> = {
 };
 
 export const EntidadesTargets = {
-    // ─── Navegación ─────────────────────────────────────────────
+    
     sidebarClientesProveedores: (page: Page) =>
         page.getByText('Clientes y proveedores'),
 
     submodulo: (page: Page, entidad: TipoEntidad) =>
         page.getByText(entidad === 'clientes' ? 'Clientes' : capitalize(entidad), {exact: true}),
 
-    // ─── Botones de acción principal ────────────────────────────
+    
     btnCrear: (page: Page, entidad: TipoEntidad) =>
         page.locator(`div`).filter({hasText: new RegExp(`^Crear ${singular(entidad)}$`)}),
 
@@ -69,7 +67,7 @@ export const EntidadesTargets = {
     btnAceptarError: (page: Page) =>
         page.getByRole('button', {name: 'Aceptar'}),
 
-    // ─── Formulario ─────────────────────────────────────────────
+    
     selectTipoDocumento: (page: Page) =>
         page.locator('[id$="v-select:tipo-documento"] > .text'),
 
@@ -87,8 +85,7 @@ export const EntidadesTargets = {
     inputNombreRazonSocial: (page: Page) =>
         page.getByRole('textbox', {name: 'Ej. Ladrillería Distribuidora'}),
 
-    /** Toggle Automático/Manual para código de entidad */
-    toggleTipoCodigo: (page: Page) =>
+        toggleTipoCodigo: (page: Page) =>
         page.locator('[id="_div:dropdown"]'),
 
     opcionManual: (page: Page) =>
@@ -106,14 +103,17 @@ export const EntidadesTargets = {
     inputEmail: (page: Page) =>
         page.getByRole('textbox', {name: /Ej\. usuario@correo\.com/}),
 
-    // ─── Selector Activo/Inactivo ───────────────────────────────
+    
+    estadoSelect: (page: Page) =>
+        page.locator('[id$=":v-select:estado"].v-select-header-form'),
+
     estadoActivo: (page: Page) =>
-        page.getByText('Activo', {exact: true}),
+        page.locator('.v-select-base-options.is-open').getByText('Activo', {exact: true}),
 
     estadoInactivo: (page: Page) =>
-        page.getByText('Inactivo'),
+        page.locator('.v-select-base-options.is-open').getByText('Inactivo'),
 
-    // ─── Tabla / Listado ────────────────────────────────────────
+    
     inputBusquedaGeneral: (page: Page) =>
         page.getByRole('textbox', {name: /Buscar por nombre, N/}),
 
@@ -126,14 +126,14 @@ export const EntidadesTargets = {
     filaResultados: (page: Page) =>
         page.locator('tbody > tr'),
 
-    // ─── Menú contextual (3 puntos) ─────────────────────────────
+    
     botonContextual: (page: Page, entidad: TipoEntidad) =>
         page.locator(`[id^="pv_${ID_SUBMODULO[entidad]}_cmp-lista-${ID_SUBMODULO[entidad]}-body-options:cmp-dropdown:opciones-${ID_SUBMODULO[entidad]}"]`),
 
     accionContextual: (page: Page, accion: AccionEntidad) =>
         page.getByText(accion),
 
-    // ─── Filtros avanzados ──────────────────────────────────────
+    
     btnVerFiltrosAvanzados: (page: Page) =>
         page.getByRole('button', {name: 'Ver filtros avanzados'}),
 
@@ -143,7 +143,7 @@ export const EntidadesTargets = {
     checkboxFiltroEstado: (page: Page, estado: 'Activo' | 'Inactivo') =>
         page.locator(`span`).filter({hasText: estado}),
 
-    // ─── Modal / Mensajes ───────────────────────────────────────
+    
     mensajeBuenTrabajo: (page: Page) =>
         page.getByText('¡Buen trabajo!'),
 
@@ -175,18 +175,18 @@ export const EntidadesTargets = {
     btnCerrarModal: (page: Page) =>
         page.locator('.v-modal > div').first(),
 
-    // ─── Bitácora ───────────────────────────────────────────────
+    
     pestaniaBitacora: (page: Page, texto: string) =>
         page.getByText(texto, {exact: true}),
 
     btnCerrarDrape: (page: Page) =>
         page.locator('.drape.is-open > .button-close > .icon'),
 
-    // ─── Detalle ────────────────────────────────────────────────
+    
     appContainer: (page: Page) =>
         page.locator('[id="single-spa-application:@sreasons/erp-mf-punto-venta"]'),
 
-    // ─── Slider Activar/Desactivar ──────────────────────────────
+    
     sliderEstado: (page: Page) =>
         page.locator('.slider'),
 };

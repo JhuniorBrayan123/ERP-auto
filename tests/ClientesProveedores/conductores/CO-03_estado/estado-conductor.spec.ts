@@ -11,11 +11,11 @@ import {ConductoresTargets} from '@screenplay/targets/clientes-proveedores/Condu
 test.describe('CO-03 | Estado de Conductores', {tag: ['@conductores', '@estado']}, () => {
 
     test('SC-01: Desactivar y reactivar conductor @CO-03.1', async ({conductorActor, page}) => {
-        // Arrange
+        
         const datos = generarConductorDNI();
         await conductorActor.realiza(CrearConductor(datos));
 
-        // Act: Desactivar
+        
         await conductorActor.realiza(BuscarConductorEnListado(datos.numeroDocumento));
         await conductorActor.realiza(AbrirAccionContextualConductor('Desactivar conductor'));
         await conductorActor.realiza(ToggleSliderEstadoConductor());
@@ -23,14 +23,14 @@ test.describe('CO-03 | Estado de Conductores', {tag: ['@conductores', '@estado']
         await ConductoresTargets.btnBorrarFiltros(page).click().catch(() => {});
         await conductorActor.realiza(BuscarConductorEnListado(datos.numeroDocumento));
 
-        // Assert: INACTIVO
+        
         await conductorActor.realiza(EstadoConductorEnListado('INACTIVO'));
 
-        // Act: Reactivar
+        
         await conductorActor.realiza(AbrirAccionContextualConductor('Activar conductor'));
         await conductorActor.realiza(ToggleSliderEstadoConductor());
         
-        // Assert: ACTIVO
+        
         await conductorActor.realiza(EstadoConductorEnListado('ACTIVO'));
     });
 });

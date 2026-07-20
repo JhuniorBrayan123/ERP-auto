@@ -1,7 +1,7 @@
 import {type Page} from '@playwright/test';
 
 export const ConductoresTargets = {
-    // ─── Listado Principal ──────────────────────
+    
     btnCrearConductor: (page: Page) =>
         page.getByText('Crear conductor', { exact: true }),
     
@@ -20,7 +20,7 @@ export const ConductoresTargets = {
     btnBorrarFiltros: (page: Page) =>
         page.getByRole('button', {name: 'Borrar filtros'}),
 
-    // ─── Botón Contextual (3 puntos) en la tabla ───────────────
+    
     opcionesFilaPorConductor: (page: Page, textoBusqueda: string) =>
         page.locator('tr', {hasText: textoBusqueda}).locator('.button-actions'),
 
@@ -39,12 +39,12 @@ export const ConductoresTargets = {
     opcionVerGuias: (page: Page) =>
         page.getByText('Ver guias a conductor'),
 
-    // ─── Formulario de Creación / Edición ──────────────────────
+    
     selectTipoDocumento: (page: Page) =>
         page.locator('[id$="form_basico:v-select:tipo-documento"] > .text'),
     
     opcionTipoDocumento: (page: Page, tipo: string) =>
-        page.getByText(tipo).nth(2).or(page.getByText(tipo).first()), // En el codegen a veces usa nth(2) para DNI
+        page.getByText(tipo).nth(2).or(page.getByText(tipo).first()), 
         
     inputNumeroDocumento: (page: Page) =>
         page.getByRole('textbox', {name: /Ej. \d+|AB\d+/}),
@@ -61,7 +61,7 @@ export const ConductoresTargets = {
     inputCodigoManual: (page: Page) =>
         page.locator('[id$="form_basico:v-input:codigo"]'),
 
-    // Campos específicos de conductor
+    
     selectTipoLicencia: (page: Page) =>
         page.locator('div').filter({ hasText: /^Seleccionar$/ }).nth(3).or(page.locator('[id$="form_basico:v-select:tipo-licencia"] > .text')),
 
@@ -83,7 +83,7 @@ export const ConductoresTargets = {
     inputEmail: (page: Page) =>
         page.getByRole('textbox', {name: /Ej. usuario@correo.com|srqa/}),
 
-    // ─── Botones de Acción (Formulario) ────────────────────────
+    
     btnCrearConductorForm: (page: Page) =>
         page.getByRole('button', {name: 'Crear conductor'}),
 
@@ -96,7 +96,7 @@ export const ConductoresTargets = {
     sliderEstado: (page: Page) =>
         page.locator('.slider'),
 
-    // ─── Modales y Mensajes (Toasts) ───────────────────────────
+    
     mensajeBuenTrabajo: (page: Page) =>
         page.getByText('¡Buen trabajo!'),
         
@@ -110,12 +110,12 @@ export const ConductoresTargets = {
         page.locator('.v-modal > div').first(),
         
     mensajeCampoObligatorio: (page: Page) =>
-        page.locator('body'), // El texto "Campo obligatorio"
+        page.locator('body'), 
 
     mensajeDigitos: (page: Page) =>
-        page.locator('body'), // "Debe ingresar 11 dígitos"
+        page.locator('body'), 
 
-    // ─── Bitácora y Paneles Drape ──────────────────────────────
+    
     pestaniaBitacora: (page: Page, pestania: string) =>
         page.getByText(pestania, {exact: true}),
         

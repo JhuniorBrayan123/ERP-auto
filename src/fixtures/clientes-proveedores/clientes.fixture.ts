@@ -1,4 +1,4 @@
-import {test as base, expect} from '@playwright/test';
+import {expect, test as base} from '@playwright/test';
 import {Cajero} from '@actors/cajero';
 import {ClientesTargets} from '@screenplay/targets/clientes-proveedores/ClientesTargets';
 import {esperarCargaOverlay} from '@utils/wait-helpers';
@@ -14,27 +14,30 @@ export const test = base.extend<ClientesFixtures>({
     },
 
     clienteListo: [async ({page}, use) => {
-        // Navegar al módulo Clientes vía sidebar
         await page.goto('/');
         await page.getByText('Clientes y proveedores').click();
-        await page.getByText('Clientes', {exact: true}).click();
-        await page.waitForLoadState('networkidle').catch(() => {});
-        await esperarCargaOverlay(page).catch(() => {});
+        await page.locator('[id="nvg_selects_cmp-header-selects_select:select-module-501-item-5001"]').click()
+        await page.waitForLoadState('networkidle').catch(() => {
+        });
+        await esperarCargaOverlay(page).catch(() => {
+        });
 
-        // Esperar a que el listado esté listo
+        
         await ClientesTargets.inputBuscar(page).waitFor({state: 'visible', timeout: 15_000}).catch(async () => {
-            // Fallback: navegación directa si la SPA no ruteó correctamente
+            
             await page.goto('/punto-venta/entidades/clientes');
-            await esperarCargaOverlay(page).catch(() => {});
+            await esperarCargaOverlay(page).catch(() => {
+            });
             await ClientesTargets.inputBuscar(page).waitFor({state: 'visible', timeout: 15_000});
         });
 
         await use();
 
-        // Cleanup
+        
         const btnAtras = ClientesTargets.btnAtras(page);
         if (await btnAtras.isVisible({timeout: 500}).catch(() => false)) {
-            await btnAtras.click().catch(() => {});
+            await btnAtras.click().catch(() => {
+            });
         }
     }, {auto: true}],
 });

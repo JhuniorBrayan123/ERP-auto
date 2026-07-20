@@ -1,5 +1,24 @@
-import {type Page} from '@playwright/test';
+import {expect, type Page} from '@playwright/test';
 import {ClientesTargets} from '@screenplay/targets/clientes-proveedores/ClientesTargets';
+import {AbrirAccionContextualCliente, BuscarClienteEnListado} from './BuscarCliente';
+
+export const EliminarCliente = (numeroDocumento: string) => {
+    const fn = async (page: Page): Promise<void> => {
+        await BuscarClienteEnListado(numeroDocumento)(page);
+
+        await AbrirAccionContextualCliente('Eliminar cliente')(page);
+
+        await ClientesTargets.btnConfirmarEliminar(page).click();
+
+        await expect(ClientesTargets.mensajeBuenTrabajo(page)).toBeVisible({timeout: 10_000});
+        await expect(ClientesTargets.mensajeExitoEliminacion(page)).toBeVisible();
+
+        await ClientesTargets.btnCerrarModal(page).click();
+        await page.waitForTimeout(500);
+    };
+    fn.displayName = `Eliminar Cliente — ${numeroDocumento}`;
+    return fn;
+};
 
 export const ClickEliminarConfirmar = () => {
     const fn = async (page: Page): Promise<void> => {

@@ -4,7 +4,7 @@ import {ConductoresTargets} from '@screenplay/targets/clientes-proveedores/Condu
 import {esperarCargaOverlay} from '@utils/wait-helpers';
 
 type ConductoresFixtures = {
-    conductorActor: Cajero; // Reutilizamos Cajero para la sesión
+    conductorActor: Cajero; 
     conductorListo: void;
 };
 
@@ -14,17 +14,17 @@ export const test = base.extend<ConductoresFixtures>({
     },
 
     conductorListo: [async ({page}, use) => {
-        // Navegar al módulo Conductores
+        
         await page.goto('/punto-venta/entidades/conductores');
         await page.waitForLoadState('networkidle').catch(() => {});
         await esperarCargaOverlay(page).catch(() => {});
 
-        // Esperar a que el listado esté listo
+        
         await ConductoresTargets.inputBuscar(page).waitFor({state: 'visible', timeout: 15_000});
 
         await use();
 
-        // Cleanup: Asegurar que los modales o paneles estén cerrados
+        
         const btnCerrarModal = ConductoresTargets.btnCerrarModal(page);
         if (await btnCerrarModal.isVisible({timeout: 500}).catch(() => false)) {
             await btnCerrarModal.click().catch(() => {});

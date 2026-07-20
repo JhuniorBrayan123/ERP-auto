@@ -19,26 +19,35 @@ export const EditarNombreCliente = (nuevoNombre: string) => {
     return fn;
 };
 
-export const EditarCampoAdicional = (valor: string) => {
+export const EditarCampoAdicional = (nombreCampo: string, valor: string) => {
     const fn = async (page: Page): Promise<void> => {
-        const input = ClientesTargets.inputCampoAdicionalCreado(page);
+        const input = ClientesTargets.inputCampoAdicionalCreado(page, nombreCampo);
         await input.click();
         await input.fill(valor);
     };
-    fn.displayName = `Editar campo adicional: ${valor}`;
+    fn.displayName = `Editar campo adicional: ${nombreCampo}=${valor}`;
     return fn;
 };
 
 export const CambiarEstadoClienteEnFormulario = (estado: 'Activo' | 'Inactivo') => {
     const fn = async (page: Page): Promise<void> => {
+        await ClientesTargets.estadoSelect(page).click();
+
         if (estado === 'Inactivo') {
-            await ClientesTargets.estadoActivo(page).click();
             await ClientesTargets.estadoInactivo(page).click();
         } else {
-            await ClientesTargets.estadoInactivo(page).click();
             await ClientesTargets.estadoActivo(page).click();
         }
     };
     fn.displayName = `Cambiar estado a: ${estado}`;
+    return fn;
+};
+
+export const EliminarCampoAdicionalEnFormulario = (nombreCampo: string) => {
+    const fn = async (page: Page): Promise<void> => {
+        await ClientesTargets.btnEliminarCampoAdicional(page, nombreCampo).click();
+        await ClientesTargets.btnConfirmarEliminarCampo(page).click();
+    };
+    fn.displayName = `Eliminar campo adicional: ${nombreCampo}`;
     return fn;
 };

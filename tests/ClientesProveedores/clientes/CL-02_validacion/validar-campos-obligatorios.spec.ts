@@ -18,7 +18,7 @@ import {
 test.describe('CL-02 | Validación de Campos Obligatorios', {tag: ['@clientes', '@validacion']}, () => {
 
     test('SC-01: Validar campo código obligatorio @CL-02.1', async ({cliente}) => {
-        // Arrange: Abrir formulario y llenar todo excepto código
+        
         await cliente.realiza(AbrirCrearCliente());
         await cliente.realiza(SeleccionarTipoDocCliente('RUC'));
         await cliente.realiza(LlenarNumeroDocumentoCliente('10101010101'));
@@ -28,16 +28,16 @@ test.describe('CL-02 | Validación de Campos Obligatorios', {tag: ['@clientes', 
         await cliente.realiza(LlenarTelefonoCliente('999999999'));
         await cliente.realiza(LlenarEmailCliente('srqapruebaserp2@gmail.com'));
 
-        // Act: Intentar crear
+        
         await cliente.realiza(ClickCrearCliente());
 
-        // Assert: Debe mostrar error y permanecer en formulario
+        
         await cliente.realiza(CuerpoContieneTexto('Campo obligatorio'));
         await cliente.realiza(FormularioSigueMostrado());
     });
 
     test('SC-02: Validar campo nombre/razón social obligatorio @CL-02.2', async ({cliente}) => {
-        // Arrange: Abrir formulario y llenar todo excepto nombre
+        
         await cliente.realiza(AbrirCrearCliente());
         await cliente.realiza(SeleccionarTipoDocCliente('RUC'));
         await cliente.realiza(LlenarNumeroDocumentoCliente('10101010101'));
@@ -46,16 +46,16 @@ test.describe('CL-02 | Validación de Campos Obligatorios', {tag: ['@clientes', 
         await cliente.realiza(LlenarTelefonoCliente('999999999'));
         await cliente.realiza(LlenarEmailCliente('srqapruebaserp2@gmail.com'));
 
-        // Act: Intentar crear sin nombre
+        
         await cliente.realiza(ClickCrearCliente());
 
-        // Assert: Debe mostrar error y permanecer en formulario
+        
         await cliente.realiza(CuerpoContieneTexto('Campo obligatorio'));
         await cliente.realiza(FormularioSigueMostrado());
     });
 
     test('SC-03: Validar campo número documento obligatorio @CL-02.3', async ({cliente}) => {
-        // Arrange: Abrir formulario, llenar todo excepto documento, luego vaciar
+        
         await cliente.realiza(AbrirCrearCliente());
         await cliente.realiza(SeleccionarTipoDocCliente('RUC'));
         await cliente.realiza(LlenarNombreRazonSocialCliente('automatizado-ruc-cliente'));
@@ -64,10 +64,10 @@ test.describe('CL-02 | Validación de Campos Obligatorios', {tag: ['@clientes', 
         await cliente.realiza(LlenarTelefonoCliente('999999999'));
         await cliente.realiza(LlenarEmailCliente('srqapruebaserp2@gmail.com'));
 
-        // Act: Intentar crear sin documento
+        
         await cliente.realiza(ClickCrearCliente());
 
-        // Assert: Debe mostrar error y permanecer en formulario
+        
         await cliente.realiza(CuerpoContieneTexto('Campo obligatorio'));
         await cliente.realiza(FormularioSigueMostrado());
     });

@@ -4,7 +4,7 @@ import {ClientesTargets} from '@screenplay/targets/clientes-proveedores/Clientes
 export const AbrirDetalleCliente = () => {
     const fn = async (page: Page): Promise<void> => {
         await ClientesTargets.botonContextual(page).click();
-        await page.getByText('Ver cliente').click();
+        await ClientesTargets.opcionVerCliente(page).click();
         await ClientesTargets.appContainer(page).waitFor({state: 'visible', timeout: 10_000});
     };
     fn.displayName = 'Abrir detalle del cliente';
@@ -37,7 +37,7 @@ export const AgregarNotaAdicional = (titulo: string, mensaje: string) => {
 export const AbrirNotasAdicionales = () => {
     const fn = async (page: Page): Promise<void> => {
         await ClientesTargets.botonContextual(page).click();
-        await page.getByText('Ver notas adicionales').click();
+        await ClientesTargets.opcionVerNotas(page).click();
     };
     fn.displayName = 'Abrir notas adicionales';
     return fn;
@@ -46,7 +46,7 @@ export const AbrirNotasAdicionales = () => {
 export const AbrirBitacora = () => {
     const fn = async (page: Page): Promise<void> => {
         await ClientesTargets.botonContextual(page).click();
-        await page.getByText('Ver bitácora').click();
+        await ClientesTargets.opcionVerBitacora(page).click();
         await ClientesTargets.btnCerrarDrape(page).waitFor({state: 'visible', timeout: 10_000}).catch(() => {});
     };
     fn.displayName = 'Abrir bitácora del cliente';
@@ -56,7 +56,7 @@ export const AbrirBitacora = () => {
 export const AbrirVentasAlCliente = () => {
     const fn = async (page: Page): Promise<void> => {
         await ClientesTargets.botonContextual(page).click();
-        await page.getByText('Ver ventas al cliente').click();
+        await ClientesTargets.opcionVerVentas(page).click();
     };
     fn.displayName = 'Abrir ventas al cliente';
     return fn;

@@ -11,28 +11,28 @@ import {VendedoresTargets} from '@screenplay/targets/clientes-proveedores/Vended
 test.describe('VE-04 | Estado de Vendedores', {tag: ['@vendedores', '@estado']}, () => {
 
     test('SC-01: Desactivar y reactivar vendedor @VE-04.1', async ({vendedorActor, page}) => {
-        // Arrange
+        
         const datos = generarVendedorDNI();
         await vendedorActor.realiza(CrearVendedor(datos));
 
-        // Act: Desactivar
+        
         await vendedorActor.realiza(BuscarVendedorEnListado(datos.numeroDocumento));
         await vendedorActor.realiza(AbrirAccionContextualVendedor('Desactivar vendedor'));
         await vendedorActor.realiza(ToggleSliderEstadoVendedor());
 
-        // Para evitar falsos positivos con filtros, borramos búsqueda y volvemos a buscar 
-        // o cerramos filtros si estuvieran abiertos.
+        
+        
         await VendedoresTargets.btnBorrarFiltros(page).click().catch(() => {});
         await vendedorActor.realiza(BuscarVendedorEnListado(datos.numeroDocumento));
 
-        // Assert: INACTIVO
+        
         await vendedorActor.realiza(EstadoVendedorEnListado('INACTIVO'));
 
-        // Act: Reactivar
+        
         await vendedorActor.realiza(AbrirAccionContextualVendedor('Activar vendedor'));
         await vendedorActor.realiza(ToggleSliderEstadoVendedor());
         
-        // Assert: ACTIVO
+        
         await vendedorActor.realiza(EstadoVendedorEnListado('ACTIVO'));
     });
 });

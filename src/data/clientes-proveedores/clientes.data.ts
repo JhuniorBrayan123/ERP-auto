@@ -19,7 +19,7 @@ export function generarClienteDNI(): DatosClienteInput {
     const s = SUFFIX();
     return {
         tipoDocumento: 'DNI',
-        numeroDocumento: `4545${s}`,
+        numeroDocumento: `45${s}`,
         nombreRazonSocial: `AUTOMATIZADOR-cliente-${s}`,
         codigo: s,
         direccion: `Arequipa-${s}`,
@@ -45,13 +45,13 @@ export function generarClienteConCampoAdicional(): DatosClienteInput {
     const s = SUFFIX();
     return {
         tipoDocumento: 'DNI',
-        numeroDocumento: `8585${s}`,
+        numeroDocumento: `85${s}`,
         nombreRazonSocial: `cliente-campo-${s}`,
         codigo: s,
         direccion: `Calle Los Olivos ${s}`,
         telefono: `988${s}`.slice(0, 9),
         email: `campo${s}@test.com`,
-        campoAdicional: {nombre: 'apodo', valor: `apodo-${s}`},
+        campoAdicional: {nombre: `apodo-${s}`, valor: `apodo-${s}`},
     };
 }
 
@@ -59,13 +59,13 @@ export function generarClienteParaEdicion(): DatosClienteInput {
     const s = SUFFIX();
     return {
         tipoDocumento: 'DNI',
-        numeroDocumento: `7171${s}`,
+        numeroDocumento: `71${s}`,
         nombreRazonSocial: `cliente-editar-${s}`,
         codigo: `ED${s}`,
         direccion: `Arequipa-${s}`,
         telefono: `977${s}`.slice(0, 9),
         email: `editar${s}@test.com`,
-        campoAdicional: {nombre: 'apodo', valor: `apodo-original-${s}`},
+        campoAdicional: {nombre: `apodo-${s}`, valor: `apodo-original-${s}`},
         estado: 'Inactivo',
     };
 }
@@ -74,7 +74,7 @@ export function generarClienteInactivo(): DatosClienteInput {
     const s = SUFFIX();
     return {
         tipoDocumento: 'DNI',
-        numeroDocumento: `6262${s}`,
+        numeroDocumento: `62${s}`,
         nombreRazonSocial: `cliente-inactivo-${s}`,
         codigo: `IN${s}`,
         direccion: `Lima-${s}`,

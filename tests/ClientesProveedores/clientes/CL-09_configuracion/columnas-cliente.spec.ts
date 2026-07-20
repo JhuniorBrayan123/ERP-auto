@@ -14,17 +14,17 @@ import {ClientesTargets} from '@screenplay/targets/clientes-proveedores/Clientes
 test.describe('CL-09 | Configuración de Columnas', {tag: ['@clientes', '@configuracion']}, () => {
 
     test('SC-01: Ocultar y mostrar columnas opcionales @CL-09.1', async ({cliente, page}) => {
-        // Arrange
+        
         await cliente.realiza(AbrirConfiguracionColumnas());
         
-        // Act: Ocultar 'Correo'
+        
         await cliente.realiza(ToggleColumnaVisible('Correo'));
         await cliente.realiza(GuardarConfiguracionColumnas());
 
-        // Assert: No debe estar en la tabla
+        
         await cliente.realiza(ColumnaInvisibleEnTabla('Correo'));
 
-        // Revertir (Limpieza)
+        
         await cliente.realiza(AbrirConfiguracionColumnas());
         await cliente.realiza(ToggleColumnaVisible('Correo'));
         await cliente.realiza(GuardarConfiguracionColumnas());
@@ -48,6 +48,6 @@ test.describe('CL-09 | Configuración de Columnas', {tag: ['@clientes', '@config
             await cliente.realiza(ValidarColumnaObligatoria(campo));
         }
         
-        // No guardamos nada, solo cerramos validando que tienen la etiqueta 'Obligatorio'
+        
     });
 });

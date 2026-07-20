@@ -4,7 +4,7 @@ import {AbrirConfiguracionColumnas, SeleccionarColumna, GuardarConfiguracionColu
 test.describe('IN-05 | Configuración de Columnas', {tag: ['@integracion', '@columnas']}, () => {
 
     test('SC-01: Configurar columnas del listado por actor comercial @IN-05.1', async ({cliente, page}) => {
-        // En Clientes
+        
         await cliente.realiza(AbrirConfiguracionColumnas());
         await cliente.realiza(SeleccionarColumna('Correo'));
         await cliente.realiza(GuardarConfiguracionColumnas());

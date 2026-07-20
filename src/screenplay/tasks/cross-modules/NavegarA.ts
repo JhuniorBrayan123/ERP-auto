@@ -13,9 +13,9 @@ export const NavegarACajaPos = () => {
 
 export const NavegarANuevaCompra = () => {
     const fn = async (page: Page): Promise<void> => {
-        // En el codegen se hace clic en 'Ventas y compras' -> 'Nueva compra'
+        
         await page.goto('/punto-venta/compras/registro');
-        // Esperamos a que cargue
+        
         await page.waitForLoadState('networkidle').catch(() => {});
     };
     fn.displayName = 'Navegar a Nueva Compra';
@@ -24,7 +24,7 @@ export const NavegarANuevaCompra = () => {
 
 export const NavegarANuevaGuiaRemision = () => {
     const fn = async (page: Page): Promise<void> => {
-        // En el codegen hace una redirección via cajas. Haremos eso o navegaremos directo
+        
         await page.goto('/punto-venta/guia-remision-remitente/registro');
         await page.waitForLoadState('networkidle').catch(() => {});
     };

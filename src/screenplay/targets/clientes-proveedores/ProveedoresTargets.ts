@@ -1,14 +1,14 @@
 import {type Page, type Locator} from '@playwright/test';
 
 export const ProveedoresTargets = {
-    // ─── Navegación general y contenedores ─────────────────────
+    
     appContainer: (page: Page) =>
         page.locator('[id="single-spa-application:@sreasons/erp-mf-punto-venta"]'),
     
     btnAtras: (page: Page) =>
         page.getByRole('button', {name: 'Atrás'}),
 
-    // ─── Listado Principal de Proveedores ──────────────────────
+    
     btnCrearProveedor: (page: Page) =>
         page.locator('div').filter({ hasText: /^Crear proveedor$/ }),
     
@@ -33,8 +33,8 @@ export const ProveedoresTargets = {
     filtroTipoDocEnTabla: (page: Page, tipo: string) =>
         page.locator('thead').getByText(tipo),
 
-    // ─── Botón Contextual (3 puntos) en la tabla ───────────────
-    // Captura el botón contextual basado en un regex dinámico o buscando la fila.
+    
+    
     botonContextualPorProveedor: (page: Page, textoBusqueda: string) =>
         page.locator('tr', {hasText: textoBusqueda}).locator('.button-actions'),
 
@@ -53,15 +53,15 @@ export const ProveedoresTargets = {
     opcionEliminarProveedor: (page: Page) =>
         page.getByText('Eliminar proveedor'),
 
-    // ─── Formulario de Creación / Edición ──────────────────────
-    selectTipoDocumento: (page: Page) =>
-        page.locator('[id="pv_proveedores_form-registro-relacionado-entidad:form_basico:v-select:tipo-documento"] > .text'),
     
+    selectTipoDocumento: (page: Page) =>
+        page.locator('[id="pv_proveedores_form-registro-relacionado-entidad:form_basico:v-select:tipo-documento"].v-select-header-form'),
+
     opcionTipoDocumento: (page: Page, tipo: string) =>
-        page.getByText(tipo).first(),
+        page.locator('.v-select-base-options.is-open .v-select-form-option').getByText(tipo, {exact: true}),
         
     inputNumeroDocumento: (page: Page) =>
-        page.getByRole('textbox', {name: /Ej. \d+|IN\d+/}), // Regex to match "Ej. 12345678" or "Ej. 20123456789" or "Ej. IN1234"
+        page.getByRole('textbox', {name: /Ej. \d+|IN\d+/}), 
         
     inputRazonSocial: (page: Page) =>
         page.getByRole('textbox', {name: 'Ej. Ladrillería Distribuidora'}),
@@ -84,7 +84,7 @@ export const ProveedoresTargets = {
     inputEmail: (page: Page) =>
         page.getByRole('textbox', {name: 'Ej. usuario@correo.com'}),
 
-    // ─── Botones de Acción (Formulario) ────────────────────────
+    
     btnCrearProveedorForm: (page: Page) =>
         page.getByRole('button', {name: 'Crear proveedor'}),
 
@@ -109,7 +109,7 @@ export const ProveedoresTargets = {
     opcionEstadoFormulario: (page: Page, estado: string) =>
         page.getByText(estado, { exact: true }).nth(1),
 
-    // ─── Modales y Mensajes (Toasts) ───────────────────────────
+    
     mensajeBuenTrabajo: (page: Page) =>
         page.getByText('¡Buen trabajo!'),
         
@@ -126,16 +126,16 @@ export const ProveedoresTargets = {
         page.locator('.v-modal > div').first(),
         
     mensajeCampoObligatorio: (page: Page) =>
-        page.locator('body'), // El texto "Campo obligatorio" se busca dentro
+        page.locator('body'), 
 
-    // ─── Bitácora y Paneles Drape ──────────────────────────────
+    
     pestaniaBitacora: (page: Page, pestania: string) =>
         page.getByText(pestania, {exact: true}),
         
     btnCerrarDrape: (page: Page) =>
         page.locator('.drape.is-open > .button-close'),
 
-    // ─── Exportación ───────────────────────────────────────────
+    
     btnOpcionesGenerales: (page: Page) =>
         page.locator('.icon-container > .icon').first(),
 

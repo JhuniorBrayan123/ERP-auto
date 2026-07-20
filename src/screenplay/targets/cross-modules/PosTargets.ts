@@ -1,14 +1,14 @@
 import {type Page} from '@playwright/test';
 
 export const PosTargets = {
-    // ─── Búsqueda en Caja ──────────────────────
+    
     inputBuscarPersonaCaja: (page: Page) =>
         page.getByRole('textbox', {name: 'Buscar por nombre, razón'}),
     
     mensajePersonaNoEncontrada: (page: Page) =>
         page.locator('main').filter({hasText: 'Persona /empresa no encontrada en tu lista'}),
 
-    // ─── Asignación de Vendedor en POS ──────────────────────
+    
     btnDatosVenta: (page: Page) =>
         page.getByRole('button', {name: 'Datos'}),
         
@@ -21,7 +21,7 @@ export const PosTargets = {
     btnGuardarDatosVenta: (page: Page) =>
         page.getByRole('button', {name: 'Guardar datos'}),
 
-    // Opciones en dropdown
+    
     opcionDropdownPersona: (page: Page, texto: string) =>
-        page.locator('.cmp-dropdown-options').getByText(texto), // selector genérico para los dropdowns
+        page.locator('.cmp-dropdown-options').getByText(texto), 
 };
