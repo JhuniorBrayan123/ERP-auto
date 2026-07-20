@@ -17,7 +17,7 @@ export const BuscarVendedorEnListado = (textoBusqueda: string) => {
 
 export const AbrirAccionContextualVendedor = (accion: 'Editar vendedor' | 'Ver bitácora' | 'Desactivar vendedor' | 'Activar vendedor' | 'Eliminar vendedor') => {
     const fn = async (page: Page): Promise<void> => {
-        await page.locator('.button-actions').first().click();
+        await VendedoresTargets.botonContextualVendedor(page).click();
         
         if (accion === 'Editar vendedor') await VendedoresTargets.opcionEditarVendedor(page).click();
         if (accion === 'Ver bitácora') await VendedoresTargets.opcionVerBitacora(page).click();

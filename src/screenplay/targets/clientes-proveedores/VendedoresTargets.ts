@@ -124,4 +124,7 @@ export const VendedoresTargets = {
 
     btnConfirmarEliminarVendedor: (page: Page) =>
         page.getByRole('button', {name: 'Eliminar'}),
+
+    botonContextualVendedor: (page: Page) =>
+        page.locator('[id^="pv_vendedores_cmp-lista-proveedores-body-options:cmp-dropdown:opciones-proveedores:vendedor-"]:not(.opcion-item)'),
 };

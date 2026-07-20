@@ -1,7 +1,11 @@
 import {expect, test} from '@fixtures/clientes-proveedores/vendedores.fixture';
-import {LlenarFormularioBasicoVendedor} from '@screenplay/tasks/clientes-proveedores/vendedores/CrearVendedor';
+import {
+    CerrarModalExitoVendedor,
+    LlenarFormularioBasicoVendedor
+} from '@screenplay/tasks/clientes-proveedores/vendedores/CrearVendedor';
 import {generarVendedorRUC} from '@data/clientes-proveedores/vendedores.data';
 import {VendedoresTargets} from '@screenplay/targets/clientes-proveedores/VendedoresTargets';
+import {EliminarVendedor} from "@screenplay/tasks/clientes-proveedores/vendedores/EliminarVendedor";
 
 test.describe('VE-02 | Validaciones Numéricas Vendedores', {tag: ['@vendedores', '@validaciones']}, () => {
 
@@ -16,5 +20,7 @@ test.describe('VE-02 | Validaciones Numéricas Vendedores', {tag: ['@vendedores'
         await vendedorActor.realiza(LlenarFormularioBasicoVendedor(datos));
         await VendedoresTargets.btnCrearVendedorForm(page).click();
         await expect(VendedoresTargets.btnCrearVendedorForm(page)).toBeVisible();
+        await vendedorActor.realiza(CerrarModalExitoVendedor());
+        await vendedorActor.realiza(EliminarVendedor(datos.numeroDocumento))
     });
 });
