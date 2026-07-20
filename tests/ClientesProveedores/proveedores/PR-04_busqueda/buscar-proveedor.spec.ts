@@ -15,14 +15,11 @@ test.describe('PR-04 | Búsqueda General de Proveedores', {tag: ['@proveedores',
         const datos = generarProveedorIdentificacionExtranjera();
         await proveedorActor.realiza(CrearProveedor(datos));
 
-
         await proveedorActor.realiza(BuscarProveedorEnListado(datos.nombreRazonSocial));
         await proveedorActor.realiza(ProveedorVisibleEnListado(datos.numeroDocumento));
 
-
         await proveedorActor.realiza(BuscarProveedorEnListado(datos.numeroDocumento));
         await proveedorActor.realiza(ProveedorVisibleEnListado(datos.nombreRazonSocial));
-
 
         await proveedorActor.realiza(EliminarProveedor(datos.numeroDocumento));
     });
@@ -30,19 +27,19 @@ test.describe('PR-04 | Búsqueda General de Proveedores', {tag: ['@proveedores',
         const datos = generarProveedorIdentificacionExtranjera();
         await proveedorActor.realiza(CrearProveedor(datos));
 
-        
+
         await ProveedoresTargets.btnFiltrosAvanzados(page).click();
         await ProveedoresTargets.filtroTipoDocumento(page).click();
         await ProveedoresTargets.opcionFiltroTipoDoc(page, 'Identification.Number.IN.Doc.').click();
 
-        
+
         await ProveedoresTargets.inputFiltroDocumento(page).fill(datos.numeroDocumento);
         await proveedorActor.realiza(ProveedorVisibleEnListado(datos.numeroDocumento));
 
-        
+
         await ProveedoresTargets.btnBorrarFiltros(page).click();
 
-        
+
         await proveedorActor.realiza(EliminarProveedor(datos.numeroDocumento));
     });
     test('SC-03: Buscar proveedor inexistente @PR-04.3', async ({proveedorActor}) => {

@@ -1,6 +1,7 @@
 import {test, expect} from '@fixtures/clientes-proveedores/vendedores.fixture';
 import {CrearVendedor} from '@screenplay/tasks/clientes-proveedores/vendedores/CrearVendedor';
 import {BuscarVendedorEnListado, AbrirAccionContextualVendedor} from '@screenplay/tasks/clientes-proveedores/vendedores/BuscarVendedor';
+import {EliminarVendedor} from '@screenplay/tasks/clientes-proveedores/vendedores/EliminarVendedor';
 import {ToggleSliderEstadoVendedor} from '@screenplay/tasks/clientes-proveedores/vendedores/ToggleEstadoVendedor';
 import {NavegarACajaPos} from '@screenplay/tasks/cross-modules/NavegarA';
 import {BuscarVendedorEnCaja} from '@screenplay/tasks/cross-modules/BuscarEntidadPos';
@@ -42,5 +43,10 @@ test.describe('IN-04 | Integración Vendedor - Caja', {tag: ['@integracion', '@c
         await PosTargets.opcionDropdownPersona(page, datos.numeroDocumento).click();
 
         await PosTargets.btnGuardarDatosVenta(page).click();
+
+        
+        await page.goto('/punto-venta/entidades/vendedores');
+        await page.waitForLoadState('networkidle').catch(() => {});
+        await vendedorActor.realiza(EliminarVendedor(datos.numeroDocumento));
     });
 });

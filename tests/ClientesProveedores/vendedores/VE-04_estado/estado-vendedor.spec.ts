@@ -1,6 +1,7 @@
-import {test, expect} from '@fixtures/clientes-proveedores/vendedores.fixture';
+import {test} from '@fixtures/clientes-proveedores/vendedores.fixture';
 import {CrearVendedor} from '@screenplay/tasks/clientes-proveedores/vendedores/CrearVendedor';
 import {BuscarVendedorEnListado, AbrirAccionContextualVendedor} from '@screenplay/tasks/clientes-proveedores/vendedores/BuscarVendedor';
+import {EliminarVendedor} from '@screenplay/tasks/clientes-proveedores/vendedores/EliminarVendedor';
 import {ToggleSliderEstadoVendedor} from '@screenplay/tasks/clientes-proveedores/vendedores/ToggleEstadoVendedor';
 import {
     EstadoVendedorEnListado,
@@ -34,5 +35,8 @@ test.describe('VE-04 | Estado de Vendedores', {tag: ['@vendedores', '@estado']},
         
         
         await vendedorActor.realiza(EstadoVendedorEnListado('ACTIVO'));
+
+        
+        await vendedorActor.realiza(EliminarVendedor(datos.numeroDocumento));
     });
 });

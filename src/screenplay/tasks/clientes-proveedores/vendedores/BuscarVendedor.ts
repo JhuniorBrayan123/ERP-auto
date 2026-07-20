@@ -15,7 +15,7 @@ export const BuscarVendedorEnListado = (textoBusqueda: string) => {
     return fn;
 };
 
-export const AbrirAccionContextualVendedor = (accion: 'Editar vendedor' | 'Ver bitácora' | 'Desactivar vendedor' | 'Activar vendedor') => {
+export const AbrirAccionContextualVendedor = (accion: 'Editar vendedor' | 'Ver bitácora' | 'Desactivar vendedor' | 'Activar vendedor' | 'Eliminar vendedor') => {
     const fn = async (page: Page): Promise<void> => {
         await page.locator('.button-actions').first().click();
         
@@ -23,6 +23,7 @@ export const AbrirAccionContextualVendedor = (accion: 'Editar vendedor' | 'Ver b
         if (accion === 'Ver bitácora') await VendedoresTargets.opcionVerBitacora(page).click();
         if (accion === 'Desactivar vendedor') await VendedoresTargets.opcionDesactivarVendedor(page).click();
         if (accion === 'Activar vendedor') await VendedoresTargets.opcionActivarVendedor(page).click();
+        if (accion === 'Eliminar vendedor') await VendedoresTargets.opcionEliminarVendedor(page).click();
     };
     fn.displayName = `Acción contextual (Vendedor): ${accion}`;
     return fn;

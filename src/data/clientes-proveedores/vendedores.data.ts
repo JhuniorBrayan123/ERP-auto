@@ -18,7 +18,7 @@ export function generarVendedorDNI(): DatosVendedorInput {
     const s = SUFFIX();
     return {
         tipoDocumento: 'DNI',
-        numeroDocumento: `5555${s}`,
+        numeroDocumento: `55${s}`,
         nombreRazonSocial: `VEND-AUTO-${s}`,
         codigo: s,
         metaMonto: '5000',

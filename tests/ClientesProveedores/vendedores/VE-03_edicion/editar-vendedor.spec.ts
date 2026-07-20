@@ -1,6 +1,7 @@
 import {test, expect} from '@fixtures/clientes-proveedores/vendedores.fixture';
 import {CrearVendedor, CerrarModalExitoVendedor} from '@screenplay/tasks/clientes-proveedores/vendedores/CrearVendedor';
 import {BuscarVendedorEnListado, AbrirAccionContextualVendedor} from '@screenplay/tasks/clientes-proveedores/vendedores/BuscarVendedor';
+import {EliminarVendedor} from '@screenplay/tasks/clientes-proveedores/vendedores/EliminarVendedor';
 import {EditarNombreVendedor, EditarMetasVendedor, ClickGuardarCambiosVendedor} from '@screenplay/tasks/clientes-proveedores/vendedores/EditarVendedor';
 import {
     VendedorVisibleEnListado,
@@ -47,5 +48,8 @@ test.describe('VE-03 | Edición de Vendedores', {tag: ['@vendedores', '@edicion'
         await vendedorActor.realiza(BitacoraVendedorContieneAccion(`ahora: ${nuevaMetaMonto}`));
         
         await VendedoresTargets.btnCerrarDrape(page).click();
+
+        
+        await vendedorActor.realiza(EliminarVendedor(datos.numeroDocumento));
     });
 });
