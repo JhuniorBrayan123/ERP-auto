@@ -25,8 +25,7 @@ export const VendedoresTargets = {
         page.locator('tr', {hasText: textoBusqueda}).locator('.button-actions'),
 
     opcionEditarVendedor: (page: Page) =>
-
-        page.locator('[id$="cmp-dropdown:options-li:edicion-vendedor"]').or(page.getByText('Editar vendedor')),
+        page.locator('[id$="cmp-dropdown:options-li:edicion-vendedor"]'),
 
     opcionVerBitacora: (page: Page) =>
         page.getByText('Ver bitácora').or(page.getByText('Visualiza el historial de tu')),

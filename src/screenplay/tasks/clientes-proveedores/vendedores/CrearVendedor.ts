@@ -8,12 +8,12 @@ export const LlenarFormularioBasicoVendedor = (datos: Partial<DatosVendedorInput
             await VendedoresTargets.selectTipoDocumento(page).click();
             await VendedoresTargets.opcionTipoDocumento(page, datos.tipoDocumento).click();
         }
-        
+
         if (datos.numeroDocumento !== undefined) {
             await VendedoresTargets.inputNumeroDocumento(page).click();
             await VendedoresTargets.inputNumeroDocumento(page).fill(datos.numeroDocumento);
         }
-        
+
         if (datos.nombreRazonSocial !== undefined) {
             await VendedoresTargets.inputRazonSocial(page).click();
             await VendedoresTargets.inputRazonSocial(page).fill(datos.nombreRazonSocial);
@@ -65,6 +65,7 @@ export const CrearVendedor = (datos: DatosVendedorInput) => {
         await VendedoresTargets.btnCrearVendedor(page).click();
         await LlenarFormularioBasicoVendedor(datos)(page);
         await VendedoresTargets.btnCrearVendedorForm(page).click();
+        await VendedoresTargets.btnCerrarModal(page).click();
     };
     fn.displayName = `Crear vendedor: ${datos.nombreRazonSocial}`;
     return fn;

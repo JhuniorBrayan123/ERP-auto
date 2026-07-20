@@ -1,6 +1,5 @@
 import {test} from '@fixtures/clientes-proveedores/vendedores.fixture';
 import {
-    CerrarModalExitoVendedor,
     CrearVendedor,
     LlenarFormularioBasicoVendedor
 } from '@screenplay/tasks/clientes-proveedores/vendedores/CrearVendedor';
@@ -23,11 +22,10 @@ test.describe('VE-01 | Creación de Vendedores', {tag: ['@vendedores', '@creacio
         const datos = generarVendedorDNI();
         await vendedorActor.realiza(CrearVendedor(datos));
         await vendedorActor.realiza(MensajeCreacionVendedorExitosaVisible());
-        await vendedorActor.realiza(CerrarModalExitoVendedor());
         await vendedorActor.realiza(BuscarVendedorEnListado(datos.numeroDocumento));
         await vendedorActor.realiza(VendedorVisibleEnListado(datos.nombreRazonSocial));
 
-        
+
         await vendedorActor.realiza(EliminarVendedor(datos.numeroDocumento));
     });
 
@@ -37,15 +35,13 @@ test.describe('VE-01 | Creación de Vendedores', {tag: ['@vendedores', '@creacio
         datos.numeroDocumento = ''; // Forzamos vacío
         datos.nombreRazonSocial = '';
         datos.codigo = ''; // Forzamos vacío
-        
+
         await VendedoresTargets.btnCrearVendedor(page).click();
         await vendedorActor.realiza(LlenarFormularioBasicoVendedor(datos));
         await VendedoresTargets.btnCrearVendedorForm(page).click();
 
-        // Assert: Validaciones de campos vacíos
         await vendedorActor.realiza(MensajeErrorCampoObligatorioVendedor());
 
-        // Act: Intentar llenar solo una parte y fallar por dígitos de RUC
         await VendedoresTargets.inputRazonSocial(page).click();
         await VendedoresTargets.inputRazonSocial(page).fill('editado-aceptado');
 
