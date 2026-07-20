@@ -8,7 +8,6 @@ export const ProveedoresTargets = {
     btnAtras: (page: Page) =>
         page.getByRole('button', {name: 'Atrás'}),
 
-
     btnCrearProveedor: (page: Page) =>
         page.locator('div').filter({hasText: /^Crear proveedor$/}),
 
@@ -32,7 +31,6 @@ export const ProveedoresTargets = {
 
     filtroTipoDocEnTabla: (page: Page, tipo: string) =>
         page.locator('thead').getByText(tipo),
-
 
     botonContextualPorProveedor: (page: Page, textoBusqueda: string) =>
         page.locator('tr', {hasText: textoBusqueda}).locator('.button-actions'),
@@ -63,7 +61,7 @@ export const ProveedoresTargets = {
         page.locator('[id="pv_proveedores_form-registro-relacionado-entidad:form_basico:v-select:tipo-documento"].v-select-header-form'),
 
     opcionTipoDocumento: (page: Page, tipo: string) =>
-        page.locator('[id="pv_proveedores_form-registro-relacionado-entidad:form_basico:v-select:tipo-documento"] .v-select-form-option').getByText(tipo, {exact: true}),
+        page.locator('[id="pv_proveedores_form-registro-relacionado-entidad:form_basico:v-select:tipo-documento"] .v-select-form-option').getByText(tipo),
 
     inputNumeroDocumento: (page: Page) =>
         page.locator('[id="pv_proveedores_form-registro-relacionado-entidad:form_basico:v-input:num-document"]'),
@@ -137,8 +135,7 @@ export const ProveedoresTargets = {
 
     btnCerrarDrape: (page: Page) =>
         page.locator('.drape.is-open > .button-close'),
-
-
+    
     btnOpcionesGenerales: (page: Page) =>
         page.locator('.icon-container > .icon').first(),
 

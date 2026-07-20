@@ -30,7 +30,7 @@ test.describe('PR-03 | Estado de Proveedores', {tag: ['@proveedores', '@estado']
         await proveedorActor.realiza(AbrirAccionContextualProveedor('Activar proveedor'));
         await proveedorActor.realiza(ToggleSliderEstadoProveedor());
         await proveedorActor.realiza(EstadoProveedorEnListado('ACTIVO'));
-        
+
         await proveedorActor.realiza(AbrirAccionContextualProveedor('Ver bitácora'));
         await ProveedoresTargets.pestaniaBitacora(page, 'Actualización').click();
         await proveedorActor.realiza(BitacoraContieneAccion('Desactivar proveedor'));
