@@ -34,7 +34,7 @@ export const VendedoresTargets = {
         page.locator('[id="pv_vendedores_cmp-grid-options:opciones_vendedor_cmp-dropdown:options-li:desactivar-vendedor"]').getByText('Desactivar vendedor'),
 
     opcionActivarVendedor: (page: Page) =>
-        page.locator('[id="pv_vendedores_cmp-grid-options:opciones_vendedor_cmp-dropdown:options-li:activar-vendedor"]').getByText('Activar vendedor'),
+        page.locator('[id="pv_vendedores_cmp-grid-options:opciones_vendedor_cmp-dropdown:options-li:desactivar-vendedor"]').getByText('Activar vendedor'),
 
 
     selectTipoDocumento: (page: Page) =>

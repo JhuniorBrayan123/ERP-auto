@@ -8,7 +8,6 @@ import {EliminarVendedor} from '@screenplay/tasks/clientes-proveedores/vendedore
 import {ToggleSliderEstadoVendedor} from '@screenplay/tasks/clientes-proveedores/vendedores/ToggleEstadoVendedor';
 import {EstadoVendedorEnListado,} from '@screenplay/questions/clientes-proveedores/VendedorQuestions';
 import {generarVendedorDNI} from '@data/clientes-proveedores/vendedores.data';
-import {VendedoresTargets} from '@screenplay/targets/clientes-proveedores/VendedoresTargets';
 
 test.describe('VE-04 | Estado de Vendedores', {tag: ['@vendedores', '@estado']}, () => {
 
@@ -21,8 +20,6 @@ test.describe('VE-04 | Estado de Vendedores', {tag: ['@vendedores', '@estado']},
         await vendedorActor.realiza(AbrirAccionContextualVendedor('Desactivar vendedor'));
         await vendedorActor.realiza(ToggleSliderEstadoVendedor());
 
-        await VendedoresTargets.btnBorrarFiltros(page).click().catch(() => {
-        });
         await vendedorActor.realiza(BuscarVendedorEnListado(datos.numeroDocumento));
 
         await vendedorActor.realiza(EstadoVendedorEnListado('INACTIVO'));
