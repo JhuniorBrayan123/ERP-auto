@@ -40,7 +40,7 @@ export const ProveedoresTargets = {
         page.locator('[id="pv_proveedores_cmp-lista-proveedores-filtro:filters_v-button:button-activar-filtro"]'),
 
     filtroTipoDocumento: (page: Page) =>
-        page.locator('[id="pv_proveedores_cmp-lista-proveedores-grid-header:headers_proveedores_row:v-multiselect:TipoDocumento"]'),
+        page.locator('.v-multiselect-small[id="pv_proveedores_cmp-lista-proveedores-grid-header:headers_proveedores_row:v-multiselect:TipoDocumento"]'),
 
     opcionFiltroTipoDoc: (page: Page, tipo: string) =>
         page.locator('.v-multiselect-base-options').getByText(tipo),
