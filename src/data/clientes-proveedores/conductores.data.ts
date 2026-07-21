@@ -18,14 +18,14 @@ export function generarConductorDNI(): DatosConductorInput {
     const s = SUFFIX();
     return {
         tipoDocumento: 'DNI',
-        numeroDocumento: `25${s}`,
+        numeroDocumento: `2545${s}`,
         nombreRazonSocial: `COND-AUTO-${s}`,
         codigo: s,
         categoriaLicencia: 'B-IIa',
         numeroLicencia: `AB${s}12`,
         zonaTransporte: 'Lima Sur',
         direccion: `Arequipa-${s}`,
-        telefono: `999${s}`.slice(0, 9),
+        telefono: `999999${s}`.slice(0, 9),
         email: `cond${s}@test.com`,
     };
 }
