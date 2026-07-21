@@ -1,58 +1,26 @@
-import {expect, test} from '@fixtures/clientes-proveedores/conductores.fixture';
+import {test} from '@fixtures/clientes-proveedores/conductores.fixture';
 import {CrearConductor} from '@screenplay/tasks/clientes-proveedores/conductores/CrearConductor';
-import {
-    AbrirAccionContextualConductor,
-    BuscarConductorEnListado
-} from '@screenplay/tasks/clientes-proveedores/conductores/BuscarConductor';
-import {ToggleSliderEstadoConductor} from '@screenplay/tasks/clientes-proveedores/conductores/ToggleEstadoConductor';
+import {CambiarEstadoConductor} from '@screenplay/tasks/clientes-proveedores/conductores/CambiarEstadoConductor';
 import {EliminarConductor} from '@screenplay/tasks/clientes-proveedores/conductores/EliminarConductor';
-import {NavegarANuevaGuiaRemision} from '@screenplay/tasks/cross-modules/NavegarA';
-import {BuscarConductorEnGuia} from '@screenplay/tasks/cross-modules/BuscarEntidadPos';
 import {generarConductorDNI} from '@data/clientes-proveedores/conductores.data';
-import {GuiasTargets} from '@screenplay/targets/cross-modules/GuiasTargets';
-import {PosTargets} from '@screenplay/targets/cross-modules/PosTargets';
-import {ContinuarCajaDeVenta} from "@screenplay/tasks/clientes-proveedores/conductores/NavegarCajaGuia";
+import {NavegarAListadoConductores} from '@screenplay/tasks/cross-modules/NavegarAListadoConductores';
+import {
+    VerificarConductorNoEncontradoEnGuia
+} from '@screenplay/tasks/cross-modules/VerificarConductorNoEncontradoEnGuia';
+import {VerificarConductorEncontradoEnGuia} from '@screenplay/tasks/cross-modules/VerificarConductorEncontradoEnGuia';
 
 test.describe('IN-03 | Integración Conductor - Guías', {tag: ['@integracion', '@guias', '@conductores']}, () => {
 
-    test('SC-01: Comportamiento de conductor inactivo y activo en guías @IN-03.1', async ({conductorActor, page}) => {
-
+    test('SC-01: Comportamiento de conductor inactivo y activo en guías @IN-03.1', async ({conductorActor}) => {
         const datos = generarConductorDNI();
+
         await conductorActor.realiza(CrearConductor(datos));
-
-
-        await conductorActor.realiza(BuscarConductorEnListado(datos.numeroDocumento));
-        await conductorActor.realiza(AbrirAccionContextualConductor('Desactivar conductor'));
-        await conductorActor.realiza(ToggleSliderEstadoConductor());
-
-
-        await conductorActor.realiza(NavegarANuevaGuiaRemision());
-        await conductorActor.realiza(ContinuarCajaDeVenta('Caja de venta'))
-
-        await conductorActor.realiza(BuscarConductorEnGuia(datos.numeroDocumento));
-        await expect(GuiasTargets.mensajeConductorNoEncontrado(page)).toBeVisible();
-
-
-        await page.goto('/punto-venta/entidades/conductores');
-        await page.waitForLoadState('networkidle').catch(() => {
-        });
-
-        await conductorActor.realiza(BuscarConductorEnListado(datos.numeroDocumento));
-        await conductorActor.realiza(AbrirAccionContextualConductor('Activar conductor'));
-        await conductorActor.realiza(ToggleSliderEstadoConductor());
-        
-        await conductorActor.realiza(NavegarANuevaGuiaRemision());
-        await conductorActor.realiza(ContinuarCajaDeVenta('Caja de venta'))
-        await conductorActor.realiza(BuscarConductorEnGuia(datos.numeroDocumento));
-
-        await expect(PosTargets.opcionDropdownPersona(page, datos.numeroDocumento)).toBeVisible();
-        await PosTargets.opcionDropdownPersona(page, datos.numeroDocumento).click();
-
-        await expect(page.locator('main')).toContainText(datos.numeroDocumento);
-
-        await page.goto('/punto-venta/entidades/conductores');
-        await page.waitForLoadState('networkidle').catch(() => {
-        });
+        await conductorActor.realiza(CambiarEstadoConductor(datos.numeroDocumento, 'Desactivar conductor'));
+        await conductorActor.realiza(VerificarConductorNoEncontradoEnGuia(datos.numeroDocumento));
+        await conductorActor.realiza(NavegarAListadoConductores());
+        await conductorActor.realiza(CambiarEstadoConductor(datos.numeroDocumento, 'Activar conductor'));
+        await conductorActor.realiza(VerificarConductorEncontradoEnGuia(datos.numeroDocumento));
+        await conductorActor.realiza(NavegarAListadoConductores());
         await conductorActor.realiza(EliminarConductor(datos.numeroDocumento));
     });
 });
