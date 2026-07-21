@@ -39,14 +39,13 @@ test.describe('CO-02 | Edición de Conductores', {tag: ['@conductores', '@edicio
         await conductorActor.realiza(BuscarConductorEnListado(datos.numeroDocumento));
         await conductorActor.realiza(ConductorVisibleEnListado(nombreEditado));
 
-
         await conductorActor.realiza(AbrirAccionContextualConductor('Ver bitácora'));
         await ConductoresTargets.pestaniaBitacora(page, 'Actualización').click();
 
         await conductorActor.realiza(BitacoraConductorContieneAccion(`ahora: ${nombreEditado}`));
 
         await ConductoresTargets.btnCerrarDrape(page).click();
-        
+
         await conductorActor.realiza(EliminarConductor(datos.numeroDocumento));
     });
 });

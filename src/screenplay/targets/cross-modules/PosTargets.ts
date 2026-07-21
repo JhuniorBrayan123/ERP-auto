@@ -16,7 +16,7 @@ export const PosTargets = {
         page.getByRole('textbox', {name: 'Nombre del vendedor'}),
 
     mensajeVendedorNoEncontrado: (page: Page) =>
-        page.locator('main').filter({hasText: 'Persona no encontrada en tu lista de vendedores'}),
+        page.getByText('Persona no encontrada en tu lista de vendedores'),
 
     btnGuardarDatosVenta: (page: Page) =>
         page.getByRole('button', {name: 'Guardar datos'}),
