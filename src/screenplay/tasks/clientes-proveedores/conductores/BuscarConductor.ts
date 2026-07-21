@@ -15,15 +15,16 @@ export const BuscarConductorEnListado = (textoBusqueda: string) => {
     return fn;
 };
 
-export const AbrirAccionContextualConductor = (accion: 'Editar conductor' | 'Ver bitácora' | 'Desactivar conductor' | 'Activar conductor' | 'Ver guias a conductor') => {
+export const AbrirAccionContextualConductor = (accion: 'Editar conductor' | 'Ver bitácora' | 'Desactivar conductor' | 'Activar conductor' | 'Ver guias a conductor' | 'Eliminar conductor') => {
     const fn = async (page: Page): Promise<void> => {
-        await page.locator('.button-actions').first().click();
+        await ConductoresTargets.botonContextualConductor(page).click();
         
         if (accion === 'Editar conductor') await ConductoresTargets.opcionEditarConductor(page).click();
         if (accion === 'Ver bitácora') await ConductoresTargets.opcionVerBitacora(page).click();
         if (accion === 'Desactivar conductor') await ConductoresTargets.opcionDesactivarConductor(page).click();
         if (accion === 'Activar conductor') await ConductoresTargets.opcionActivarConductor(page).click();
         if (accion === 'Ver guias a conductor') await ConductoresTargets.opcionVerGuias(page).click();
+        if (accion === 'Eliminar conductor') await ConductoresTargets.opcionEliminarConductor(page).click();
     };
     fn.displayName = `Acción contextual (Conductor): ${accion}`;
     return fn;

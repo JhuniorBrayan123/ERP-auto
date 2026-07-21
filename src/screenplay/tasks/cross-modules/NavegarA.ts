@@ -1,5 +1,6 @@
 import {type Page} from '@playwright/test';
 import {CajaPage} from '@pages/PuntoVenta/CajaPage';
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 export const NavegarACajaPos = () => {
     const fn = async (page: Page): Promise<void> => {
@@ -13,10 +14,11 @@ export const NavegarACajaPos = () => {
 
 export const NavegarANuevaCompra = () => {
     const fn = async (page: Page): Promise<void> => {
-        
-        await page.goto('/punto-venta/compras/registro');
-        
-        await page.waitForLoadState('networkidle').catch(() => {});
+
+        await page.goto('punto-venta/compras/registro-compra');
+        await page.waitForLoadState('networkidle').catch(() => {
+        });
+        await esperarCargaOverlay(page);
     };
     fn.displayName = 'Navegar a Nueva Compra';
     return fn;
@@ -24,9 +26,11 @@ export const NavegarANuevaCompra = () => {
 
 export const NavegarANuevaGuiaRemision = () => {
     const fn = async (page: Page): Promise<void> => {
-        
-        await page.goto('/punto-venta/guia-remision-remitente/registro');
-        await page.waitForLoadState('networkidle').catch(() => {});
+
+        await page.goto('/punto-venta/guia-remision-remitente');
+        await page.waitForLoadState('networkidle').catch(() => {
+        });
+        await esperarCargaOverlay(page);
     };
     fn.displayName = 'Navegar a Nueva Guía de Remisión';
     return fn;

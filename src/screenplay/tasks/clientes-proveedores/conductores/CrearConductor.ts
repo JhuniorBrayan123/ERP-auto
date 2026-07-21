@@ -8,12 +8,12 @@ export const LlenarFormularioBasicoConductor = (datos: Partial<DatosConductorInp
             await ConductoresTargets.selectTipoDocumento(page).click();
             await ConductoresTargets.opcionTipoDocumento(page, datos.tipoDocumento).click();
         }
-        
+
         if (datos.numeroDocumento !== undefined) {
             await ConductoresTargets.inputNumeroDocumento(page).click();
             await ConductoresTargets.inputNumeroDocumento(page).fill(datos.numeroDocumento);
         }
-        
+
         if (datos.nombreRazonSocial !== undefined) {
             await ConductoresTargets.inputRazonSocial(page).click();
             await ConductoresTargets.inputRazonSocial(page).fill(datos.nombreRazonSocial);
@@ -65,6 +65,8 @@ export const CrearConductor = (datos: DatosConductorInput) => {
         await ConductoresTargets.btnCrearConductor(page).click();
         await LlenarFormularioBasicoConductor(datos)(page);
         await ConductoresTargets.btnCrearConductorForm(page).click();
+        await ConductoresTargets.mensajeExitoCreacion(page).click();
+        await ConductoresTargets.btnCerrarModal(page).click();
     };
     fn.displayName = `Crear conductor: ${datos.nombreRazonSocial}`;
     return fn;
