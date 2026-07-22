@@ -2,6 +2,7 @@ import {test} from '@fixtures/PuntoVenta/comprobante-nc-nd.fixture';
 import {EmitirComprobanteOrigen} from '@screenplay/tasks/common/EmitirComprobanteOrigen';
 import {CrearNotaDebitoConVinculacion} from '@screenplay/tasks/notas-debito/CrearNotaDebitoConVinculacion';
 import {ConsultarNotaDebito, VerDetalleNotaDebito} from '@screenplay/tasks/notas-debito/ConsultarNotaDebito';
+import {IrABusquedaComprobantes} from '@task/PuntoVenta/IrABusquedaComprobantes.task';
 import {DetalleNotaDebitoCorrecto} from '@screenplay/questions/notas/DetalleNotaCorrecto';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 
@@ -29,7 +30,10 @@ test.describe('ND-03 | Penalidades / Otros Conceptos', {tag: ['@puntoventa', '@n
 
         await facturador.page.getByRole('button', {name: /nueva venta/i}).click();
 
-        await facturador.realiza(ConsultarNotaDebito(resultado.correlativo));
+        await facturador.realiza(
+            IrABusquedaComprobantes(),
+            ConsultarNotaDebito(resultado.correlativo)
+        );
 
         const popup = await facturador.realizaYObtiene(VerDetalleNotaDebito());
 

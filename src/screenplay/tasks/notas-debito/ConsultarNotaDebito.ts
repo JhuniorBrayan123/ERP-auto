@@ -4,10 +4,8 @@ import { BusquedaComprobantesTargets } from '../../targets/common/BusquedaCompro
 
 export const ConsultarNotaDebito = (correlativo: string) => {
   const fn = async (page: Page): Promise<void> => {
-    await page.locator('.icon').first().click();
-    await page.getByText('Ventas y compras').click();
-    await page.getByText('Búsqueda de comprobantes').click();
-
+    // NOTA: La navegación hasta Búsqueda de Comprobantes se hace por separado
+    // mediante IrABusquedaComprobantes() o BusquedaComprobantesPage
     await BusquedaComprobantesTargets.btnFiltrosAvanzados(page).click();
     await BusquedaComprobantesTargets.selectorTipoComprobante(page).click();
     await BusquedaComprobantesTargets.opcionNotaDebito(page).click();
