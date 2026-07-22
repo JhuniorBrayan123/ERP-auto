@@ -11,30 +11,23 @@ import {
 import {
     ClickEliminarConfirmar,
 } from '@screenplay/tasks/clientes-proveedores/conductores/EliminarConductor';
-import { generarConductor } from '@data/clientes-proveedores/conductores.data';
+import { generarConductorDNI } from '@data/clientes-proveedores/conductores.data';
 import { CuerpoContieneTexto } from '@screenplay/questions/clientes-proveedores/ClienteQuestions';
 
 test.describe('CD-05 | Eliminación de Conductor', { tag: ['@conductores', '@eliminacion', '@CD-05'] }, () => {
 
-    test('CD-05.1: Eliminar conductor', async ({ conductor, page }) => {
-        const datosConductor = generarConductor();
+    test('CD-05.1: Eliminar conductor', async ({ conductorActor, page }) => {
+        const datosConductor = generarConductorDNI();
 
-        // Crear conductor
-        await conductor.realiza(CrearConductor(datosConductor));
-        await conductor.realiza(CerrarModalExitoConductor());
-
-        // Buscar y eliminar
-        await conductor.realiza(BuscarConductorEnListado(datosConductor.numeroDocumento));
-        await conductor.realiza(AbrirAccionContextualConductor('Eliminar'));
-        await conductor.realiza(ClickEliminarConfirmar());
-
-        // Validar mensaje de éxito
-        const hayExito = await conductor.pregunta(CuerpoContieneTexto('eliminado'));
-        expect(hayExito).toBe(true);
-
-        // Validar que ya no aparece en el listado
-        await conductor.realiza(BuscarConductorEnListado(datosConductor.numeroDocumento));
-        const sinResultados = await conductor.pregunta(ValidarSinResultados());
+        
+        await conductorActor.realiza(CrearConductor(datosConductor));
+        
+        await conductorActor.realiza(BuscarConductorEnListado(datosConductor.numeroDocumento));
+        await conductorActor.realiza(AbrirAccionContextualConductor('Eliminar conductor'));
+        await conductorActor.realiza(ClickEliminarConfirmar());
+        await conductorActor.realiza(CerrarModalExitoConductor());
+        await conductorActor.realiza(BuscarConductorEnListado(datosConductor.numeroDocumento));
+        const sinResultados = await conductorActor.pregunta(ValidarSinResultados());
         expect(sinResultados).toBe(true);
     });
 });

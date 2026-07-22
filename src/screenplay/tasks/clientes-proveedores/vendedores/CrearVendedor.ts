@@ -1,6 +1,15 @@
 import {type Page} from '@playwright/test';
 import {VendedoresTargets} from '@screenplay/targets/clientes-proveedores/VendedoresTargets';
 import {DatosVendedorInput} from '@data/clientes-proveedores/vendedores.data';
+import {esperarCargaOverlay} from "@utils/wait-helpers";
+
+export const AbrirCrearVendedor = () => {
+    const fn = async (page: Page): Promise<void> => {
+        await VendedoresTargets.btnCrearVendedor(page).click();
+    };
+    fn.displayName = 'Abrir formulario Crear vendedor';
+    return fn;
+};
 
 export const LlenarFormularioBasicoVendedor = (datos: Partial<DatosVendedorInput>) => {
     const fn = async (page: Page): Promise<void> => {
@@ -76,5 +85,16 @@ export const CerrarModalExitoVendedor = () => {
         await VendedoresTargets.btnCerrarModal(page).click();
     };
     fn.displayName = 'Cerrar modal de éxito (Vendedor)';
+    return fn;
+};
+
+export const IntentarCrearVendedor = (datos: DatosVendedorInput) => {
+    const fn = async (page: Page): Promise<void> => {
+        await VendedoresTargets.btnCrearVendedor(page).click();
+        await LlenarFormularioBasicoVendedor(datos)(page);
+        await VendedoresTargets.btnCrearVendedorForm(page).click();
+        await esperarCargaOverlay(page);
+    };
+    fn.displayName = `Intentar crear vendedor (sin validación): ${datos.nombreRazonSocial}`;
     return fn;
 };

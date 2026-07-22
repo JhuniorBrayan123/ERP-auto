@@ -30,6 +30,22 @@ export function generarVendedorDNI(): DatosVendedorInput {
     };
 }
 
+export function generarVendedorConCodigoManual(): DatosVendedorInput {
+    const s = SUFFIX();
+    return {
+        tipoDocumento: 'DNI',
+        numeroDocumento: `56${s}`,
+        nombreRazonSocial: `VEND-MANUAL-${s}`,
+        codigo: `M${s}`,
+        metaMonto: '3000',
+        metaCantidad: '30',
+        zonaVentas: 'Lima Centro',
+        direccion: `Manual-${s}`,
+        telefono: `988${s}`.slice(0, 9),
+        email: `vendman${s}@test.com`,
+    };
+}
+
 export function generarVendedorRUC(): DatosVendedorInput {
     const s = SUFFIX();
     return {

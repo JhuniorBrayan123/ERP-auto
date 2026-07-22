@@ -30,6 +30,22 @@ export function generarConductorDNI(): DatosConductorInput {
     };
 }
 
+export function generarConductorConCodigoManual(): DatosConductorInput {
+    const s = SUFFIX();
+    return {
+        tipoDocumento: 'DNI',
+        numeroDocumento: `26${s}`,
+        nombreRazonSocial: `COND-MANUAL-${s}`,
+        codigo: `M${s}`,
+        categoriaLicencia: 'A-I',
+        numeroLicencia: `CD${s}56`,
+        zonaTransporte: 'Lima Centro',
+        direccion: `Manual-${s}`,
+        telefono: `988${s}`.slice(0, 9),
+        email: `condman${s}@test.com`,
+    };
+}
+
 export function generarConductorPasaporte(): DatosConductorInput {
     const s = SUFFIX();
     return {

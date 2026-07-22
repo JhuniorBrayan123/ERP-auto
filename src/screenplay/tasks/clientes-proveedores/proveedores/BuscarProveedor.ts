@@ -22,3 +22,24 @@ export const AbrirAccionContextualProveedor = (accion: string) => {
     fn.displayName = `Abrir acción contextual: ${accion}`;
     return fn;
 };
+
+export const ValidarProveedorVisible = (texto: string) => {
+    const fn = async (page: Page): Promise<boolean> => {
+        return await ProveedoresTargets.tbody(page)
+            .getByText(texto, {exact: false})
+            .isVisible({timeout: 5_000})
+            .catch(() => false);
+    };
+    fn.displayName = `Validar proveedor visible en listado: ${texto}`;
+    return fn;
+};
+
+export const ValidarSinResultados = () => {
+    const fn = async (page: Page): Promise<boolean> => {
+        return await page.getByText('NO HAY RESULTADOS PARA TU BÚSQUEDA')
+            .isVisible({timeout: 10_000})
+            .catch(() => false);
+    };
+    fn.displayName = 'Validar que no hay resultados (proveedor)';
+    return fn;
+};

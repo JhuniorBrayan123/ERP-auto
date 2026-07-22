@@ -29,3 +29,4 @@ config/environment.env
 limpiar-comentarios.js
 remove-comments.js
 clean_and_fix.js
+limpiar.js

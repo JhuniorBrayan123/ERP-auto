@@ -28,7 +28,6 @@ test.describe('CL-01b | Evitar Cliente Duplicado', {tag: ['@clientes', '@duplica
         
         await cliente.realiza(CrearCliente(datos));
 
-        
         await cliente.realiza(AbrirCrearCliente());
         await cliente.realiza(SeleccionarTipoDocCliente(datos.tipoDocumento));
         await cliente.realiza(LlenarNumeroDocumentoCliente(datos.numeroDocumento));
@@ -38,7 +37,6 @@ test.describe('CL-01b | Evitar Cliente Duplicado', {tag: ['@clientes', '@duplica
         await cliente.realiza(LlenarEmailCliente(datos.email));
         await cliente.realiza(ClickCrearCliente());
 
-        
         await cliente.realiza(MensajeDuplicadoVisible());
 
         

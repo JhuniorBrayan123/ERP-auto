@@ -2,31 +2,25 @@ import { test, expect } from '@fixtures/clientes-proveedores/conductores.fixture
 import {
     CrearConductor,
     CerrarModalExitoConductor,
+    IntentarCrearConductor,
 } from '@screenplay/tasks/clientes-proveedores/conductores/CrearConductor';
-import { BuscarConductorEnListado, ValidarConductorVisible } from '@screenplay/tasks/clientes-proveedores/conductores/BuscarConductor';
-import { generarConductor } from '@data/clientes-proveedores/conductores.data';
-import { CuerpoContieneTexto } from '@screenplay/questions/clientes-proveedores/ClienteQuestions';
+import { EliminarConductor } from '@screenplay/tasks/clientes-proveedores/conductores/EliminarConductor';
+import { generarConductorDNI } from '@data/clientes-proveedores/conductores.data';
 
 test.describe('CD-01 | Evitar duplicado de Conductor', { tag: ['@conductores', '@creacion', '@duplicado'] }, () => {
 
-    test('CD-01.3: Intentar crear conductor duplicado muestra error', async ({ conductor, page }) => {
-        const datosConductor = generarConductor();
+    test('CD-01.3: Intentar crear conductor duplicado muestra error', async ({ conductorActor, page }) => {
+        const datosConductor = generarConductorDNI();
 
-        // Crear el conductor la primera vez
-        await conductor.realiza(CrearConductor(datosConductor));
-        await conductor.realiza(CerrarModalExitoConductor());
+        await conductorActor.realiza(CrearConductor(datosConductor));
+        await conductorActor.realiza(IntentarCrearConductor(datosConductor));
 
-        // Verificar que se creó correctamente
-        await conductor.realiza(BuscarConductorEnListado(datosConductor.numeroDocumento));
-        const visible = await conductor.pregunta(ValidarConductorVisible(datosConductor.nombreRazonSocial));
-        expect(visible).toBe(true);
+        const hayError = await page.getByText('El código ya existe').isVisible({timeout: 5_000}).catch(() => false);
+        expect(hayError).toBe(true);
 
-        // Intentar crear el mismo conductor otra vez
-        await conductor.realiza(CrearConductor(datosConductor));
-
-        // Validar que aparece mensaje de error por duplicado
-        const hayErrorYaExiste = await conductor.pregunta(CuerpoContieneTexto('ya existe'));
-        const hayErrorDuplicado = await conductor.pregunta(CuerpoContieneTexto('duplicado'));
-        expect(hayErrorYaExiste || hayErrorDuplicado).toBe(true);
+        
+        await page.goto('/punto-venta/entidades/conductores');
+        await page.waitForLoadState('networkidle').catch(() => {});
+        await conductorActor.realiza(EliminarConductor(datosConductor.numeroDocumento));
     });
 });

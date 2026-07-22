@@ -1,52 +1,49 @@
-import { test, expect } from '@fixtures/clientes-proveedores/conductores.fixture';
+import { test } from '@fixtures/clientes-proveedores/conductores.fixture';
+import { CrearConductor } from '@screenplay/tasks/clientes-proveedores/conductores/CrearConductor';
 import {
-    CrearConductor,
-    CerrarModalExitoConductor,
-} from '@screenplay/tasks/clientes-proveedores/conductores/CrearConductor';
-import {
+    AbrirAccionContextualConductor,
     BuscarConductorEnListado,
 } from '@screenplay/tasks/clientes-proveedores/conductores/BuscarConductor';
 import {
-    ToggleSliderEstado,
+    ToggleSliderEstadoConductor,
 } from '@screenplay/tasks/clientes-proveedores/conductores/ToggleEstadoConductor';
-import { generarConductor } from '@data/clientes-proveedores/conductores.data';
-import { CuerpoContieneTexto } from '@screenplay/questions/clientes-proveedores/ClienteQuestions';
+import { generarConductorDNI } from '@data/clientes-proveedores/conductores.data';
+import { EliminarConductor } from '@screenplay/tasks/clientes-proveedores/conductores/EliminarConductor';
+import { EstadoConductorEnListado } from '@screenplay/questions/clientes-proveedores/ConductorQuestions';
 
 test.describe('CD-04 | Desactivar / Activar Conductor', { tag: ['@conductores', '@estado', '@CD-04'] }, () => {
 
-    test('CD-04.1: Desactivar conductor', async ({ conductor, page }) => {
-        const datosConductor = generarConductor();
+    test('CD-04.1: Desactivar conductor', async ({ conductorActor, page }) => {
+        const datosConductor = generarConductorDNI();
 
-        // Crear conductor
-        await conductor.realiza(CrearConductor(datosConductor));
-        await conductor.realiza(CerrarModalExitoConductor());
+        await conductorActor.realiza(CrearConductor(datosConductor));
 
-        // Buscar y desactivar
-        await conductor.realiza(BuscarConductorEnListado(datosConductor.numeroDocumento));
-        await conductor.realiza(ToggleSliderEstado('Desactivar conductor'));
+        await conductorActor.realiza(BuscarConductorEnListado(datosConductor.numeroDocumento));
+        await conductorActor.realiza(AbrirAccionContextualConductor('Desactivar conductor'));
+        await conductorActor.realiza(ToggleSliderEstadoConductor());
 
-        // Validar mensaje de éxito
-        const hayExito = await conductor.pregunta(CuerpoContieneTexto('desactivado'));
-        expect(hayExito).toBe(true);
+        await conductorActor.realiza(BuscarConductorEnListado(datosConductor.numeroDocumento));
+        await conductorActor.realiza(EstadoConductorEnListado('INACTIVO'));
+
+        await conductorActor.realiza(EliminarConductor(datosConductor.numeroDocumento));
     });
 
-    test('CD-04.2: Activar conductor', async ({ conductor, page }) => {
-        const datosConductor = generarConductor();
+    test('CD-04.2: Activar conductor', async ({ conductorActor, page }) => {
+        const datosConductor = generarConductorDNI();
 
-        // Crear conductor
-        await conductor.realiza(CrearConductor(datosConductor));
-        await conductor.realiza(CerrarModalExitoConductor());
+        await conductorActor.realiza(CrearConductor(datosConductor));
 
-        // Buscar y desactivar primero
-        await conductor.realiza(BuscarConductorEnListado(datosConductor.numeroDocumento));
-        await conductor.realiza(ToggleSliderEstado('Desactivar conductor'));
+        await conductorActor.realiza(BuscarConductorEnListado(datosConductor.numeroDocumento));
+        await conductorActor.realiza(AbrirAccionContextualConductor('Desactivar conductor'));
+        await conductorActor.realiza(ToggleSliderEstadoConductor());
 
-        // Buscar y activar
-        await conductor.realiza(BuscarConductorEnListado(datosConductor.numeroDocumento));
-        await conductor.realiza(ToggleSliderEstado('Activar conductor'));
+        await conductorActor.realiza(BuscarConductorEnListado(datosConductor.numeroDocumento));
+        await conductorActor.realiza(AbrirAccionContextualConductor('Activar conductor'));
+        await conductorActor.realiza(ToggleSliderEstadoConductor());
 
-        // Validar mensaje de éxito
-        const hayExito = await conductor.pregunta(CuerpoContieneTexto('activado'));
-        expect(hayExito).toBe(true);
+        await conductorActor.realiza(BuscarConductorEnListado(datosConductor.numeroDocumento));
+        await conductorActor.realiza(EstadoConductorEnListado('ACTIVO'));
+
+        await conductorActor.realiza(EliminarConductor(datosConductor.numeroDocumento));
     });
 });

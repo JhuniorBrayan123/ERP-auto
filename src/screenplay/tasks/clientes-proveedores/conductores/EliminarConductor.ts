@@ -19,3 +19,11 @@ export const EliminarConductor = (numeroDocumento: string) => {
     fn.displayName = `Eliminar Conductor — ${numeroDocumento}`;
     return fn;
 };
+
+export const ClickEliminarConfirmar = () => {
+    const fn = async (page: Page): Promise<void> => {
+        await ConductoresTargets.btnConfirmarEliminar(page).click();
+    };
+    fn.displayName = 'Confirmar eliminación de conductor';
+    return fn;
+};

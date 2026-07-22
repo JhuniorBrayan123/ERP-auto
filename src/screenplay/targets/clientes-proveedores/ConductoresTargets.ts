@@ -27,7 +27,7 @@ export const ConductoresTargets = {
     opcionesFilaPorConductor: (page: Page, textoBusqueda: string) =>
         page.locator('tr', {hasText: textoBusqueda}).locator('.button-actions'),
 
-    // Action menu (ul.opciones-container > li.opcion-item)
+    
     menuOpciones: (page: Page) =>
         page.locator('ul.opciones-container'),
 
@@ -56,11 +56,11 @@ export const ConductoresTargets = {
         page.locator('[id="pv_conductores_cmp-grid-options:opciones_conductor_cmp-dropdown:options-li:desactivar-conductor"] input[type="checkbox"]'),
 
 
-    // Document type dropdown (v-select)
+    
     selectTipoDocumento: (page: Page) =>
         page.locator('id=pv_conductores_form-registro-relacionado-entidad:form_basico:v-select:tipo-documento').first(),
 
-    // Options: DNI, RUC, Carnet Extranjeria, Pasaporte, Cédula Diplomática de Identidad, Tax/TIN variants, Sin Documento
+    
     opcionTipoDocumento: (page: Page, tipo: string) =>
         page.locator('.v-select-form-option', {hasText: tipo}).first(),
 

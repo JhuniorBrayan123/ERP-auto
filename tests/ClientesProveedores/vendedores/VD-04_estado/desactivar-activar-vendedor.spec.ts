@@ -7,46 +7,51 @@ import {
     BuscarVendedorEnListado,
 } from '@screenplay/tasks/clientes-proveedores/vendedores/BuscarVendedor';
 import {
-    ToggleEstadoVendedor,
+    ToggleSliderEstadoVendedor,
 } from '@screenplay/tasks/clientes-proveedores/vendedores/ToggleEstadoVendedor';
 import { generarVendedorRUC } from '@data/clientes-proveedores/vendedores.data';
+import { EliminarVendedor } from '@screenplay/tasks/clientes-proveedores/vendedores/EliminarVendedor';
 import { CuerpoContieneTexto } from '@screenplay/questions/clientes-proveedores/ClienteQuestions';
 
 test.describe('VD-04 | Desactivar / Activar Vendedor', { tag: ['@vendedores', '@estado', '@VD-04'] }, () => {
 
-    test('VD-04.1: Desactivar vendedor', async ({ vendedor, page }) => {
+    test('VD-04.1: Desactivar vendedor', async ({ vendedorActor, page }) => {
         const datosVendedor = generarVendedorRUC();
 
-        // Crear vendedor
-        await vendedor.realiza(CrearVendedor(datosVendedor));
-        await vendedor.realiza(CerrarModalExitoVendedor());
+        
+        await vendedorActor.realiza(CrearVendedor(datosVendedor));
+        await vendedorActor.realiza(CerrarModalExitoVendedor());
 
-        // Buscar y desactivar
-        await vendedor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));
-        await vendedor.realiza(ToggleEstadoVendedor('Desactivar vendedor'));
+        
+        await vendedorActor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));
+        await vendedorActor.realiza(ToggleSliderEstadoVendedor('Desactivar vendedor'));
 
-        // Validar mensaje de éxito
-        const hayExito = await vendedor.pregunta(CuerpoContieneTexto('desactivado'));
+        
+        const hayExito = await vendedorActor.pregunta(CuerpoContieneTexto('desactivado'));
         expect(hayExito).toBe(true);
+
+        await vendedorActor.realiza(EliminarVendedor(datosVendedor.numeroDocumento));
     });
 
-    test('VD-04.2: Activar vendedor', async ({ vendedor, page }) => {
+    test('VD-04.2: Activar vendedor', async ({ vendedorActor, page }) => {
         const datosVendedor = generarVendedorRUC();
 
-        // Crear vendedor
-        await vendedor.realiza(CrearVendedor(datosVendedor));
-        await vendedor.realiza(CerrarModalExitoVendedor());
+        
+        await vendedorActor.realiza(CrearVendedor(datosVendedor));
+        await vendedorActor.realiza(CerrarModalExitoVendedor());
 
-        // Buscar y desactivar primero
-        await vendedor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));
-        await vendedor.realiza(ToggleEstadoVendedor('Desactivar vendedor'));
+        
+        await vendedorActor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));
+        await vendedorActor.realiza(ToggleSliderEstadoVendedor('Desactivar vendedor'));
 
-        // Buscar y activar
-        await vendedor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));
-        await vendedor.realiza(ToggleEstadoVendedor('Activar vendedor'));
+        
+        await vendedorActor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));
+        await vendedorActor.realiza(ToggleSliderEstadoVendedor('Activar vendedor'));
 
-        // Validar mensaje de éxito
-        const hayExito = await vendedor.pregunta(CuerpoContieneTexto('activado'));
+        
+        const hayExito = await vendedorActor.pregunta(CuerpoContieneTexto('activado'));
         expect(hayExito).toBe(true);
+
+        await vendedorActor.realiza(EliminarVendedor(datosVendedor.numeroDocumento));
     });
 });

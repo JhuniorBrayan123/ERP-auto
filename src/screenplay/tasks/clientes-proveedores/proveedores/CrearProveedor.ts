@@ -3,6 +3,14 @@ import {ProveedoresTargets} from '@screenplay/targets/clientes-proveedores/Prove
 import {DatosProveedorInput} from '@data/clientes-proveedores/proveedores.data';
 import {esperarCargaOverlay} from '@utils/wait-helpers';
 
+export const AbrirCrearProveedor = () => {
+    const fn = async (page: Page): Promise<void> => {
+        await ProveedoresTargets.btnCrearProveedor(page).click();
+    };
+    fn.displayName = 'Abrir formulario Crear proveedor';
+    return fn;
+};
+
 export const LlenarFormularioBasicoProveedor = (datos: Partial<DatosProveedorInput>) => {
     const fn = async (page: Page): Promise<void> => {
         if (datos.tipoDocumento) {
@@ -67,5 +75,18 @@ export const CerrarModalExito = () => {
         await ProveedoresTargets.btnCerrarModal(page).click();
     };
     fn.displayName = 'Cerrar modal de éxito';
+    return fn;
+};
+
+export const CerrarModalExitoProveedor = CerrarModalExito;
+
+export const IntentarCrearProveedor = (datos: DatosProveedorInput) => {
+    const fn = async (page: Page): Promise<void> => {
+        await ProveedoresTargets.btnCrearProveedor(page).click();
+        await LlenarFormularioBasicoProveedor(datos)(page);
+        await ProveedoresTargets.btnCrearProveedorForm(page).click();
+        await esperarCargaOverlay(page).catch(() => {});
+    };
+    fn.displayName = `Intentar crear proveedor (sin validación): ${datos.nombreRazonSocial}`;
     return fn;
 };

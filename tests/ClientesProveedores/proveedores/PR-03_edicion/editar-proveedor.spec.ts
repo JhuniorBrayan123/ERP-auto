@@ -10,36 +10,39 @@ import {
 } from '@screenplay/tasks/clientes-proveedores/proveedores/BuscarProveedor';
 import {
     EditarNombreProveedor,
-    ClickGuardarCambios,
+    ClickGuardarCambiosProveedor,
 } from '@screenplay/tasks/clientes-proveedores/proveedores/EditarProveedor';
 import { generarProveedorRUC } from '@data/clientes-proveedores/proveedores.data';
+import { EliminarProveedor } from '@screenplay/tasks/clientes-proveedores/proveedores/EliminarProveedor';
 import { CuerpoContieneTexto } from '@screenplay/questions/clientes-proveedores/ClienteQuestions';
 
 test.describe('PR-03 | Edición de Proveedor', { tag: ['@proveedores', '@edicion', '@PR-03'] }, () => {
 
-    test('PR-03.1: Editar nombre de proveedor y validar en bitácora', async ({ proveedor, page }) => {
+    test('PR-03.1: Editar nombre de proveedor y validar en bitácora', async ({ proveedorActor, page }) => {
         const datosProveedor = generarProveedorRUC();
         const nombreEditado = `${datosProveedor.nombreRazonSocial} EDITADO`;
 
-        // Crear proveedor
-        await proveedor.realiza(CrearProveedor(datosProveedor));
-        await proveedor.realiza(CerrarModalExitoProveedor());
+        
+        await proveedorActor.realiza(CrearProveedor(datosProveedor));
+        await proveedorActor.realiza(CerrarModalExitoProveedor());
 
-        // Buscar y abrir edición
-        await proveedor.realiza(BuscarProveedorEnListado(datosProveedor.numeroDocumento));
-        await proveedor.realiza(AbrirAccionContextualProveedor('Editar'));
+        
+        await proveedorActor.realiza(BuscarProveedorEnListado(datosProveedor.numeroDocumento));
+        await proveedorActor.realiza(AbrirAccionContextualProveedor('Editar'));
 
-        // Editar nombre
-        await proveedor.realiza(EditarNombreProveedor(nombreEditado));
-        await proveedor.realiza(ClickGuardarCambios());
+        
+        await proveedorActor.realiza(EditarNombreProveedor(nombreEditado));
+        await proveedorActor.realiza(ClickGuardarCambiosProveedor());
 
-        // Validar que se guardó correctamente
-        const hayExito = await proveedor.pregunta(CuerpoContieneTexto('actualizado'));
+        
+        const hayExito = await proveedorActor.pregunta(CuerpoContieneTexto('actualizado'));
         expect(hayExito).toBe(true);
 
-        // Buscar por nombre editado
-        await proveedor.realiza(BuscarProveedorEnListado(nombreEditado));
-        const visible = await proveedor.pregunta(ValidarProveedorVisible(nombreEditado));
+        
+        await proveedorActor.realiza(BuscarProveedorEnListado(nombreEditado));
+        const visible = await proveedorActor.pregunta(ValidarProveedorVisible(nombreEditado));
         expect(visible).toBe(true);
+
+        await proveedorActor.realiza(EliminarProveedor(datosProveedor.numeroDocumento));
     });
 });

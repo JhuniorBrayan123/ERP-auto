@@ -19,3 +19,11 @@ export const EliminarProveedor = (numeroDocumento: string) => {
     fn.displayName = `Eliminar Proveedor — ${numeroDocumento}`;
     return fn;
 };
+
+export const ClickEliminarConfirmar = () => {
+    const fn = async (page: Page): Promise<void> => {
+        await ProveedoresTargets.btnConfirmarEliminarProveedor(page).click();
+    };
+    fn.displayName = 'Confirmar eliminación de proveedor';
+    return fn;
+};

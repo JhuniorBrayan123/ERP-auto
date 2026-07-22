@@ -1,6 +1,15 @@
 import {type Page} from '@playwright/test';
 import {ConductoresTargets} from '@screenplay/targets/clientes-proveedores/ConductoresTargets';
 import {DatosConductorInput} from '@data/clientes-proveedores/conductores.data';
+import {esperarCargaOverlay} from "@utils/wait-helpers";
+
+export const AbrirCrearConductor = () => {
+    const fn = async (page: Page): Promise<void> => {
+        await ConductoresTargets.btnCrearConductor(page).click();
+    };
+    fn.displayName = 'Abrir formulario Crear conductor';
+    return fn;
+};
 
 export const LlenarFormularioBasicoConductor = (datos: Partial<DatosConductorInput>) => {
     const fn = async (page: Page): Promise<void> => {
@@ -77,5 +86,16 @@ export const CerrarModalExitoConductor = () => {
         await ConductoresTargets.btnCerrarModal(page).click();
     };
     fn.displayName = 'Cerrar modal de éxito (Conductor)';
+    return fn;
+};
+
+export const IntentarCrearConductor = (datos: DatosConductorInput) => {
+    const fn = async (page: Page): Promise<void> => {
+        await ConductoresTargets.btnCrearConductor(page).click();
+        await LlenarFormularioBasicoConductor(datos)(page);
+        await ConductoresTargets.btnCrearConductorForm(page).click();
+        await esperarCargaOverlay(page);
+    };
+    fn.displayName = `Intentar crear conductor (sin validación): ${datos.nombreRazonSocial}`;
     return fn;
 };

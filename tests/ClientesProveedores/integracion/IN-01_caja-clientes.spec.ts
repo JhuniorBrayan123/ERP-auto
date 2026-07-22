@@ -4,6 +4,7 @@ import {
     AbrirAccionContextualCliente,
     BuscarClienteEnListado
 } from '@screenplay/tasks/clientes-proveedores/clientes/BuscarCliente';
+import {EliminarCliente} from '@screenplay/tasks/clientes-proveedores/clientes/EliminarCliente';
 import {ToggleSliderEstado} from '@screenplay/tasks/clientes-proveedores/clientes/ToggleEstadoCliente';
 import {NavegarACajaPos} from '@screenplay/tasks/cross-modules/NavegarA';
 import {BuscarClienteEnCaja} from '@screenplay/tasks/cross-modules/BuscarEntidadPos';
@@ -45,5 +46,9 @@ test.describe('IN-01 | Integración Cliente - Caja', {tag: ['@integracion', '@ca
 
 
         await expect(page.locator('main')).toContainText(datos.numeroDocumento);
+
+        await page.goto('/punto-venta/entidades/clientes');
+        await page.waitForLoadState('networkidle').catch(() => {});
+        await cliente.realiza(EliminarCliente(datos.numeroDocumento));
     });
 });

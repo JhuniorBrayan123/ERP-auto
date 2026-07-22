@@ -1,4 +1,4 @@
-/*  */import { test, expect } from '@fixtures/clientes-proveedores/clientes.fixture';
+import { test, expect } from '@fixtures/clientes-proveedores/clientes.fixture';
 import { AbrirConfiguracionColumnas, SeleccionarColumna, GuardarConfiguracionColumnas } from '@screenplay/tasks/cross-modules/ConfigurarColumnas';
 
 test.describe('IN-05 | Configuración de Columnas', { tag: ['@integracion', '@columnas'] }, () => {

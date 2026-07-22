@@ -29,3 +29,24 @@ export const AbrirAccionContextualConductor = (accion: 'Editar conductor' | 'Ver
     fn.displayName = `Acción contextual (Conductor): ${accion}`;
     return fn;
 };
+
+export const ValidarConductorVisible = (texto: string) => {
+    const fn = async (page: Page): Promise<boolean> => {
+        return await ConductoresTargets.tbody(page)
+            .getByText(texto, {exact: false})
+            .isVisible({timeout: 5_000})
+            .catch(() => false);
+    };
+    fn.displayName = `Validar conductor visible en listado: ${texto}`;
+    return fn;
+};
+
+export const ValidarSinResultados = () => {
+    const fn = async (page: Page): Promise<boolean> => {
+        return await page.getByText('NO HAY RESULTADOS PARA TU BÚSQUEDA')
+            .isVisible({timeout: 5_000})
+            .catch(() => false);
+    };
+    fn.displayName = 'Validar que no hay resultados (conductor)';
+    return fn;
+};

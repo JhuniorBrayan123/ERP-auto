@@ -10,36 +10,39 @@ import {
 } from '@screenplay/tasks/clientes-proveedores/vendedores/BuscarVendedor';
 import {
     EditarNombreVendedor,
-    ClickGuardarCambios,
+    ClickGuardarCambiosVendedor,
 } from '@screenplay/tasks/clientes-proveedores/vendedores/EditarVendedor';
 import { generarVendedorRUC } from '@data/clientes-proveedores/vendedores.data';
+import { EliminarVendedor } from '@screenplay/tasks/clientes-proveedores/vendedores/EliminarVendedor';
 import { CuerpoContieneTexto } from '@screenplay/questions/clientes-proveedores/ClienteQuestions';
 
 test.describe('VD-03 | Edición de Vendedor', { tag: ['@vendedores', '@edicion', '@VD-03'] }, () => {
 
-    test('VD-03.1: Editar nombre de vendedor y validar en listado', async ({ vendedor, page }) => {
+    test('VD-03.1: Editar nombre de vendedor y validar en listado', async ({ vendedorActor, page }) => {
         const datosVendedor = generarVendedorRUC();
         const nombreEditado = `${datosVendedor.nombreRazonSocial} EDITADO`;
 
-        // Crear vendedor
-        await vendedor.realiza(CrearVendedor(datosVendedor));
-        await vendedor.realiza(CerrarModalExitoVendedor());
+        
+        await vendedorActor.realiza(CrearVendedor(datosVendedor));
+        await vendedorActor.realiza(CerrarModalExitoVendedor());
 
-        // Buscar y abrir edición
-        await vendedor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));
-        await vendedor.realiza(AbrirAccionContextualVendedor('Editar'));
+        
+        await vendedorActor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));
+        await vendedorActor.realiza(AbrirAccionContextualVendedor('Editar vendedor'));
 
-        // Editar nombre
-        await vendedor.realiza(EditarNombreVendedor(nombreEditado));
-        await vendedor.realiza(ClickGuardarCambios());
+        
+        await vendedorActor.realiza(EditarNombreVendedor(nombreEditado));
+        await vendedorActor.realiza(ClickGuardarCambiosVendedor());
 
-        // Validar que se guardó correctamente
-        const hayExito = await vendedor.pregunta(CuerpoContieneTexto('actualizado'));
+        
+        const hayExito = await vendedorActor.pregunta(CuerpoContieneTexto('actualizado'));
         expect(hayExito).toBe(true);
 
-        // Buscar por nombre editado
-        await vendedor.realiza(BuscarVendedorEnListado(nombreEditado));
-        const visible = await vendedor.pregunta(ValidarVendedorVisible(nombreEditado));
+        
+        await vendedorActor.realiza(BuscarVendedorEnListado(nombreEditado));
+        const visible = await vendedorActor.pregunta(ValidarVendedorVisible(nombreEditado));
         expect(visible).toBe(true);
+
+        await vendedorActor.realiza(EliminarVendedor(datosVendedor.numeroDocumento));
     });
 });

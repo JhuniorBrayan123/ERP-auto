@@ -143,6 +143,15 @@ export const ProveedoresTargets = {
     mensajeCampoObligatorio: (page: Page) =>
         page.locator('body'),
 
+    tabNotaAdicional: (page: Page) =>
+        page.getByText('Nota adicional', {exact: true}),
+
+    inputNotaAdicional: (page: Page) =>
+        page.locator('[id="pv_proveedores_notas-adicionales-proveedor:v-input:nota-adicional"]'),
+
+    btnGuardarNota: (page: Page) =>
+        page.locator('.icon.check'),
+
     pestaniaBitacora: (page: Page, pestania: string) =>
         page.getByText(pestania, {exact: true}),
 

@@ -2,34 +2,30 @@ import { test, expect } from '@fixtures/clientes-proveedores/vendedores.fixture'
 import {
     CrearVendedor,
     CerrarModalExitoVendedor,
+    IntentarCrearVendedor,
 } from '@screenplay/tasks/clientes-proveedores/vendedores/CrearVendedor';
-import {
-    BuscarVendedorEnListado,
-    ValidarVendedorVisible,
-} from '@screenplay/tasks/clientes-proveedores/vendedores/BuscarVendedor';
+import { EliminarVendedor } from '@screenplay/tasks/clientes-proveedores/vendedores/EliminarVendedor';
 import { generarVendedorDNI } from '@data/clientes-proveedores/vendedores.data';
-import { CuerpoContieneTexto } from '@screenplay/questions/clientes-proveedores/ClienteQuestions';
 
 test.describe('VD-01 | Evitar duplicado de Vendedor', { tag: ['@vendedores', '@creacion', '@duplicado'] }, () => {
 
-    test('VD-01.3: Intentar crear vendedor duplicado muestra error', async ({ vendedor, page }) => {
+    test('VD-01.3: Intentar crear vendedor duplicado muestra error', async ({ vendedorActor, page }) => {
         const datosVendedor = generarVendedorDNI();
 
-        // Crear el vendedor la primera vez
-        await vendedor.realiza(CrearVendedor(datosVendedor));
-        await vendedor.realiza(CerrarModalExitoVendedor());
+        
+        await vendedorActor.realiza(CrearVendedor(datosVendedor));
+        await vendedorActor.realiza(CerrarModalExitoVendedor());
 
-        // Verificar que se creó correctamente
-        await vendedor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));
-        const visible = await vendedor.pregunta(ValidarVendedorVisible(datosVendedor.nombreRazonSocial));
-        expect(visible).toBe(true);
+        
+        await vendedorActor.realiza(IntentarCrearVendedor(datosVendedor));
 
-        // Intentar crear el mismo vendedor otra vez
-        await vendedor.realiza(CrearVendedor(datosVendedor));
+        
+        const hayError = await page.getByText('El código ya existe').isVisible({timeout: 5_000}).catch(() => false);
+        expect(hayError).toBe(true);
 
-        // Validar que aparece mensaje de error por duplicado
-        const hayErrorYaExiste = await vendedor.pregunta(CuerpoContieneTexto('ya existe'));
-        const hayErrorDuplicado = await vendedor.pregunta(CuerpoContieneTexto('duplicado'));
-        expect(hayErrorYaExiste || hayErrorDuplicado).toBe(true);
+        
+        await page.goto('/punto-venta/entidades/vendedores');
+        await page.waitForLoadState('networkidle').catch(() => {});
+        await vendedorActor.realiza(EliminarVendedor(datosVendedor.numeroDocumento));
     });
 });

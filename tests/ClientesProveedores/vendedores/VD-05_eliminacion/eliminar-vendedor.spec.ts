@@ -16,25 +16,25 @@ import { CuerpoContieneTexto } from '@screenplay/questions/clientes-proveedores/
 
 test.describe('VD-05 | Eliminación de Vendedor', { tag: ['@vendedores', '@eliminacion', '@VD-05'] }, () => {
 
-    test('VD-05.1: Eliminar vendedor', async ({ vendedor, page }) => {
+    test('VD-05.1: Eliminar vendedor', async ({ vendedorActor, page }) => {
         const datosVendedor = generarVendedorRUC();
 
-        // Crear vendedor
-        await vendedor.realiza(CrearVendedor(datosVendedor));
-        await vendedor.realiza(CerrarModalExitoVendedor());
+        
+        await vendedorActor.realiza(CrearVendedor(datosVendedor));
+        await vendedorActor.realiza(CerrarModalExitoVendedor());
 
-        // Buscar y eliminar
-        await vendedor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));
-        await vendedor.realiza(AbrirAccionContextualVendedor('Eliminar'));
-        await vendedor.realiza(ClickEliminarConfirmar());
+        
+        await vendedorActor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));
+        await vendedorActor.realiza(AbrirAccionContextualVendedor('Eliminar vendedor'));
+        await vendedorActor.realiza(ClickEliminarConfirmar());
 
-        // Validar mensaje de éxito
-        const hayExito = await vendedor.pregunta(CuerpoContieneTexto('eliminado'));
+        
+        const hayExito = await vendedorActor.pregunta(CuerpoContieneTexto('eliminado'));
         expect(hayExito).toBe(true);
 
-        // Validar que ya no aparece en el listado
-        await vendedor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));
-        const sinResultados = await vendedor.pregunta(ValidarSinResultados());
+        
+        await vendedorActor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));
+        const sinResultados = await vendedorActor.pregunta(ValidarSinResultados());
         expect(sinResultados).toBe(true);
     });
 });

@@ -28,3 +28,23 @@ export const AbrirAccionContextualVendedor = (accion: 'Editar vendedor' | 'Ver b
     fn.displayName = `Acción contextual (Vendedor): ${accion}`;
     return fn;
 };
+
+export const ValidarVendedorVisible = (texto: string) => {
+    const fn = async (page: Page): Promise<boolean> => {
+        return await VendedoresTargets.tbody(page)
+            .getByText(texto, {exact: false})
+            .isVisible({timeout: 5_000})
+            .catch(() => false);
+    };
+    fn.displayName = `Validar vendedor visible en listado: ${texto}`;
+    return fn;
+};
+
+export const ValidarSinResultados = () => {
+    const fn = async (page: Page): Promise<boolean> => {
+        const rows = await VendedoresTargets.tbody(page).locator('tr').count();
+        return rows === 0;
+    };
+    fn.displayName = 'Validar que no hay resultados (vendedor)';
+    return fn;
+};

@@ -1,9 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 import { ProveedoresTargets } from '@screenplay/targets/clientes-proveedores/ProveedoresTargets';
 
-/**
- * Abre la pestaña "Nota adicional" del proveedor.
- */
+
 export const AbrirNotaAdicionalProveedor = () => {
     const fn = async (page: Page): Promise<void> => {
         const tab = ProveedoresTargets.tabNotaAdicional(page);
@@ -15,9 +13,7 @@ export const AbrirNotaAdicionalProveedor = () => {
     return fn;
 };
 
-/**
- * Llena el campo de nota adicional con el texto proporcionado.
- */
+
 export const LlenarNotaAdicionalProveedor = (nota: string) => {
     const fn = async (page: Page): Promise<void> => {
         const textarea = ProveedoresTargets.inputNotaAdicional(page);
@@ -29,9 +25,7 @@ export const LlenarNotaAdicionalProveedor = (nota: string) => {
     return fn;
 };
 
-/**
- * Hace click en el botón "Guardar" de la nota adicional.
- */
+
 export const GuardarNotaAdicionalProveedor = () => {
     const fn = async (page: Page): Promise<void> => {
         const btn = ProveedoresTargets.btnGuardarNota(page);

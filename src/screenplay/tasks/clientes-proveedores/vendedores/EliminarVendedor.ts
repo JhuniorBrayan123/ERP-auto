@@ -15,3 +15,11 @@ export const EliminarVendedor = (criterio: string) => {
     fn.displayName = `Eliminar vendedor: ${criterio}`;
     return fn;
 };
+
+export const ClickEliminarConfirmar = () => {
+    const fn = async (page: Page): Promise<void> => {
+        await VendedoresTargets.btnConfirmarEliminarVendedor(page).click();
+    };
+    fn.displayName = 'Confirmar eliminación de vendedor';
+    return fn;
+};
