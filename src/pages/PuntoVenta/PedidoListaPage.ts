@@ -10,7 +10,7 @@ export class PedidoListaPage {
     }
 
     private get btnListarPedidos(): Locator {
-        return this.page.locator('[id="pv_punto-venta_cmp-pedido-header_v-button:lista-pedidos"]')
+        return this.page.getByText('Ver todos');
     }
 
 
