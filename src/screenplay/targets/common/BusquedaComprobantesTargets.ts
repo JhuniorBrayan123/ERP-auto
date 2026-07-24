@@ -1,62 +1,62 @@
-import type { Page } from '@playwright/test';
+import type {Page} from '@playwright/test';
 
 
 export const BusquedaComprobantesTargets = {
-  
-  btnFiltrosAvanzados: (page: Page) =>
-    page.getByRole('button', { name: /ver filtros avanzados|ver filtros/i }),
 
-  
-  selectorTipoComprobante: (page: Page) =>
-    page.locator('div').filter({ hasText: /^Tipo de comprobante$/ }).nth(2),
+    btnFiltrosAvanzados: (page: Page) =>
+        page.getByRole('button', {name: /ver filtros avanzados|ver filtros/i}),
 
-  
-  opcionNotaCredito: (page: Page) =>
-    page.getByText('Nota de Crédito', { exact: true }),
 
-  
-  opcionNotaDebito: (page: Page) =>
-    page.getByText('Nota de Débito', { exact: true }),
+    selectorTipoComprobante: (page: Page) =>
+        page.locator('div').filter({hasText: /^Tipo de comprobante$/}).nth(2),
 
-  
-  inputCorrelativo: (page: Page) =>
-    page.getByRole('textbox', { name: /correlativo/i }),
 
-  
-  dropdownPrimerComprobante: (page: Page) =>
-    page.locator('.body-options > .cmp-dropdown').first(),
+    opcionNotaCredito: (page: Page) =>
+        page.getByText('Nota de Crédito', {exact: true}),
 
-  
-  linkVerComprobante: (page: Page) =>
-    page.getByRole('link', { name: /ver comprobante/i }),
 
-  
-  tituloNotaCreditoDetalle: (page: Page) =>
-    page.getByText('Nota de crédito electrónica'),
+    opcionNotaDebito: (page: Page) =>
+        page.getByText('Nota de Débito', {exact: true}),
 
-  
-  tituloNotaDebitoDetalle: (page: Page) =>
-    page.getByText('Nota de débito electrónica'),
 
-  
-  textoComprobanteVinculado: (page: Page) =>
-    page.getByText('Comprobante vinculado'),
+    inputCorrelativo: (page: Page) =>
+        page.getByRole('textbox', {name: /correlativo/i}),
 
-  
-  textoSinReferencia: (page: Page) =>
-    page.getByText('SIN REFERENCIA'),
 
-  
-  contenedorDetalleComprobante: (page: Page) =>
-    page.locator('[id="single-spa-application:@sreasons/erp-mf-punto-venta"]'),
+    dropdownPrimerComprobante: (page: Page) =>
+        page.locator('.body-options > .cmp-dropdown').first(),
 
-  
-  btnBitacora: (page: Page) => page.getByText('Bitácora'),
 
-  
-  btnCerrarBitacora: (page: Page) =>
-    page.locator('.drape.is-open > .button-close > .icon'),
+    linkVerComprobante: (page: Page) =>
+        page.getByRole('link', {name: /ver comprobante/i}),
 
-  
-  btnSalir: (page: Page) => page.getByRole('button', { name: /salir/i }),
+
+    tituloNotaCreditoDetalle: (page: Page) =>
+        page.getByText('Nota de crédito electrónica'),
+
+
+    tituloNotaDebitoDetalle: (page: Page) =>
+        page.getByText('Nota de débito electrónica'),
+
+
+    textoComprobanteVinculado: (page: Page) =>
+        page.getByText('Comprobante vinculado'),
+
+
+    textoSinReferencia: (page: Page) =>
+        page.getByText('SIN REFERENCIA'),
+
+
+    contenedorDetalleComprobante: (page: Page) =>
+        page.locator('body'),
+
+
+    btnBitacora: (page: Page) => page.getByText('Bitácora'),
+
+
+    btnCerrarBitacora: (page: Page) =>
+        page.locator('.drape.is-open > .button-close > .icon'),
+
+
+    btnSalir: (page: Page) => page.getByRole('button', {name: /salir/i}),
 };

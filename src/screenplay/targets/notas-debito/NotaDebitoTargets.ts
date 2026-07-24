@@ -1,104 +1,75 @@
-import type { Page } from '@playwright/test';
+import type {Page} from '@playwright/test';
 
 
 export const NotaDebitoTargets = {
-  
-  
-  
 
 
+    inputCorrelativo: (page: Page) =>
+        page.locator(
+            '[id="pv_punto-venta_cmp-nota-debito_cmp-header:header_cmp-nd-datos-comprobante_v-input:correlativo"]'
+        ),
 
-  
-  
-  
 
-  
-  inputCorrelativo: (page: Page) =>
-    page.locator(
-      '[id="pv_punto-venta_cmp-nota-debito_cmp-header:header_cmp-nd-datos-comprobante_v-input:correlativo"]'
-    ),
+    inputMonto: (page: Page) =>
+        page.locator(
+            '[id="pv_punto-venta_cmp-nota-debito_cmp-header:header_cmp-nd-datos-comprobante_v-input:monto"]'
+        ),
 
-  
-  inputMonto: (page: Page) =>
-    page.locator(
-      '[id="pv_punto-venta_cmp-nota-debito_cmp-header:header_cmp-nd-datos-comprobante_v-input:monto"]'
-    ),
 
-  
-  btnBuscar: (page: Page) =>
-    page.getByRole('button', { name: /^Buscar$/i }),
+    btnBuscar: (page: Page) =>
+        page.getByRole('button', {name: /^Buscar$/i}),
 
-  
-  
-  
 
-  
-  selectorTipoNota: (page: Page) =>
-    page.locator('div').filter({ hasText: /^Intereses por mora$/ }).nth(3),
+    selectorTipoNota: (page: Page) =>
+        page.locator('div').filter({hasText: /^Intereses por mora$/}).nth(3),
 
-  
-  opcionInteresMora: (page: Page) =>
-    page.getByText('Intereses por mora').nth(1),
 
-  
-  opcionAumentoValor: (page: Page) =>
-    page.getByText('Aumento en el valor'),
+    opcionInteresMora: (page: Page) =>
+        page.getByText('Intereses por mora').nth(1),
 
-  
-  opcionPenalidades: (page: Page) =>
-    page.getByText('Penalidades/ otros conceptos'),
 
-  
-  
-  
+    opcionAumentoValor: (page: Page) =>
+        page.getByText('Aumento en el valor'),
 
-  
-  inputMotivo: (page: Page) =>
-    page.locator(
-      '[id="pv_punto-venta_cmp-nota-debito_cmp-nd-datos:datos_v-input:motivo"]'
-    ),
 
-  
-  
-  
+    opcionPenalidades: (page: Page) =>
+        page.getByText('Otros conceptos'),
 
-  
-  btnEditarItem: (page: Page) =>
-    page.locator(
-      '[id="pv_cm-nota-debito_cmp-nd-grid-items:body-grilla_div:btn-editar-item"]'
-    ),
 
-  
-  inputMontoItem: (page: Page) =>
-    page.locator(
-      '[id="pv_cm-nota-debito:nota-debito_cmp-nd-grid-items:body_v-grid:body-grilla_v-input:monto"]'
-    ),
+    inputMotivo: (page: Page) =>
+        page.locator(
+            '[id="pv_punto-venta_cmp-nota-debito_cmp-nd-datos:datos_v-input:motivo"]'
+        ),
 
-  
-  btnAceptarItem: (page: Page) =>
-    page.locator(
-      '[id="pv_cm-nota-debito_cmp-nd-grid-items:body-grilla_div:btn-aceptar-item"]'
-    ),
 
-  
-  
-  
+    btnEditarItem: (page: Page) =>
+        page.locator(
+            '[id="pv_cm-nota-debito_cmp-nd-grid-items:body-grilla_div:btn-editar-item"]'
+        ),
 
-  
-  btnEliminarComprobanteVinculado: (page: Page) =>
-    page.locator('.card-info-doc > .icon'),
 
-  
-  
-  
+    inputMontoItem: (page: Page) =>
+        page.locator(
+            '[id="pv_cm-nota-debito:nota-debito_cmp-nd-grid-items:body_v-grid:body-grilla_v-input:monto"]'
+        ),
 
-  
-  btnEmitir: (page: Page) =>
-    page.getByRole('button', { name: /^Emitir$/i }),
 
-  
-  gridItems: (page: Page) =>
-    page.locator(
-      '[id="pv_cmp-nota-credito_cmp-nc-body_cmp-observaciones-totales_v-button:vista-previa_v-grid:body-grilla"]'
-    ),
+    btnAceptarItem: (page: Page) =>
+        page.locator(
+            '[id="pv_cm-nota-debito_cmp-nd-grid-items:body-grilla_div:btn-aceptar-item"]'
+        ),
+
+
+    btnEliminarComprobanteVinculado: (page: Page) =>
+        page.locator('.card-info-doc > .icon'),
+
+
+    btnEmitir: (page: Page) =>
+        page.getByRole('button', {name: /^Emitir$/i}),
+
+
+    gridItems: (page: Page) =>
+        page.locator(
+            '[id="pv_cmp-nota-credito_cmp-nc-body_cmp-observaciones-totales_v-button:vista-previa_v-grid:body-grilla"]'
+        ),
 };
