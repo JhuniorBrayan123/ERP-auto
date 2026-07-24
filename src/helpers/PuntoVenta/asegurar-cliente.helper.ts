@@ -21,7 +21,7 @@ export async function asegurarClienteExtranjeria(
     const existe = await page.getByText(datosCE.textoSelector).isVisible();
 
     if (existe) {
-        await page.keyboard.press('Escape');
+        await clientePage.seleccionarClientePorTexto(datosCE.textoSelector);
     } else {
         await page.keyboard.press('Escape');
 
