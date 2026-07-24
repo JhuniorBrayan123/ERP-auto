@@ -134,8 +134,7 @@ function toRelative(targetPath: string): string {
 }
 
 function listEntries(currentDir: string): ExplorerEntry[] {
-    const entries = fs.readdirSync(currentDir, {withFileTypes: true})
-        .filter(entry => !['conductores', 'integracion'].includes(entry.name));
+    const entries = fs.readdirSync(currentDir, {withFileTypes: true});
 
     const folders: ExplorerEntry[] = entries
         .filter((entry) => entry.isDirectory())
@@ -162,7 +161,7 @@ function walkSpecFiles(dir: string, result: string[] = []): string[] {
     if (!isDirectory(dir)) return result;
 
     for (const entry of fs.readdirSync(dir, {withFileTypes: true})) {
-        if (['conductores', 'integracion'].includes(entry.name)) continue;
+
         const fullPath = path.join(dir, entry.name);
 
         if (entry.isDirectory()) {
