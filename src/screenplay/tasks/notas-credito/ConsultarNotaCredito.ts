@@ -1,41 +1,27 @@
-import { expect, type Page } from '@playwright/test';
-import { BusquedaComprobantesTargets } from '../../targets/common/BusquedaComprobantesTargets';
-
-export interface ResultadoConsultaNC {
-  
-  visible: boolean;
-  
-  tipoDocumento: string;
-  
-  tieneComprobanteVinculado: boolean;
-}
+import {expect, type Page} from '@playwright/test';
+import {BusquedaComprobantesTargets} from '../../targets/common/BusquedaComprobantesTargets';
 
 
 export const ConsultarNotaCredito = (correlativo: string) => {
-  const fn = async (page: Page): Promise<void> => {
+    const fn = async (page: Page): Promise<void> => {
 
-    await page.locator('.icon').first().click();
-    await page.getByText('Ventas y compras').click();
-    await page.getByText('Búsqueda de comprobantes').click();
+        await BusquedaComprobantesTargets.btnFiltrosAvanzados(page).click();
+        await BusquedaComprobantesTargets.selectorTipoComprobante(page).click();
+        await BusquedaComprobantesTargets.opcionNotaCredito(page).click();
 
-
-    await BusquedaComprobantesTargets.btnFiltrosAvanzados(page).click();
-    await BusquedaComprobantesTargets.selectorTipoComprobante(page).click();
-    await BusquedaComprobantesTargets.opcionNotaCredito(page).click();
-
-    const inputCorrelativo = BusquedaComprobantesTargets.inputCorrelativo(page);
-    await inputCorrelativo.click();
-    await inputCorrelativo.fill(correlativo);
-    await inputCorrelativo.press('Enter');
+        const inputCorrelativo = BusquedaComprobantesTargets.inputCorrelativo(page);
+        await inputCorrelativo.click();
+        await inputCorrelativo.fill(correlativo);
+        await inputCorrelativo.press('Enter');
 
 
-    await expect(
-      page.locator('.body-options').first()
-    ).toBeVisible({ timeout: 15_000 });
-  };
+        await expect(
+            page.locator('.body-options').first()
+        ).toBeVisible({timeout: 15_000});
+    };
 
-  fn.displayName = `Consultar nota de crédito con correlativo ${correlativo}`;
-  return fn;
+    fn.displayName = `Consultar nota de crédito con correlativo ${correlativo}`;
+    return fn;
 };
 
 

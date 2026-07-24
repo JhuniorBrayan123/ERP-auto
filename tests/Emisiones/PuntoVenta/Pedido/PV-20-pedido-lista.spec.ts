@@ -1,5 +1,5 @@
 import {expect, test} from '@playwright/test';
-import {Cajero} from '../../../../src/actors/cajero';
+import {Cajero} from '@actors/cajero';
 import {CAJAS, CLIENTES, ITEMS_PV, TIPOS_COMPROBANTE} from '@helpers/PuntoVenta/emision-data.helper';
 import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
 import {SeleccionarTipoComprobante} from '@task/PuntoVenta/SeleccionarTipoComprobante.task';
@@ -94,7 +94,7 @@ test.describe('PV-20 | Lista de pedidos', {tag: ['@punto-venta', '@pedido', '@li
         const cardCreado = page.locator('.item-card')
             .filter({hasText: `PD01-${correlativoCreado}`}).first();
         await expect(cardCreado).toBeVisible({timeout: 10_000});
-        
+
         await expect(cardCreado).toContainText(CLIENTES.PERSONA_DNI.nombre);
 
         const cardOtroCliente = page.locator('.item-card')
@@ -152,6 +152,6 @@ test.describe('PV-20 | Lista de pedidos', {tag: ['@punto-venta', '@pedido', '@li
 
         const popup = await VerPedidoDesdeLista(correlativo)(page);
         await esperarCargaOverlay(popup)
-        await expect(popup.getByText(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre).first()).toBeVisible({ timeout: 30_000 });
+        await expect(popup.getByText(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre).first()).toBeVisible({timeout: 30_000});
     });
 });

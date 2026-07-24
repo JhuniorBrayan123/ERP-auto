@@ -1,22 +1,23 @@
-import type { APIRequestContext } from '@playwright/test';
-import { env } from '../../../config/env';
+import type {APIRequestContext} from '@playwright/test';
+import {env} from '../../../config/env';
 import {
+    type SunatPollResult,
     waitForEstadoSunatFinal,
     type WaitSunatOptions,
-    type SunatPollResult,
-} from '../../helpers/PuntoVenta/sunat-estados.helper';
+} from '@helpers/PuntoVenta/sunat-estados.helper';
 
 export class SunatEstadoApi {
     constructor(
         private readonly request: APIRequestContext,
         private readonly token: string,
-    ) {}
+    ) {
+    }
 
     async obtenerEstado(idComprobanteERP: number): Promise<number> {
         const url = `${env.apiUrl}PuntoVenta/api/v2/DocumentosContables/Consultas`;
 
         const response = await this.request.get(url, {
-            headers: { Authorization: `Bearer ${this.token}` },
+            headers: {Authorization: `Bearer ${this.token}`},
         });
 
         if (!response.ok()) {

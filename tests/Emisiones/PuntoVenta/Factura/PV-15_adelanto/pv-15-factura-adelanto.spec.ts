@@ -5,12 +5,12 @@ import {esperarCargaOverlay} from "@utils/wait-helpers";
 test.describe('PV-15 | Emitir comprobante con adelanto', {tag: ['@punto-venta', '@factura', '@adelanto']}, () => {
 
     test('SC-01: Emitir factura de adelanto @PV-15.1', async ({
-                                                           cajaPage,
-                                                           comprobantePage,
-                                                           emisionPage,
-                                                           busquedaComprobantes,
-                                                           page,
-                                                       }) => {
+                                                                  cajaPage,
+                                                                  comprobantePage,
+                                                                  emisionPage,
+                                                                  busquedaComprobantes,
+                                                                  page,
+                                                              }) => {
         await test.step('Given: FACTURA con adelanto activo', async () => {
             await cajaPage.continuarVendiendo();
             await comprobantePage.seleccionarFactura();
@@ -49,18 +49,19 @@ test.describe('PV-15 | Emitir comprobante con adelanto', {tag: ['@punto-venta', 
 
         await test.step('And: Ver comprobante muestra factura de adelanto', async () => {
             const popup = await busquedaComprobantes.abrirVerComprobante();
+            await esperarCargaOverlay(popup);
             await busquedaComprobantes.validarFacturaAdelantoEnPopup(popup);
         });
     });
 
     test('SC-02: Emitir factura con adelanto aplicado @PV-15.2', async ({
-                                                                     cajaPage,
-                                                                     comprobantePage,
-                                                                     emisionPage,
-                                                                     emisionAdelantosPage,
-                                                                     busquedaComprobantes,
-                                                                     page,
-                                                                 }) => {
+                                                                            cajaPage,
+                                                                            comprobantePage,
+                                                                            emisionPage,
+                                                                            emisionAdelantosPage,
+                                                                            busquedaComprobantes,
+                                                                            page,
+                                                                        }) => {
 
         let emisionAdelanto: typeof emisionPage.ultimaEmision = null;
 
@@ -93,7 +94,6 @@ test.describe('PV-15 | Emitir comprobante con adelanto', {tag: ['@punto-venta', 
 
         await test.step('When: aplicar adelanto existente', async () => {
             await emisionAdelantosPage.abrirAdelantos(CLIENTES.EMPRESA_RUC_AUTO);
-
             await busquedaComprobantes.filtrarAdelantoFactura(emisionAdelanto);
         });
 
@@ -113,7 +113,6 @@ test.describe('PV-15 | Emitir comprobante con adelanto', {tag: ['@punto-venta', 
         await test.step('And: ir a Búsqueda de comprobantes filtrado por correlativo', async () => {
             await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
         });
-
         const estadoSunat = await test.step('And: validar estado SUNAT desde API de Consultas', async () => {
             return await busquedaComprobantes.validarEstadoSunat();
         });

@@ -1,5 +1,5 @@
 import {type Page} from '@playwright/test';
-import {PedidoListaPage} from '../../pages/PuntoVenta/PedidoListaPage';
+import {PedidoListaPage} from '@pages/PuntoVenta/PedidoListaPage';
 
 export const VerPedidoDesdeLista = (numPedido: string) => {
     const fn = async (page: Page): Promise<Page> => {

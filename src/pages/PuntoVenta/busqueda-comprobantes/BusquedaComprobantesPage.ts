@@ -52,6 +52,15 @@ export class BusquedaComprobantesPage {
         }
     }
 
+
+    async navegarABusquedaComprobantesConSunat(emision: EmisionResult): Promise<void> {
+        await this.salirDeCaja();
+        await this.page.getByText('Ventas y compras').click();
+        await this.page.getByText('Búsqueda de comprobantes').click();
+        await this.filtros.abrirFiltrosAvanzados();
+        await this.sunat.consultarPorCorrelativo(emision.correlativo);
+    }
+
     async ir(): Promise<void> {
         await this.page.goto('/punto-venta/comprobantes');
         await this.page.waitForLoadState('networkidle');
@@ -352,6 +361,10 @@ export class BusquedaComprobantesPage {
 
     get ultimoComprobanteConsulta() {
         return this.sunat.ultimoComprobanteConsulta;
+    }
+
+    async consultarSunatPorCorrelativo(correlativo: string): Promise<void> {
+        return this.sunat.consultarPorCorrelativo(correlativo);
     }
 
     async validarEstadoSunat(): Promise<'EXITOSO' | 'TRANSITORIO' | 'DEFINITIVO'> {

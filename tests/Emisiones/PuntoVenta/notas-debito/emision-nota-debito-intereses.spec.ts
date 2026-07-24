@@ -1,10 +1,12 @@
-import { test, expect } from '@fixtures/PuntoVenta/comprobante-nc-nd.fixture';
-import { EmitirComprobanteOrigen } from '@screenplay/tasks/common/EmitirComprobanteOrigen';
-import { CrearNotaDebitoConVinculacion } from '@screenplay/tasks/notas-debito/CrearNotaDebitoConVinculacion';
-import { ConsultarNotaDebito, VerDetalleNotaDebito } from '@screenplay/tasks/notas-debito/ConsultarNotaDebito';
-import { ModalPostEmisionVisible } from '@screenplay/questions/notas/ModalPostEmisionVisible';
-import { DetalleNotaDebitoCorrecto } from '@screenplay/questions/notas/DetalleNotaCorrecto';
-import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
+import {expect, test} from '@fixtures/PuntoVenta/comprobante-nc-nd.fixture';
+import {EmitirComprobanteOrigen} from '@screenplay/tasks/common/EmitirComprobanteOrigen';
+import {CrearNotaDebitoConVinculacion} from '@screenplay/tasks/notas-debito/CrearNotaDebitoConVinculacion';
+import {ConsultarNotaDebito, VerDetalleNotaDebito} from '@screenplay/tasks/notas-debito/ConsultarNotaDebito';
+import {ModalPostEmisionVisible} from '@screenplay/questions/notas/ModalPostEmisionVisible';
+import {DetalleNotaDebitoCorrecto} from '@screenplay/questions/notas/DetalleNotaCorrecto';
+import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import {ClickNuevaVenta} from '@interactions/PuntoVenta/ClickNuevaVenta';
+import {IrABusquedaComprobantes} from '@task/PuntoVenta/IrABusquedaComprobantes.task';
 
 test.describe('ND-02 | Intereses por Mora', {tag: ['@puntoventa', '@nota-debito']}, () => {
 
@@ -77,8 +79,8 @@ test.describe('ND-02 | Intereses por Mora', {tag: ['@puntoventa', '@nota-debito'
       })
     );
 
-    await facturador.page.getByRole('button', { name: /nueva venta/i }).click();
-
+    await facturador.realiza(ClickNuevaVenta());
+    await facturador.realiza(IrABusquedaComprobantes());
     await facturador.realiza(ConsultarNotaDebito(resultado.correlativo));
 
     const popup = await facturador.realizaYObtiene(VerDetalleNotaDebito());

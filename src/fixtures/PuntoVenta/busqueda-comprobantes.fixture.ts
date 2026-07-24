@@ -14,16 +14,27 @@ import {EmisionDatosOpcionalesPage} from '@pages/PuntoVenta/EmisionDatosOpcional
 import {esperarCargaOverlay} from '@utils/wait-helpers';
 import {CAJAS, CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import type {ComprobanteInfo, DatosOpcionales} from '@helpers/PuntoVenta/busqueda-comprobantes.data';
+import {detectAccount, detectEnvironmentFine} from '@utils/setup-state';
+import {generarSlugCache} from '@factories/item-factory';
 
 export function resolveActiveStorageState(): string {
     if (process.env.PW_STORAGE_STATE) return process.env.PW_STORAGE_STATE;
+
+    // ✅ Usar la misma lógica que playwright.config.ts — detectar cuenta actual
+    const envGroup = detectEnvironmentFine();
+    const account = detectAccount();
+    const slug = generarSlugCache(envGroup, account);
+    const accountPath = resolve(process.cwd(), 'playwright', '.auth', `user.${slug}.json`);
+    if (existsSync(accountPath)) return `playwright/.auth/user.${slug}.json`;
+
     const generic = resolve(process.cwd(), 'playwright', '.auth', 'user.json');
     if (existsSync(generic)) return generic;
+
     const authDir = resolve(process.cwd(), 'playwright', '.auth');
     if (existsSync(authDir)) {
         const files = readdirSync(authDir).filter(
             f => f.endsWith('.json')
-                && f.startsWith('user.')                         
+                && f.startsWith('user.')
                 && !f.includes('placeholder')
                 && !f.endsWith('{}.json'),
         );

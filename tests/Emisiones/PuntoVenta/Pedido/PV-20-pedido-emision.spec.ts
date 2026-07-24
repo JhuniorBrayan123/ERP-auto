@@ -1,5 +1,5 @@
 import {expect, test} from '@playwright/test';
-import {Cajero} from '../../../../src/actors/cajero';
+import {Cajero} from '@actors/cajero';
 import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
 import {SeleccionarTipoComprobante} from '@task/PuntoVenta/SeleccionarTipoComprobante.task';
 import {SeleccionarCliente} from '@task/PuntoVenta/SeleccionarCliente.task';

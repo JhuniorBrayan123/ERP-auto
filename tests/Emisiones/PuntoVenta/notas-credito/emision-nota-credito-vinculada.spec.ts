@@ -8,10 +8,16 @@ import {CLIENTES, ITEMS_PV, TIPOS_COMPROBANTE, TIPOS_DOCUMENTO_ORIGEN} from '@he
 import {capturarStockNC, validarStockDespuesNC} from '@helpers/PuntoVenta/verificar-stock-nc.helper';
 import {esperarStockDespuesVenta} from "@helpers/PuntoVenta/esperarStockDespuesVenta";
 import {asegurarClienteExtranjeria} from "@helpers/PuntoVenta/asegurar-cliente.helper";
+import {ClickNuevaVenta} from '@interactions/PuntoVenta/ClickNuevaVenta';
+import {IrABusquedaComprobantes} from '@task/PuntoVenta/IrABusquedaComprobantes.task';
 
 test.describe('NC-05 | Emisión con Vinculación', {tag: ['@puntoventa', '@nota-credito']}, () => {
 
-    test('SC-01: Emitir NC por anulación CON retorno de stock desde factura @NC-05.1', async ({facturador, postEmision, kardexApi}) => {
+    test('SC-01: Emitir NC por anulación CON retorno de stock desde factura @NC-05.1', async ({
+                                                                                                  facturador,
+                                                                                                  postEmision,
+                                                                                                  kardexApi
+                                                                                              }) => {
         const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.ESTRICTO_GRAVADO_2.codigo);
 
         const origen = await facturador.realizaYObtiene(
@@ -58,7 +64,10 @@ test.describe('NC-05 | Emisión con Vinculación', {tag: ['@puntoventa', '@nota-
         });
     });
 
-    test('SC-02: Emitir NC por devolución total CON retorno de stock desde boleta @NC-05.2', async ({facturador, kardexApi}) => {
+    test('SC-02: Emitir NC por devolución total CON retorno de stock desde boleta @NC-05.2', async ({
+                                                                                                        facturador,
+                                                                                                        kardexApi
+                                                                                                    }) => {
         const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.ESTRICTO_GRAVADO_2.codigo);
 
         const origen = await facturador.realizaYObtiene(
@@ -102,7 +111,10 @@ test.describe('NC-05 | Emisión con Vinculación', {tag: ['@puntoventa', '@nota-
         });
     });
 
-    test('SC-03: Emitir NC por devolución total SIN retorno de stock desde factura @NC-05.3', async ({facturador, kardexApi}) => {
+    test('SC-03: Emitir NC por devolución total SIN retorno de stock desde factura @NC-05.3', async ({
+                                                                                                         facturador,
+                                                                                                         kardexApi
+                                                                                                     }) => {
         const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.ESTRICTO_GRAVADO_2.codigo);
 
         const origen = await facturador.realizaYObtiene(
@@ -147,7 +159,10 @@ test.describe('NC-05 | Emisión con Vinculación', {tag: ['@puntoventa', '@nota-
         });
     });
 
-    test('SC-04: Emitir NC por devolución por ítem CON retorno de stock desde factura @NC-05.4', async ({facturador, kardexApi}) => {
+    test('SC-04: Emitir NC por devolución por ítem CON retorno de stock desde factura @NC-05.4', async ({
+                                                                                                            facturador,
+                                                                                                            kardexApi
+                                                                                                        }) => {
         const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.ESTRICTO_GRAVADO_2.codigo);
 
         const origen = await facturador.realizaYObtiene(
@@ -194,9 +209,9 @@ test.describe('NC-05 | Emisión con Vinculación', {tag: ['@puntoventa', '@nota-
     });
 
     test('SC-05: Consultar NC emitida y verificar detalle en vista comprobante @NC-05.5', async ({
-                                                                                     facturador,
-                                                                                     busquedaComprobantes
-                                                                                 }) => {
+                                                                                                     facturador,
+                                                                                                     busquedaComprobantes
+                                                                                                 }) => {
         const origen = await facturador.realizaYObtiene(
             EmitirComprobanteOrigen({
                 tipoComprobante: TIPOS_COMPROBANTE.FACTURA,
@@ -217,7 +232,8 @@ test.describe('NC-05 | Emisión con Vinculación', {tag: ['@puntoventa', '@nota-
                 retornoStock: true,
             })
         );
-        await facturador.page.getByRole('button', {name: /nueva venta/i}).click();
+        await facturador.realiza(ClickNuevaVenta());
+        await facturador.realiza(IrABusquedaComprobantes());
         await facturador.realiza(
             ConsultarNotaCredito(resultado.correlativo)
         );
@@ -236,9 +252,9 @@ test.describe('NC-05 | Emisión con Vinculación', {tag: ['@puntoventa', '@nota-
     });
 
     test('SC-06: Emitir NC vinculada por ajustes de operaciones de exportación @NC-05.6', async ({
-                                                                                     facturador,
-                                                                                     busquedaComprobantes
-                                                                                 }) => {
+                                                                                                     facturador,
+                                                                                                     busquedaComprobantes
+                                                                                                 }) => {
         const clienteCE = await asegurarClienteExtranjeria(facturador.page, {
             documento: 'E12345678',
             nombre: 'Cliente Extranjería',
@@ -271,7 +287,8 @@ test.describe('NC-05 | Emisión con Vinculación', {tag: ['@puntoventa', '@nota-
         await facturador.pregunta(ModalPostEmisionVisible());
         expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
 
-        await facturador.page.getByRole('button', {name: /nueva venta/i}).click();
+        await facturador.realiza(ClickNuevaVenta());
+        await facturador.realiza(IrABusquedaComprobantes());
         await facturador.realiza(
             ConsultarNotaCredito(resultado.correlativo)
         );
@@ -285,6 +302,6 @@ test.describe('NC-05 | Emisión con Vinculación', {tag: ['@puntoventa', '@nota-
                 clienteEsperado: 'Cliente Extranjería'
             })
         );
-      
+
     });
 });

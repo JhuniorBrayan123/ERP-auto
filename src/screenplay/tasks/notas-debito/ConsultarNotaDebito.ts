@@ -1,29 +1,26 @@
-import { expect, type Page } from '@playwright/test';
-import { BusquedaComprobantesTargets } from '../../targets/common/BusquedaComprobantesTargets';
+import {expect, type Page} from '@playwright/test';
+import {BusquedaComprobantesTargets} from '../../targets/common/BusquedaComprobantesTargets';
 
 
 export const ConsultarNotaDebito = (correlativo: string) => {
-  const fn = async (page: Page): Promise<void> => {
-    await page.locator('.icon').first().click();
-    await page.getByText('Ventas y compras').click();
-    await page.getByText('Búsqueda de comprobantes').click();
+    const fn = async (page: Page): Promise<void> => {
 
-    await BusquedaComprobantesTargets.btnFiltrosAvanzados(page).click();
-    await BusquedaComprobantesTargets.selectorTipoComprobante(page).click();
-    await BusquedaComprobantesTargets.opcionNotaDebito(page).click();
+        await BusquedaComprobantesTargets.btnFiltrosAvanzados(page).click();
+        await BusquedaComprobantesTargets.selectorTipoComprobante(page).click();
+        await BusquedaComprobantesTargets.opcionNotaDebito(page).click();
 
-    const inputCorrelativo = BusquedaComprobantesTargets.inputCorrelativo(page);
-    await inputCorrelativo.click();
-    await inputCorrelativo.fill(correlativo);
-    await inputCorrelativo.press('Enter');
+        const inputCorrelativo = BusquedaComprobantesTargets.inputCorrelativo(page);
+        await inputCorrelativo.click();
+        await inputCorrelativo.fill(correlativo);
+        await inputCorrelativo.press('Enter');
 
-    await expect(
-      page.locator('.body-options').first()
-    ).toBeVisible({ timeout: 15_000 });
-  };
+        await expect(
+            page.locator('.body-options').first()
+        ).toBeVisible({timeout: 15_000});
+    };
 
-  fn.displayName = `Consultar nota de débito con correlativo ${correlativo}`;
-  return fn;
+    fn.displayName = `Consultar nota de débito con correlativo ${correlativo}`;
+    return fn;
 };
 
 
