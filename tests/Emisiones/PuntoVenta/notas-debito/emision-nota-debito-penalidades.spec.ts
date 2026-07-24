@@ -4,6 +4,8 @@ import {CrearNotaDebitoConVinculacion} from '@screenplay/tasks/notas-debito/Crea
 import {ConsultarNotaDebito, VerDetalleNotaDebito} from '@screenplay/tasks/notas-debito/ConsultarNotaDebito';
 import {DetalleNotaDebitoCorrecto} from '@screenplay/questions/notas/DetalleNotaCorrecto';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import {ClickNuevaVenta} from '@interactions/PuntoVenta/ClickNuevaVenta';
+import {IrABusquedaComprobantes} from '@task/PuntoVenta/IrABusquedaComprobantes.task';
 
 test.describe('ND-03 | Penalidades / Otros Conceptos', {tag: ['@puntoventa', '@nota-debito']}, () => {
 
@@ -21,14 +23,14 @@ test.describe('ND-03 | Penalidades / Otros Conceptos', {tag: ['@puntoventa', '@n
                 tipoDocumento: 'Factura',
                 serie: origen.serie,
                 correlativo: origen.correlativo,
-                motivo: 'Penalidades/ otros conceptos',
+                motivo: 'Otros conceptos',
                 textoMotivo: 'Penalidades por automatización',
                 monto: '10',
             })
         );
 
-        await facturador.page.getByRole('button', {name: /nueva venta/i}).click();
-
+        await facturador.realiza(ClickNuevaVenta());
+        await facturador.realiza(IrABusquedaComprobantes());
         await facturador.realiza(ConsultarNotaDebito(resultado.correlativo));
 
         const popup = await facturador.realizaYObtiene(VerDetalleNotaDebito());
@@ -37,7 +39,7 @@ test.describe('ND-03 | Penalidades / Otros Conceptos', {tag: ['@puntoventa', '@n
             DetalleNotaDebitoCorrecto(popup, {
                 tipoDocumento: 'Nota de débito electrónica',
                 tieneComprobanteVinculado: true,
-                tipoNota: 'Penalidades/ otros conceptos',
+                tipoNota: 'Otros conceptos',
                 motivoEsperado: 'Penalidades por automatización',
                 rucEsperado: '20759685854',
                 nombreEsperado: 'automatizacionerp2 cliente RUC',
