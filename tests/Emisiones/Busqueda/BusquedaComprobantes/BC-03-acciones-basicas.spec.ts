@@ -13,7 +13,6 @@ import {ComprobantePage} from '@pages/PuntoVenta/ComprobantePage';
 import {ClientePage} from '@pages/PuntoVenta/ClientePage';
 import {CajaPage} from '@pages/PuntoVenta/CajaPage';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
-import {esperarCargaOverlay} from "@utils/wait-helpers";
 import {Page} from "@playwright/test";
 
 
@@ -207,7 +206,7 @@ test.describe('BC-21 | Clonar factura', {tag: ['@busqueda']}, () => {
         await page.goto('/punto-venta/comprobantes');
     });
 
-    test('SC-01: Clonar una factura y validar que los datos se transfieren @BC-21.1', async ({ busquedaPage }) => {
+    test('SC-01: Clonar una factura y validar que los datos se transfieren @BC-21.1', async ({busquedaPage}) => {
         test.skip(!semillaParaClonar, 'Semilla para clonar no disponible');
 
         await test.step('Given: filtrar la factura semilla para clonar', async () => {
@@ -228,7 +227,7 @@ test.describe('BC-21 | Clonar factura', {tag: ['@busqueda']}, () => {
 
         await test.step('Then: el popup de emisión contiene los datos del comprobante origen', async () => {
             await expect(popupPage.getByRole('main')).toContainText(
-                CLIENTES.EMPRESA_RUC_AUTO.nombre, { timeout: 30_000 },
+                CLIENTES.EMPRESA_RUC_AUTO.nombre, {timeout: 30_000},
             );
             await expect(popupPage.getByRole('main')).toContainText(
                 ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre,

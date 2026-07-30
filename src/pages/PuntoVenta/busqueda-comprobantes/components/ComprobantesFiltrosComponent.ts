@@ -21,8 +21,8 @@ export class ComprobantesFiltrosComponent {
             await btn.waitFor({state: 'visible', timeout: 30_000});
             await btn.click();
         } catch {
-
         }
+        await esperarCargaOverlay(this.page)
     }
 
     async aplicarFiltros(): Promise<void> {
@@ -74,7 +74,9 @@ export class ComprobantesFiltrosComponent {
     }
 
     async filtrarPorCorrelativos(correlativo: string): Promise<void> {
-        const input = this.page.getByRole('textbox', {name: 'Correlativo'});
+        const input = this.page.locator(
+            '[id="pv_comprobantes_cmp-grid-comprobantes-header:header-grilla_v-input:Correlativo"]',
+        );
         await input.click();
         const valorFiltro = correlativo.replace(/^0+/, '') || '0';
         await input.fill(valorFiltro);
