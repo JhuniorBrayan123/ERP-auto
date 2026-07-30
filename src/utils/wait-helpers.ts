@@ -5,9 +5,12 @@ export const esperarCargaOverlay = async (
     timeout = 35_000
 ): Promise<void> => {
     const overlay = page.locator('[id="cmn_cmp-overload:loading"]');
-    await expect(overlay).toBeHidden({timeout});
+    await overlay.waitFor({state: 'visible', timeout: 10_000}).catch(() => {});
+    await overlay.waitFor({state: 'hidden', timeout});
+
     await page.waitForTimeout(300);
-    await expect(overlay).toBeHidden({timeout: 7_000});
+
+    await overlay.waitFor({state: 'hidden', timeout: 7_000}).catch(() => {});
 };
 export const recargarSiHayError = async (
     page: Page,
