@@ -18,7 +18,7 @@ const {cargarMapaDesdeCache, guardarMapaEnCache, cargarMapaCodigos} = await impo
 const ROOT_DIR = process.cwd();
 const TESTS_DIR = path.join(ROOT_DIR, 'tests');
 
-type ProjectKey = 'Emisiones' | 'Logistica' | 'Clientes';
+type ProjectKey = 'PuntoVenta' | 'Facturacion' | 'Logistica' | 'Clientes';
 
 interface ProjectContext {
     key: ProjectKey;
@@ -29,10 +29,15 @@ interface ProjectContext {
 }
 
 const PROJECT_CONFIG: Record<ProjectKey, { projectFlag: string | null; testDir: string; outputDir: string }> = {
-    Emisiones: {
+    PuntoVenta: {
         projectFlag: 'PuntoVenta',
         testDir: path.join(TESTS_DIR, 'Emisiones'),
         outputDir: 'test-results/puntoventa',
+    },
+    Facturacion: {
+        projectFlag: 'Facturacion',
+        testDir: path.join(TESTS_DIR, 'Emisiones', 'Facturacion'),
+        outputDir: 'test-results/facturacion',
     },
     Logistica: {
         projectFlag: 'Logistica',
@@ -331,7 +336,7 @@ export function applySetupSelections(selected: string[]): void {
 }
 
 function getDefaultSetups(projectKey?: ProjectKey): string[] {
-    if (projectKey === 'Emisiones') return [...PV_SETUP_NAMES];
+    if (projectKey === 'PuntoVenta' || projectKey === 'Facturacion') return [...PV_SETUP_NAMES];
     if (projectKey === 'Logistica') return [...LOG_SETUP_NAMES];
     if (projectKey === 'Clientes') return ['auth'];
 
@@ -417,18 +422,8 @@ async function askRunOptions(projectKey?: ProjectKey): Promise<string[]> {
 function buildArgs(projectContext: ProjectContext, extraArgs: string[], pathsToRun: string[]): string[] {
     const args: string[] = [];
 
-    let currentProjectFlag = projectContext.projectFlag;
-    let currentOutputDir = projectContext.outputDir;
-
-    // Inyección dinámica de proyecto solo si TODAS las rutas son de Facturacion
-    if (projectContext.key === 'Emisiones') {
-        const includesFacturacion = (p: string) => p.includes('/Facturacion') || p.includes('\\Facturacion');
-        const allAreFacturacion = pathsToRun.length > 0 && pathsToRun.every(includesFacturacion);
-        if (allAreFacturacion) {
-            currentProjectFlag = 'Facturacion';
-            currentOutputDir = 'test-results/facturacion';
-        }
-    }
+    const currentProjectFlag = projectContext.projectFlag;
+    const currentOutputDir = projectContext.outputDir;
 
     if (currentProjectFlag) {
         args.push('--project', currentProjectFlag);
@@ -447,7 +442,7 @@ function formatCommandWithContext(args: string[], projectContext?: ProjectContex
 
 function runPlaywright(args: string[], projectContext?: ProjectContext): Promise<void> {
     return new Promise((resolve, reject) => {
-        const ctx = projectContext || getProjectContext('Emisiones');
+        const ctx = projectContext || getProjectContext('PuntoVenta');
         const prefixedArgs = buildArgs(ctx, args, args);
 
         console.log('\nComando generado:\n');
@@ -646,7 +641,11 @@ async function runFile(filePath: string, projectContext: ProjectContext): Promis
 
 async function exploreDirectory(currentDir: string, projectContext: ProjectContext, projectTestDir: string): Promise<void> {
     while (true) {
-        const entries = listEntries(currentDir);
+        let entries = listEntries(currentDir);
+        // Si estamos en PuntoVenta, ocultar la carpeta Facturacion (es proyecto separado)
+        if (projectContext.key === 'PuntoVenta' && currentDir === projectTestDir) {
+            entries = entries.filter(e => e.name !== 'Facturacion');
+        }
         const currentRelative = toRelative(currentDir) || 'tests';
 
         const choices = [
@@ -824,16 +823,17 @@ async function runPlaywrightUi(projectContext: ProjectContext): Promise<void> {
     await runPlaywright(['--ui'], projectContext);
 }
 
-async function selectProject(): Promise<'Emisiones' | 'Logistica' | 'Clientes' | 'RunAllSequential' | 'RunAllDual' | 'exit'> {
-    const choice = await select<'Emisiones' | 'Logistica' | 'Clientes' | 'RunAllSequential' | 'RunAllDual' | 'exit'>({
+async function selectProject(): Promise<'PuntoVenta' | 'Facturacion' | 'Logistica' | 'Clientes' | 'RunAllSequential' | 'RunAllDual' | 'exit'> {
+    const choice = await select<'PuntoVenta' | 'Facturacion' | 'Logistica' | 'Clientes' | 'RunAllSequential' | 'RunAllDual' | 'exit'>({
         message: 'ERP2 AUTO - TEST RUNNER — Selecciona proyecto:',
         choices: [
-            {name: '1. Emisiones', value: 'Emisiones'},
-            {name: '2. Logistica', value: 'Logistica'},
-            {name: '3. Clientes', value: 'Clientes'},
-            {name: '4. Run All (Secuencial)', value: 'RunAllSequential'},
-            {name: '5. Run All (Terminales separadas)', value: 'RunAllDual'},
-            {name: '6. Salir', value: 'exit'},
+            {name: '1. PuntoVenta (+ Busqueda + Cierre Caja)', value: 'PuntoVenta'},
+            {name: '2. Facturacion', value: 'Facturacion'},
+            {name: '3. Logistica', value: 'Logistica'},
+            {name: '4. Clientes', value: 'Clientes'},
+            {name: '5. Run All (Secuencial)', value: 'RunAllSequential'},
+            {name: '6. Run All (Terminales separadas)', value: 'RunAllDual'},
+            {name: '7. Salir', value: 'exit'},
         ],
     });
     return choice;
@@ -842,11 +842,13 @@ async function selectProject(): Promise<'Emisiones' | 'Logistica' | 'Clientes' |
 async function runAllSequential(): Promise<void> {
     await askRunOptions();
 
-    const pvOutput = PROJECT_CONFIG.Emisiones.outputDir;
+    const pvOutput = PROJECT_CONFIG.PuntoVenta.outputDir;
+    const facOutput = PROJECT_CONFIG.Facturacion.outputDir;
     const logOutput = PROJECT_CONFIG.Logistica.outputDir;
     const cliOutput = PROJECT_CONFIG.Clientes.outputDir;
 
     const pvArgs = ['--project', 'PuntoVenta', '--output', pvOutput];
+    const facArgs = ['--project', 'Facturacion', '--output', facOutput];
     const logArgs = ['--project', 'Logistica', '--output', logOutput];
     const cliArgs = ['--project', 'Clientes', '--output', cliOutput];
 
@@ -855,6 +857,12 @@ async function runAllSequential(): Promise<void> {
         PW_REPORT_OUTPUT: `${pvOutput}/results.json`,
         PW_JUNIT_OUTPUT: `${pvOutput}/junit.xml`,
         PW_HTML_OUTPUT: `playwright-report/puntoventa`
+    };
+    const facEnv = {
+        ...process.env,
+        PW_REPORT_OUTPUT: `${facOutput}/results.json`,
+        PW_JUNIT_OUTPUT: `${facOutput}/junit.xml`,
+        PW_HTML_OUTPUT: `playwright-report/facturacion`
     };
     const logEnv = {
         ...process.env,
@@ -870,63 +878,49 @@ async function runAllSequential(): Promise<void> {
     };
 
     ensureOutputDirs(pvOutput);
+    ensureOutputDirs(facOutput);
     ensureOutputDirs(logOutput);
     ensureOutputDirs(cliOutput);
     ensureOutputDirs('playwright-report/puntoventa');
+    ensureOutputDirs('playwright-report/facturacion');
     ensureOutputDirs('playwright-report/logistica');
     ensureOutputDirs('playwright-report/clientes');
 
-    console.log('\n=== Ejecutando Suite: Emisiones ===\n');
-    const pvExitCode = await new Promise<number | null>((resolve) => {
-        const pv = crossSpawn('npx', ['playwright', 'test', ...pvArgs], {
-            stdio: 'inherit',
-            shell: false,
-            env: pvEnv,
-        });
-        currentChildren.push(pv);
-        pv.on('close', (code) => {
-            currentChildren = currentChildren.filter(c => c !== pv);
-            resolve(code);
-        });
-    });
+    const suites: Array<{ name: string; args: string[]; env: NodeJS.ProcessEnv }> = [
+        {name: 'PuntoVenta', args: pvArgs, env: pvEnv},
+        {name: 'Facturacion', args: facArgs, env: facEnv},
+        {name: 'Logistica', args: logArgs, env: logEnv},
+        {name: 'Clientes', args: cliArgs, env: cliEnv},
+    ];
 
-    console.log('\n=== Ejecutando Suite: Logistica ===\n');
-    const logExitCode = await new Promise<number | null>((resolve) => {
-        const log = crossSpawn('npx', ['playwright', 'test', ...logArgs], {
-            stdio: 'inherit',
-            shell: false,
-            env: logEnv,
-        });
-        currentChildren.push(log);
-        log.on('close', (code) => {
-            currentChildren = currentChildren.filter(c => c !== log);
-            resolve(code);
-        });
-    });
+    const exitCodes: Record<string, number | null> = {};
 
-    console.log('\n=== Ejecutando Suite: Clientes ===\n');
-    const cliExitCode = await new Promise<number | null>((resolve) => {
-        const cli = crossSpawn('npx', ['playwright', 'test', ...cliArgs], {
-            stdio: 'inherit',
-            shell: false,
-            env: cliEnv,
+    for (const suite of suites) {
+        console.log(`\n=== Ejecutando Suite: ${suite.name} ===\n`);
+        exitCodes[suite.name] = await new Promise<number | null>((resolve) => {
+            const child = crossSpawn('npx', ['playwright', 'test', ...suite.args], {
+                stdio: 'inherit',
+                shell: false,
+                env: suite.env,
+            });
+            currentChildren.push(child);
+            child.on('close', (code) => {
+                currentChildren = currentChildren.filter(c => c !== child);
+                resolve(code);
+            });
         });
-        currentChildren.push(cli);
-        cli.on('close', (code) => {
-            currentChildren = currentChildren.filter(c => c !== cli);
-            resolve(code);
-        });
-    });
+    }
 
     console.log('\n=== Run All Summary ===');
-    console.log(`Emisiones:  exit code ${pvExitCode}`);
-    console.log(`Logistica:  exit code ${logExitCode}`);
-    console.log(`Clientes:   exit code ${cliExitCode}`);
+    for (const [name, code] of Object.entries(exitCodes)) {
+        console.log(`${name}: exit code ${code}`);
+    }
     console.log('=======================\n');
 }
 
 async function runAllDualTerminal(): Promise<void> {
-    const pvOutput = PROJECT_CONFIG.Emisiones.outputDir;
+    const pvOutput = PROJECT_CONFIG.PuntoVenta.outputDir;
+    const facOutput = PROJECT_CONFIG.Facturacion.outputDir;
     const logOutput = PROJECT_CONFIG.Logistica.outputDir;
     const cliOutput = PROJECT_CONFIG.Clientes.outputDir;
 
@@ -935,17 +929,21 @@ async function runAllDualTerminal(): Promise<void> {
     console.log('═══════════════════════════════════════════════════════\n');
     console.log('Una sola consola no puede mostrar múltiples streams de');
     console.log('output simultáneamente sin mezclarlos. Para ver cada');
-    console.log('proyecto en paralelo con output limpio, abrí tres');
+    console.log('proyecto en paralelo con output limpio, abrí cuatro');
     console.log('terminales:\n');
-    console.log('┌─ Terminal 1 (Emisiones) ───────────────────────────┐');
+    console.log('┌─ Terminal 1 (PuntoVenta) ──────────────────────────┐');
     console.log(`│  npx playwright test --project PuntoVenta          │`);
     console.log(`│    --output ${pvOutput.padEnd(38)}│`);
     console.log('└────────────────────────────────────────────────────┘\n');
-    console.log('┌─ Terminal 2 (Logistica) ───────────────────────────┐');
+    console.log('┌─ Terminal 2 (Facturacion) ─────────────────────────┐');
+    console.log(`│  npx playwright test --project Facturacion         │`);
+    console.log(`│    --output ${facOutput.padEnd(38)}│`);
+    console.log('└────────────────────────────────────────────────────┘\n');
+    console.log('┌─ Terminal 3 (Logistica) ───────────────────────────┐');
     console.log(`│  npx playwright test --project Logistica           │`);
     console.log(`│    --output ${logOutput.padEnd(38)}│`);
     console.log('└────────────────────────────────────────────────────┘\n');
-    console.log('┌─ Terminal 3 (Clientes) ────────────────────────────┐');
+    console.log('┌─ Terminal 4 (Clientes) ────────────────────────────┐');
     console.log(`│  npx playwright test --project Clientes            │`);
     console.log(`│    --output ${cliOutput.padEnd(38)}│`);
     console.log('└────────────────────────────────────────────────────┘\n');

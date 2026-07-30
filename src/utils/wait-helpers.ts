@@ -1,13 +1,13 @@
-import {expect, Locator, Page, Response} from '@playwright/test';
+import {expect, Page} from '@playwright/test';
 
 export const esperarCargaOverlay = async (
     page: Page,
     timeout = 35_000
 ): Promise<void> => {
     const overlay = page.locator('[id="cmn_cmp-overload:loading"]');
-    await expect(overlay).toBeHidden({ timeout });
+    await expect(overlay).toBeHidden({timeout});
     await page.waitForTimeout(300);
-    await expect(overlay).toBeHidden({ timeout: 5_000 });
+    await expect(overlay).toBeHidden({timeout: 7_000});
 };
 export const recargarSiHayError = async (
     page: Page,
@@ -16,10 +16,11 @@ export const recargarSiHayError = async (
     const timeout = options?.timeout ?? 60_000;
     console.log('   Recargando página para recuperar de posible error 500...');
 
-    await page.reload({ waitUntil: 'networkidle', timeout });
+    await page.reload({waitUntil: 'networkidle', timeout});
 
     const overlay = page.locator('[id="cmn_cmp-overload:loading"]');
-    await overlay.waitFor({ state: 'hidden', timeout: 35_000 }).catch(() => {});
+    await overlay.waitFor({state: 'hidden', timeout: 35_000}).catch(() => {
+    });
 
     console.log('   Página recargada y estable.');
 };

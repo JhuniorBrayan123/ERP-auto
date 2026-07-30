@@ -38,7 +38,10 @@ export default defineConfig({
 
     reporter: [
         ["./src/utils/maven-reporter.ts"], // consola estilo Maven/Surefire
-        ["html", {outputFolder: "report/html", open: "never"}],
+        ["html", {
+            outputFolder: process.env.PW_HTML_OUTPUT || "report/html",
+            open: "never"
+        }],
     ],
 
     use: {
