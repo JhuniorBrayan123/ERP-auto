@@ -1,5 +1,5 @@
 import {execSync} from 'node:child_process';
-import {mkdirSync, writeFileSync} from 'node:fs';
+import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
 import type {FullResult, Reporter, TestCase, TestResult} from '@playwright/test/reporter';
 import {discordEnv} from '../../config/env';
@@ -220,6 +220,45 @@ export async function postToDiscord(
     } catch (error) {
         console.error('[discord-reporter] Error enviando reporte a Discord:', error);
     }
+}
+
+/**
+ * Lee los parciales de disco (escritos por onEnd en modo partial).
+ * Robustez: archivo ausente, JSON corrupto o estructura inválida → entra a
+ * `missing` (con aviso en consola); nunca lanza (un parcial roto no debe
+ * tumbar la consolidación del reporte).
+ */
+export function loadPartialsFromDisk(
+    partialsDir: string,
+    expectedProjects: string[],
+): {partials: DiscordPartial[]; missing: string[]} {
+    const partials: DiscordPartial[] = [];
+    const missing: string[] = [];
+    for (const project of expectedProjects) {
+        const file = path.join(partialsDir, `${project}.json`);
+        if (!existsSync(file)) {
+            missing.push(project);
+            continue;
+        }
+        try {
+            const raw = readFileSync(file, 'utf8');
+            const parsed = JSON.parse(raw) as Partial<DiscordPartial>;
+            if (
+                typeof parsed?.project !== 'string' ||
+                typeof parsed?.module !== 'string' ||
+                typeof parsed?.passed !== 'number' ||
+                typeof parsed?.failed !== 'number' ||
+                !Array.isArray(parsed?.qaFailures)
+            ) {
+                throw new Error('estructura inválida');
+            }
+            partials.push(parsed as DiscordPartial);
+        } catch {
+            console.warn(`[discord-reporter] Parcial corrupto o inválido: ${file} — omitido`);
+            missing.push(project);
+        }
+    }
+    return {partials, missing};
 }
 
 function buildQaFailure(test: TestCase, result: TestResult): QaFailure {

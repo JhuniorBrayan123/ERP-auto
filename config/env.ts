@@ -50,7 +50,7 @@ export function normalizeMention(raw: string | undefined, kind: 'user' | 'role')
     return kind === 'role' ? `<@&${inner}>` : `<@${inner}>`;
 }
 
-function envFlag(name: string): boolean {
+export function envFlag(name: string): boolean {
     const value = process.env[name];
     return value === '1' || value?.toLowerCase() === 'true';
 }
