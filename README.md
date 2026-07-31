@@ -512,16 +512,57 @@ npx allure serve allure-results
 
 ### JSON
 
-- **Ubicación:** `test-results/results.json`
-- **Uso:** Procesamiento programático, integración con herramientas externas
+- **Ubicación:** `test-results/<proyecto>/results.json` — el runner setea `PW_REPORT_OUTPUT` por proyecto
+  (`test-results/puntoventa/results.json`, `test-results/facturacion/results.json`, `test-results/logistica/results.json`, `test-results/clientes/results.json`)
+- **Uso:** Procesamiento programático e integración con herramientas externas; `scripts/analyze-results.ts` lo
+  parsea para listar los tests fallidos por proyecto
+- **Path por defecto (sin el env):** `test-results/results.json` — no rompe si corres Playwright directo
 
 ---
 
-### Discord Reporter (webhook automático)
+### Discord Reporter (resumen automático en Discord)
 
-- Envía un resumen automático al canal de Discord del equipo al finalizar la ejecución
-- Incluye: total de tests, passed, failed, duración total
-- Configurado vía webhook en `config/environment.env`
+Envía un resumen consolidado de la corrida al canal del equipo: desglose por módulo, metadata
+(entorno, tester, duración, commit/branch), detalle funcional de los fallos, menciones y link al
+reporte HTML. **Un solo mensaje por corrida Run All.**
+
+> ⚠️ **Sin secretos en el repo:** el webhook y tu identidad viven SOLO en tu
+> `config/environment.env` local (gitignored). Nunca pegues el URL del webhook en código ni en este README.
+
+#### Cómo activarlo (setup por persona)
+
+1. Edita tu `config/environment.env` local (fuera de git) y descompleta:
+
+```bash
+DISCORD_REPORT_ENABLED=1        # gate: apagado por defecto
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/<id>/<token>   # TU webhook (secreto)
+DISCORD_TESTER_NAME=TuNombre     # quién corrió la prueba
+DISCORD_USER_ID=123456789        # tu ID de usuario → te menciona en fallos
+DISCORD_MENTION_ROLE=987654321   # ID de rol → menciona al rol en fallos
+```
+
+2. (Opcional) Modos de envío:
+
+```bash
+DISCORD_ONLY_FAILURES=1   # solo envía si hubo fallos (corrida verde → silencio)
+DISCORD_DRY_RUN=1         # no postea: muestra el mensaje en consola (probar sin ensuciar el canal)
+```
+
+#### Comportamiento
+
+- **Run All (secuencial):** cada proyecto escribe un parcial y el runner consolida **UN** mensaje con
+  desglose por módulo. Si un proyecto crashea sin escribir su parcial, el reporte igual se envía con un
+  aviso del faltante.
+- **Run All (terminales separadas):** no consolida — cada terminal envía su propio mensaje directo. Usá
+  Run All secuencial si querés el mensaje único.
+- **Proyecto individual:** envía directo al terminar la corrida.
+- **Sin webhook configurado:** avisa en consola y no bloquea la corrida.
+
+#### Regenerar el webhook
+
+El webhook anterior quedó filtrado en el historial de git. **Creá uno nuevo**: Discord → Ajustes del
+canal → Integraciones → Webhooks → *Nuevo webhook*, copiá el URL a tu `config/environment.env` y no lo
+compartas en el repo.
 
 ---
 
@@ -626,6 +667,13 @@ La gestión de configuración ocurre centralizada en `config/env.ts` que lee des
 | `BROWSER`              | Sobrescribe el navegador a usar.                                              | `chromium`, `firefox`, `webkit`          | Opcional    |
 | `SKIP_PV_SETUP`        | Omite el setup de datos de Punto de Venta (vendedor, campos, clientes).       | `1` para omitir                          | Opcional    |
 | `SKIP_PV_ITEMS_SETUP`  | Omite el setup de ítems de Punto de Venta (ISC, ICBPER, Receta, Lista).       | `1` para omitir                          | Opcional    |
+| `DISCORD_REPORT_ENABLED` | Gate del reporter de Discord.                                              | `1` para activar; ausente = apagado      | Opcional    |
+| `DISCORD_WEBHOOK_URL`  | URL del webhook del canal (secreto local, nunca en git).                     | URL válido                               | Opcional (necesaria si gate=1) |
+| `DISCORD_TESTER_NAME`  | Nombre que aparece como tester en el reporte.                                | Texto libre                              | Opcional    |
+| `DISCORD_USER_ID`      | Tu ID de usuario Discord → mencionado en fallos.                             | `123` o `<@123>`                         | Opcional    |
+| `DISCORD_MENTION_ROLE` | ID de rol Discord → mencionado en fallos.                                    | `456` o `<@&456>`                        | Opcional    |
+| `DISCORD_ONLY_FAILURES`| Solo enviar el reporte si hubo fallos.                                       | `1`                                      | Opcional    |
+| `DISCORD_DRY_RUN`      | No postear: muestra el mensaje en consola (prueba segura).                   | `1`                                      | Opcional    |
 
 ---
 
