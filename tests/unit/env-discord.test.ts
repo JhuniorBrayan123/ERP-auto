@@ -24,8 +24,7 @@ const DISCORD_VARS = [
     'DISCORD_WEBHOOK_URL',
     'DISCORD_TESTER_NAME',
     'DISCORD_USER_ID',
-    'DISCORD_MENTION_ROLE',
-    'DISCORD_ONLY_FAILURES',
+
     'DISCORD_DRY_RUN',
 ] as const;
 
@@ -36,13 +35,12 @@ interface DiscordEnvBlock {
     webhookUrl?: string;
     testerName?: string;
     userId?: string;
-    mentionRole?: string;
-    onlyFailures: boolean;
+
     dryRun: boolean;
 }
 interface EnvModuleShape {
     discordEnv: DiscordEnvBlock;
-    normalizeMention: (raw: string | undefined, kind: 'user' | 'role') => string | undefined;
+    normalizeMention: (raw: string | undefined) => string | undefined;
 }
 
 function clearDiscordVars(): void {
@@ -81,29 +79,21 @@ async function main(): Promise<void> {
     const mod = requireEnvModule();
 
     await it('normalizeMention: id crudo de usuario → <@id>', async () => {
-        assert.strictEqual(mod.normalizeMention('123', 'user'), '<@123>');
+        assert.strictEqual(mod.normalizeMention('123'), '<@123>');
     });
 
     await it('normalizeMention: id de usuario ya envuelto <@id> se mantiene', async () => {
-        assert.strictEqual(mod.normalizeMention('<@123>', 'user'), '<@123>');
-    });
-
-    await it('normalizeMention: id crudo de rol → <@&id>', async () => {
-        assert.strictEqual(mod.normalizeMention('456', 'role'), '<@&456>');
-    });
-
-    await it('normalizeMention: rol ya envuelto <@&id> se mantiene', async () => {
-        assert.strictEqual(mod.normalizeMention('<@&456>', 'role'), '<@&456>');
+        assert.strictEqual(mod.normalizeMention('<@123>'), '<@123>');
     });
 
     await it('normalizeMention: undefined o vacío → undefined (sin romper)', async () => {
-        assert.strictEqual(mod.normalizeMention(undefined, 'user'), undefined);
-        assert.strictEqual(mod.normalizeMention('', 'role'), undefined);
+        assert.strictEqual(mod.normalizeMention(undefined), undefined);
+        assert.strictEqual(mod.normalizeMention(''), undefined);
     });
 
     await it('normalizeMention: tolera espacios alrededor del id', async () => {
-        assert.strictEqual(mod.normalizeMention('  <@789>  ', 'user'), '<@789>');
-        assert.strictEqual(mod.normalizeMention('  1011  ', 'role'), '<@&1011>');
+        assert.strictEqual(mod.normalizeMention('  <@789>  '), '<@789>');
+        assert.strictEqual(mod.normalizeMention('  1011  '), '<@1011>');
     });
 
     console.log('  ── discordEnv sin variables (no-throwing) ──');
@@ -116,8 +106,8 @@ async function main(): Promise<void> {
         assert.strictEqual(m.discordEnv.webhookUrl, undefined);
         assert.strictEqual(m.discordEnv.testerName, undefined);
         assert.strictEqual(m.discordEnv.userId, undefined);
-        assert.strictEqual(m.discordEnv.mentionRole, undefined);
-        assert.strictEqual(m.discordEnv.onlyFailures, false);
+        assert.strictEqual('mentionRole' in m.discordEnv, false, 'mentionRole eliminado del bloque');
+
         assert.strictEqual(m.discordEnv.dryRun, false);
     });
 
@@ -129,7 +119,6 @@ async function main(): Promise<void> {
         process.env.DISCORD_WEBHOOK_URL = 'https://example.test/hook';
         process.env.DISCORD_TESTER_NAME = 'Ana';
         process.env.DISCORD_USER_ID = '123';
-        process.env.DISCORD_MENTION_ROLE = '<@&456>';
         process.env.DISCORD_ONLY_FAILURES = '1';
         process.env.DISCORD_DRY_RUN = '1';
         const m = requireEnvModule();
@@ -137,8 +126,8 @@ async function main(): Promise<void> {
         assert.strictEqual(m.discordEnv.webhookUrl, 'https://example.test/hook');
         assert.strictEqual(m.discordEnv.testerName, 'Ana');
         assert.strictEqual(m.discordEnv.userId, '<@123>');
-        assert.strictEqual(m.discordEnv.mentionRole, '<@&456>');
-        assert.strictEqual(m.discordEnv.onlyFailures, true);
+        assert.strictEqual('mentionRole' in m.discordEnv, false, 'mentionRole eliminado del bloque');
+
         assert.strictEqual(m.discordEnv.dryRun, true);
     });
 
@@ -157,7 +146,7 @@ async function main(): Promise<void> {
         process.env.DISCORD_ONLY_FAILURES = '';
         const m = requireEnvModule();
         assert.strictEqual(m.discordEnv.enabled, false);
-        assert.strictEqual(m.discordEnv.onlyFailures, false);
+
     });
 
     console.log('  ── config/environment.env — plantilla DISCORD_* ──');

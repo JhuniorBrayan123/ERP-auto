@@ -25,8 +25,7 @@ const DISCORD_VARS = [
     'DISCORD_WEBHOOK_URL',
     'DISCORD_TESTER_NAME',
     'DISCORD_USER_ID',
-    'DISCORD_MENTION_ROLE',
-    'DISCORD_ONLY_FAILURES',
+
     'DISCORD_DRY_RUN',
 ] as const;
 
@@ -267,14 +266,16 @@ async function main(): Promise<void> {
         assert.ok(c.warns.some((w) => w.includes('Logistica')), 'aviso del proyecto sin parcial');
     });
 
-    await it('consolidate: solo-fallos + corrida verde → skip sin POST', async () => {
+
+
+    await it('consolidate: corrida verde con DISCORD_USER_ID → mención del ejecutor SIEMPRE presente', async () => {
         clearDiscordVars();
         process.env.DISCORD_REPORT_ENABLED = '1';
         process.env.DISCORD_WEBHOOK_URL = 'https://example.test/hook';
-        process.env.DISCORD_ONLY_FAILURES = '1';
+        process.env.DISCORD_USER_ID = '123';
         cleanupPartials();
         writePartial('PuntoVenta', makePartial({project: 'PuntoVenta', passed: 4, failed: 0, errors: 0, qaFailures: []}));
-        const fake = mockFetch();
+        const fake = mockFetch(async () => ({ok: true} as Response));
         const c = captureLogs();
         try {
             await mod.consolidateDiscordReport(TMP_PARTIALS);
@@ -283,8 +284,32 @@ async function main(): Promise<void> {
             fake.restore();
             cleanupPartials();
         }
-        assert.strictEqual(fake.calls.length, 0, 'solo-fallos con verde no envía');
-        assert.ok(c.logs.some((l) => l.includes('Solo-fallos')), 'debe loguear el motivo del skip');
+        assert.strictEqual(fake.calls.length, 1, 'verde sin solo-fallos → igual envía');
+        const body = JSON.parse(fake.calls[0].init.body);
+        assert.ok(body.content.includes('✅ **EXITOSO**'), 'estado EXITOSO');
+        assert.ok(body.content.includes('<@123>'), 'verde: mención del ejecutor SIEMPRE (userId configurado)');
+        assert.ok(!body.content.includes('<@&'), 'nunca debe mencionar un rol');
+    });
+
+    await it('consolidate: sin DISCORD_USER_ID → mensaje sin mención (degrada sin error)', async () => {
+        clearDiscordVars();
+        process.env.DISCORD_REPORT_ENABLED = '1';
+        process.env.DISCORD_WEBHOOK_URL = 'https://example.test/hook';
+        cleanupPartials();
+        writePartial('PuntoVenta', makePartial({project: 'PuntoVenta', passed: 4, failed: 1, qaFailures: []}));
+        const fake = mockFetch(async () => ({ok: true} as Response));
+        const c = captureLogs();
+        try {
+            await mod.consolidateDiscordReport(TMP_PARTIALS);
+        } finally {
+            c.restore();
+            fake.restore();
+            cleanupPartials();
+        }
+        assert.strictEqual(fake.calls.length, 1, 'con fallos envía igual');
+        const body = JSON.parse(fake.calls[0].init.body);
+        assert.ok(!body.content.includes('<@'), 'sin userId no debe haber mención');
+        assert.ok(body.content.includes('❌ **FALLIDO**'), 'estado FALLIDO');
     });
 
     await it('consolidate: sin webhook → warning y sin POST (no bloquea)', async () => {

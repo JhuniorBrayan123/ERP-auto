@@ -500,10 +500,6 @@ export async function consolidateDiscordReport(
     const payload = mergePartials(partials, missing);
     const hasFailures = payload.total.failed > 0 || payload.total.errors > 0;
 
-    if (envFlag('DISCORD_ONLY_FAILURES') && !hasFailures) {
-        console.log('[discord-reporter] Solo-fallos activo y corrida sin fallos — mensaje omitido.');
-        return;
-    }
 
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
     if (!webhookUrl) {
@@ -512,8 +508,7 @@ export async function consolidateDiscordReport(
     }
 
     const content = formatDiscordMessage(payload, {
-        userId: normalizeMention(process.env.DISCORD_USER_ID, 'user'),
-        mentionRole: normalizeMention(process.env.DISCORD_MENTION_ROLE, 'role'),
+        userId: normalizeMention(process.env.DISCORD_USER_ID),
     });
     await postToDiscord(content, {
         webhookUrl,

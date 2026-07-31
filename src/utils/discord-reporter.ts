@@ -1,8 +1,7 @@
-import {execSync} from 'node:child_process';
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
 import type {FullResult, Reporter, TestCase, TestResult} from '@playwright/test/reporter';
-import {discordEnv} from '../../config/env';
+import {discordEnv, normalizeMention} from '../../config/env';
 import {getEnvironmentLabel} from './environment-label';
 import {detectFailureCategory, parseFunctionalMeta} from './functional-error';
 
@@ -37,8 +36,7 @@ export interface ConsolidatedPayload {
     modules: DiscordPartial[];
     total: {passed: number; failed: number; errors: number; skipped: number};
     failures: QaFailure[];
-    commit?: string;
-    branch?: string;
+
     htmlLinks: string[];
     missing: string[];
 }
@@ -83,51 +81,53 @@ function formatDurationMs(ms: number): string {
 
 /**
  * Mensaje consolidado ≤ 2000 chars: cabecera + tabla de módulos siempre,
- * fallos top-N hasta presupuesto y cola `… +N más`. Menciones solo con fallos.
+ * fallos top-N hasta presupuesto y cola `… +N más`. La mención del ejecutor
+ * (si `DISCORD_USER_ID` está configurado) aparece SIEMPRE, pase o no la
+ * corrida. Sin userId → el mensaje se envía sin mención (sin error).
  */
 export function formatDiscordMessage(
     payload: ConsolidatedPayload,
-    mentions?: {userId?: string; mentionRole?: string},
+    mentions?: {userId?: string},
 ): string {
     const hasFailures = payload.total.failed > 0 || payload.total.errors > 0;
 
-    let mentionLine = '';
-    if (hasFailures) {
-        const m = [mentions?.mentionRole, mentions?.userId].filter(Boolean).join(' ');
-        mentionLine = m ? `${m}\n\n` : '';
-    }
+    const SEP = '──────────────────────────────────────────────';
+    const mentionLine = mentions?.userId ? `${mentions.userId}\n` : '';
 
     const headerLines = [
         `🤖 **REPORTE DE REGRESIÓN ERP2** — ${payload.environment}`,
         `👤 **Tester:** ${payload.tester || 'No identificado'}`,
         `⏱️ **Duración:** ${formatDurationMs(payload.durationMs)}`,
     ];
-    if (payload.commit) {
-        headerLines.push(`🌿 **Commit:** ${payload.commit}${payload.branch ? ` (${payload.branch})` : ''}`);
-    }
-    const header = `${mentionLine}${headerLines.join('\n')}\n\n`;
+
+    const header = `${mentionLine}${SEP}\n\n${headerLines.join('\n')}\n\n${SEP}\n\n`;
 
     const moduleLines = payload.modules.length
         ? payload.modules.map((m) => {
             const bad = m.failed + m.errors;
             const icon = bad > 0 ? '❌' : '✅';
-            return `${icon} **${m.module}** — ${m.passed} pasaron, ${m.failed} fallaron, ${m.errors} errores, ${m.skipped} omitidos`;
+            let desc = `${m.passed} pasaron`;
+            if (m.failed > 0) desc += `, ${m.failed} fallaron`;
+            if (m.errors > 0) desc += `, ${m.errors} errores`;
+            if (m.skipped > 0) desc += `, ${m.skipped} omitidos`;
+            return `${icon} **${m.module}** — ${desc}`;
         })
         : ['➖ _No se ejecutaron pruebas_'];
-    const moduleSection = `📋 **RESULTADOS POR MÓDULO**\n${moduleLines.join('\n')}\n\n`;
+    const moduleSection = `📋 **RESULTADOS POR MÓDULO**\n\n${moduleLines.join('\n')}\n\n${SEP}\n\n`;
 
     const state = hasFailures ? '❌ **FALLIDO**' : '✅ **EXITOSO**';
     const total = payload.total;
     const totalCount = total.passed + total.failed + total.errors + total.skipped;
+    const parts = [`${total.passed} ✅`];
+    if (total.failed > 0) parts.push(`${total.failed} ❌`);
+    if (total.errors > 0) parts.push(`${total.errors} ⚠️`);
+    if (total.skipped > 0) parts.push(`${total.skipped} ➖`);
+
     const summarySection =
         `📊 **RESUMEN GLOBAL**\n**Estado:** ${state}\n` +
-        `**Total:** ${totalCount} (${total.passed} ✅ | ${total.failed} ❌ | ${total.errors} ⚠️ | ${total.skipped} ➖)\n`;
+        `**Total:** ${totalCount} (${parts.join(' | ')})\n\n${SEP}\n`;
 
-    const linksSection = payload.htmlLinks.length > 0
-        ? `🔗 **Reporte HTML:** ${payload.htmlLinks.join(', ')}\n`
-        : '';
-
-    let body = `${header}${moduleSection}${summarySection}${linksSection}`;
+    let body = `${header}${moduleSection}${summarySection}`;
 
     if (payload.failures.length > 0) {
         body += `\n❌ **TOP FALLOS**\n`;
@@ -156,15 +156,7 @@ export function formatDiscordMessage(
     return body;
 }
 
-function getGitMeta(): {commit?: string; branch?: string} {
-    try {
-        const commit = execSync('git rev-parse --short HEAD', {encoding: 'utf8'}).trim();
-        const branch = execSync('git branch --show-current', {encoding: 'utf8'}).trim();
-        return {commit, branch};
-    } catch {
-        return {};
-    }
-}
+
 
 /** Consolida los parciales en un payload único (totales, fallos, links, metadata). */
 export function mergePartials(partials: DiscordPartial[], missing: string[]): ConsolidatedPayload {
@@ -191,7 +183,7 @@ export function mergePartials(partials: DiscordPartial[], missing: string[]): Co
         modules: partials,
         total,
         failures,
-        ...getGitMeta(),
+
         htmlLinks,
         missing,
     };
@@ -326,7 +318,12 @@ class DiscordReporter implements Reporter {
         if (this.isSetupTest(test)) {
             return;
         }
-        const module = extractModuleFromFile(test.location?.file ?? '');
+        // titlePath()[0] es el nombre del proyecto Playwright cuando existe y no es vacío.
+        // Fallback: deducir del path del archivo si no hay proyecto seleccionado.
+        const projectName = test.titlePath()[0];
+        const module = (projectName && projectName.trim() !== '')
+            ? projectName
+            : extractModuleFromFile(test.location?.file ?? '');
         const willRetry =
             (result.status === 'failed' || result.status === 'timedOut') &&
             result.retry < test.retries;
@@ -373,15 +370,10 @@ class DiscordReporter implements Reporter {
             return;
         }
 
-        if (discordEnv.onlyFailures && partial.failed + partial.errors === 0) {
-            console.log('[discord-reporter] Solo-fallos activo y corrida sin fallos — mensaje omitido.');
-            return;
-        }
 
         const payload = mergePartials([partial], []);
         const content = formatDiscordMessage(payload, {
-            userId: discordEnv.userId,
-            mentionRole: discordEnv.mentionRole,
+            userId: normalizeMention(process.env.DISCORD_USER_ID),
         });
         await postToDiscord(content, {
             webhookUrl: discordEnv.webhookUrl,
@@ -394,10 +386,13 @@ class DiscordReporter implements Reporter {
             process.env.PW_DISCORD_PROJECT ??
             projectKeyFromReportOutput(process.env.PW_REPORT_OUTPUT) ??
             'desconocido';
+        // PW_DISCORD_PROJECT es seteado por el runner con el nombre exacto del proyecto.
+        // Es la fuente más confiable. Solo si no existe, intentamos deducirlo.
+        const module = project !== 'desconocido' ? project : this.dominantModule();
         const stats = this.totalStats();
         return {
             project,
-            module: this.dominantModule(),
+            module,
             started: this.startTime,
             passed: stats.passed,
             failed: stats.failed,

@@ -538,7 +538,6 @@ DISCORD_REPORT_ENABLED=1        # gate: apagado por defecto
 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/<id>/<token>   # TU webhook (secreto)
 DISCORD_TESTER_NAME=TuNombre     # quién corrió la prueba
 DISCORD_USER_ID=123456789        # tu ID de usuario → te menciona en fallos
-DISCORD_MENTION_ROLE=987654321   # ID de rol → menciona al rol en fallos
 ```
 
 2. (Opcional) Modos de envío:
@@ -671,7 +670,6 @@ La gestión de configuración ocurre centralizada en `config/env.ts` que lee des
 | `DISCORD_WEBHOOK_URL`  | URL del webhook del canal (secreto local, nunca en git).                     | URL válido                               | Opcional (necesaria si gate=1) |
 | `DISCORD_TESTER_NAME`  | Nombre que aparece como tester en el reporte.                                | Texto libre                              | Opcional    |
 | `DISCORD_USER_ID`      | Tu ID de usuario Discord → mencionado en fallos.                             | `123` o `<@123>`                         | Opcional    |
-| `DISCORD_MENTION_ROLE` | ID de rol Discord → mencionado en fallos.                                    | `456` o `<@&456>`                        | Opcional    |
 | `DISCORD_ONLY_FAILURES`| Solo enviar el reporte si hubo fallos.                                       | `1`                                      | Opcional    |
 | `DISCORD_DRY_RUN`      | No postear: muestra el mensaje en consola (prueba segura).                   | `1`                                      | Opcional    |
 
