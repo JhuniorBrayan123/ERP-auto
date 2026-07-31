@@ -43,6 +43,9 @@ export default defineConfig({
             outputFolder: process.env.PW_HTML_OUTPUT || "report/html",
             open: "never"
         }],
+        // Gate: solo se registra (y por tanto se instancia) con DISCORD_REPORT_ENABLED === '1'.
+        // Apagado → inerte: sin HTTP, sin errores, sin instanciar el reporter.
+        ...(process.env.DISCORD_REPORT_ENABLED === "1" ? [["./src/utils/discord-reporter.ts"]] : []),
     ],
 
     use: {
