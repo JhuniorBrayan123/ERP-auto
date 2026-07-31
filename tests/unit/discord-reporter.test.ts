@@ -61,6 +61,7 @@ interface ReporterModuleShape {
     formatDiscordMessage: (p: ConsolidatedPayloadShape, mentions?: {userId?: string; mentionRole?: string}) => string;
     mergePartials: (partials: DiscordPartialShape[], missing: string[]) => ConsolidatedPayloadShape;
     postToDiscord: (content: string, opts: {webhookUrl: string; dryRun: boolean}) => Promise<void>;
+    loadPartialsFromDisk: (dir: string, expectedProjects: string[]) => {partials: DiscordPartialShape[]; missing: string[]};
     DISCORD_MAX_LENGTH: number;
 }
 
@@ -347,6 +348,79 @@ async function main(): Promise<void> {
         assert.match(merged.commit ?? '', /^[0-9a-f]{7,40}$/, 'commit corto de git');
         assert.ok(merged.branch && merged.branch.length > 0, 'branch actual');
         delete process.env.ENV_NAME;
+    });
+
+    // ═══════════════ loadPartialsFromDisk (parciales desde disco, robustez) ═══════════════
+    console.log('  ── loadPartialsFromDisk (lectura de parciales: faltantes/corruptos) ──');
+
+    const tmpPartialsDir = path.join(ROOT, 'test-results', '.discord-partials-test');
+    function writePartialFile(project: string, content: string): void {
+        fs.mkdirSync(tmpPartialsDir, {recursive: true});
+        fs.writeFileSync(path.join(tmpPartialsDir, `${project}.json`), content, 'utf8');
+    }
+    function cleanupTmpPartials(): void {
+        if (fs.existsSync(tmpPartialsDir)) {
+            fs.rmSync(tmpPartialsDir, {recursive: true, force: true});
+        }
+    }
+
+    await it('loadPartialsFromDisk: 2 parciales válidos → cargados, missing vacío', () => {
+        cleanupTmpPartials();
+        writePartialFile('PuntoVenta', JSON.stringify(makePartial({project: 'PuntoVenta'})));
+        writePartialFile('Logistica', JSON.stringify(makePartial({project: 'Logistica'})));
+        const {partials, missing} = mod.loadPartialsFromDisk(tmpPartialsDir, ['PuntoVenta', 'Logistica']);
+        assert.strictEqual(partials.length, 2, 'ambos parciales cargados');
+        assert.deepStrictEqual(partials.map((p) => p.project), ['PuntoVenta', 'Logistica']);
+        assert.deepStrictEqual(missing, [], 'sin faltantes');
+        cleanupTmpPartials();
+    });
+
+    await it('loadPartialsFromDisk: archivo ausente → project en missing', () => {
+        cleanupTmpPartials();
+        writePartialFile('PuntoVenta', JSON.stringify(makePartial({project: 'PuntoVenta'})));
+        const {partials, missing} = mod.loadPartialsFromDisk(tmpPartialsDir, ['PuntoVenta', 'Clientes']);
+        assert.strictEqual(partials.length, 1);
+        assert.deepStrictEqual(missing, ['Clientes'], 'proyecto sin parcial → missing');
+        cleanupTmpPartials();
+    });
+
+    await it('loadPartialsFromDisk: JSON corrupto → missing + aviso, no lanza', () => {
+        cleanupTmpPartials();
+        writePartialFile('PuntoVenta', '{esto-no-es-json');
+        const origWarn = console.warn;
+        const warns: string[] = [];
+        console.warn = (m?: unknown) => {
+            warns.push(String(m));
+        };
+        let result: {partials: DiscordPartialShape[]; missing: string[]} | undefined;
+        try {
+            result = mod.loadPartialsFromDisk(tmpPartialsDir, ['PuntoVenta']);
+        } finally {
+            console.warn = origWarn;
+        }
+        assert.deepStrictEqual(result!.partials, [], 'corrupto no carga parcial');
+        assert.deepStrictEqual(result!.missing, ['PuntoVenta'], 'corrupto tratado como missing');
+        assert.ok(warns.some((w) => w.includes('corrupto') || w.includes('inválido')), 'debe avisar del corrupto');
+        cleanupTmpPartials();
+    });
+
+    await it('loadPartialsFromDisk: JSON válido pero estructura inválida → missing', () => {
+        cleanupTmpPartials();
+        writePartialFile('PuntoVenta', JSON.stringify({foo: 'bar'}));
+        const {partials, missing} = mod.loadPartialsFromDisk(tmpPartialsDir, ['PuntoVenta']);
+        assert.deepStrictEqual(partials, [], 'estructura inválida no carga');
+        assert.deepStrictEqual(missing, ['PuntoVenta']);
+        cleanupTmpPartials();
+    });
+
+    await it('loadPartialsFromDisk: mezcla válido/faltante/corrupto → split correcto', () => {
+        cleanupTmpPartials();
+        writePartialFile('PuntoVenta', JSON.stringify(makePartial({project: 'PuntoVenta'})));
+        writePartialFile('Logistica', 'no-json{');
+        const {partials, missing} = mod.loadPartialsFromDisk(tmpPartialsDir, ['PuntoVenta', 'Facturacion', 'Logistica', 'Clientes']);
+        assert.deepStrictEqual(partials.map((p) => p.project), ['PuntoVenta'], 'solo el válido');
+        assert.deepStrictEqual(missing, ['Facturacion', 'Logistica', 'Clientes'], 'faltante + corrupto en missing');
+        cleanupTmpPartials();
     });
 
     // ═══════════════ postToDiscord ═══════════════
