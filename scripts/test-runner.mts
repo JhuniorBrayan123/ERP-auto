@@ -138,6 +138,13 @@ function toRelative(targetPath: string): string {
     return path.relative(ROOT_DIR, targetPath).replace(/\\/g, '/');
 }
 
+const FACTURACION_REL = 'tests/Emisiones/Facturacion';
+function isPathAllowedForProject (projectKey : ProjectKey, absPath: string): boolean{
+    if(projectKey !== 'PuntoVenta') return true;
+    const rel = toRelative(absPath);
+    return rel !== FACTURACION_REL && !rel.startsWith(FACTURACION_REL + '/');
+}
+
 function listEntries(currentDir: string): ExplorerEntry[] {
     const entries = fs.readdirSync(currentDir, {withFileTypes: true});
 
@@ -496,8 +503,12 @@ async function runMultiplePaths(paths: string[], projectContext: ProjectContext)
 }
 
 async function selectMultipleFromDirectory(currentDir: string, projectContext: ProjectContext): Promise<void> {
-    const entries = listEntries(currentDir);
+    
+    let entries = listEntries(currentDir);
 
+    entries = entries.filter(entry =>
+        isPathAllowedForProject(projectContext.key, entry.path)
+    );
     if (!entries.length) {
         console.log('\nEsta carpeta no tiene subcarpetas ni archivos .spec.ts.\n');
         return;
@@ -643,9 +654,10 @@ async function exploreDirectory(currentDir: string, projectContext: ProjectConte
     while (true) {
         let entries = listEntries(currentDir);
         // Si estamos en PuntoVenta, ocultar la carpeta Facturacion (es proyecto separado)
-        if (projectContext.key === 'PuntoVenta' && currentDir === projectTestDir) {
-            entries = entries.filter(e => e.name !== 'Facturacion');
-        }
+        entries = entries.filter(entry =>
+             isPathAllowedForProject(projectContext.key, entry.path)
+            );
+
         const currentRelative = toRelative(currentDir) || 'tests';
 
         const choices = [
@@ -706,7 +718,10 @@ async function searchGlobalTest(projectContext: ProjectContext): Promise<void> {
 
     if (!query.trim()) return;
 
-    const allTests = walkSpecFiles(projectContext.testDir).flatMap(extractTestsFromFile);
+    const allTests = walkSpecFiles(projectContext.testDir)
+    .filter(filePath => isPathAllowedForProject(projectContext.key, filePath))
+    .flatMap(extractTestsFromFile);
+    
     const trimmed = query.trim();
 
     const tokenMatches = allTests.filter((testCase) => {
@@ -765,7 +780,8 @@ async function searchGlobalFile(projectContext: ProjectContext): Promise<void> {
 
     if (!query.trim()) return;
 
-    const files = walkSpecFiles(projectContext.testDir);
+    const files = walkSpecFiles(projectContext.testDir)
+    .filter(filePath => isPathAllowedForProject(projectContext.key, filePath));
     const trimmed = query.trim();
 
     const tokenFileMatches = files.filter((filePath) =>
