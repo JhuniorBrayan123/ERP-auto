@@ -26,7 +26,7 @@ test.describe.serial('FC-CT-PAGAR | Pagar/Generar Comprobantes desde Cotización
         expect(correlativoCotizacion).toBeTruthy();
     });
 
-    test.describe.skip('Pagar Cotización desde Vista (CT.10-CT.12) — sin producción', () => {
+    test.describe('Pagar Cotización desde Vista (CT.10-CT.12)', () => {
         for (const tipo of tiposComprobante) {
             test(`Generar ${tipo} pagando cotización cargada @FC-CT.Pagar${tipo.replace(/ /g, '')}`, async ({
                                                                                                                 vendedor,
