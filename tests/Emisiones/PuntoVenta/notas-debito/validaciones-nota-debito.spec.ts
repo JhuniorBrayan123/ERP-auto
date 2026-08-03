@@ -1,6 +1,7 @@
 import {expect, test} from '@fixtures/PuntoVenta/comprobante-nc-nd.fixture';
 import {EmitirComprobanteOrigen} from '@screenplay/tasks/common/EmitirComprobanteOrigen';
 import {NotaDebitoTargets} from '@screenplay/targets/notas-debito/NotaDebitoTargets';
+import {BuscarComprobanteNotaDebito} from '@screenplay/interactions/notas/BuscarComprobanteNotaDebito';
 import {SeleccionarMotivoNotaDebito} from '@screenplay/interactions/notas/SeleccionarMotivoNotaDebito';
 import {LlenarMotivoNotaDebito} from '@screenplay/interactions/notas/LlenarMotivoTexto';
 import {ComprobantePage} from '@pages/PuntoVenta/ComprobantePage';
@@ -40,19 +41,11 @@ test.describe('ND-04 | Validaciones y Casos Negativos', {tag: ['@puntoventa', '@
 
         await new ComprobantePage(facturador.page).seleccionarNotaDebito();
 
-        await facturador.page.locator('div').filter({hasText: /^Factura$/}).nth(2).click();
-        await facturador.page.getByText('Factura').nth(2).click();
-
-        const inputSerie = facturador.page.locator('div').filter({hasText: new RegExp(`^${origen.serie}$`)}).nth(3);
-        await inputSerie.click();
-        await facturador.page.getByText(origen.serie).nth(1).click();
-
-        const inputCorrelativo = NotaDebitoTargets.inputCorrelativo(facturador.page);
-        await inputCorrelativo.click();
-        await inputCorrelativo.fill(origen.correlativo);
-        await NotaDebitoTargets.btnBuscar(facturador.page).click();
-
-        await expect(NotaDebitoTargets.gridItems(facturador.page)).toBeVisible();
+        await BuscarComprobanteNotaDebito({
+            tipoDocumento: 'Factura',
+            serie: origen.serie,
+            correlativo: origen.correlativo,
+        })(facturador.page);
 
         await SeleccionarMotivoNotaDebito('Intereses por mora')(facturador.page);
 
@@ -75,19 +68,11 @@ test.describe('ND-04 | Validaciones y Casos Negativos', {tag: ['@puntoventa', '@
 
         await new ComprobantePage(facturador.page).seleccionarNotaDebito();
 
-        await facturador.page.locator('div').filter({hasText: /^Factura$/}).nth(2).click();
-        await facturador.page.getByText('Boleta', {exact: true}).click();
-
-        const inputSerie = facturador.page.locator('div').filter({hasText: new RegExp(`^${origen.serie}$`)}).nth(3);
-        await inputSerie.click();
-        await facturador.page.getByText(origen.serie).nth(1).click();
-
-        const inputCorrelativo = NotaDebitoTargets.inputCorrelativo(facturador.page);
-        await inputCorrelativo.click();
-        await inputCorrelativo.fill(origen.correlativo);
-        await NotaDebitoTargets.btnBuscar(facturador.page).click();
-
-        await expect(NotaDebitoTargets.gridItems(facturador.page)).toBeVisible();
+        await BuscarComprobanteNotaDebito({
+            tipoDocumento: 'Boleta',
+            serie: origen.serie,
+            correlativo: origen.correlativo,
+        })(facturador.page);
 
         await SeleccionarMotivoNotaDebito('Aumento en el valor')(facturador.page);
         await LlenarMotivoNotaDebito('Motivo sin monto')(facturador.page);
@@ -125,15 +110,12 @@ test.describe('ND-04 | Validaciones y Casos Negativos', {tag: ['@puntoventa', '@
             })
         );
         await new ComprobantePage(facturador.page).seleccionarNotaDebito();
-        await facturador.page.locator('div').filter({hasText: /^Factura$/}).nth(2).click();
-        await facturador.page.getByText('Factura').nth(2).click();
-        await facturador.page.locator('div').filter({hasText: new RegExp(`^${origen.serie}$`)}).nth(2).click();
-        await facturador.page.getByText(origen.serie).nth(1).click();
-        const inputCorrelativo = NotaDebitoTargets.inputCorrelativo(facturador.page);
-        await inputCorrelativo.click();
-        await inputCorrelativo.fill(origen.correlativo);
-        await NotaDebitoTargets.btnBuscar(facturador.page).click();
-        await expect(NotaDebitoTargets.gridItems(facturador.page)).toBeVisible();
+        await BuscarComprobanteNotaDebito({
+            tipoDocumento: 'Factura',
+            serie: origen.serie,
+            correlativo: origen.correlativo,
+            indiceSerie: 2,
+        })(facturador.page);
         await NotaDebitoTargets.btnEliminarComprobanteVinculado(facturador.page).click();
         await facturador.pregunta(GrillaItemsVacia());
     });
