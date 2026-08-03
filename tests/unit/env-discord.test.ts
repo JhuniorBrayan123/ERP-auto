@@ -28,8 +28,8 @@ const DISCORD_VARS = [
     'DISCORD_DRY_RUN',
 ] as const;
 
-// Tipado local: permite que el test compile aunque config/env.ts aún no exporte
-// los símbolos (fase RED del TDD). En runtime falla hasta que existan.
+
+
 interface DiscordEnvBlock {
     enabled: boolean;
     webhookUrl?: string;
@@ -49,20 +49,20 @@ function clearDiscordVars(): void {
     }
 }
 
-// config/env.ts llama required('APP_ENV'/'USER_EMAIL'/'USER_PASSWORD') al cargar.
-// Garantizamos valores base antes del primer import (mismo patrón defensivo que setup-state.test.ts).
+
+
 function ensureBaseEnv(): void {
     if (!process.env.APP_ENV) process.env.APP_ENV = 'prd';
     if (!process.env.USER_EMAIL) process.env.USER_EMAIL = 'test@test.com';
     if (!process.env.USER_PASSWORD) process.env.USER_PASSWORD = 'test-pass';
 }
 
-// Recarga config/env.ts limpiando el cache del módulo: discordEnv captura
-// process.env al cargar, así que cada configuración requiere un reload.
+
+
 function requireEnvModule(): EnvModuleShape {
     const resolved = require.resolve('../../config/env');
     delete require.cache[resolved];
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    
     return require(resolved) as EnvModuleShape;
 }
 

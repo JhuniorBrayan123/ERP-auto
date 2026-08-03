@@ -22,8 +22,7 @@ export interface DiscordPartial {
     failed: number;
     errors: number;
     skipped: number;
-    /** Duración = FullResult.duration (ms). */
-    durationMs: number;
+        durationMs: number;
     qaFailures: QaFailure[];
     htmlLink: string;
 }
@@ -41,20 +40,55 @@ export interface ConsolidatedPayload {
     missing: string[];
 }
 
-/** Módulo derivado del spec path (espejo de PROJECT_CONFIG del runner). */
-export function extractModuleFromFile(file: string): string {
-    const f = file.replace(/\\/g, '/');
-    if (f.includes('/Emisiones/Facturacion/')) return 'Facturacion';
-    if (f.includes('/Emisiones/')) return 'PuntoVenta';
-    if (f.includes('/Logistica/')) return 'Logistica';
-    if (f.includes('/ClientesProveedores/')) return 'Clientes';
-    return 'Otros';
+/**
+ * Normaliza un segmento de carpeta a PascalCase: separa por '-'/'_',
+ * capitaliza la primera letra de cada token y los une sin separador.
+ * Ej: 'notas-debito' → 'NotasDebito', 'PV-01_emision-stock-datos-adicionales' → 'PV01EmisionStockDatosAdicionales'.
+ */
+function pascalCaseFolder(name: string): string {
+    return name
+        .split(/[-_]/)
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join('');
 }
 
 /**
- * Fallback de proyecto: parsea PW_REPORT_OUTPUT del estilo
- * `test-results/<key>/results.json` → nombre de proyecto legible.
+ * Raíces de carpetas de tests: cada entrada define el prefijo físico y cómo
+ * se muestra como proyecto. Orden importa (más específico primero).
  */
+const MODULE_BASES: ReadonlyArray<{prefix: string; projectPrefix: string}> = [
+    {prefix: 'tests/Emisiones/', projectPrefix: ''},
+    {prefix: 'tests/Logistica/', projectPrefix: 'Logistica'},
+    {prefix: 'tests/ClientesProveedores/', projectPrefix: 'Clientes'},
+];
+
+/**
+ * Deriva el módulo (jerarquía de carpetas real) desde la ruta del spec.
+ *
+ * - Toma la ruta relativa desde la raíz de tests (tests/Emisiones,
+ *   tests/Logistica, tests/ClientesProveedores), descarta el nombre del archivo,
+ *   normaliza cada segmento a PascalCase y los une con '/'.
+ * - La primera carpeta bajo tests/Emisiones ES el proyecto (PuntoVenta,
+ *   Facturacion, Busqueda, CierreCaja), por eso projectPrefix es '' ahí.
+ * - Ej: 'tests/Emisiones/PuntoVenta/Boleta/boleta.spec.ts' → 'PuntoVenta/Boleta'
+ * - Ej: 'tests/Logistica/Movimientos/movimiento.spec.ts' → 'Logistica/Movimientos'
+ * - Ej: 'tests/ClientesProveedores/proveedores/proveedor.spec.ts' → 'Clientes/Proveedores'
+ */
+export function extractModuleFromFile(file: string): string {
+    const f = file.replace(/\\/g, '/');
+    for (const {prefix, projectPrefix} of MODULE_BASES) {
+        const idx = f.indexOf(prefix);
+        if (idx === -1) continue;
+        const rest = f.slice(idx + prefix.length);
+        const segments = rest.split('/').filter(Boolean);
+        const dirs = segments.slice(0, -1);
+        const folders = dirs.map(pascalCaseFolder);
+        return [projectPrefix, ...folders].filter(Boolean).join('/') || projectPrefix;
+    }
+    return 'Otros';
+}
+
 export function projectKeyFromReportOutput(output: string | undefined): string | undefined {
     if (!output) return undefined;
     const match = output.replace(/\\/g, '/').match(/test-results\/([^/]+)\/results\.json/);
@@ -79,12 +113,6 @@ function formatDurationMs(ms: number): string {
     return `${seconds} sec`;
 }
 
-/**
- * Mensaje consolidado ≤ 2000 chars: cabecera + tabla de módulos siempre,
- * fallos top-N hasta presupuesto y cola `… +N más`. La mención del ejecutor
- * (si `DISCORD_USER_ID` está configurado) aparece SIEMPRE, pase o no la
- * corrida. Sin userId → el mensaje se envía sin mención (sin error).
- */
 export function formatDiscordMessage(
     payload: ConsolidatedPayload,
     mentions?: {userId?: string},
@@ -158,7 +186,6 @@ export function formatDiscordMessage(
 
 
 
-/** Consolida los parciales en un payload único (totales, fallos, links, metadata). */
 export function mergePartials(partials: DiscordPartial[], missing: string[]): ConsolidatedPayload {
     const total = {passed: 0, failed: 0, errors: 0, skipped: 0};
     const failures: QaFailure[] = [];
@@ -189,7 +216,6 @@ export function mergePartials(partials: DiscordPartial[], missing: string[]): Co
     };
 }
 
-/** POST al webhook de Discord. dryRun → solo log, sin HTTP. Nunca lanza. */
 export async function postToDiscord(
     content: string,
     opts: {webhookUrl: string; dryRun: boolean},
@@ -214,12 +240,6 @@ export async function postToDiscord(
     }
 }
 
-/**
- * Lee los parciales de disco (escritos por onEnd en modo partial).
- * Robustez: archivo ausente, JSON corrupto o estructura inválida → entra a
- * `missing` (con aviso en consola); nunca lanza (un parcial roto no debe
- * tumbar la consolidación del reporte).
- */
 export function loadPartialsFromDisk(
     partialsDir: string,
     expectedProjects: string[],
@@ -294,12 +314,6 @@ interface ModuleStats {
     skipped: number;
 }
 
-/**
- * Reporter de Discord 100% configurado por env (sin secretos en código).
- * - Skip de setup (`.setup.ts` sin `auth.setup.ts`); solo cuenta el intento final (willRetry).
- * - `PW_DISCORD_MODE=partial` → escribe `test-results/.discord-partials/{project}.json` (sin POST).
- * - Modo unset → POST directo desde onEnd (gate, webhook y solo-fallos se respetan).
- */
 class DiscordReporter implements Reporter {
     private readonly modules = new Map<string, ModuleStats>();
     private readonly qaFailures: QaFailure[] = [];
@@ -318,12 +332,7 @@ class DiscordReporter implements Reporter {
         if (this.isSetupTest(test)) {
             return;
         }
-        // titlePath()[0] es el nombre del proyecto Playwright cuando existe y no es vacío.
-        // Fallback: deducir del path del archivo si no hay proyecto seleccionado.
-        const projectName = test.titlePath()[0];
-        const module = (projectName && projectName.trim() !== '')
-            ? projectName
-            : extractModuleFromFile(test.location?.file ?? '');
+        const module = extractModuleFromFile(test.location?.file ?? '');
         const willRetry =
             (result.status === 'failed' || result.status === 'timedOut') &&
             result.retry < test.retries;
@@ -386,9 +395,7 @@ class DiscordReporter implements Reporter {
             process.env.PW_DISCORD_PROJECT ??
             projectKeyFromReportOutput(process.env.PW_REPORT_OUTPUT) ??
             'desconocido';
-        // PW_DISCORD_PROJECT es seteado por el runner con el nombre exacto del proyecto.
-        // Es la fuente más confiable. Solo si no existe, intentamos deducirlo.
-        const module = project !== 'desconocido' ? project : this.dominantModule();
+        const module = this.runModule(project);
         const stats = this.totalStats();
         return {
             project,
@@ -402,6 +409,24 @@ class DiscordReporter implements Reporter {
             qaFailures: this.qaFailures,
             htmlLink: process.env.PW_HTML_OUTPUT ?? '',
         };
+    }
+
+    /**
+     * Módulo de la corrida = carpeta común más profunda de todos los tests
+     * ejecutados (jerarquía real, PascalCase). Así:
+     *   - Proyecto entero (varias subcarpetas) → 'PuntoVenta'
+     *   - Solo la carpeta Boleta (varios PV-xx) → 'PuntoVenta/Boleta'
+     *   - Un solo test en PV-01 → 'PuntoVenta/Boleta/PV01EmisionStockDatosAdicionales'
+     * Si no hay tests o las raíces difieren (ej. PuntoVenta + Busqueda bajo el
+     * mismo proyecto), cae al nombre de proyecto.
+     */
+    private runModule(project: string): string {
+        const keys = [...this.modules.keys()];
+        if (keys.length === 0) {
+            return project !== 'desconocido' ? project : 'Otros';
+        }
+        const ancestor = commonAncestor(keys);
+        return ancestor || project;
     }
 
     private totalStats(): ModuleStats {
@@ -418,19 +443,6 @@ class DiscordReporter implements Reporter {
         return {passed, failed, errors, skipped};
     }
 
-    private dominantModule(): string {
-        let best = 'Otros';
-        let bestCount = -1;
-        for (const [module, stats] of this.modules) {
-            const count = stats.passed + stats.failed + stats.errors + stats.skipped;
-            if (count > bestCount) {
-                best = module;
-                bestCount = count;
-            }
-        }
-        return best;
-    }
-
     private writePartial(partial: DiscordPartial): void {
         const dir = path.join('test-results', '.discord-partials');
         mkdirSync(dir, {recursive: true});
@@ -438,6 +450,26 @@ class DiscordReporter implements Reporter {
         writeFileSync(file, JSON.stringify(partial, null, 2), 'utf8');
         console.log(`[discord-reporter] Parcial escrito: ${file}`);
     }
+}
+
+/**
+ * Devuelve la carpeta común más profunda entre una lista de módulos
+ * (rutas jerárquicas separadas por '/'). Ej:
+ *   ['PuntoVenta/Boleta/X', 'PuntoVenta/Boleta/Y'] → 'PuntoVenta/Boleta'
+ *   ['PuntoVenta/Boleta/X', 'PuntoVenta/Factura/Y'] → 'PuntoVenta'
+ *   ['PuntoVenta/Boleta/X'] → 'PuntoVenta/Boleta/X'
+ *   [] → ''
+ */
+function commonAncestor(modules: string[]): string {
+    if (modules.length === 0) return '';
+    const segments = modules.map((m) => m.split('/'));
+    let depth = 0;
+    while (depth < segments[0].length) {
+        const candidate = segments[0][depth];
+        if (!segments.every((s) => s[depth] === candidate)) break;
+        depth++;
+    }
+    return segments[0].slice(0, depth).join('/');
 }
 
 export default DiscordReporter;

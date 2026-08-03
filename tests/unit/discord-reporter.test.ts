@@ -20,9 +20,9 @@ async function it(name: string, fn: () => Promise<void> | void): Promise<void> {
 const ROOT = path.resolve(__dirname, '..', '..');
 const PARTIALS_DIR = path.join(ROOT, 'test-results', '.discord-partials');
 
-// ─── Tipado local (fase RED): define el contrato del módulo antes de que exista ───
-// Mismo patrón que env-discord.test.ts: compila aunque discord-reporter.ts aún
-// no exporte los símbolos; en runtime falla hasta que existan.
+
+
+
 interface QaFailureShape {
     caseName: string;
     failedStep: string;
@@ -58,7 +58,7 @@ interface ReporterModuleShape {
     default: new () => {onTestEnd: (test: unknown, result: unknown) => void; onEnd: (result: unknown) => Promise<void>};
     extractModuleFromFile: (file: string) => string;
     projectKeyFromReportOutput: (output: string | undefined) => string | undefined;
-    formatDiscordMessage: (p: ConsolidatedPayloadShape, mentions?: {userId?: string; mentionRole?: string}) => string;
+    formatDiscordMessage: (p: ConsolidatedPayloadShape, mentions?: {userId?: string}) => string;
     mergePartials: (partials: DiscordPartialShape[], missing: string[]) => ConsolidatedPayloadShape;
     postToDiscord: (content: string, opts: {webhookUrl: string; dryRun: boolean}) => Promise<void>;
     loadPartialsFromDisk: (dir: string, expectedProjects: string[]) => {partials: DiscordPartialShape[]; missing: string[]};
@@ -70,7 +70,6 @@ const DISCORD_VARS = [
     'DISCORD_WEBHOOK_URL',
     'DISCORD_TESTER_NAME',
     'DISCORD_USER_ID',
-    'DISCORD_MENTION_ROLE',
     'DISCORD_ONLY_FAILURES',
     'DISCORD_DRY_RUN',
 ] as const;
@@ -96,11 +95,10 @@ function requireReporterModule(): ReporterModuleShape {
     const modResolved = require.resolve('../../src/utils/discord-reporter');
     delete require.cache[envResolved];
     delete require.cache[modResolved];
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    
     return require(modResolved) as unknown as ReporterModuleShape;
 }
 
-/** Reemplaza global fetch para garantizar CERO red en tests (throw por defecto). */
 function mockFetch(behavior?: (url: string, init?: any) => Promise<unknown> | unknown): {
     calls: Array<{url: string; init?: any}>;
     restore: () => void;
@@ -120,7 +118,7 @@ function mockFetch(behavior?: (url: string, init?: any) => Promise<unknown> | un
     };
 }
 
-// ─── Fixtures sintéticos ───
+
 function fakeTest(overrides: Record<string, unknown> = {}): any {
     return {
         id: 'test-1',
@@ -192,34 +190,46 @@ async function main(): Promise<void> {
 
     ensureBaseEnv();
 
-    // ═══════════════ extractModuleFromFile (función pura) ═══════════════
+    
     console.log('  ── extractModuleFromFile (módulo desde spec path) ──');
 
     const mod = requireReporterModule();
 
-    await it('extractModuleFromFile: tests/Emisiones/PuntoVenta → PuntoVenta', () => {
-        assert.strictEqual(mod.extractModuleFromFile('tests/Emisiones/PuntoVenta/Boleta/boleta.spec.ts'), 'PuntoVenta');
+    await it('extractModuleFromFile: tests/Emisiones/PuntoVenta/Boleta → PuntoVenta/Boleta', () => {
+        assert.strictEqual(mod.extractModuleFromFile('tests/Emisiones/PuntoVenta/Boleta/boleta.spec.ts'), 'PuntoVenta/Boleta');
     });
 
-    await it('extractModuleFromFile: Emisiones/Facturacion tiene prioridad sobre Emisiones', () => {
-        assert.strictEqual(mod.extractModuleFromFile('tests/Emisiones/Facturacion/Factura/factura.spec.ts'), 'Facturacion');
+    await it('extractModuleFromFile: Emisiones/Facturacion prioridad + subcarpeta (cotizacion → Cotizacion)', () => {
+        assert.strictEqual(mod.extractModuleFromFile('tests/Emisiones/Facturacion/Factura/factura.spec.ts'), 'Facturacion/Factura');
+        assert.strictEqual(mod.extractModuleFromFile('tests/Emisiones/Facturacion/cotizacion/FC-CT-emision.spec.ts'), 'Facturacion/Cotizacion');
     });
 
-    await it('extractModuleFromFile: tests/Logistica → Logistica', () => {
-        assert.strictEqual(mod.extractModuleFromFile('tests/Logistica/Movimientos/movimiento.spec.ts'), 'Logistica');
+    await it('extractModuleFromFile: tests/Logistica → Logistica + subcarpeta', () => {
+        assert.strictEqual(mod.extractModuleFromFile('tests/Logistica/Movimientos/movimiento.spec.ts'), 'Logistica/Movimientos');
     });
 
-    await it('extractModuleFromFile: tests/ClientesProveedores → Clientes', () => {
-        assert.strictEqual(mod.extractModuleFromFile('tests/ClientesProveedores/proveedores/proveedor.spec.ts'), 'Clientes');
+    await it('extractModuleFromFile: tests/ClientesProveedores → Clientes + subcarpeta', () => {
+        assert.strictEqual(mod.extractModuleFromFile('tests/ClientesProveedores/proveedores/proveedor.spec.ts'), 'Clientes/Proveedores');
     });
 
     await it('extractModuleFromFile: rutas Windows (backslash) normalizadas', () => {
-        assert.strictEqual(mod.extractModuleFromFile('tests\\Emisiones\\Facturacion\\Factura\\factura.spec.ts'), 'Facturacion');
-        assert.strictEqual(mod.extractModuleFromFile('tests\\Logistica\\Movimientos\\movimiento.spec.ts'), 'Logistica');
+        assert.strictEqual(mod.extractModuleFromFile('tests\\Emisiones\\Facturacion\\Factura\\factura.spec.ts'), 'Facturacion/Factura');
+        assert.strictEqual(mod.extractModuleFromFile('tests\\Logistica\\Movimientos\\movimiento.spec.ts'), 'Logistica/Movimientos');
     });
 
-    await it('extractModuleFromFile: subcarpeta Emisiones sin PuntoVenta (CierreCaja) → PuntoVenta', () => {
-        assert.strictEqual(mod.extractModuleFromFile('tests/Emisiones/CierreCaja/cierre.spec.ts'), 'PuntoVenta');
+    await it('extractModuleFromFile: nombre de carpeta PascalCase (guiones/bajos)', () => {
+        assert.strictEqual(
+            mod.extractModuleFromFile('tests/Emisiones/PuntoVenta/notas-debito/emision-nota-debito-intereses.spec.ts'),
+            'PuntoVenta/NotasDebito',
+        );
+        assert.strictEqual(
+            mod.extractModuleFromFile('tests/Emisiones/PuntoVenta/Boleta/PV-01_emision-stock-datos-adicionales/pv-01-boleta-stock.spec.ts'),
+            'PuntoVenta/Boleta/PV01EmisionStockDatosAdicionales',
+        );
+    });
+
+    await it('extractModuleFromFile: subcarpeta Emisiones sin PuntoVenta (CierreCaja) → CierreCaja', () => {
+        assert.strictEqual(mod.extractModuleFromFile('tests/Emisiones/CierreCaja/caja/cierre.spec.ts'), 'CierreCaja/Caja');
     });
 
     await it('extractModuleFromFile: path desconocido → Otros', () => {
@@ -237,28 +247,40 @@ async function main(): Promise<void> {
         assert.strictEqual(mod.projectKeyFromReportOutput('report/html'), undefined);
     });
 
-    // ═══════════════ formatDiscordMessage ═══════════════
+    
     console.log('  ── formatDiscordMessage (≤2000 chars, módulos, fallos, menciones) ──');
 
-    await it('formatDiscordMessage: corrida verde → EXITOSO, sin TOP FALLOS ni menciones', () => {
+    await it('formatDiscordMessage: corrida verde → EXITOSO y mención SIEMPRE presente (userId configurado)', () => {
         const msg = mod.formatDiscordMessage(
             makePayload({failures: [], total: {passed: 6, failed: 0, errors: 0, skipped: 0}}),
-            {userId: '<@123>', mentionRole: '<@&456>'},
+            {userId: '<@123>'},
         );
         assert.ok(msg.includes('✅ **EXITOSO**'), 'debe marcar EXITOSO');
         assert.ok(!msg.includes('TOP FALLOS'), 'no debe listar fallos');
-        assert.ok(!msg.includes('<@123>') && !msg.includes('<@&456>'), 'sin fallos no debe mencionar');
+        assert.ok(msg.includes('<@123>'), 'verde: debe mencionar al ejecutor SIEMPRE (userId configurado)');
+        assert.ok(!msg.includes('<@&'), 'nunca debe mencionar un rol');
     });
 
-    await it('formatDiscordMessage: con fallos → FALLIDO, menciones y detalle funcional', () => {
+    await it('formatDiscordMessage: sin userId → sin mención (degrada sin error)', () => {
+        const greenMsg = mod.formatDiscordMessage(
+            makePayload({failures: [], total: {passed: 6, failed: 0, errors: 0, skipped: 0}}),
+        );
+        const failMsg = mod.formatDiscordMessage(makePayload({failures: [makeFailure(0)]}));
+        assert.ok(!greenMsg.includes('<@'), 'verde sin userId: no hay mención');
+        assert.ok(!failMsg.includes('<@'), 'fallido sin userId: no hay mención');
+        assert.ok(greenMsg.includes('✅ **EXITOSO**'), 'verde sigue formateándose');
+        assert.ok(failMsg.includes('❌ **FALLIDO**'), 'fallido sigue formateándose');
+    });
+
+    await it('formatDiscordMessage: con fallos → FALLIDO, mención del ejecutor y detalle funcional', () => {
         const failures: QaFailureShape[] = [
             {caseName: 'Emitir boleta', failedStep: 'Confirmar emisión', userMessage: 'El botón no quedó visible', failureCategory: 'SCRIPT'},
         ];
-        const msg = mod.formatDiscordMessage(makePayload({failures}), {userId: '<@123>', mentionRole: '<@&456>'});
+        const msg = mod.formatDiscordMessage(makePayload({failures}), {userId: '<@123>'});
         assert.ok(msg.includes('❌ **FALLIDO**'), 'debe marcar FALLIDO');
         assert.ok(msg.includes('TOP FALLOS'), 'debe listar fallos');
-        assert.ok(msg.includes('<@&456>'), 'debe mencionar el rol');
         assert.ok(msg.includes('<@123>'), 'debe mencionar al usuario');
+        assert.ok(!msg.includes('<@&'), 'no debe mencionar ningún rol');
         assert.ok(msg.includes('[SCRIPT] Emitir boleta'), 'debe incluir categoría y caso');
         assert.ok(msg.includes('Confirmar emisión'), 'debe incluir el paso que falló');
         assert.ok(msg.includes('El botón no quedó visible'), 'debe incluir el motivo');
@@ -301,7 +323,7 @@ async function main(): Promise<void> {
         assert.ok(!mod.formatDiscordMessage(makePayload({htmlLinks: []})).includes('Reporte HTML'));
     });
 
-    // ═══════════════ mergePartials ═══════════════
+    
     console.log('  ── mergePartials (consolidación de parciales) ──');
 
     await it('mergePartials: 2 parciales → totales sumados, fallos concatenados, links y missing', () => {
@@ -350,7 +372,7 @@ async function main(): Promise<void> {
         delete process.env.ENV_NAME;
     });
 
-    // ═══════════════ loadPartialsFromDisk (parciales desde disco, robustez) ═══════════════
+    
     console.log('  ── loadPartialsFromDisk (lectura de parciales: faltantes/corruptos) ──');
 
     const tmpPartialsDir = path.join(ROOT, 'test-results', '.discord-partials-test');
@@ -423,7 +445,7 @@ async function main(): Promise<void> {
         cleanupTmpPartials();
     });
 
-    // ═══════════════ postToDiscord ═══════════════
+    
     console.log('  ── postToDiscord (dryRun→log; POST real vía fetch mock) ──');
 
     await it('postToDiscord: dryRun → NO llama fetch y no lanza', async () => {
@@ -466,7 +488,7 @@ async function main(): Promise<void> {
         }
     });
 
-    // ═══════════════ Clase DiscordReporter (comportamiento env-config) ═══════════════
+    
     console.log('  ── DiscordReporter (onTestEnd/onEnd: setup, retry final, parciales, solo-fallos) ──');
 
     await it('reporter: setup excluido, solo intento final, qaFailures con meta funcional', async () => {
@@ -479,17 +501,17 @@ async function main(): Promise<void> {
         const reporter = new Rep.default();
         const fake = mockFetch();
 
-        // setup (`.setup.ts` sin auth) → se omite aunque falle
+        
         reporter.onTestEnd(
             fakeTest({title: 'setup de datos', location: {file: 'tests/Emisiones/PuntoVenta/datos-adicionales.setup.ts'}}),
             fakeResult({status: 'failed', error: {message: 'boom'}}),
         );
-        // intento intermedio con retry → NO cuenta
+        
         reporter.onTestEnd(
             fakeTest({title: 'intento intermedio con retry', retries: 1}),
             fakeResult({status: 'failed', retry: 0, error: {message: 'boom'}}),
         );
-        // intento final falla → cuenta con detalle funcional (meta parseada)
+        
         reporter.onTestEnd(
             fakeTest({title: 'intento final falla', retries: 1}),
             fakeResult({
@@ -500,7 +522,7 @@ async function main(): Promise<void> {
                 },
             }),
         );
-        // pasa → cuenta
+        
         reporter.onTestEnd(
             fakeTest({title: 'boleta pasa'}),
             fakeResult({status: 'passed'}),
@@ -516,7 +538,7 @@ async function main(): Promise<void> {
         assert.ok(fs.existsSync(partialFile), 'debe escribir el parcial');
         const written = JSON.parse(fs.readFileSync(partialFile, 'utf8'));
         assert.strictEqual(written.project, 'PuntoVenta');
-        assert.strictEqual(written.module, 'PuntoVenta');
+        assert.strictEqual(written.module, 'PuntoVenta/Boleta', 'módulo = carpeta real del spec ejecutado');
         assert.strictEqual(written.passed, 1, 'setup y retry intermedio NO cuentan');
         assert.strictEqual(written.failed, 1, 'solo el intento final cuenta');
         assert.strictEqual(written.errors, 0);
@@ -636,11 +658,11 @@ async function main(): Promise<void> {
         assert.strictEqual(fake.calls.length, 0, 'gate off no debe hacer HTTP');
     });
 
-    // ═══════════════ playwright.config.ts — gate (tarea 2.3) ═══════════════
+    
     console.log('  ── playwright.config.ts — gate DISCORD_REPORT_ENABLED ──');
 
     await it('playwright.config.ts: gate off → reporter array SIN discord; gate on → CON discord', async () => {
-        // Evaluación real del config (tsx + require con cache-busting)
+        
         const cfgResolved = require.resolve('../../playwright.config');
         const envResolved2 = require.resolve('../../config/env');
         delete require.cache[cfgResolved];

@@ -81,7 +81,7 @@ async function main(): Promise<void> {
         makePartial('Clientes', 'Clientes', 3, 0, 0, 2),
     ];
     const payload = mergePartials(partials, []);
-    const msg = formatDiscordMessage(payload, {userId: '<@123>', mentionRole: '<@&456>'});
+    const msg = formatDiscordMessage(payload, {userId: '<@123>'});
 
     console.log('  ── Invariantes de formato (offline, sin red) ──');
 
@@ -109,18 +109,21 @@ async function main(): Promise<void> {
         assert.ok(remaining > 0 && remaining < 60, `cola inesperada: +${remaining}`);
     });
 
-    await check('mención de rol y usuario cuando hay fallos', () => {
-        assert.ok(msg.includes('<@&456>'), 'rol mencionado');
+    await check('mención del ejecutor presente con fallos (sin rol)', () => {
         assert.ok(msg.includes('<@123>'), 'usuario mencionado');
+        assert.ok(!msg.includes('<@&'), 'no debe mencionar ningún rol');
     });
 
-    await check('sin fallos → sin mención (solo-fallos compatible)', () => {
+    await check('sin fallos → mención SIEMPRE presente; sin userId → sin mención', () => {
         const green = mergePartials([
             makePartial('PuntoVenta', 'PuntoVenta', 12, 0, 0, 0),
         ], []);
-        const greenMsg = formatDiscordMessage(green, {userId: '<@123>', mentionRole: '<@&456>'});
+        const greenMsg = formatDiscordMessage(green, {userId: '<@123>'});
         assert.ok(greenMsg.includes('✅ **EXITOSO**'), 'estado EXITOSO');
-        assert.ok(!greenMsg.includes('<@123>') && !greenMsg.includes('<@&456>'), 'verde no menciona');
+        assert.ok(greenMsg.includes('<@123>'), 'verde: mención del ejecutor SIEMPRE (userId configurado)');
+        assert.ok(!greenMsg.includes('<@&'), 'verde: sin rol');
+        const noMention = formatDiscordMessage(green);
+        assert.ok(!noMention.includes('<@'), 'sin userId: sin mención (degrada sin error)');
     });
 
     await check('metadata: entorno, tester, duración, commit y branch', () => {
