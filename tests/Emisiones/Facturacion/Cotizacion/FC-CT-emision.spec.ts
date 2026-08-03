@@ -83,7 +83,9 @@ test.describe('FC-CT-EMISION | Emisión de Cotización desde Vista Facturación'
                 comprobanteId: 0
             }
         };
-        expect(await vendedor.pregunta(BitacoraComprobante.noMuestraDescargoInventario(mockEmisionResult))).toBe(true);
+        expect(await vendedor.pregunta(
+            BitacoraComprobante.noMuestraDescargoInventario(mockEmisionResult, {skipClickNuevaVenta: true})
+        )).toBe(true);
     });
 
     test('SC-05: Emitir cotización con IGV 10.5% @FC-CT.IGV', async ({vendedor, page}) => {
