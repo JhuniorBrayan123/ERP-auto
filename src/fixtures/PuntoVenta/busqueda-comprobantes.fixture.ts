@@ -20,7 +20,7 @@ import {generarSlugCache} from '@factories/item-factory';
 export function resolveActiveStorageState(): string {
     if (process.env.PW_STORAGE_STATE) return process.env.PW_STORAGE_STATE;
 
-    // ✅ Usar la misma lógica que playwright.config.ts — detectar cuenta actual
+    
     const envGroup = detectEnvironmentFine();
     const account = detectAccount();
     const slug = generarSlugCache(envGroup, account);

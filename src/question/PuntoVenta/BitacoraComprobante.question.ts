@@ -4,7 +4,7 @@ import {EmisionResult} from "@app-types/emision.types";
 import {ClickNuevaVenta} from "@interactions/PuntoVenta/ClickNuevaVenta";
 
 export interface NoMuestraDescargoInventarioOptions {
-    /** true cuando la tarea de emisión ya clickeó "Nueva Venta" (p.ej. EmitirCotizacionVF). */
+    
     skipClickNuevaVenta?: boolean;
 }
 
@@ -18,8 +18,8 @@ export const BitacoraComprobante = {
             const busquedaComprobantesPage = new BusquedaComprobantesPage(page);
 
             if (opts?.skipClickNuevaVenta) {
-                // La tarea de emisión ya clickeó "Nueva Venta"; esperamos que el
-                // modal post-emisión termine de cerrarse antes de navegar.
+                
+                
                 const btnNuevaVenta = page.getByRole('button', {name: 'Nueva Venta'});
                 await btnNuevaVenta.waitFor({state: 'hidden', timeout: 20_000}).catch(() => {
                 });

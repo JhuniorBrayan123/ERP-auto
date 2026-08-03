@@ -120,7 +120,7 @@ export class ComprobantesFiltrosComponent {
             '[id="pv_common_cmp-card-filter-number:filtro_v-input:valor"]',
         );
         await inputValor.fill(valor);
-        await this.page.locator('[id="pv_comprobantes_cmp-grid-comprobantes-header:grid-header_cmp-card-filter-number:aplicar-filtro"]').click();
+        await this.page.locator('[id="pv_comprobantes_cmp-grid-comprobantes-header:grid-header_cmp-card-filter-number:aplicar-filtro-filtrar"]').click();
         await esperarCargaOverlay(this.page);
     }
 }

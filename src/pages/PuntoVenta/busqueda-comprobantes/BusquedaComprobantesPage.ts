@@ -42,8 +42,15 @@ export class BusquedaComprobantesPage {
         await this.page.locator('.v-icon-back .icon').click();
     }
 
+    private async esperarOverlayOculto(): Promise<void> {
+        const overload = this.page.locator('[id="cmn_cmp-overload:loading"]');
+        await overload.waitFor({ state: 'visible', timeout: 3_000 }).catch(() => {});
+        await overload.waitFor({ state: 'hidden', timeout: 15_000 }).catch(() => {});
+    }
+
     async navegarABusquedaComprobantes(emision?: EmisionResult | null): Promise<void> {
         await this.salirDeCaja();
+        await this.esperarOverlayOculto();
         await this.page.getByText('Ventas y compras').click();
         await this.page.getByText('Búsqueda de comprobantes').click();
 
@@ -55,6 +62,7 @@ export class BusquedaComprobantesPage {
 
     async navegarABusquedaComprobantesConSunat(emision: EmisionResult): Promise<void> {
         await this.salirDeCaja();
+        await this.esperarOverlayOculto();
         await this.page.getByText('Ventas y compras').click();
         await this.page.getByText('Búsqueda de comprobantes').click();
         await this.filtros.abrirFiltrosAvanzados();

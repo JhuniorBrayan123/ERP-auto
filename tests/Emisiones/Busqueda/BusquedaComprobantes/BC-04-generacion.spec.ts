@@ -14,6 +14,7 @@ import {ClientePage} from '@pages/PuntoVenta/ClientePage';
 import {CajaPage} from '@pages/PuntoVenta/CajaPage';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
 import {esperarCargaOverlay} from "@utils/wait-helpers";
+import {EmitirCotizacion} from "@task/PuntoVenta/EmitirCotizacion.task";
 
 test.describe('BC-12 | Generar nota de crédito desde una factura', {tag: ['@busqueda']}, () => {
     let semilla: ComprobanteInfo;
@@ -274,7 +275,7 @@ test.describe('BC-15 | Generar pedido desde una cotización', {tag: ['@busqueda'
             );
             await emision.buscarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
             await emision.seleccionarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
-            await emision.clickEmitir();
+            await EmitirCotizacion()(page);
             const numero = await postEmision.obtenerCorrelativoDinamico();
             const [serie, correlativo] = numero.split('-');
             semilla = {
