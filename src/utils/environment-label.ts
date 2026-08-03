@@ -7,7 +7,7 @@ export function getEnvironmentLabel(): string {
     const baseUrl = (process.env.BASE_URL ?? process.env.baseURL ?? '').toLowerCase();
     if (baseUrl.includes('app.smartclic.pe') || baseUrl.includes('erpperu2.smartclic.pe')) return 'PRD';
 
-    // Extraer cualquier entorno del patrón erpperu2-{env}.smartclic.pe
+    
     const urlMatch = baseUrl.match(/erpperu2-([^.]+)\.smartclic\.pe/);
     if (urlMatch) {
         return urlMatch[1].toUpperCase();
@@ -21,7 +21,7 @@ export function getEnvironmentLabel(): string {
     if (appEnv === 'crt-3') return 'CRT-3';
     if (appEnv === 'crt-4') return 'CRT-4';
 
-    // Fallback genérico: cualquier otro entorno (crt-5, crt-6, etc.)
+    
     if (appEnv) {
         return appEnv.toUpperCase();
     }

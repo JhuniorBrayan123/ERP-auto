@@ -9,7 +9,7 @@ import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {BuscarYAgregarProducto} from '@screenplay/interactions/facturacion/BuscarYAgregarProducto';
 import {BuscarYSeleccionarCliente} from '@screenplay/interactions/facturacion/BuscarYSeleccionarCliente';
 
-test.describe.skip('FC-CT-BUSQUEDA | Búsqueda y Edición de Cotización en Vista Facturación — sin producción', {
+test.describe('FC-CT-BUSQUEDA | Búsqueda y Edición de Cotización en Vista Facturación', {
     tag: ['@facturacion', '@cotizacion', '@busqueda']
 }, () => {
 

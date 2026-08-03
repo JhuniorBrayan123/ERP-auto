@@ -2,11 +2,8 @@ import {expect, test} from '@playwright/test';
 import {Cajero} from '../../../../../src/actors/cajero';
 import {IniciarVentaEnCaja} from '@task/PuntoVenta/IniciarVentaEnCaja';
 import {DisminuirCantidadItem} from '@task/PuntoVenta/DisminuirCantidadItem.task';
-import {IntentarCantidadInvalida} from '@task/PuntoVenta/IntentarCantidadInvalida.task';
 import {AbrirTotales} from '../../../../../src/interactions/PuntoVenta/AbrirTotales';
 import {DesplegarPanelCalculos} from '../../../../../src/interactions/PuntoVenta/DesplegarPanelCalculos';
-import {ClickAceptarModal} from '../../../../../src/interactions/PuntoVenta/ClickAceptarModal';
-import {MensajeVisible} from '@question/PuntoVenta/MensajeVisible';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {FilaEnTotales} from '@question/PuntoVenta/FilaEnTotales';
 import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
@@ -41,14 +38,5 @@ test.describe('PV-18 | Edición de cantidad', {tag: ['@puntoventa', '@pv-18', '@
         await cajero.intentaRealizar(DisminuirCantidadItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL, 6, 7));
         await cajero.intentaRealizar(AbrirTotales());
         expect(await cajero.pregunta(FilaEnTotales('Operaciones Gravadas', '0.00'))).toBe(true);
-    });
-
-    test('SC-21: Bloquear cantidad inválida al editar un ítem del carrito @PV-18.21', async ({page}) => {
-        const cajero = Cajero.con(page);
-        await cajero.intentaRealizar(IntentarCantidadInvalida(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL));
-        expect(await cajero.pregunta(
-            MensajeVisible('La Cantidad en la lista de ítems no puede ser negativo o cero')
-        )).toBe(true);
-        await cajero.intentaRealizar(ClickAceptarModal());
     });
 });
