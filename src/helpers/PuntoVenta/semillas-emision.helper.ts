@@ -7,6 +7,7 @@ import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
 import {GuiaRemitentePage} from '@pages/PuntoVenta/guias-remision/GuiaRemitentePage';
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 import {CAJAS, CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import {CotizacionTargets} from '@screenplay/targets/cotizacion/CotizacionTargets';
 import {esperarCargaOverlay} from '@utils/wait-helpers';
 import type {ComprobanteInfo} from '@helpers/PuntoVenta/busqueda-comprobantes.data';
 
@@ -38,7 +39,7 @@ export async function crearCotizacionSemilla(page: Page): Promise<ComprobanteInf
         CLIENTES.PERSONA_DNI.documento,
         `DNIDoc. Nacional de Identidad${CLIENTES.PERSONA_DNI.documento}99999999${CLIENTES.PERSONA_DNI.nombre}`,
     );
-    await emision.clickEmitir();
+    await CotizacionTargets.btnEmitir(page).click();
     const num = await post.obtenerCorrelativoDinamico();
     await emision.clickNuevaVenta();
     return buildInfo('Cotización', num, CLIENTES.PERSONA_DNI.nombre);
@@ -124,12 +125,12 @@ export async function crearGuiaRemisionGuardada(page: Page): Promise<Comprobante
 export async function asegurarConfiguracionEuro(page: Page, codigoItemPV: string): Promise<void> {
 
     await page.goto('/configuracion/sistema/sucursales');
+    const btnMonedas = page.locator('[id="cfg_cmp-menu-configuracion.v-button:menu-1-0"]');
+    await btnMonedas.waitFor({state: 'visible', timeout: 20_000});
+    await btnMonedas.click();
     await esperarCargaOverlay(page);
 
-    await page.locator('[id="cfg_cmp-menu-configuracion.v-button:menu-1-0"]').click();
-    await esperarCargaOverlay(page);
-
-    const eurVisible = await page.getByText('EUROS', {exact: true}).isVisible({timeout: 3_000}).catch(() => false);
+    const eurVisible = await page.getByText('EUROS', {exact: true}).isVisible({timeout: 5_000}).catch(() => false);
     if (!eurVisible) {
         await page.getByRole('button', {name: 'Crear moneda'}).click();
         await page.getByRole('textbox', {name: 'Buscar nombre de la moneda Ej'}).fill('euros');
@@ -138,16 +139,24 @@ export async function asegurarConfiguracionEuro(page: Page, codigoItemPV: string
         await page.locator('.v-modal > div').first().click();
     }
 
-    await page.locator('[id="cfg_cmp-menu-configuracion.v-button:menu-1-2"]').click();
-    await esperarCargaOverlay(page);
+    const btnCaja = page.locator('[id="cfg_cmp-menu-configuracion.v-button:menu-1-2"]');
+    await btnCaja.waitFor({state: 'visible', timeout: 15_000});
+    await btnCaja.click();
 
-    await page.locator('[id="lgt_reg-item_v-tab:variantes-item_cmp-dropdown:opciones-0-0"]').first().click();
-    await page.locator('[id="config_cmp-configuracion-caja-item:caja-venta_cmp_dropdown:editar-caja-0-0"]').click();
-    await esperarCargaOverlay(page);
+    const btnVariantes = page.locator('[id="lgt_reg-item_v-tab:variantes-item_cmp-dropdown:opciones-0-0"]').first();
+    await btnVariantes.waitFor({state: 'visible', timeout: 15_000});
+    await btnVariantes.click();
 
-    await page.locator('[id="config_cmp-configuracion-caja-ventas_drapes_registro-configuracion-caja.card-moneda"]').click();
+    const btnEditarCaja = page.locator('[id="config_cmp-configuracion-caja-item:caja-venta_cmp_dropdown:editar-caja-0-0"]');
+    await btnEditarCaja.waitFor({state: 'visible', timeout: 15_000});
+    await btnEditarCaja.click();
+
+    const cardMoneda = page.locator('[id="config_cmp-configuracion-caja-ventas_drapes_registro-configuracion-caja.card-moneda"]');
+    await cardMoneda.waitFor({state: 'visible', timeout: 15_000});
+    await cardMoneda.click();
 
     const euroRow = page.locator('.fila.fila-body').filter({hasText: 'EUROS'});
+    await euroRow.waitFor({state: 'visible', timeout: 10_000});
     const euroSwitchCheckbox = euroRow.locator('.v-switch input[type="checkbox"]');
     const isActive = await euroSwitchCheckbox.isChecked();
     if (!isActive) {
@@ -155,19 +164,26 @@ export async function asegurarConfiguracionEuro(page: Page, codigoItemPV: string
     }
 
     await page.locator('[id="config_registro-configuracion-caja:caja-venta_v_button:registrar-caja"]').click();
-    await esperarCargaOverlay(page);
-    await page.locator('.v-modal.is-open > .icon').click();
+    const btnCerrarModal = page.locator('.v-modal.is-open > .icon');
+    await btnCerrarModal.waitFor({state: 'visible', timeout: 15_000});
+    await btnCerrarModal.click();
 
     await page.getByText('Productos y servicios').click();
-    await page.locator('[id*="select-module-203-item-2007"]').click();
-    await esperarCargaOverlay(page);
-    await page.getByRole('textbox', {name: 'Buscar por nombre, código o c'}).fill(codigoItemPV);
-    await esperarCargaOverlay(page);
-    await page.locator('.flex-row-align-items-center-justify-content-center > .cmp-dropdown > .cmp-dropdown-toggle').first().click();
+    const btnItems = page.locator('[id*="select-module-203-item-2007"]');
+    await btnItems.waitFor({state: 'visible', timeout: 15_000});
+    await btnItems.click();
+
+    const txtBuscar = page.getByRole('textbox', {name: 'Buscar por nombre, código o c'});
+    await txtBuscar.waitFor({state: 'visible', timeout: 15_000});
+    await txtBuscar.fill(codigoItemPV);
+
+    const btnDropdownItem = page.locator('.flex-row-align-items-center-justify-content-center > .cmp-dropdown > .cmp-dropdown-toggle').first();
+    await btnDropdownItem.waitFor({state: 'visible', timeout: 15_000});
+    await btnDropdownItem.click();
     await page.getByText('Editar ítem').click();
     await esperarCargaOverlay(page);
 
-    const listaPrecioEuroVisible = await page.getByText('Precio euros').isVisible({timeout: 3_000}).catch(() => false);
+    const listaPrecioEuroVisible = await page.getByText('Precio euros').isVisible({timeout: 5_000}).catch(() => false);
     if (!listaPrecioEuroVisible) {
         await page.getByRole('button', {name: 'Crear lista de precios'}).click();
         await page.getByRole('textbox', {name: 'Digita el nombre de la lista'}).fill('Precio euros');
@@ -177,12 +193,13 @@ export async function asegurarConfiguracionEuro(page: Page, codigoItemPV: string
         await page.locator('.v-modal > div').first().click();
     }
 
-    
     const inputPrecioEur = page.getByRole('textbox', {name: 'Monto final'}).nth(2);
+    await inputPrecioEur.waitFor({state: 'visible', timeout: 15_000});
     await inputPrecioEur.click();
     await inputPrecioEur.fill('15.42');
     await page.getByRole('button', {name: 'Actualizar producto'}).click();
-    await page.locator('.v-modal > div').first().click();
+    await page.locator('.v-modal > div').first().waitFor({state: 'visible', timeout: 15_000}).catch(() => {});
+    await page.locator('.v-modal > div').first().click().catch(() => {});
 }
 
 export async function crearBoletaEnEuro(page: Page): Promise<ComprobanteInfo> {

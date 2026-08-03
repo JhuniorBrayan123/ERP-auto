@@ -5,7 +5,7 @@ import {
     BC_MOTIVOS_ELIMINACION,
     BC_TIPOS_COMPROBANTE
 } from '@helpers/PuntoVenta/busqueda-comprobantes.data';
-import {CAJAS, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import {CAJAS} from '@helpers/PuntoVenta/emision-data.helper';
 import {ClonarComprobante} from '@task/PuntoVenta/busqueda-comprobantes/ClonarComprobante';
 import {BuscarComprobante} from '@task/PuntoVenta/busqueda-comprobantes/BuscarComprobante';
 import {AbrirAccionesDelComprobante} from '@task/PuntoVenta/busqueda-comprobantes/AbrirAccionesDelComprobante';
@@ -13,7 +13,6 @@ import {EliminarComprobante} from '@task/PuntoVenta/busqueda-comprobantes/Elimin
 import {CrearComprobanteSemilla} from '@screenplay/questions/PuntoVenta/emision/CrearComprobanteSemilla';
 import {EstadoDelComprobante} from '@screenplay/questions/PuntoVenta/busqueda-comprobantes/EstadoDelComprobante';
 import {BitacoraDelComprobante} from '@screenplay/questions/PuntoVenta/busqueda-comprobantes/BitacoraDelComprobante';
-import {asegurarConfiguracionEuro,} from '@helpers/PuntoVenta/semillas-emision.helper';
 import {AccionDelComprobante} from '@screenplay/questions/PuntoVenta/busqueda-comprobantes/AccionDelComprobante';
 import {FiltrarComprobantes} from "@task/PuntoVenta/busqueda-comprobantes/FiltrarComprobantes";
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
@@ -21,11 +20,7 @@ import {esperarCargaOverlay} from '@utils/wait-helpers';
 
 test.describe('BC-05 | Estados y acciones', {tag: ['@busqueda']}, () => {
 
-    test('SC-01: Clonar comprobante EUR a caja sin EUR muestra error de moneda @BC-05.1', async ({actor, page}) => {
-        await test.step('Setup: asegurar configuración EURO', async () => {
-            await asegurarConfiguracionEuro(page, ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
-        });
-
+    test('SC-01: Clonar comprobante EUR a caja sin EUR muestra error de moneda @BC-05.1', async ({actor}) => {
         const boletaEuro = await actor.pregunta(CrearComprobanteSemilla.boletaEnEuro());
 
         await actor.intentaRealizar(
