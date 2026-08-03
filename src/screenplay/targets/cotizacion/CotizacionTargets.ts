@@ -51,6 +51,9 @@ export const CotizacionTargets = {
     btnEmitir: (page: Page) =>
         page.locator('[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-footer_v-button:pago-rapido"]'),
 
+    btnEmitirVF: (page: Page) =>
+        page.locator('[id="pv_punto-venta_cmp-cotizacion-body_v-button:pago-rapido"]'),
+
     btnActualizarCotizacion: (page: Page) =>
         page.getByRole('button', {name: 'ACTUALIZAR COTIZACIÓN'}),
 

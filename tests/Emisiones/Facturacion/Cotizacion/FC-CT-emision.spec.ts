@@ -114,7 +114,7 @@ test.describe('FC-CT-EMISION | Emisión de Cotización desde Vista Facturación'
             SeleccionarTipoComprobante('COTIZACION'),
         );
 
-        await CotizacionTargets.btnEmitir(page).click();
+        await CotizacionTargets.btnEmitirVF(page).click();
         await expect(CotizacionTargets.mensajeSinItems(page)).toBeVisible({timeout: 5_000});
     });
 });
