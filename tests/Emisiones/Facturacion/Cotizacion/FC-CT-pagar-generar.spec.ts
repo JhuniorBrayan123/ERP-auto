@@ -18,7 +18,7 @@ test.describe.serial('FC-CT-PAGAR | Pagar/Generar Comprobantes desde Cotización
     test('Setup: Crear Cotización base para los tests @FC-CT.Setup', async ({vendedor}) => {
         const cotizacion = await vendedor.realizaYObtiene(
             CrearCotizacionVF({
-                cliente: CLIENTES.EMPRESA_RUC_AUTO, 
+                cliente: CLIENTES.EMPRESA_RUC_AUTO,
                 items: [ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL],
             })
         );
@@ -45,9 +45,9 @@ test.describe.serial('FC-CT-PAGAR | Pagar/Generar Comprobantes desde Cotización
                 );
                 const emision = await vendedor.realizaYObtiene(PagarCotizacion(tipo));
 
-                if (tipo === 'BOLETA') expect(emision.serie).toMatch(/^B/);
-                if (tipo === 'FACTURA') expect(emision.serie).toMatch(/^F/);
-                if (tipo === 'NOTA DE VENTA') expect(emision.serie).toMatch(/^NV/);
+                if (tipo === 'BOLETA') expect(emision.serie).toMatch(/^B001/);
+                if (tipo === 'FACTURA') expect(emision.serie).toMatch(/^F001/);
+                if (tipo === 'NOTA DE VENTA') expect(emision.serie).toMatch(/^NV01/);
 
                 expect(Number(emision.correlativo)).toBeGreaterThan(0);
             });
@@ -70,9 +70,9 @@ test.describe.serial('FC-CT-PAGAR | Pagar/Generar Comprobantes desde Cotización
 
         for (const tipo of tiposComprobante) {
             test(`Generar ${tipo} buscando la cotización en la lista @FC-CT.Generar${tipo.replace(/ /g, '')}`, async ({
-                                                                                                                           vendedor,
-                                                                                                                           page
-                                                                                                                       }) => {
+                                                                                                                          vendedor,
+                                                                                                                          page
+                                                                                                                      }) => {
                 test.skip(!cotizacionParaBusqueda, 'No se generó la cotización base');
 
                 await vendedor.realiza(
