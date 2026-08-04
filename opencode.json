@@ -5,15 +5,10 @@
       "type": "local",
       "command": [
         "node",
-        "E:\\2026-I\\MCP-Boockstack\\dist\\index.js"
+        "tools/mcp-bookstack/dist/index.js"
       ],
       "enabled": true,
-      "timeout": 10000,
-      "environment": {
-        "BOOKSTACK_BASE_URL": "{env:BOOKSTACK_BASE_URL}",
-        "BOOKSTACK_TOKEN_ID": "{env:BOOKSTACK_TOKEN_ID}",
-        "BOOKSTACK_TOKEN_SECRET": "{env:BOOKSTACK_TOKEN_SECRET}"
-      }
+      "timeout": 10000
     },
 
     "excalidraw": {
