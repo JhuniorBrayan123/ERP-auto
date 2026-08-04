@@ -284,6 +284,7 @@ async function main(): Promise<void> {
         assert.ok(msg.includes('[SCRIPT] Emitir boleta'), 'debe incluir categoría y caso');
         assert.ok(msg.includes('Confirmar emisión'), 'debe incluir el paso que falló');
         assert.ok(msg.includes('El botón no quedó visible'), 'debe incluir el motivo');
+        assert.ok(msg.includes('npx playwright show-report'), 'debe incluir el hint del reporte HTML');
     });
 
     await it('formatDiscordMessage: truncado con 60 fallos → ≤2000 chars y cola "… +N más"', () => {
@@ -306,21 +307,26 @@ async function main(): Promise<void> {
         assert.ok(msg.includes('**PuntoVenta**'), 'fila PuntoVenta');
         assert.ok(msg.includes('10 pasaron, 2 fallaron'), 'conteos de PuntoVenta');
         assert.ok(msg.includes('**Facturacion**'), 'fila Facturacion');
-        assert.ok(msg.includes('4 pasaron, 0 fallaron'), 'conteos de Facturacion');
+        assert.ok(msg.includes('4 pasaron'), 'conteos de Facturacion');
+        assert.ok(!msg.includes('0 fallaron'), 'no imprime conteos en cero (formato compacto)');
     });
 
-    await it('formatDiscordMessage: metadata entorno/tester/duración/commit/branch', () => {
+    await it('formatDiscordMessage: metadata entorno/tester/fecha/duración', () => {
         const msg = mod.formatDiscordMessage(makePayload());
         assert.ok(msg.includes('CRT-1'), 'entorno');
         assert.ok(msg.includes('Ana'), 'tester');
+        assert.ok(msg.includes('📅 **Fecha de ejecución:**'), 'fecha de ejecución presente');
         assert.ok(msg.includes('4 min 0 sec'), 'duración formateada');
-        assert.ok(msg.includes('abc1234'), 'commit');
-        assert.ok(msg.includes('feature-18744v6'), 'branch');
     });
 
-    await it('formatDiscordMessage: link HTML presente solo cuando hay htmlLinks', () => {
-        assert.ok(mod.formatDiscordMessage(makePayload({htmlLinks: ['report/html/puntoventa']})).includes('report/html/puntoventa'));
-        assert.ok(!mod.formatDiscordMessage(makePayload({htmlLinks: []})).includes('Reporte HTML'));
+    await it('formatDiscordMessage: hint del reporte HTML solo cuando hay fallos', () => {
+        const failMsg = mod.formatDiscordMessage(makePayload({failures: [makeFailure(0)]}));
+        const greenMsg = mod.formatDiscordMessage(
+            makePayload({failures: [], total: {passed: 6, failed: 0, errors: 0, skipped: 0}}),
+        );
+        assert.ok(failMsg.includes('npx playwright show-report'), 'con fallos: hint HTML presente');
+        assert.ok(failMsg.includes('Para ver los detalles de los fallos'), 'con fallos: texto del hint');
+        assert.ok(!greenMsg.includes('show-report'), 'verde: sin hint HTML');
     });
 
     
@@ -359,7 +365,7 @@ async function main(): Promise<void> {
         assert.deepStrictEqual(merged.missing, ['PuntoVenta', 'Facturacion']);
     });
 
-    await it('mergePartials: environment/tester desde env y commit/branch desde git', () => {
+    await it('mergePartials: environment/tester desde env', () => {
         clearDiscordVars();
         process.env.ENV_NAME = 'crt-3';
         process.env.DISCORD_TESTER_NAME = 'Ana';
@@ -367,8 +373,6 @@ async function main(): Promise<void> {
         const merged = m.mergePartials([makePartial()], []);
         assert.strictEqual(merged.environment, 'CRT-3');
         assert.strictEqual(merged.tester, 'Ana');
-        assert.match(merged.commit ?? '', /^[0-9a-f]{7,40}$/, 'commit corto de git');
-        assert.ok(merged.branch && merged.branch.length > 0, 'branch actual');
         delete process.env.ENV_NAME;
     });
 
@@ -508,6 +512,11 @@ async function main(): Promise<void> {
         );
         
         reporter.onTestEnd(
+            fakeTest({title: 'authenticate', location: {file: 'tests/auth.setup.ts'}}),
+            fakeResult({status: 'passed'}),
+        );
+        
+        reporter.onTestEnd(
             fakeTest({title: 'intento intermedio con retry', retries: 1}),
             fakeResult({status: 'failed', retry: 0, error: {message: 'boom'}}),
         );
@@ -539,7 +548,7 @@ async function main(): Promise<void> {
         const written = JSON.parse(fs.readFileSync(partialFile, 'utf8'));
         assert.strictEqual(written.project, 'PuntoVenta');
         assert.strictEqual(written.module, 'PuntoVenta/Boleta', 'módulo = carpeta real del spec ejecutado');
-        assert.strictEqual(written.passed, 1, 'setup y retry intermedio NO cuentan');
+        assert.strictEqual(written.passed, 1, 'setups (datos + authenticate) y retry intermedio NO cuentan');
         assert.strictEqual(written.failed, 1, 'solo el intento final cuenta');
         assert.strictEqual(written.errors, 0);
         assert.strictEqual(written.skipped, 0);
