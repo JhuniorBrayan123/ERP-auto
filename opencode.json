@@ -14,15 +14,31 @@
         "BOOKSTACK_TOKEN_ID": "{env:BOOKSTACK_TOKEN_ID}",
         "BOOKSTACK_TOKEN_SECRET": "{env:BOOKSTACK_TOKEN_SECRET}"
       }
+    },
+
+    "excalidraw": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "mcp-excalidraw-server"
+      ],
+      "enabled": true,
+      "timeout": 30000
     }
   },
+
   "permission": {
     "*": "ask",
+
     "read": "allow",
     "grep": "allow",
     "glob": "allow",
+
     "edit": "ask",
     "bash": "ask",
-    "bookstack_*": "ask"
+
+    "bookstack_*": "ask",
+    "excalidraw_*": "ask"
   }
 }
