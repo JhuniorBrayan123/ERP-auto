@@ -113,6 +113,24 @@ function formatDurationMs(ms: number): string {
     return `${seconds} sec`;
 }
 
+/**
+ * Formatea una fecha ISO como fecha + hora local (es-PE), ej: `04/08/2026, 20:16`.
+ * Devuelve 'No disponible' si el valor es inválido o no se informó.
+ */
+function formatDateTime(iso: string | undefined): string {
+    if (!iso) return 'No disponible';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return 'No disponible';
+    return d.toLocaleString('es-PE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+    });
+}
+
 export function formatDiscordMessage(
     payload: ConsolidatedPayload,
     mentions?: {userId?: string},
@@ -125,10 +143,12 @@ export function formatDiscordMessage(
     const headerLines = [
         `🤖 **REPORTE DE REGRESIÓN ERP2** — ${payload.environment}`,
         `👤 **Tester:** ${payload.tester || 'No identificado'}`,
+        `📅 **Fecha de ejecución:** ${formatDateTime(payload.startedAt)}`,
         `⏱️ **Duración:** ${formatDurationMs(payload.durationMs)}`,
     ];
 
-    const header = `${mentionLine}${SEP}\n\n${headerLines.join('\n')}\n\n${SEP}\n\n`;
+    // Formato compacto: el texto va pegado a los separadores, sin líneas en blanco.
+    const header = `${mentionLine}${SEP}\n${headerLines.join('\n')}\n${SEP}\n`;
 
     const moduleLines = payload.modules.length
         ? payload.modules.map((m) => {
@@ -141,7 +161,7 @@ export function formatDiscordMessage(
             return `${icon} **${m.module}** — ${desc}`;
         })
         : ['➖ _No se ejecutaron pruebas_'];
-    const moduleSection = `📋 **RESULTADOS POR MÓDULO**\n\n${moduleLines.join('\n')}\n\n${SEP}\n\n`;
+    const moduleSection = `📋 **RESULTADOS POR MÓDULO**\n${moduleLines.join('\n')}\n${SEP}\n`;
 
     const state = hasFailures ? '❌ **FALLIDO**' : '✅ **EXITOSO**';
     const total = payload.total;
@@ -153,12 +173,16 @@ export function formatDiscordMessage(
 
     const summarySection =
         `📊 **RESUMEN GLOBAL**\n**Estado:** ${state}\n` +
-        `**Total:** ${totalCount} (${parts.join(' | ')})\n\n${SEP}\n`;
+        `**Total:** ${totalCount} (${parts.join(' | ')})\n`;
 
     let body = `${header}${moduleSection}${summarySection}`;
 
+    if (hasFailures) {
+        body += `📄 Para ver los detalles de los fallos, revisa el reporte HTML local ejecutando \`npx playwright show-report\`.\n${SEP}\n`;
+    }
+
     if (payload.failures.length > 0) {
-        body += `\n❌ **TOP FALLOS**\n`;
+        body += `❌ **TOP FALLOS**\n`;
         const footerReserve = '… +999999 más'.length;
         let included = 0;
         for (const f of payload.failures) {
@@ -321,7 +345,7 @@ class DiscordReporter implements Reporter {
 
     private isSetupTest(test: TestCase): boolean {
         const file = test.location?.file ?? '';
-        return file.includes('.setup.ts') && !file.includes('auth.setup.ts');
+        return file.includes('.setup.ts');
     }
 
     onBegin(): void {
