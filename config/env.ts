@@ -1,7 +1,14 @@
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 
-dotenv.config({path: path.resolve(__dirname, 'environment.env')});
+// Carga environment.env UNA vez por proceso. dotenv no sobreescribe vars ya
+// seteadas; si el módulo se re-requiere (tests unitarios con require.cache),
+// sin este guard cada require re-inyecta el archivo y rompe el aislamiento.
+const globalScope = globalThis as unknown as {__ERP_ENV_LOADED__?: boolean};
+if (!globalScope.__ERP_ENV_LOADED__) {
+    dotenv.config({path: path.resolve(__dirname, 'environment.env')});
+    globalScope.__ERP_ENV_LOADED__ = true;
+}
 
 function required(name: string): string {
     const value = process.env[name];
