@@ -20,6 +20,16 @@
       ],
       "enabled": true,
       "timeout": 30000
+    },
+
+    "gitlab": {
+      "type": "local",
+      "command": [
+        "python",
+        "tools/mcp-gitlab/server.py"
+      ],
+      "enabled": true,
+      "timeout": 30000
     }
   },
 
@@ -34,6 +44,7 @@
     "bash": "ask",
 
     "bookstack_*": "ask",
-    "excalidraw_*": "ask"
+    "excalidraw_*": "ask",
+    "gitlab_*": "ask"
   }
 }

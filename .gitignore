@@ -20,6 +20,8 @@ _codegen/
 AGENTS.md
 exploration.md
 .atl/
+__pycache__/
+*.pyc
 .opencode/
 coverage/
 openspec/
