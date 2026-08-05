@@ -325,5 +325,67 @@ def get_file_content(project_path: str, file_path: str, ref: str = None) -> str:
         return json.dumps({"error": f"Error leyendo '{file_path}': {str(e)}"}, indent=2)
 
 
+@mcp.tool()
+def list_tags(project_path: str) -> str:
+    """
+    Lista los tags (releases) de un proyecto de GitLab. Devuelve el nombre
+    del tag, el commit al que apunta y la URL. Útil para detectar el último
+    tag semver (X.Y.Z) antes de crear uno nuevo.
+    project_path: path completo del proyecto, ej 'GU-CalidadTI/erpperu2-automation'.
+    """
+    project_id = encode_project(project_path)
+    tags = api_get(f"/projects/{project_id}/repository/tags", {"order_by": "updated", "sort": "desc", "per_page": 100})
+    result = []
+    for t in tags:
+        result.append({
+            "name": t["name"],
+            "target": t.get("target"),
+            "commit_message": (t.get("commit") or {}).get("title"),
+            "release": (t.get("release") or {}).get("url") if t.get("release") else None,
+        })
+    return json.dumps(result, indent=2)
+
+
+@mcp.tool()
+def create_tag(project_path: str, tag_name: str, ref: str, message: str = "") -> str:
+    """
+    Crea un tag (release) en un proyecto de GitLab. ACCIÓN DE ESCRITURA: solo
+    ejecutar cuando el usuario lo pida explícitamente, con tag_name y ref
+    confirmados (rama destino del merge o SHA del commit).
+
+    Para crear un tag con notas de release (changelog visible en la UI de
+    GitLab), pasá el changelog en 'message' (soporta Markdown). Ejemplo de
+    release note:
+        ## [2.133.1](https://.../merge_requests/309) - 05/08/2026
+        ### Nuevas características
+        - No Aplica
+        ### Incidencias solucionadas
+        - Correción de selectores
+
+    project_path: path completo del proyecto, ej 'grupo/erp-mf-header'.
+    tag_name: nombre del tag, ej '2.133.1'.
+    ref: rama (ej 'main', 'develop') o SHA del commit donde se crea el tag.
+    message: mensaje del tag. Si incluye líneas nuevas, crea además una
+             nota de release (changelog) en GitLab.
+    """
+    project_id = encode_project(project_path)
+    params = {"tag_name": tag_name, "ref": ref}
+    if message:
+        params["message"] = message
+    try:
+        result = api_post(f"/projects/{project_id}/repository/tags", params)
+        # El endpoint /repository/tags con 'message' multilínea notifica la
+        # propiedad release_description en la respuesta cuando aplica.
+        release = result.get("release")
+        return json.dumps({
+            "success": True,
+            "tag_name": result.get("name"),
+            "target": result.get("target"),
+            "release": release.get("description") if release else None,
+        }, indent=2)
+    except requests.exceptions.HTTPError as e:
+        return json.dumps({"success": False, "error": str(e)}, indent=2)
+
+
 if __name__ == "__main__":
     mcp.run(transport="stdio")
