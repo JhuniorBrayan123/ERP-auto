@@ -15,16 +15,26 @@ pip install -r requirements.txt
 ## Credenciales
 
 **NO** se commitean. El server carga las variables `GITLAB_*` desde el `.env`
-de la **raíz del proyecto** (usa `load_dotenv()` con el cwd y un fallback a un
-`.env` propio en esta carpeta).
-
-Si quieres probar el servidor manualmente, copia `.env.example` como `.env` local
-en esta carpeta con tus credenciales:
+de la **raíz del proyecto** como **única fuente**, por ruta explícita
+(`load_dotenv(Path(__file__).resolve().parents[2] / ".env")`): desde
+`tools/mcp-gitlab/`, `parents[2]` es la raíz del repo. No depende del cwd ni de
+variables provistas por OpenCode, así que funciona igual desde la terminal,
+OpenCode o CI. El `.env.example` de esta carpeta es solo documentación (no se
+usa en runtime):
 
 ```
 GITLAB_URL=https://gitlab.sreasons.com
 GITLAB_TOKEN=tu_token_personal
 ```
+
+### ¿Por qué NO usar placeholders `env:VARIABLE` en `opencode.json`?
+
+`opencode.json` es JSON puro (no admite comentarios) y OpenCode **no auto-carga**
+el `.env` de la raíz para resolver los placeholders de entorno (`env:VARIABLE`).
+Si la variable no está exportada en el entorno real del proceso, el placeholder
+se sustituye por una cadena vacía y el MCP arranca roto **silenciosamente**
+(GitLab responde 401 o URL vacía). Por eso el server resuelve el `.env` raíz por
+ruta explícita y no confía en placeholders de `opencode.json`.
 
 > El token se crea en **GitLab > Settings > Access Tokens**. Para operaciones de
 > escritura (crear/aprobar MRs) requiere scope `api`; para solo lectura alcanza

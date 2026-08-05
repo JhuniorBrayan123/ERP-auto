@@ -3,11 +3,14 @@ import json
 import requests
 from dotenv import load_dotenv
 from pathlib import Path
-# Carga primero el .env del cwd. Cuando OpenCode lanza este MCP desde la raíz
-# del proyecto, toma la raíz/.env (que NO está versionada) y el token no se
-# mete en git. Fallback: .env propio de esta carpeta (para ejecución manual).
+# Carga el .env de la RAÍZ del proyecto por ruta explícita como ÚNICA fuente
+# de credenciales, sin depender del cwd ni de la inyección de OpenCode. Desde
+# tools/mcp-gitlab/, parents[2] es la raíz del repo (tools/.. / .. / .env).
+# python-dotenv no sobreescribe variables ya seteadas (override=False): si
+# OpenCode inyecta valores válidos, esos ganan; si no inyecta nada, este lo toma.
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")
+# Fallback suave: .env del cwd (solo para ejecución manual puntual).
 load_dotenv()
-load_dotenv(dotenv_path=Path(__file__).parent / ".env")
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("gitlab-mcp")
