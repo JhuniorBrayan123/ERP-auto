@@ -98,6 +98,7 @@ El proyecto utiliza **Playwright con TypeScript** y emplea una arquitectura híb
    - **Prioridad 3**: `getByRole` o `getByText` con selectores precisos y exactos.
 2. **Evitar Fragilidad**: NO usar rutas CSS largas, dependientes de estructura (`div > div > span:nth-child(2)`) a menos que sea la única opción disponible.
 3. **No Hardcodear en Tests**: Los locators **NUNCA** deben estar en los archivos `.spec.ts`. Siempre deben estar centralizados en la capa de `Targets` o dentro del `Page` correspondiente.
+4. **No Inventar Locators**: Si un input, botón o elemento no tiene un locator definido en el `Page` o `Target` correspondiente, el agente **NUNCA** debe adivinar o inventar uno (como forzar un `getByRole` genérico dentro de la Tarea). El agente debe primero mapear el locator correcto (idealmente por ID) en el archivo POM (`Page`) correspondiente y solo entonces consumirlo en la Tarea. Si no logra encontrar el ID real, debe solicitar asistencia humana.
 
 ### 3. Manejo de Asincronía y Tiempos de Espera (Waits)
 
