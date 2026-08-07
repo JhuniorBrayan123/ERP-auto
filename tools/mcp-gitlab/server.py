@@ -319,7 +319,7 @@ def merge_merge_request(project_path: str, mr_iid: int, merge_when_pipeline_succ
     project_id = encode_project(project_path)
     try:
         params = {"merge_when_pipeline_succeeds": merge_when_pipeline_succeeds}
-        result = api_post(
+        result = api_put(
             f"/projects/{project_id}/merge_requests/{mr_iid}/merge",
             params,
         )
