@@ -45,6 +45,9 @@ export interface EmisionResult {
     correlativo: string;
 
     comprobanteId: number;
+
+    /** Monto TOTAL real en SOLES del comprobante emitido (de la respuesta de la emisión). */
+    montoTotalVenta?: number;
 }
 
 export interface AdelantoConfig {
