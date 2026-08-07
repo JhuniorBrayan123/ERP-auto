@@ -2,6 +2,13 @@ import type { APIRequestContext } from '@playwright/test';
 import { env } from '../../../config/env';
 import type { CajaVentaRaw, AlmacenCajaRaw } from '../../types/api-responses.types';
 
+export interface MontoActualCaja {
+    idMoneda: number;
+    descripcionMoneda: string;
+    montoActual: number;
+    descripcionTipo: string;
+}
+
 export interface CajaVenta {
     id: number;
     nombre: string;
@@ -14,6 +21,7 @@ export interface CajaVenta {
     tipoDocDefecto: number;
     ultimoCuadreCajaId: number;
     ultimoCuadreCajaEstado: number;
+    montosActualesPorMoneda: MontoActualCaja[];
 }
 
 export interface CajaAlmacen {
@@ -63,7 +71,33 @@ export class CajasApi {
             tipoDocDefecto: item.IdTipoDocDefecto,
             ultimoCuadreCajaId: item.UltimoCuadreCaja?.Id ?? 0,
             ultimoCuadreCajaEstado: item.UltimoCuadreCaja?.Estado ?? 0,
+            montosActualesPorMoneda: (item.UltimoCuadreCaja?.MontoActualxMoneda ?? []).map((m) => ({
+                idMoneda: m.IdMoneda ?? 0,
+                descripcionMoneda: m.DescripcionMoneda ?? '',
+                montoActual: m.MontoActual ?? 0,
+                descripcionTipo: m.DescripcionTipo ?? '',
+            })),
         }));
+    }
+
+    async obtenerMontoActualSoles(sucursalId: number = 27747): Promise<number> {
+        const cajas = await this.obtenerCajas(sucursalId);
+        const caja = cajas.find(c => c.estado === 1) ?? cajas[0];
+        if (!caja) {
+            throw new Error(
+                `CajasApi: no se encontró ninguna caja abierta para la sucursal ${sucursalId}`,
+            );
+        }
+
+        const soles = caja.montosActualesPorMoneda.find(m => m.idMoneda === 1);
+        if (!soles) {
+            throw new Error(
+                `CajasApi: la caja "${caja.nombre}" no expone un monto actual en soles (IdMoneda 1). ` +
+                `Monedas disponibles: ${caja.montosActualesPorMoneda.map(m => m.descripcionMoneda).join(', ') || 'ninguna'}`,
+            );
+        }
+
+        return soles.montoActual;
     }
 
     async buscarCajaPorNombre(nombre: string): Promise<CajaVenta | undefined> {
