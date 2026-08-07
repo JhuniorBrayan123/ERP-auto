@@ -10,35 +10,6 @@ import {
 import {esperarStockDespuesVenta} from '@helpers/PuntoVenta/esperarStockDespuesVenta';
 import {EliminarComprobante} from '@task/PuntoVenta/busqueda-comprobantes/EliminarComprobante';
 import {recargarSiHayError} from '@utils/wait-helpers';
-import type {ComprobanteApi} from '@services/PuntoVenta/ComprobanteApi';
-
-/**
- * Obtiene el monto total REAL de la Nota de Venta emitida consultando a la API
- * de comprobantes, filtrando por serie + correlativo de la última emisión.
- * Si el correlativo se repite entre series, se refina por la serie.
- */
-async function obtenerMontoTotalNV(
-    comprobanteApi: ComprobanteApi,
-    emision: {serie: string; correlativo: string},
-): Promise<number> {
-    const comprobantes = await comprobanteApi.consultarComprobantes({tamanio: 100});
-    const correlativoNum = Number(emision.correlativo);
-    const serieNorm = emision.serie.trim().toLowerCase();
-
-    const coincidencia =
-        comprobantes.find(c =>
-            c.correlativoDocumento === correlativoNum &&
-            c.serieDescripcion?.trim().toLowerCase() === serieNorm,
-        ) ??
-        comprobantes.find(c => c.correlativoDocumento === correlativoNum);
-
-    if (!coincidencia) {
-        throw new Error(
-            `No se encontró la Nota de Venta ${emision.serie}-${emision.correlativo} en la consulta de comprobantes`,
-        );
-    }
-    return coincidencia.montoTotal;
-}
 
 test.describe('PV-16 | Anulación de Nota de Venta con retorno de stock', {
     tag: ['@punto-venta', '@nota-venta', '@stock', '@anulacion'],
@@ -48,12 +19,11 @@ test.describe('PV-16 | Anulación de Nota de Venta con retorno de stock', {
                                                                                                                                cajaPage,
                                                                                                                                comprobantePage,
                                                                                                                                emisionPage,
-                                                                                                                               kardexApi,
-                                                                                                                               cajasApi,
-                                                                                                                               comprobanteApi,
-                                                                                                                               busquedaComprobantes,
-                                                                                                                               page
-                                                                                                                           }) => {
+kardexApi,
+                                                                                                                                cajasApi,
+                                                                                                                                busquedaComprobantes,
+                                                                                                                                page
+                                                                                                                            }) => {
         const item = ITEMS_PV.ESTRICTO_GRAVADO_2;
         let stockOriginal = 0;
         let montoInicial = 0;
@@ -67,18 +37,29 @@ test.describe('PV-16 | Anulación de Nota de Venta con retorno de stock', {
             stockOriginal = await capturarStockNC(kardexApi, item.codigo);
         });
 
+        let montoTotalCarrito = 0;
+
         await test.step('And se captura el monto actual en SOLES de la caja', async () => {
-            montoInicial = await capturarMontoCaja(cajasApi);
+            montoInicial = await capturarMontoCaja(cajasApi, undefined, cajaPage.nombreCajaActiva);
+            console.log(`   Monto inicial de la caja en SOLES: S/ ${montoInicial}`);
         });
 
         await test.step('When se agrega el ítem y se emite la nota de venta con efectivo exacto', async () => {
             await emisionPage.buscarItem(item.codigo);
             await emisionPage.seleccionarItem(item.nombre);
+            const resumen = await emisionPage.capturarResumenPedido();
+            montoTotalCarrito = parseFloat(resumen['Total'] ?? resumen['TOTAL'] ?? '0') || 0;
+            console.log(`   Total del carrito capturado de la UI: S/ ${montoTotalCarrito}`);
             await emisionPage.emitirConEfectivoExacto();
         });
 
         const emision = emisionPage.ultimaEmision;
         expect(emision?.correlativo).toBeTruthy();
+
+        await test.step('And se cierra el modal de éxito y se vuelve a la vista de la caja', async () => {
+            await emisionPage.clickNuevaVenta();
+            await recargarSiHayError(page);
+        });
 
         await test.step('And el stock baja tras la venta', async () => {
             await esperarStockDespuesVenta({
@@ -92,19 +73,19 @@ test.describe('PV-16 | Anulación de Nota de Venta con retorno de stock', {
         const stockDespuesVenta = stockOriginal - item.cantidad;
 
         await test.step('And el monto en SOLES de la caja sube en ~el monto total de la venta', async () => {
-            const montoTotalNV = await obtenerMontoTotalNV(comprobanteApi, emision!);
+            const montoTotalNV = montoTotalCarrito;
+            console.log(`   Monto total NV (carrito): S/ ${montoTotalNV}`);
             expect(montoTotalNV).toBeGreaterThan(0);
 
             await validarMontoCajaDespuesVenta({
                 cajasApi,
                 montoInicial,
                 montoTotalVenta: montoTotalNV,
+                nombreCaja: cajaPage.nombreCajaActiva,
             });
         });
 
-        await test.step('And se cierra el modal de éxito y se navega a Búsqueda de comprobantes filtrando por el correlativo emitido', async () => {
-            await emisionPage.clickNuevaVenta();
-            await recargarSiHayError(page);
+        await test.step('And se navega a Búsqueda de comprobantes filtrando por el correlativo emitido', async () => {
             await busquedaComprobantes.navegarABusquedaComprobantes(emisionPage.ultimaEmision);
         });
 
@@ -132,6 +113,7 @@ test.describe('PV-16 | Anulación de Nota de Venta con retorno de stock', {
                 montoInicial,
                 montoDespuesVenta: montoInicial, // solo informativo; el esperado es saldo inicial
                 retornoDinero: true,
+                nombreCaja: cajaPage.nombreCajaActiva,
             });
         });
 

@@ -1,6 +1,5 @@
 import {expect} from '@playwright/test';
 import type {CajasApi} from '@services/PuntoVenta/CajasApi';
-import {SUCURSAL} from '@helpers/PuntoVenta/emision-data.helper';
 
 export interface DatosMontoCaja {
     cajasApi: CajasApi;
@@ -9,23 +8,29 @@ export interface DatosMontoCaja {
     montoTotalVenta: number;
     retornoDinero: boolean;
     sucursalId?: number;
+    nombreCaja?: string;
 }
 
 type DatosMontoDespuesVenta = Pick<
     DatosMontoCaja,
-    'cajasApi' | 'montoInicial' | 'montoTotalVenta' | 'sucursalId'
+    'cajasApi' | 'montoInicial' | 'montoTotalVenta' | 'sucursalId' | 'nombreCaja'
 >;
 
 type DatosRetornoDinero = Pick<
     DatosMontoCaja,
-    'cajasApi' | 'montoInicial' | 'montoDespuesVenta' | 'retornoDinero' | 'sucursalId'
+    'cajasApi' | 'montoInicial' | 'montoDespuesVenta' | 'retornoDinero' | 'sucursalId' | 'nombreCaja'
 >;
 
 export async function capturarMontoCaja(
     cajasApi: CajasApi,
-    sucursalId: number = SUCURSAL.id,
+    sucursalId?: number,
+    nombreCaja?: string,
 ): Promise<number> {
-    return cajasApi.obtenerMontoActualSoles(sucursalId);
+    const monto = sucursalId
+        ? await cajasApi.obtenerMontoActualSoles(sucursalId, nombreCaja)
+        : await cajasApi.obtenerMontoActualSoles(undefined, nombreCaja);
+    console.log(`   [Caja] Monto actual capturado: S/ ${monto}`);
+    return monto;
 }
 
 /**
@@ -37,14 +42,24 @@ export async function validarMontoCajaDespuesVenta(datos: DatosMontoDespuesVenta
         cajasApi,
         montoInicial,
         montoTotalVenta,
-        sucursalId = SUCURSAL.id,
+        sucursalId,
+        nombreCaja,
     } = datos;
 
     const montoEsperado = montoInicial + montoTotalVenta;
+    console.log(
+        `   [Caja] Validando alza de monto: inicial S/ ${montoInicial} + venta S/ ${montoTotalVenta} = esperado S/ ${montoEsperado}`,
+    );
 
     await expect
         .poll(
-            async () => cajasApi.obtenerMontoActualSoles(sucursalId),
+            async () => {
+                const actual = await cajasApi.obtenerMontoActualSoles(sucursalId, nombreCaja);
+                console.log(
+                    `   [Caja] Poll alza: actual S/ ${actual} vs esperado S/ ${montoEsperado}`,
+                );
+                return actual;
+            },
             {
                 message: `El monto en SOLES de la caja debe subir de ${montoInicial} a ≈ ${montoEsperado} tras la venta`,
                 timeout: 30_000,
@@ -65,14 +80,21 @@ export async function validarRetornoDineroCaja(datos: DatosRetornoDinero): Promi
         montoInicial,
         montoDespuesVenta,
         retornoDinero,
-        sucursalId = SUCURSAL.id,
+        sucursalId,
+        nombreCaja,
     } = datos;
 
     const montoEsperado = retornoDinero ? montoInicial : montoDespuesVenta;
 
     await expect
         .poll(
-            async () => cajasApi.obtenerMontoActualSoles(sucursalId),
+            async () => {
+                const actual = await cajasApi.obtenerMontoActualSoles(sucursalId, nombreCaja);
+                console.log(
+                    `   [Caja] Poll retorno: actual S/ ${actual} vs esperado S/ ${montoEsperado}`,
+                );
+                return actual;
+            },
             {
                 message: retornoDinero
                     ? `El monto en SOLES de la caja debe retornar de ${montoDespuesVenta} a ${montoEsperado} (delta neto ~0) tras la anulación`

@@ -36,10 +36,11 @@ export class CajasApi {
         private readonly token: string,
     ) {}
 
-    async obtenerCajas(sucursalId: number = 27747): Promise<CajaVenta[]> {
+    async obtenerCajas(sucursalId?: number): Promise<CajaVenta[]> {
+        const id = this.resolveSucursalId(sucursalId);
         const url = [
             `${env.apiUrl}Finanzas/api/v1/cajas-ventas/aperturas`,
-            `?sucursales=${sucursalId}`,
+            `?sucursales=${id}`,
             `&pagina=0&regxpag=100&estado=1&categoria=0&idCaja=0`,
         ].join('');
 
@@ -80,12 +81,28 @@ export class CajasApi {
         }));
     }
 
-    async obtenerMontoActualSoles(sucursalId: number = 27747): Promise<number> {
-        const cajas = await this.obtenerCajas(sucursalId);
-        const caja = cajas.find(c => c.estado === 1) ?? cajas[0];
+    /**
+     * Busca entre las cajas abiertas la que corresponde al flujo.
+     * Si se indica `nombreCaja`, prioriza la caja cuyo nombre coincida (la caja
+     * activa del punto de venta). De lo contrario usa la primera abierta.
+     */
+    private seleccionarCajaActiva(cajas: CajaVenta[], nombreCaja?: string): CajaVenta | undefined {
+        if (nombreCaja) {
+            const match = cajas.find(
+                c => c.nombre?.trim().toLowerCase().includes(nombreCaja.trim().toLowerCase()),
+            );
+            if (match) return match;
+        }
+        return cajas.find(c => c.estado === 1) ?? cajas[0];
+    }
+
+    async obtenerMontoActualSoles(sucursalId?: number, nombreCaja?: string): Promise<number> {
+        const id = this.resolveSucursalId(sucursalId);
+        const cajas = await this.obtenerCajas(id);
+        const caja = this.seleccionarCajaActiva(cajas, nombreCaja);
         if (!caja) {
             throw new Error(
-                `CajasApi: no se encontró ninguna caja abierta para la sucursal ${sucursalId}`,
+                `CajasApi: no se encontró ninguna caja abierta para la sucursal ${id}`,
             );
         }
 
@@ -110,5 +127,60 @@ export class CajasApi {
         const caja = cajas.find(c => c.id === cajaId);
         if (!caja) return false;
         return caja.estado === 1 && caja.ultimoCuadreCajaEstado === 1;
+    }
+
+    /**
+     * Resuelve el id de sucursal a usar al consultar las cajas.
+     * - Si se pasa `sucursalId` explícito y mayor que 0, se usa ese.
+     * - En caso contrario, se deriva dinámicamente del payload del JWT de autorización
+     *   (`scopes.Sucursales[0]`, con fallback a `scopes.IdEntidadEmpresa`).
+     * De esta forma la sucursal activa proviene de la sesión (token) y no está
+     * hardcodeada, funcionando en cualquier entorno/usuario.
+     */
+    private resolveSucursalId(sucursalId?: number): number {
+        if (sucursalId && sucursalId > 0) return sucursalId;
+        return this.deriveSucursalIdFromToken();
+    }
+
+    private deriveSucursalIdFromToken(): number {
+        const parts = this.token.split('.');
+        if (parts.length < 2) {
+            throw new Error('CajasApi: el token de autorización no es un JWT válido');
+        }
+
+        const payload = this.decodeJwtPayload(parts[1]);
+        // El JWT de sesión expone las sucursales en la clave `scopes` (plural).
+        // Se contempla también `scope` (singular) por robustez ante distintos emisores.
+        const scope = (payload?.scopes ?? payload?.scope) as
+            | { Sucursales?: number[]; IdEntidadEmpresa?: number }
+            | undefined;
+        const sucursales = scope?.Sucursales;
+        if (Array.isArray(sucursales) && sucursales.length > 0 && sucursales[0] > 0) {
+            return sucursales[0];
+        }
+
+        const idEntidad = scope?.IdEntidadEmpresa;
+        if (typeof idEntidad === 'number' && idEntidad > 0) {
+            return idEntidad;
+        }
+
+        throw new Error(
+            'CajasApi: no se pudo determinar la sucursal desde el token de autorización ' +
+                '(falta scopes.Sucursales o scopes.IdEntidadEmpresa en el payload)',
+        );
+    }
+
+    private decodeJwtPayload(b64urlSegment: string): Record<string, unknown> {
+        let base64 = b64urlSegment.replace(/-/g, '+').replace(/_/g, '/');
+        while (base64.length % 4 !== 0) {
+            base64 += '=';
+        }
+
+        const json = Buffer.from(base64, 'base64').toString('utf8');
+        try {
+            return JSON.parse(json) as Record<string, unknown>;
+        } catch {
+            throw new Error('CajasApi: no se pudo decodificar el payload del token');
+        }
     }
 }

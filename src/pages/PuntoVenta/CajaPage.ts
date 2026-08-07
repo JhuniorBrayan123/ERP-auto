@@ -11,6 +11,11 @@ export class CajaPage {
     ) {
     }
 
+    /** Nombre de la caja activa con la que opera este flujo (fuente de verdad única). */
+    get nombreCajaActiva(): string {
+        return this.nombreCaja;
+    }
+
     private get tarjetaCaja() {
         return this.page.locator('.detalle')
             .filter({hasText: this.nombreCaja})
