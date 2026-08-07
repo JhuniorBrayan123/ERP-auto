@@ -25,6 +25,7 @@ __pycache__/
 .opencode/
 coverage/
 openspec/
+.engram/
 config/environment.env
 .env
 
