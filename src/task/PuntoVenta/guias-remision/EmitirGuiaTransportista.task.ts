@@ -26,7 +26,7 @@ export type EmitirGuiaTransportistaData = {
         tuce?: string;
     };
     decrementarCantidad?: boolean;
-    fechaInicioTraslado?: string;
+    fechaInicioTrasladoDiasAtras?: number;
     
     skipConductor?: boolean;
     skipTransportista?: boolean;
@@ -150,9 +150,14 @@ export const EmitirGuiaTransportistaTask = (data: EmitirGuiaTransportistaData) =
                 });
             }
 
-            if (data.fechaInicioTraslado) {
-                await test.step(`Completar fecha inicio traslado: ${data.fechaInicioTraslado}`, async () => {
-                    await page.getByRole('textbox', {name: /fecha.*inicio.*traslado/i}).fill(data.fechaInicioTraslado!);
+            if (data.fechaInicioTrasladoDiasAtras) {
+                await test.step(`Seleccionar fecha inicio traslado: ${data.fechaInicioTrasladoDiasAtras} días atrás`, async () => {
+                    await guiaPage.fechaTrasladoPicker.click();
+                    const hoy = new Date();
+                    const target = new Date(hoy);
+                    target.setDate(hoy.getDate() - data.fechaInicioTrasladoDiasAtras!);
+                    const dia = target.getDate();
+                    await page.getByRole('button').filter({ hasText: new RegExp(`^${dia}$`) }).first().click();
                 });
             }
 

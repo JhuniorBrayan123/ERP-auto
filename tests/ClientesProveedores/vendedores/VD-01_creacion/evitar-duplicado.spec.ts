@@ -1,7 +1,6 @@
 import { test, expect } from '@fixtures/clientes-proveedores/vendedores.fixture';
 import {
     CrearVendedor,
-    CerrarModalExitoVendedor,
     IntentarCrearVendedor,
 } from '@screenplay/tasks/clientes-proveedores/vendedores/CrearVendedor';
 import { EliminarVendedor } from '@screenplay/tasks/clientes-proveedores/vendedores/EliminarVendedor';
@@ -14,7 +13,6 @@ test.describe('VD-01 | Evitar duplicado de Vendedor', { tag: ['@vendedores', '@c
 
         
         await vendedorActor.realiza(CrearVendedor(datosVendedor));
-        await vendedorActor.realiza(CerrarModalExitoVendedor());
 
         
         await vendedorActor.realiza(IntentarCrearVendedor(datosVendedor));

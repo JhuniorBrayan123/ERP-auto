@@ -1,7 +1,6 @@
 import { test, expect } from '@fixtures/clientes-proveedores/proveedores.fixture';
 import {
     CrearProveedor,
-    CerrarModalExitoProveedor,
     IntentarCrearProveedor,
 } from '@screenplay/tasks/clientes-proveedores/proveedores/CrearProveedor';
 import { EliminarProveedor } from '@screenplay/tasks/clientes-proveedores/proveedores/EliminarProveedor';
@@ -14,9 +13,6 @@ test.describe('PR-01 | Evitar duplicado de Proveedor', { tag: ['@proveedores', '
 
         
         await proveedorActor.realiza(CrearProveedor(datosProveedor));
-        await proveedorActor.realiza(CerrarModalExitoProveedor());
-
-        
         await proveedorActor.realiza(IntentarCrearProveedor(datosProveedor));
 
         

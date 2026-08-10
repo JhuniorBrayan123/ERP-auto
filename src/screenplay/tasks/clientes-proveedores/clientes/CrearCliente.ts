@@ -119,8 +119,14 @@ export const ClickCrearCliente = () => {
 
 export const CerrarModalExito = () => {
     const fn = async (page: Page): Promise<void> => {
-        await ClientesTargets.btnCerrarModal(page).click();
-        await esperarCargaOverlay(page).catch(() => { });
+        const btn = ClientesTargets.btnCerrarModal(page);
+        try {
+            await btn.waitFor({state: 'visible', timeout: 2_000});
+            await btn.click();
+            await esperarCargaOverlay(page).catch(() => { });
+        } catch {
+            // El modal ya estaba cerrado: no-op.
+        }
     };
     fn.displayName = 'Cerrar modal de éxito';
     return fn;

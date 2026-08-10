@@ -42,6 +42,10 @@ export class GuiaTransportistaPage {
         return this.page.getByRole('textbox', {name: /Ej\. 1234567891/});
     }
 
+    get fechaTrasladoPicker() {
+        return this.page.locator('[id="pv_cmp-guia-remision-transportista_cmp-card-inicio:form-inicio_v-datepicker:fecha-inicio-traslado"]');
+    }
+
     get inputBuscarItem() {
         return this.page.getByRole('textbox', {name: 'Escanea o busca por nombre, c'});
     }

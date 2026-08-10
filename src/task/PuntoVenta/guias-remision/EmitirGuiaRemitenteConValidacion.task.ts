@@ -23,6 +23,7 @@ export type EmitirGuiaRemitenteConValidacionData = {
     skipUbigeo?: boolean;
     skipConductor?: boolean;
     skipTransportista?: boolean;
+    fechaInicioTrasladoDiasAtras?: number;
 };
 
 export const EmitirGuiaRemitenteConValidacionTask = (data: EmitirGuiaRemitenteConValidacionData) => {
@@ -37,6 +38,7 @@ export const EmitirGuiaRemitenteConValidacionTask = (data: EmitirGuiaRemitenteCo
             technicalDetail: 'Error al llenar datos del formulario',
             failureCategory: 'SCRIPT'
         }, async () => {
+
             if (data.motivo) {
                 await test.step(`Seleccionar motivo: ${data.motivo}`, async () => {
                     await guiaPage.seleccionarMotivo(data.motivo!);
@@ -136,6 +138,17 @@ export const EmitirGuiaRemitenteConValidacionTask = (data: EmitirGuiaRemitenteCo
             if (peso) {
                 await test.step(`Definir peso total: ${peso}`, async () => {
                     await guiaPage.definirPesoTotal(peso.includes('.') ? 'Kg' : 'Tn', data.peso!);
+                });
+            }
+
+            if (data.fechaInicioTrasladoDiasAtras) {
+                await test.step(`Seleccionar fecha inicio traslado: ${data.fechaInicioTrasladoDiasAtras} días atrás`, async () => {
+                    await guiaPage.fechaTrasladoPicker.click();
+                    const hoy = new Date();
+                    const target = new Date(hoy);
+                    target.setDate(hoy.getDate() - data.fechaInicioTrasladoDiasAtras!);
+                    const dia = target.getDate();
+                    await page.getByRole('button').filter({ hasText: new RegExp(`^${dia}$`) }).first().click();
                 });
             }
 
