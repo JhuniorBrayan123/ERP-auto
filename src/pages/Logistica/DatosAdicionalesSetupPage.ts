@@ -2,6 +2,7 @@ import { expect, type Page } from '@playwright/test';
 import { DatosOpcionalesPage } from './DatosOpcionalesPage';
 import type { CampoAdicionalConfig } from '../../helpers/Logistica/datos-adicionales-config';
 import type { ProveedorData } from '../../helpers/Logistica/movimiento.types';
+import { esperarCargaOverlay } from '@utils/wait-helpers';
 
 export class DatosAdicionalesSetupPage {
     private readonly datosOpcionales: DatosOpcionalesPage;
@@ -11,6 +12,7 @@ export class DatosAdicionalesSetupPage {
     }
 
     async abrirPanel(): Promise<void> {
+        await esperarCargaOverlay(this.page);
         await this.datosOpcionales.abrirDatosOpcionales();
         await this.page.waitForTimeout(1000);
     }
