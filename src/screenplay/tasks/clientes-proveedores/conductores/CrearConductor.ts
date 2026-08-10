@@ -83,7 +83,13 @@ export const CrearConductor = (datos: DatosConductorInput) => {
 
 export const CerrarModalExitoConductor = () => {
     const fn = async (page: Page): Promise<void> => {
-        await ConductoresTargets.btnCerrarModal(page).click();
+        const btn = ConductoresTargets.btnCerrarModal(page);
+        try {
+            await btn.waitFor({state: 'visible', timeout: 2_000});
+            await btn.click();
+        } catch {
+            // El modal ya estaba cerrado (lo cerró el task compuesto): no-op.
+        }
     };
     fn.displayName = 'Cerrar modal de éxito (Conductor)';
     return fn;

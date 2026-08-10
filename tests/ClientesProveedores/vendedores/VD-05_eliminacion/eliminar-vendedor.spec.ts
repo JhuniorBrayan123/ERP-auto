@@ -1,7 +1,6 @@
 import { test, expect } from '@fixtures/clientes-proveedores/vendedores.fixture';
 import {
     CrearVendedor,
-    CerrarModalExitoVendedor,
 } from '@screenplay/tasks/clientes-proveedores/vendedores/CrearVendedor';
 import {
     BuscarVendedorEnListado,
@@ -21,7 +20,6 @@ test.describe('VD-05 | Eliminación de Vendedor', { tag: ['@vendedores', '@elimi
 
         
         await vendedorActor.realiza(CrearVendedor(datosVendedor));
-        await vendedorActor.realiza(CerrarModalExitoVendedor());
 
         
         await vendedorActor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));

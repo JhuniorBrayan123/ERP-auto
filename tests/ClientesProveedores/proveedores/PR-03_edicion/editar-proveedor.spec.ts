@@ -1,7 +1,6 @@
 import { test, expect } from '@fixtures/clientes-proveedores/proveedores.fixture';
 import {
     CrearProveedor,
-    CerrarModalExitoProveedor,
 } from '@screenplay/tasks/clientes-proveedores/proveedores/CrearProveedor';
 import {
     BuscarProveedorEnListado,
@@ -24,7 +23,6 @@ test.describe('PR-03 | Edición de Proveedor', { tag: ['@proveedores', '@edicion
 
         
         await proveedorActor.realiza(CrearProveedor(datosProveedor));
-        await proveedorActor.realiza(CerrarModalExitoProveedor());
 
         
         await proveedorActor.realiza(BuscarProveedorEnListado(datosProveedor.numeroDocumento));
