@@ -17,7 +17,6 @@ junit.xml
 results.json
 report/
 _codegen/
-AGENTS.md
 exploration.md
 .atl/
 __pycache__/

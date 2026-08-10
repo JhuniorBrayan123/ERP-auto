@@ -208,6 +208,7 @@ def create_merge_request(
     title: str,
     description: str = "",
     reviewer_usernames: list[str] = None,
+    assignee_username: str = None,
 ) -> str:
     """
     Crea un nuevo merge request. ACCIÓN DE ESCRITURA: ejecutar solo
@@ -221,15 +222,25 @@ def create_merge_request(
         "title": title,
         "description": description,
     }
+
+    def _resolve_user_id(username: str):
+        users = api_get("/users", {"username": username})
+        return users[0]["id"] if users else None
+
     if reviewer_usernames:
         # GitLab necesita IDs numéricos, no usernames, para reviewer_ids
         reviewer_ids = []
         for username in reviewer_usernames:
-            users = api_get("/users", {"username": username})
-            if users:
-                reviewer_ids.append(users[0]["id"])
+            uid = _resolve_user_id(username)
+            if uid:
+                reviewer_ids.append(uid)
         if reviewer_ids:
             params["reviewer_ids"] = ",".join(map(str, reviewer_ids))
+
+    if assignee_username:
+        uid = _resolve_user_id(assignee_username)
+        if uid:
+            params["assignee_id"] = uid
 
     result = api_post(f"/projects/{project_id}/merge_requests", params)
     return json.dumps({"success": True, "iid": result.get("iid"), "web_url": result.get("web_url")}, indent=2)
@@ -276,6 +287,50 @@ def update_merge_request(
 
     result = api_put(f"/projects/{project_id}/merge_requests/{mr_iid}", params)
     return json.dumps({"success": True, "iid": result.get("iid"), "web_url": result.get("web_url")}, indent=2)
+
+
+@mcp.tool()
+def get_merge_request_approvals(project_path: str, mr_iid: int) -> str:
+    """
+    Devuelve el estado de aprobaciones de un MR: si ya está aprobado,
+    cuántas aprobaciones tiene y quiénes han aprobado. SOLO LECTURA.
+    """
+    project_id = encode_project(project_path)
+    try:
+        result = api_get(f"/projects/{project_id}/merge_requests/{mr_iid}/approvals")
+        approvers = result.get("approved_by", [])
+        return json.dumps({
+            "approved": bool(result.get("approved", False)),
+            "approved_by": [a["user"]["username"] for a in approvers if a.get("user")],
+            "approved_count": len(approvers),
+        }, indent=2)
+    except requests.exceptions.HTTPError as e:
+        return json.dumps({"approved": False, "approved_count": 0, "error": str(e)}, indent=2)
+
+
+@mcp.tool()
+def merge_merge_request(project_path: str, mr_iid: int, merge_when_pipeline_succeeds: bool = False) -> str:
+    """
+    Mergea un merge request aprobado. ACCIÓN DE ESCRITURA: ejecutar solo
+    cuando el MR está aprobado y el usuario lo pide explícitamente. Requiere
+    token con scope 'api'. Si merge_when_pipeline_succeeds=True, se mergea
+    automáticamente cuando el pipeline (si lo hubiere) termine con éxito.
+    """
+    project_id = encode_project(project_path)
+    try:
+        params = {"merge_when_pipeline_succeeds": merge_when_pipeline_succeeds}
+        result = api_put(
+            f"/projects/{project_id}/merge_requests/{mr_iid}/merge",
+            params,
+        )
+        return json.dumps({
+            "success": True,
+            "iid": result.get("iid"),
+            "state": result.get("state"),
+            "web_url": result.get("web_url"),
+        }, indent=2)
+    except requests.exceptions.HTTPError as e:
+        return json.dumps({"success": False, "error": str(e)}, indent=2)
 
 
 @mcp.tool()
