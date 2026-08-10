@@ -113,7 +113,7 @@ export class ConductorPage {
     }
 
     async clickCrearConductor(): Promise<void> {
-        await this.page.locator('[idx="pv_cmp-header-relacionado-entidad_opciones_add_relacionado_conductor:button"]').first().click();
+        await this.page.locator('[id="pv_conductores_registro-conductor:draper_v_button:registrar-conductor"]').first().click();
     }
 
     async cerrarModalExito(): Promise<void> {
