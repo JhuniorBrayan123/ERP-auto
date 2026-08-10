@@ -135,7 +135,27 @@ export class ProductoFormPage extends ItemFormBasePage {
     }
 
     async crearAtributoVariante(titulo: string, opciones: string[]): Promise<void> {
-        await this.page.getByText('Añadir atributo').click();
+        const botonAñadirAtributo = this.page
+            .locator('div')
+            .filter({hasText: /^Añadir atributo$/})
+            .nth(1);
+        await botonAñadirAtributo.click();
+
+        const opcionExistente = this.page.locator('.opcion').filter({hasText: titulo});
+        const yaExiste = await opcionExistente.isVisible({timeout: 3_000}).catch(() => false);
+        if (yaExiste) {
+            const checkbox = opcionExistente.locator('input[type="checkbox"]');
+            const estaMarcado = await checkbox.isChecked();
+            if (!estaMarcado) {
+                console.log(`   Atributo "${titulo}" ya existe — marcándolo para el producto`);
+                await opcionExistente.locator('.v-checkbox-grid-label').click();
+            } else {
+                console.log(`   Atributo "${titulo}" ya existe y está marcado — sin cambios`);
+            }
+            await botonAñadirAtributo.click();
+            return;
+        }
+
         await this.page.getByRole('button', {name: 'Crear nuevo atributo'}).click();
 
         const inputTitulo = this.page.getByRole('textbox', {name: 'Digita el título del nuevo'});
