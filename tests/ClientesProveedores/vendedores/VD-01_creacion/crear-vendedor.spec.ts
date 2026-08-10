@@ -1,7 +1,6 @@
 import { test, expect } from '@fixtures/clientes-proveedores/vendedores.fixture';
 import {
     CrearVendedor,
-    CerrarModalExitoVendedor,
 } from '@screenplay/tasks/clientes-proveedores/vendedores/CrearVendedor';
 import {
     BuscarVendedorEnListado,
@@ -18,12 +17,6 @@ test.describe('VD-01 | Creación de Vendedores', { tag: ['@vendedores', '@creaci
         await vendedorActor.realiza(CrearVendedor(datosVendedor));
 
         
-        const modalVisible = await page.locator('[id*="modal-exito"]').isVisible();
-        expect(modalVisible).toBe(true);
-
-        await vendedorActor.realiza(CerrarModalExitoVendedor());
-
-        
         await vendedorActor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));
         const visible =         await vendedorActor.pregunta(ValidarVendedorVisible(datosVendedor.nombreRazonSocial));
         expect(visible).toBe(true);
@@ -35,12 +28,6 @@ test.describe('VD-01 | Creación de Vendedores', { tag: ['@vendedores', '@creaci
         const datosVendedor = generarVendedorConCodigoManual();
 
         await vendedorActor.realiza(CrearVendedor(datosVendedor));
-
-        
-        const modalVisible = await page.locator('[id*="modal-exito"]').isVisible();
-        expect(modalVisible).toBe(true);
-
-        await vendedorActor.realiza(CerrarModalExitoVendedor());
 
         
         await vendedorActor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));

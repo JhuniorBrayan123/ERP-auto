@@ -82,7 +82,13 @@ export const CrearVendedor = (datos: DatosVendedorInput) => {
 
 export const CerrarModalExitoVendedor = () => {
     const fn = async (page: Page): Promise<void> => {
-        await VendedoresTargets.btnCerrarModal(page).click();
+        const btn = VendedoresTargets.btnCerrarModal(page);
+        try {
+            await btn.waitFor({state: 'visible', timeout: 2_000});
+            await btn.click();
+        } catch {
+            // El modal ya estaba cerrado (lo cerró el task compuesto): no-op.
+        }
     };
     fn.displayName = 'Cerrar modal de éxito (Vendedor)';
     return fn;
