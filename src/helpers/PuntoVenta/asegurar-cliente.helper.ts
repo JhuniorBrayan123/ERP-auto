@@ -45,7 +45,7 @@ export async function asegurarClienteExtranjeria(
         };
     }
 
-    // 3. No apareció en resultados → cerrar dropdown e intentar crear
+    
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
 
@@ -57,7 +57,7 @@ export async function asegurarClienteExtranjeria(
         email: datosCE.email,
     });
 
-    // 4. Esperar respuesta del POST de creación
+    
     const responseOk = await page.waitForResponse(
         r => r.url().includes('clientes') && r.request().method() === 'POST',
         {timeout: 10000}
@@ -65,14 +65,14 @@ export async function asegurarClienteExtranjeria(
 
     await page.waitForTimeout(800);
 
-    // 5. Si el sistema dijo "ya esta registrado", cerrar modal y seleccionar existente
+    
     if (!responseOk) {
         const yaRegistrado = page.getByText('ya esta registrado');
         if (await yaRegistrado.isVisible().catch(() => false)) {
             await cerrarModalSiEsVisible(page);
         }
 
-        // Buscar de nuevo y seleccionar el cliente existente
+        
         await clientePage.buscarCliente(datosCE.documento);
         await page.waitForTimeout(500);
         await page.locator('.card-entidad-cliente')

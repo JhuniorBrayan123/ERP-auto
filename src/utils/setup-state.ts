@@ -5,7 +5,7 @@ import {env} from '../../config/env';
 const AUTH_DIR = resolve(process.cwd(), 'playwright', '.auth');
 const STATE_FILE = resolve(AUTH_DIR, 'setup-state.json');
 
-export const PV_SETUP_NAMES = ['auth', 'punto-venta-datos', 'punto-venta-items'] as const;
+export const PV_SETUP_NAMES = ['auth', 'punto-venta-datos', 'punto-venta-items', 'punto-venta-euro'] as const;
 
 export const LOG_SETUP_NAMES = ['auth', 'datos-adicionales'] as const;
 
@@ -17,6 +17,7 @@ const SKIP_ENV_MAP: Record<string, string> = {
     'auth': 'SKIP_PV_SETUP',
     'punto-venta-items': 'SKIP_PV_ITEMS_SETUP',
     'punto-venta-datos': 'SKIP_PV_SETUP',
+    'punto-venta-euro': 'SKIP_PV_EURO_SETUP',
     'datos-adicionales': 'SKIP_DATOS_SETUP',
 };
 

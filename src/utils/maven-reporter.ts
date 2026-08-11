@@ -46,7 +46,7 @@ class MavenReporter implements Reporter {
     
     private isSetupTest(test: TestCase): boolean {
         const file = test.location?.file ?? '';
-        return file.includes('.setup.ts') && !file.includes('auth.setup.ts');
+        return file.includes('.setup.ts');
     }
 
     onBegin(_: unknown, suite: Suite): void {

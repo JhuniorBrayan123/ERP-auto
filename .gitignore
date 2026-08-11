@@ -20,10 +20,13 @@ _codegen/
 AGENTS.md
 exploration.md
 .atl/
+__pycache__/
+*.pyc
 .opencode/
 coverage/
 openspec/
 config/environment.env
+.env
 
 # Scripts auxiliares / limpieza
 limpiar-comentarios.js

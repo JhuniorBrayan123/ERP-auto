@@ -1,4 +1,11 @@
 
+export interface MontoActualMonedaRaw {
+    IdMoneda?: number;
+    DescripcionMoneda?: string;
+    MontoActual?: number;
+    DescripcionTipo?: string;
+}
+
 export interface CajaVentaRaw {
     Id: number;
     Nombre: string;
@@ -8,7 +15,7 @@ export interface CajaVentaRaw {
     Sucursal?: { Descripcion?: string };
     Almacenes?: AlmacenCajaRaw[];
     IdTipoDocDefecto: number;
-    UltimoCuadreCaja?: { Id?: number; Estado?: number };
+    UltimoCuadreCaja?: { Id?: number; Estado?: number; MontoActualxMoneda?: MontoActualMonedaRaw[] };
 }
 
 export interface AlmacenCajaRaw {

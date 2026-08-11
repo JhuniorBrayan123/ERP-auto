@@ -1,6 +1,6 @@
 import {existsSync, mkdirSync, writeFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
-import {defineConfig, devices} from "@playwright/test";
+import {defineConfig, devices, type ReporterDescription} from "@playwright/test";
 import {env} from "./config/env";
 import {detectAccount, detectEnvironmentFine} from "./src/utils/setup-state";
 import {generarSlugCache} from "./src/factories/item-factory";
@@ -19,6 +19,12 @@ function resolveStoragePath(): string {
 }
 
 const isCI = !!process.env.CI;
+
+// Gate: solo se registra (y por tanto se instancia) con DISCORD_REPORT_ENABLED === '1'.
+// Apagado → inerte: sin HTTP, sin errores, sin instanciar el reporter.
+const discordReporter: ReporterDescription[] =
+    process.env.DISCORD_REPORT_ENABLED === "1" ? [["./src/utils/discord-reporter.ts"]] : [];
+
 export default defineConfig({
     testDir: "./tests",
 
@@ -38,10 +44,12 @@ export default defineConfig({
 
     reporter: [
         ["./src/utils/maven-reporter.ts"], // consola estilo Maven/Surefire
+        ["json", { outputFile: process.env.PW_REPORT_OUTPUT || "test-results/results.json" }],
         ["html", {
             outputFolder: process.env.PW_HTML_OUTPUT || "report/html",
             open: "never"
         }],
+        ...discordReporter,
     ],
 
     use: {
@@ -97,6 +105,17 @@ export default defineConfig({
             dependencies: ["setup"],
         },
         {
+            name: "pv-euro-setup",
+            testMatch: "**/punto-venta-euro.setup.ts",
+            retries: 0,
+            use: {
+                ...devices["Desktop Chrome"],
+                storageState: resolveStoragePath(),
+                trace: "retain-on-failure",
+            },
+            dependencies: ["setup"],
+        },
+        {
             name: "PuntoVenta",
             testMatch: "tests/Emisiones/**/*.spec.ts",
             testIgnore: ["**/Facturacion/**"],
@@ -104,7 +123,7 @@ export default defineConfig({
                 ...devices["Desktop Chrome"],
                 storageState: resolveStoragePath(),
             },
-            dependencies: ["setup", "pv-items-setup"],
+            dependencies: ["setup", "pv-items-setup", "pv-euro-setup"],
             teardown: "pv-teardown",
             workers: isCI ? 2 : 1,
         },
@@ -115,7 +134,7 @@ export default defineConfig({
                 ...devices["Desktop Chrome"],
                 storageState: resolveStoragePath(),
             },
-            dependencies: ["setup", "pv-items-setup"],
+            dependencies: ["setup", "pv-items-setup", "pv-euro-setup"],
             teardown: "pv-teardown",
             workers: isCI ? 2 : 1,
         },

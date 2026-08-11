@@ -51,6 +51,9 @@ export const CotizacionTargets = {
     btnEmitir: (page: Page) =>
         page.locator('[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-footer_v-button:pago-rapido"]'),
 
+    btnEmitirVF: (page: Page) =>
+        page.locator('[id="pv_punto-venta_cmp-cotizacion-body_v-button:pago-rapido"]'),
+
     btnActualizarCotizacion: (page: Page) =>
         page.getByRole('button', {name: 'ACTUALIZAR COTIZACIÓN'}),
 
@@ -59,10 +62,10 @@ export const CotizacionTargets = {
 
     
     selectorTipoDocPago: (page: Page) =>
-        page.locator('div').filter({hasText: /^BOLETA$/}).nth(4),
+        page.locator('.cmp-confirmar-pago .v-select-base-header').filter({hasText: /^BOLETA$/}).first(),
 
     opcionTipoDocPago: (page: Page, tipo: string) =>
-        page.getByText(tipo).nth(2),
+        page.locator('.cmp-confirmar-pago .v-select-base-options.is-open .v-select-form-option').getByText(tipo, {exact: true}),
 
     btnConfirmarPago: (page: Page) =>
         page.getByRole('button', {name: 'Confirmar'}),

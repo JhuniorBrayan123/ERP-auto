@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import {pathToFileURL} from 'node:url';
 import type {ChildProcess} from 'node:child_process';
 import {spawn as nodeSpawn} from 'node:child_process';
 import {checkbox, input, select} from '@inquirer/prompts';
@@ -14,6 +15,13 @@ const {
     LOG_SETUP_NAMES
 } = await import('@utils/setup-state.js');
 const {cargarMapaDesdeCache, guardarMapaEnCache, cargarMapaCodigos} = await import('../src/factories/item-factory.js');
+const {normalizeMention, envFlag} = await import('../config/env.js');
+const {
+    formatDiscordMessage,
+    loadPartialsFromDisk,
+    mergePartials,
+    postToDiscord,
+} = await import('../src/utils/discord-reporter.js');
 
 const ROOT_DIR = process.cwd();
 const TESTS_DIR = path.join(ROOT_DIR, 'tests');
@@ -442,6 +450,72 @@ function buildArgs(projectContext: ProjectContext, extraArgs: string[], pathsToR
     return [...args, ...extraArgs];
 }
 
+/**
+ * Env del child process para el reporter de Discord:
+ * - `PW_DISCORD_PROJECT`: identifica el proyecto (todos los modos).
+ * - modo `partial` (RunAll): agrega `PW_DISCORD_MODE=partial` → el reporter
+ *   escribe su parcial y NO postea (el POST único lo hace consolidateDiscordReport).
+ * - modo `direct` (single-project): PW_DISCORD_MODE NO se setea → el reporter
+ *   postea directo desde onEnd.
+ */
+export function buildDiscordEnv(
+    base: NodeJS.ProcessEnv,
+    projectKey: ProjectKey,
+    mode: 'partial' | 'direct',
+): NodeJS.ProcessEnv {
+    return {
+        ...base,
+        PW_DISCORD_PROJECT: projectKey,
+        ...(mode === 'partial' ? {PW_DISCORD_MODE: 'partial'} : {}),
+    };
+}
+
+/**
+ * RunAll: consolida los parciales escritos por cada proyecto (modo partial) en
+ * UN mensaje y lo postea una sola vez. Gate off → no-op. Parciales
+ * faltantes/corruptos → `missing[]` + aviso (un crash de proyecto no tumba el
+ * reporte). Respeta solo-fallos, dry-run y webhook ausente (no bloquea).
+ */
+export async function consolidateDiscordReport(
+    partialsDir: string = path.join(ROOT_DIR, 'test-results', '.discord-partials'),
+): Promise<void> {
+    if (process.env.DISCORD_REPORT_ENABLED !== '1') {
+        return;
+    }
+
+    const {partials, missing} = loadPartialsFromDisk(partialsDir, Object.keys(PROJECT_CONFIG));
+
+    if (partials.length === 0) {
+        console.warn('[discord-reporter] No hay parciales que consolidar — mensaje omitido.');
+        return;
+    }
+
+    if (missing.length > 0) {
+        console.warn(
+            `[discord-reporter] Proyectos sin parcial (¿crashearon?): ${missing.join(', ')} — ` +
+            `el reporte se consolida con los presentes.`,
+        );
+    }
+
+    const payload = mergePartials(partials, missing);
+    const hasFailures = payload.total.failed > 0 || payload.total.errors > 0;
+
+
+    const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+    if (!webhookUrl) {
+        console.warn('[discord-reporter] DISCORD_WEBHOOK_URL no configurada — mensaje omitido (la corrida no se bloquea).');
+        return;
+    }
+
+    const content = formatDiscordMessage(payload, {
+        userId: normalizeMention(process.env.DISCORD_USER_ID),
+    });
+    await postToDiscord(content, {
+        webhookUrl,
+        dryRun: envFlag('DISCORD_DRY_RUN'),
+    });
+}
+
 function formatCommandWithContext(args: string[], projectContext?: ProjectContext): string {
     const prefixArgs = projectContext ? buildArgs(projectContext, [], args) : [];
     return ['npx', 'playwright', 'test', ...prefixArgs, ...args].map(quoteArg).join(' ');
@@ -456,12 +530,12 @@ function runPlaywright(args: string[], projectContext?: ProjectContext): Promise
         console.log(formatCommandWithContext(args, ctx));
         console.log('');
 
-        const childEnv = {
+        const childEnv = buildDiscordEnv({
             ...process.env,
             PW_REPORT_OUTPUT: `${ctx.outputDir}/results.json`,
             PW_JUNIT_OUTPUT: `${ctx.outputDir}/junit.xml`,
             PW_HTML_OUTPUT: `playwright-report/${ctx.key.toLowerCase()}`,
-        };
+        }, ctx.key, 'direct');
 
         ensureOutputDirs(ctx.outputDir);
         ensureOutputDirs(`playwright-report/${ctx.key.toLowerCase()}`);
@@ -855,6 +929,16 @@ async function selectProject(): Promise<'PuntoVenta' | 'Facturacion' | 'Logistic
     return choice;
 }
 
+/** Env base de child process: reportes (JSON/JUnit/HTML) por proyecto. */
+function buildChildEnv(outputDir: string, htmlDir: string): NodeJS.ProcessEnv {
+    return {
+        ...process.env,
+        PW_REPORT_OUTPUT: `${outputDir}/results.json`,
+        PW_JUNIT_OUTPUT: `${outputDir}/junit.xml`,
+        PW_HTML_OUTPUT: `playwright-report/${htmlDir}`,
+    };
+}
+
 async function runAllSequential(): Promise<void> {
     await askRunOptions();
 
@@ -868,30 +952,12 @@ async function runAllSequential(): Promise<void> {
     const logArgs = ['--project', 'Logistica', '--output', logOutput];
     const cliArgs = ['--project', 'Clientes', '--output', cliOutput];
 
-    const pvEnv = {
-        ...process.env,
-        PW_REPORT_OUTPUT: `${pvOutput}/results.json`,
-        PW_JUNIT_OUTPUT: `${pvOutput}/junit.xml`,
-        PW_HTML_OUTPUT: `playwright-report/puntoventa`
-    };
-    const facEnv = {
-        ...process.env,
-        PW_REPORT_OUTPUT: `${facOutput}/results.json`,
-        PW_JUNIT_OUTPUT: `${facOutput}/junit.xml`,
-        PW_HTML_OUTPUT: `playwright-report/facturacion`
-    };
-    const logEnv = {
-        ...process.env,
-        PW_REPORT_OUTPUT: `${logOutput}/results.json`,
-        PW_JUNIT_OUTPUT: `${logOutput}/junit.xml`,
-        PW_HTML_OUTPUT: `playwright-report/logistica`
-    };
-    const cliEnv = {
-        ...process.env,
-        PW_REPORT_OUTPUT: `${cliOutput}/results.json`,
-        PW_JUNIT_OUTPUT: `${cliOutput}/junit.xml`,
-        PW_HTML_OUTPUT: `playwright-report/clientes`
-    };
+    // RunAll: cada child escribe su parcial (PW_DISCORD_MODE=partial, sin POST);
+    // consolidateDiscordReport() postea UNA vez al final.
+    const pvEnv = buildDiscordEnv(buildChildEnv(pvOutput, 'puntoventa'), 'PuntoVenta', 'partial');
+    const facEnv = buildDiscordEnv(buildChildEnv(facOutput, 'facturacion'), 'Facturacion', 'partial');
+    const logEnv = buildDiscordEnv(buildChildEnv(logOutput, 'logistica'), 'Logistica', 'partial');
+    const cliEnv = buildDiscordEnv(buildChildEnv(cliOutput, 'clientes'), 'Clientes', 'partial');
 
     ensureOutputDirs(pvOutput);
     ensureOutputDirs(facOutput);
@@ -932,6 +998,9 @@ async function runAllSequential(): Promise<void> {
         console.log(`${name}: exit code ${code}`);
     }
     console.log('=======================\n');
+
+    // RunAll → UN mensaje consolidado en Discord (gate on; dry-run → solo log).
+    await consolidateDiscordReport();
 }
 
 async function runAllDualTerminal(): Promise<void> {
@@ -1048,15 +1117,35 @@ function isExitPromptError(error: unknown): boolean {
     );
 }
 
-main().catch((error: unknown) => {
-    killCurrentChildren();
-
-    if (isExitPromptError(error)) {
-        console.log('\nMenú cancelado por el usuario.\n');
-        process.exit(130);
+/**
+ * Solo ejecuta el menú interactivo cuando este módulo es el punto de entrada
+ * (`tsx scripts/test-runner.mts`). Al ser importado (tests unitarios) no dispara
+ * el menú — evita que las suites que lo importan se cuelguen.
+ */
+function isMainModule(): boolean {
+    if (!process.argv[1]) return false;
+    try {
+        const self = import.meta.url;
+        const arg = pathToFileURL(path.resolve(process.argv[1])).href;
+        return process.platform === 'win32'
+            ? self.toLowerCase() === arg.toLowerCase()
+            : self === arg;
+    } catch {
+        return false;
     }
+}
 
-    console.error('\nError en el menú:\n');
-    console.error(error);
-    process.exit(1);
-});
+if (isMainModule()) {
+    main().catch((error: unknown) => {
+        killCurrentChildren();
+
+        if (isExitPromptError(error)) {
+            console.log('\nMenú cancelado por el usuario.\n');
+            process.exit(130);
+        }
+
+        console.error('\nError en el menú:\n');
+        console.error(error);
+        process.exit(1);
+    });
+}

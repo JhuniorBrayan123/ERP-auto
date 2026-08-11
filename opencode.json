@@ -5,24 +5,46 @@
       "type": "local",
       "command": [
         "node",
-        "E:\\2026-I\\MCP-Boockstack\\dist\\index.js"
+        "tools/mcp-bookstack/dist/index.js"
       ],
       "enabled": true,
-      "timeout": 10000,
-      "environment": {
-        "BOOKSTACK_BASE_URL": "{env:BOOKSTACK_BASE_URL}",
-        "BOOKSTACK_TOKEN_ID": "{env:BOOKSTACK_TOKEN_ID}",
-        "BOOKSTACK_TOKEN_SECRET": "{env:BOOKSTACK_TOKEN_SECRET}"
-      }
+      "timeout": 10000
+    },
+
+    "excalidraw": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "mcp-excalidraw-server"
+      ],
+      "enabled": true,
+      "timeout": 30000
+    },
+
+    "gitlab": {
+      "type": "local",
+      "command": [
+        "python",
+        "tools/mcp-gitlab/server.py"
+      ],
+      "enabled": true,
+      "timeout": 30000
     }
   },
+
   "permission": {
     "*": "ask",
+
     "read": "allow",
     "grep": "allow",
     "glob": "allow",
+
     "edit": "ask",
     "bash": "ask",
-    "bookstack_*": "ask"
+
+    "bookstack_*": "ask",
+    "excalidraw_*": "ask",
+    "gitlab_*": "ask"
   }
 }

@@ -72,10 +72,13 @@ export class EmisionPage {
         const serie = nombrePdf.split('-')[0] || '';
         const correlativo = String(body.CorrelativoDocumento ?? '');
         const comprobanteId = body.IdComprobante ?? 0;
+        const montoTotalVenta = Number(body.MontoTotal ?? 0);
 
-        const result: EmisionResult = {serie, correlativo, comprobanteId};
+        const result: EmisionResult = {serie, correlativo, comprobanteId, montoTotalVenta};
 
-        console.log(`   Emisión capturada: ${serie}-${correlativo} (ID: ${comprobanteId})`);
+        console.log(
+            `   Emisión capturada: ${serie}-${correlativo} (ID: ${comprobanteId}, Monto total: S/ ${montoTotalVenta})`,
+        );
         this.ultimaEmision = result;
         return result;
     }
@@ -390,10 +393,13 @@ export class EmisionPage {
             const serie = nombrePdf.split('-')[0] || '';
             const correlativo = String(body.CorrelativoDocumento ?? '');
             const comprobanteId = body.IdComprobante ?? 0;
+            const montoTotalVenta = Number(body.MontoTotal ?? 0);
 
-            const result: EmisionResult = {serie, correlativo, comprobanteId};
+            const result: EmisionResult = {serie, correlativo, comprobanteId, montoTotalVenta};
 
-            console.log(`   Pedido guardado capturado: ${serie}-${correlativo} (ID: ${comprobanteId})`);
+            console.log(
+                `   Pedido guardado capturado: ${serie}-${correlativo} (ID: ${comprobanteId}, Monto total: S/ ${montoTotalVenta})`,
+            );
             this.ultimaEmision = result;
             return result;
         } catch (error) {

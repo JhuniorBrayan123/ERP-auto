@@ -15,7 +15,7 @@ export const EmitirCotizacionVF = () => {
             {timeout: 45_000}
         );
 
-        await CotizacionTargets.btnEmitir(page).click();
+        await CotizacionTargets.btnEmitirVF(page).click();
         try {
             await FacturacionTargets.btnNuevaVenta(page).click({timeout: 25_000});
         } catch {
