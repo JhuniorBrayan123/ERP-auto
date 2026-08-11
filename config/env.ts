@@ -25,9 +25,15 @@ function buildUrls(appEnv: string): { baseUrl: string; apiUrl: string } {
             apiUrl: 'https://erpperuapi.smartclic.pe/',
         };
     }
+    // El front de CRT-5 usa el API genérico de CRT (hostserver-crt-5.constant.ts
+    // del microfront erp-mf-comun: HOSTSERVER = https://erpperuapi-crt.smartclic.pe).
+    // El hostname erpperuapi-crt-5.smartclic.pe NO existe en DNS.
+    const apiHost = appEnv === 'crt-5'
+        ? 'erpperuapi-crt.smartclic.pe'
+        : `erpperuapi-${appEnv}.smartclic.pe`;
     return {
         baseUrl: `https://erpperu2-${appEnv}.smartclic.pe/`,
-        apiUrl: `https://erpperuapi-${appEnv}.smartclic.pe/`,
+        apiUrl: `https://${apiHost}/`,
     };
 }
 
