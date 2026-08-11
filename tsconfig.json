@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "node16",
+    "moduleResolution": "node16",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "outDir": "./dist",
+    "rootDir": ".",
+    "paths": {
+      "*": ["./*"],
+      "@fixtures/*": ["./src/fixtures/*"],
+      "@helpers/*": ["./src/helpers/*"],
+      "@pages/*": ["./src/pages/*"],
+      "@data/*": ["./src/data/*"],
+      "@services/*": ["./src/services/*"],
+      "@flows/*": ["./src/flows/*"],
+      "@task/*": ["./src/task/*"],
+      "@question/*": ["./src/question/*"],
+      "@app-types/*": ["./src/types/*"],
+      "@factories/*": ["./src/factories/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@interactions/*": ["./src/interactions/*"],
+      "@screenplay/*": ["./src/screenplay/*"],
+      "@actors/*": ["./src/actors/*"],
+      "@abilities/*": ["./src/abilities/*"]
+    }
+  },
+  "include": ["tests/**/*.ts", "config/**/*.ts", "src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

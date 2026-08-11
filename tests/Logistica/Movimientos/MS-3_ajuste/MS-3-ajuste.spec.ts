@@ -1,0 +1,148 @@
+import {test} from '@fixtures/Logistica/movimientos-fixture';
+import {
+    ALMACENES,
+    ITEMS_TEST,
+    MOTIVOS_AJUSTE,
+    PATRON_CODIGO,
+    PROVEEDOR_EXISTENTE,
+} from '@helpers/Logistica/movimiento-data.helper';
+import {
+    buscarYSeleccionarItem,
+    configurarDatosOpcionalesEstandar,
+    crearAjusteConItem,
+    definirCantidadYFactor,
+    registrarAjusteEIrAlListado,
+    verificarStockYKardex
+} from '@helpers/Logistica/verificaciones-movimientos.helper';
+
+test.describe('MS-03 | Ajustes de Almacén', {tag: ['@logistica', '@movimientos']}, () => {
+
+    test('SC-01: Registrar ajuste tipo Agregar @MS-03.1', async ({
+                                                           movimientosNav,
+                                                           registroMovimiento,
+                                                           resultadoMovimiento,
+                                                           stockVerificacion,
+                                                           kardexVerificacion,
+                                                           page,
+                                                       }) => {
+        await test.step('Given: navegar a Ajustes', async () => {
+            await movimientosNav.navegarAAjustes();
+        });
+        await crearAjusteConItem(registroMovimiento,
+            ITEMS_TEST.PRODUCTO_ESTRICTO.codigo,
+            ITEMS_TEST.PRODUCTO_ESTRICTO.nombre
+        );
+        await definirCantidadYFactor(registroMovimiento, '500', 'Agregar');
+        await registrarAjusteEIrAlListado(registroMovimiento, resultadoMovimiento);
+        await verificarStockYKardex(
+            movimientosNav, stockVerificacion, kardexVerificacion, page,
+            ITEMS_TEST.PRODUCTO_ESTRICTO.codigo, ALMACENES.AUTO, PATRON_CODIGO.AJUSTE
+        );
+    });
+
+    test('SC-02: Registrar ajuste con insumo @MS-03.2', async ({
+                                                         movimientosNav,
+                                                         registroMovimiento,
+                                                         resultadoMovimiento,
+                                                         stockVerificacion,
+                                                         kardexVerificacion,
+                                                         page,
+                                                     }) => {
+        await test.step('Given: navegar a Ajustes', async () => {
+            await movimientosNav.navegarAAjustes();
+        });
+        await crearAjusteConItem(registroMovimiento,
+            ITEMS_TEST.INSUMO_TEST1.codigo,
+            ITEMS_TEST.INSUMO_TEST1.nombre
+        );
+        await definirCantidadYFactor(registroMovimiento, '500', 'Agregar');
+        await registrarAjusteEIrAlListado(registroMovimiento, resultadoMovimiento);
+        await verificarStockYKardex(
+            movimientosNav, stockVerificacion, kardexVerificacion, page,
+            ITEMS_TEST.INSUMO_TEST1.codigo, ALMACENES.AUTO, PATRON_CODIGO.AJUSTE
+        );
+    });
+
+    test('SC-03: Registrar ajuste con equivalencia @MS-03.3', async ({
+                                                               movimientosNav,
+                                                               registroMovimiento,
+                                                               resultadoMovimiento,
+                                                               stockVerificacion,
+                                                               kardexVerificacion,
+                                                               page,
+                                                           }) => {
+        await test.step('Given: navegar a Ajustes', async () => {
+            await movimientosNav.navegarAAjustes();
+        });
+        await crearAjusteConItem(registroMovimiento,
+            ITEMS_TEST.EQUIVALENTE_EST.codigo,
+            ITEMS_TEST.EQUIVALENTE_EST.nombre,
+            page,
+            `${ITEMS_TEST.EQUIVALENTE_EST.nombre}Factor Multiplicador:1S/`
+        );
+        await definirCantidadYFactor(registroMovimiento, '10', 'Agregar');
+        await registrarAjusteEIrAlListado(registroMovimiento, resultadoMovimiento);
+        await verificarStockYKardex(
+            movimientosNav, stockVerificacion, kardexVerificacion, page,
+            ITEMS_TEST.EQUIVALENTE_EST.codigo, ALMACENES.AUTO, PATRON_CODIGO.AJUSTE, ITEMS_TEST.EQUIVALENTE_EST.nombre
+        );
+    });
+
+    test('SC-04: Registrar ajuste tipo Quitar @MS-03.4', async ({
+                                                          movimientosNav,
+                                                          registroMovimiento,
+                                                          resultadoMovimiento,
+                                                          stockVerificacion,
+                                                          kardexVerificacion,
+                                                          page,
+                                                      }) => {
+        await test.step('Given: navegar a Ajustes', async () => {
+            await movimientosNav.navegarAAjustesDesdeMenu();
+        });
+        await crearAjusteConItem(registroMovimiento,
+            ITEMS_TEST.PRODUCTO_ESTRICTO.codigo,
+            ITEMS_TEST.PRODUCTO_ESTRICTO.nombre
+        );
+        await definirCantidadYFactor(registroMovimiento, '400', 'Quitar');
+        await registrarAjusteEIrAlListado(registroMovimiento, resultadoMovimiento);
+        await verificarStockYKardex(
+            movimientosNav, stockVerificacion, kardexVerificacion, page,
+            ITEMS_TEST.PRODUCTO_ESTRICTO.codigo, ALMACENES.AUTO, PATRON_CODIGO.AJUSTE
+        );
+    });
+
+    test('SC-05: Registrar ajuste con datos adicionales @MS-03.5', async ({
+                                                                    movimientosNav,
+                                                                    registroMovimiento,
+                                                                    datosOpcionales,
+                                                                    resultadoMovimiento,
+                                                                    stockVerificacion,
+                                                                    kardexVerificacion,
+                                                                    page,
+                                                                }) => {
+        await test.step('Given: navegar a Ajustes con almacén y motivo específicos', async () => {
+            await movimientosNav.navegarAAjustes();
+            await registroMovimiento.clickNuevoMovimiento();
+            await registroMovimiento.seleccionarAlmacenNth(ALMACENES.AUTO, ALMACENES.VENTAS, 3);
+            await page.getByText(MOTIVOS_AJUSTE.ACTUALIZACION).first().click();
+            await page.getByText(MOTIVOS_AJUSTE.VENCIMIENTO).click();
+        });
+        await buscarYSeleccionarItem(registroMovimiento,
+            ITEMS_TEST.PRODUCTO_ESTRICTO.codigo,
+            ITEMS_TEST.PRODUCTO_ESTRICTO.nombre
+        );
+        await configurarDatosOpcionalesEstandar(
+            datosOpcionales,
+            PROVEEDOR_EXISTENTE.numDocumento,
+            PROVEEDOR_EXISTENTE.nombre
+        );
+        await test.step('And: definir cantidad y registrar ajuste', async () => {
+            await registroMovimiento.llenarCantidad('10');
+        });
+        await registrarAjusteEIrAlListado(registroMovimiento, resultadoMovimiento);
+        await verificarStockYKardex(
+            movimientosNav, stockVerificacion, kardexVerificacion, page,
+            ITEMS_TEST.PRODUCTO_ESTRICTO.codigo, ALMACENES.VENTAS, PATRON_CODIGO.AJUSTE
+        );
+    });
+});

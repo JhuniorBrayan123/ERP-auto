@@ -1,10 +1,39 @@
 
 # Playwright
+# Playwright
 node_modules/
 /test-results/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+allure-results/
+allure-report/
+.idea/
+.github/
+tests/test-1.spec.ts
+# Reportes y resultados de pruebas
+junit.xml
+results.json
+report/
+_codegen/
+AGENTS.md
+exploration.md
+.atl/
+__pycache__/
+*.pyc
+.opencode/
+coverage/
+openspec/
+config/environment.env
 .env
-.env.*
+
+# Scripts auxiliares / limpieza
+limpiar-comentarios.js
+remove-comments.js
+clean_and_fix.js
+limpiar.js
+docs/
+
+# MCP servers
+tools/mcp-gitlab/.venv/

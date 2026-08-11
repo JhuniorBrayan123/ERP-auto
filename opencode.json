@@ -1,0 +1,50 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "bookstack": {
+      "type": "local",
+      "command": [
+        "node",
+        "tools/mcp-bookstack/dist/index.js"
+      ],
+      "enabled": true,
+      "timeout": 10000
+    },
+
+    "excalidraw": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "mcp-excalidraw-server"
+      ],
+      "enabled": true,
+      "timeout": 30000
+    },
+
+    "gitlab": {
+      "type": "local",
+      "command": [
+        "tools/mcp-gitlab/.venv/bin/python",
+        "tools/mcp-gitlab/server.py"
+      ],
+      "enabled": true,
+      "timeout": 30000
+    }
+  },
+
+  "permission": {
+    "*": "ask",
+
+    "read": "allow",
+    "grep": "allow",
+    "glob": "allow",
+
+    "edit": "ask",
+    "bash": "ask",
+
+    "bookstack_*": "ask",
+    "excalidraw_*": "ask",
+    "gitlab_*": "ask"
+  }
+}
