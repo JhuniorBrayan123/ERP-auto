@@ -1,6 +1,5 @@
 import {test} from '@fixtures/Logistica/edicion-clonado-fixture';
 import {generateRandomPrice} from '@helpers/Logistica/random-price.helper';
-import {getCodigo} from '@factories/item-factory';
 import {
     confirmarActualizacionItem,
     buscarYVerItemDesdeListado,
@@ -14,7 +13,7 @@ test.describe('PS-04 | Edición de precio de item', {tag: ['@logistica', '@produ
                                                             edicionItem,
                                                             itemDetail,
                                                         }) => {
-        const codigoItem = getCodigo('ESTRICTO_GRAVADO_3').replace(/-/g, '');
+        const codigoItem = '889988';
         const nuevoPrecioSoles = generateRandomPrice();
         const nuevoPrecioDolares = generateRandomPrice();
 

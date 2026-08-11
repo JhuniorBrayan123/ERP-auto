@@ -1,6 +1,5 @@
 import {expect, test} from '@fixtures/Logistica/edicion-clonado-fixture';
 import {getRandomAffectationType} from '@helpers/Logistica/afectacion-igv.helper';
-import {getCodigo} from '@factories/item-factory';
 
 test.describe('PS-04 | Edición de tipo de afectación de item', {tag: ['@logistica', '@productos-stock']}, () => {
 
@@ -10,7 +9,7 @@ test.describe('PS-04 | Edición de tipo de afectación de item', {tag: ['@logist
                                                                                   edicionItem,
                                                                                   itemDetail,
                                                                               }) => {
-        const codigoItem = getCodigo('ESTRICTO_GRAVADO_7').replace(/-/g, '');
+        const codigoItem = '888999';
         const nuevaAfectacion = getRandomAffectationType();
 
         await test.step('Buscar item por código y abrir edición', async () => {
