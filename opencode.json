@@ -25,7 +25,7 @@
     "gitlab": {
       "type": "local",
       "command": [
-        "python",
+        "tools/mcp-gitlab/.venv/bin/python",
         "tools/mcp-gitlab/server.py"
       ],
       "enabled": true,

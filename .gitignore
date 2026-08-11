@@ -34,3 +34,6 @@ remove-comments.js
 clean_and_fix.js
 limpiar.js
 docs/
+
+# MCP servers
+tools/mcp-gitlab/.venv/

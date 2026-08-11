@@ -6,7 +6,8 @@
   "scripts": {
     "test": "npx playwright test",
     "test:menu": "tsx scripts/test-runner.mts",
-    "setup:items": "npx playwright test --project=setup --project=pv-items-setup"
+    "setup:items": "npx playwright test --project=setup --project=pv-items-setup",
+    "setup:mcps": "bash scripts/setup-mcps.sh"
   },
   "keywords": [],
   "author": "",
