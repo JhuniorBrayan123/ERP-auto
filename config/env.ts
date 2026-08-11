@@ -71,6 +71,7 @@ export function envFlag(name: string): boolean {
 export const discordEnv = {
     enabled: envFlag('DISCORD_REPORT_ENABLED'),
     webhookUrl: process.env.DISCORD_WEBHOOK_URL,
+    webhookUrlCrt: process.env.DISCORD_WEBHOOK_URL_CRT,
     testerName: process.env.DISCORD_TESTER_NAME,
     userId: normalizeMention(process.env.DISCORD_USER_ID),
 
