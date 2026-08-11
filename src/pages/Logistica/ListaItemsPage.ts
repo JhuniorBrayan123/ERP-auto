@@ -16,6 +16,30 @@ export class ListaItemsPage {
             .first();
     }
 
+    private async toggleDeFilaConCodigo(codigo: string): Promise<Locator> {
+        const fila = this.page
+            .getByRole('table')
+            .getByText(codigo)
+            .locator('xpath=ancestor::tr')
+            .first();
+        await fila.waitFor({state: 'visible', timeout: 10_000});
+        return fila.locator(
+            '.flex-row-align-items-center-justify-content-center > .cmp-dropdown > .cmp-dropdown-toggle',
+        );
+    }
+
+    async verificarResultadoVisible(codigo: string): Promise<void> {
+        const resultado = this.page.getByRole('table').getByText(codigo).first();
+        try {
+            await resultado.waitFor({state: 'visible', timeout: 10_000});
+        } catch {
+            throw new Error(
+                `[ListaItemsPage] No se encontró el ítem con código "${codigo}" en la grilla tras la búsqueda. ` +
+                'Verifica que el código exista en el ERP (item creado por el setup pv-items) y que sea un PRODUCTO, no un servicio.',
+            );
+        }
+    }
+
     async searchByCode(code: string): Promise<void> {
         await this.searchInput.first().click();
         await this.searchInput.fill(code);
@@ -42,7 +66,12 @@ export class ListaItemsPage {
         await this.searchInput.clear();
     }
 
-    async openActionsMenu(): Promise<void> {
+    async openActionsMenu(codigo?: string): Promise<void> {
+        if (codigo) {
+            const toggle = await this.toggleDeFilaConCodigo(codigo);
+            await toggle.click();
+            return;
+        }
         await this.actionsToggle.click();
     }
 
@@ -64,13 +93,15 @@ export class ListaItemsPage {
 
     async searchAndEdit(code: string): Promise<void> {
         await this.searchByCode(code);
-        await this.openActionsMenu();
+        await this.verificarResultadoVisible(code);
+        await this.openActionsMenu(code);
         await this.clickEditItem();
     }
 
     async searchAndClone(code: string): Promise<void> {
         await this.searchByCode(code);
-        await this.openActionsMenu();
+        await this.verificarResultadoVisible(code);
+        await this.openActionsMenu(code);
         await this.clickCloneItem();
     }
 
