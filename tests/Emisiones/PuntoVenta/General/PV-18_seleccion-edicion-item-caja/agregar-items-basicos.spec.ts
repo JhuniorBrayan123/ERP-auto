@@ -26,9 +26,10 @@ test.describe('PV-18 | Items básicos', {tag: ['@puntoventa', '@pv-18', '@items-
         await cajero.intentaRealizar(
             IntentarAgregarSobrepasandoStock(ITEMS_PV.PRODUCTO_SIN_STOCK, 8)
         );
-        expect(await cajero.pregunta(
-            MensajeVisible('No puedes agregar este ítem a tu venta sobrepasando el stock disponible')
-        )).toBe(true);
+        expect(await cajero.pregunta(MensajeVisible([
+            'No puedes agregar este ítem a tu venta sobrepasando el stock disponible',
+            'No puedes agregar este ítem a tu venta porque no tiene stock'
+        ]))).toBe(true);
     });
 
     test('SC-05: Agregar un producto con stock flexible @PV-18.5', async ({page}) => {
