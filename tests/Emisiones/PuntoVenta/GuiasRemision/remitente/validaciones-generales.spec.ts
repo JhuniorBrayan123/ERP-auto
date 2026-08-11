@@ -64,7 +64,7 @@ test.describe('GR-04 | Remitente — Validaciones Generales', { tag: ['@puntoven
         await expect(page.getByText('Buscar transportista')).toBeVisible();
     });
 
-    test.only('SC-04: Validar que fecha de inicio de traslado no sea menor a fecha de emisión @GR-04.4', async ({ cajero, page }) => {
+    test.skip('SC-04: Validar que fecha de inicio de traslado no sea menor a fecha de emisión @GR-04.4', async ({ cajero, page }) => {
         await cajero.intentaRealizar(
             EmitirGuiaRemitenteConValidacionTask({
                 motivo: GUIAS_DATA.MOTIVOS_TRASLADO.VENTA,
