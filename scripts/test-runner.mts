@@ -26,7 +26,7 @@ const {
 const ROOT_DIR = process.cwd();
 const TESTS_DIR = path.join(ROOT_DIR, 'tests');
 
-type ProjectKey = 'PuntoVenta' | 'Facturacion' | 'Logistica' | 'Clientes';
+type ProjectKey = 'PuntoVenta' | 'Facturacion' | 'Logistica' | 'Clientes' | 'Reportes';
 
 interface ProjectContext {
     key: ProjectKey;
@@ -56,6 +56,11 @@ const PROJECT_CONFIG: Record<ProjectKey, { projectFlag: string | null; testDir: 
         projectFlag: 'Clientes',
         testDir: path.join(TESTS_DIR, 'ClientesProveedores'),
         outputDir: 'test-results/clientes',
+    },
+    Reportes: {
+        projectFlag: 'Reportes',
+        testDir: path.join(TESTS_DIR, 'Reportes'),
+        outputDir: 'test-results/reportes',
     },
 };
 
@@ -353,7 +358,7 @@ export function applySetupSelections(selected: string[]): void {
 function getDefaultSetups(projectKey?: ProjectKey): string[] {
     if (projectKey === 'PuntoVenta' || projectKey === 'Facturacion') return [...PV_SETUP_NAMES];
     if (projectKey === 'Logistica') return [...LOG_SETUP_NAMES];
-    if (projectKey === 'Clientes') return ['auth'];
+    if (projectKey === 'Clientes' || projectKey === 'Reportes') return ['auth'];
 
     return [...PV_SETUP_NAMES, ...LOG_SETUP_NAMES];
 }
@@ -913,17 +918,18 @@ async function runPlaywrightUi(projectContext: ProjectContext): Promise<void> {
     await runPlaywright(['--ui'], projectContext);
 }
 
-async function selectProject(): Promise<'PuntoVenta' | 'Facturacion' | 'Logistica' | 'Clientes' | 'RunAllSequential' | 'RunAllDual' | 'exit'> {
-    const choice = await select<'PuntoVenta' | 'Facturacion' | 'Logistica' | 'Clientes' | 'RunAllSequential' | 'RunAllDual' | 'exit'>({
+async function selectProject(): Promise<'PuntoVenta' | 'Facturacion' | 'Logistica' | 'Clientes' | 'Reportes' | 'RunAllSequential' | 'RunAllDual' | 'exit'> {
+    const choice = await select<'PuntoVenta' | 'Facturacion' | 'Logistica' | 'Clientes' | 'Reportes' | 'RunAllSequential' | 'RunAllDual' | 'exit'>({
         message: 'ERP2 AUTO - TEST RUNNER — Selecciona proyecto:',
         choices: [
             {name: '1. PuntoVenta (+ Busqueda + Cierre Caja)', value: 'PuntoVenta'},
             {name: '2. Facturacion', value: 'Facturacion'},
             {name: '3. Logistica', value: 'Logistica'},
             {name: '4. Clientes', value: 'Clientes'},
-            {name: '5. Run All (Secuencial)', value: 'RunAllSequential'},
-            {name: '6. Run All (Terminales separadas)', value: 'RunAllDual'},
-            {name: '7. Salir', value: 'exit'},
+            {name: '5. Reportes', value: 'Reportes'},
+            {name: '6. Run All (Secuencial)', value: 'RunAllSequential'},
+            {name: '7. Run All (Terminales separadas)', value: 'RunAllDual'},
+            {name: '8. Salir', value: 'exit'},
         ],
     });
     return choice;
@@ -946,11 +952,13 @@ async function runAllSequential(): Promise<void> {
     const facOutput = PROJECT_CONFIG.Facturacion.outputDir;
     const logOutput = PROJECT_CONFIG.Logistica.outputDir;
     const cliOutput = PROJECT_CONFIG.Clientes.outputDir;
+    const repOutput = PROJECT_CONFIG.Reportes.outputDir;
 
     const pvArgs = ['--project', 'PuntoVenta', '--output', pvOutput];
     const facArgs = ['--project', 'Facturacion', '--output', facOutput];
     const logArgs = ['--project', 'Logistica', '--output', logOutput];
     const cliArgs = ['--project', 'Clientes', '--output', cliOutput];
+    const repArgs = ['--project', 'Reportes', '--output', repOutput];
 
     // RunAll: cada child escribe su parcial (PW_DISCORD_MODE=partial, sin POST);
     // consolidateDiscordReport() postea UNA vez al final.
@@ -958,21 +966,25 @@ async function runAllSequential(): Promise<void> {
     const facEnv = buildDiscordEnv(buildChildEnv(facOutput, 'facturacion'), 'Facturacion', 'partial');
     const logEnv = buildDiscordEnv(buildChildEnv(logOutput, 'logistica'), 'Logistica', 'partial');
     const cliEnv = buildDiscordEnv(buildChildEnv(cliOutput, 'clientes'), 'Clientes', 'partial');
+    const repEnv = buildDiscordEnv(buildChildEnv(repOutput, 'reportes'), 'Reportes', 'partial');
 
     ensureOutputDirs(pvOutput);
     ensureOutputDirs(facOutput);
     ensureOutputDirs(logOutput);
     ensureOutputDirs(cliOutput);
+    ensureOutputDirs(repOutput);
     ensureOutputDirs('playwright-report/puntoventa');
     ensureOutputDirs('playwright-report/facturacion');
     ensureOutputDirs('playwright-report/logistica');
     ensureOutputDirs('playwright-report/clientes');
+    ensureOutputDirs('playwright-report/reportes');
 
     const suites: Array<{ name: string; args: string[]; env: NodeJS.ProcessEnv }> = [
         {name: 'PuntoVenta', args: pvArgs, env: pvEnv},
         {name: 'Facturacion', args: facArgs, env: facEnv},
         {name: 'Logistica', args: logArgs, env: logEnv},
         {name: 'Clientes', args: cliArgs, env: cliEnv},
+        {name: 'Reportes', args: repArgs, env: repEnv},
     ];
 
     const exitCodes: Record<string, number | null> = {};
@@ -1008,6 +1020,7 @@ async function runAllDualTerminal(): Promise<void> {
     const facOutput = PROJECT_CONFIG.Facturacion.outputDir;
     const logOutput = PROJECT_CONFIG.Logistica.outputDir;
     const cliOutput = PROJECT_CONFIG.Clientes.outputDir;
+    const repOutput = PROJECT_CONFIG.Reportes.outputDir;
 
     console.log('\n═══════════════════════════════════════════════════════');
     console.log('  Ejecutar en TERMINALES separadas');
@@ -1031,6 +1044,10 @@ async function runAllDualTerminal(): Promise<void> {
     console.log('┌─ Terminal 4 (Clientes) ────────────────────────────┐');
     console.log(`│  npx playwright test --project Clientes            │`);
     console.log(`│    --output ${cliOutput.padEnd(38)}│`);
+    console.log('└────────────────────────────────────────────────────┘\n');
+    console.log('┌─ Terminal 5 (Reportes) ────────────────────────────┐');
+    console.log(`│  npx playwright test --project Reportes            │`);
+    console.log(`│    --output ${repOutput.padEnd(38)}│`);
     console.log('└────────────────────────────────────────────────────┘\n');
     console.log('Los reportes se guardarán separados automáticamente.');
     console.log('═══════════════════════════════════════════════════════\n');

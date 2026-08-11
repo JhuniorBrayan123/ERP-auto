@@ -170,5 +170,16 @@ export default defineConfig({
             dependencies: ["setup"],
             workers: isCI ? 2 : 1,
         },
+        {
+            name: "Reportes",
+            testMatch: "tests/Reportes/**",
+            testIgnore: ["**/*.setup.ts"],
+            use: {
+                ...devices["Desktop Chrome"],
+                storageState: resolveStoragePath(),
+            },
+            dependencies: ["setup"],
+            workers: isCI ? 2 : 1,
+        },
     ],
 });
