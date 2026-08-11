@@ -1,5 +1,6 @@
 import {expect, test} from '@fixtures/Logistica/edicion-clonado-fixture';
 import {buildUniqueClonedItemName} from '@helpers/Logistica/nombre-clonado.helper';
+import {getCodigo} from '@factories/item-factory';
 
 test.describe('PS-05 | Clonado de item', {tag: ['@logistica', '@productos-stock']}, () => {
 
@@ -8,7 +9,7 @@ test.describe('PS-05 | Clonado de item', {tag: ['@logistica', '@productos-stock'
                                                                         listaItems,
                                                                         edicionItem,
                                                                     }) => {
-        const codigoItemOrigen = '888888';
+        const codigoItemOrigen = getCodigo('PRODUCTO_SIMPLE').replace(/-/g, '');
         const nombreClonado = buildUniqueClonedItemName('item para clonacion');
 
         await test.step('Buscar item origen por código y abrir clonado', async () => {

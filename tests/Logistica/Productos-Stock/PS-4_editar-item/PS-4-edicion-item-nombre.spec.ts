@@ -1,5 +1,6 @@
 import {expect, test} from '@fixtures/Logistica/edicion-clonado-fixture';
 import {buildUniqueItemName} from '@helpers/Logistica/unique-name.helper';
+import {getCodigo} from '@factories/item-factory';
 import {
     confirmarActualizacionItem,
     buscarYVerItemDesdeListado,
@@ -13,7 +14,7 @@ test.describe('PS-04 | Edición de nombre de item', {tag: ['@logistica', '@produ
                                                            edicionItem,
                                                            itemDetail,
                                                        }) => {
-        const codigoItem = '999999';
+        const codigoItem = getCodigo('ESTRICTO_GRAVADO_5').replace(/-/g, '');
         const nuevoNombre = buildUniqueItemName('producto', 'nombre editado');
 
         await test.step('Buscar item por código y abrir edición', async () => {
