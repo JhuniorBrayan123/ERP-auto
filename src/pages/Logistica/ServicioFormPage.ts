@@ -21,10 +21,18 @@ export class ServicioFormPage extends ItemFormBasePage {
     await inputPrecioCompra.fill(precioCompra);
   }
 
-  async seleccionarTipoAfectacionIGV(opcionTexto: string): Promise<void> {
-    await this.page.locator('.v-select-header-form-arrow.form.form-control').click();
-    await this.page.waitForTimeout(500);
-    await this.page.getByText(opcionTexto, { exact: true }).click({ force: true });
+  async seleccionarTipoAfectacionIGV(
+      opcionTexto: string,
+      labelActual: string = 'Gravado (Paga IGV 18%)'
+  ): Promise<void> {
+    const selectContainer = this.page.locator('.v-select-header-base-form')
+        .filter({ has: this.page.getByText(labelActual, { exact: true }) });
+
+    await selectContainer.locator('.v-select-header-form-arrow').click();
+
+    const opcion = this.page.getByText(opcionTexto, { exact: true });
+    await opcion.waitFor({ state: 'visible' });
+    await opcion.click();
   }
 
   async expandirOpcionesAvanzadasServicio(): Promise<void> {
