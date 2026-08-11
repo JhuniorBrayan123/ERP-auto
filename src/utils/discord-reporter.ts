@@ -1,7 +1,7 @@
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
 import type {FullResult, Reporter, TestCase, TestResult} from '@playwright/test/reporter';
-import {discordEnv, normalizeMention} from '../../config/env';
+import {discordEnv, env, normalizeMention} from '../../config/env';
 import {getEnvironmentLabel} from './environment-label';
 import {detectFailureCategory, parseFunctionalMeta} from './functional-error';
 
@@ -398,8 +398,15 @@ class DiscordReporter implements Reporter {
             return;
         }
 
-        if (!discordEnv.webhookUrl) {
-            console.warn('[discord-reporter] DISCORD_WEBHOOK_URL no configurada — mensaje omitido (la corrida no se bloquea).');
+        // Webhook según ambiente: PRD → canal general (DISCORD_WEBHOOK_URL),
+        // CRT → canal privado del tester (DISCORD_WEBHOOK_URL_CRT). Si el webhook
+        // del ambiente no está configurado, se omite el mensaje sin bloquear la corrida.
+        const webhookUrl = env.appEnv === 'prd'
+            ? discordEnv.webhookUrl
+            : discordEnv.webhookUrlCrt;
+
+        if (!webhookUrl) {
+            console.warn(`[discord-reporter] Webhook de Discord no configurado para el ambiente '${env.appEnv}' (PRD: DISCORD_WEBHOOK_URL, CRT: DISCORD_WEBHOOK_URL_CRT) — mensaje omitido (la corrida no se bloquea).`);
             return;
         }
 
@@ -409,7 +416,7 @@ class DiscordReporter implements Reporter {
             userId: normalizeMention(process.env.DISCORD_USER_ID),
         });
         await postToDiscord(content, {
-            webhookUrl: discordEnv.webhookUrl,
+            webhookUrl,
             dryRun: discordEnv.dryRun,
         });
     }
