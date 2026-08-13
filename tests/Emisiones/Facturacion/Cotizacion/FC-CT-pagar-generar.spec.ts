@@ -7,6 +7,8 @@ import {IrABusquedaComprobantes} from '@task/PuntoVenta/IrABusquedaComprobantes.
 import {FiltrarComprobantePorTipo} from '@task/PuntoVenta/FiltrarComprobantePorTipo.task';
 import {GenerarComprobanteDesdeBusqueda} from '@screenplay/interactions/facturacion/GenerarComprobanteDesdeBusqueda';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import {esFacturadoSi} from '@helpers/PuntoVenta/busqueda-comprobantes.data';
+import {ValoresColumnaFacturado} from '@question/PuntoVenta/FacturadoColumna.question';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
 
 test.describe.serial('FC-CT-PAGAR | Pagar/Generar Comprobantes desde Cotización', {
@@ -50,6 +52,23 @@ test.describe.serial('FC-CT-PAGAR | Pagar/Generar Comprobantes desde Cotización
                 if (tipo === 'NOTA DE VENTA') expect(emision.serie).toMatch(/^NV01/);
 
                 expect(Number(emision.correlativo)).toBeGreaterThan(0);
+
+                // Validación integrada: tras transformar la Cotización → Boleta/Factura/NV,
+                // la cotización origen DEBE mostrar Facturado = "SI" en Búsqueda de Comprobantes.
+                // Si el producto muestra "No", el test FALLA y evidencia el bug CT01-174 (no silenciar).
+                await vendedor.realiza(
+                    IrABusquedaComprobantes(),
+                    FiltrarComprobantePorTipo('COTIZACIONES')
+                );
+
+                const valoresFacturado = await vendedor.pregunta(
+                    ValoresColumnaFacturado('COTIZACIONES', correlativoCotizacion)
+                );
+                expect(
+                    valoresFacturado.some(esFacturadoSi),
+                    `La cotización ${correlativoCotizacion} debería mostrar Facturado="SI" tras generar ${tipo}. ` +
+                    `Valores encontrados: ${JSON.stringify(valoresFacturado)}`
+                ).toBe(true);
             });
         }
     });
@@ -89,6 +108,22 @@ test.describe.serial('FC-CT-PAGAR | Pagar/Generar Comprobantes desde Cotización
                 if (tipo === 'NOTA DE VENTA') expect(emision.serie).toMatch(/^NV/);
 
                 expect(Number(emision.correlativo)).toBeGreaterThan(0);
+
+                // Validación integrada: tras transformar la Cotización → Boleta/Factura/NV
+                // desde Búsqueda, la cotización origen DEBE mostrar Facturado = "SI".
+                await vendedor.realiza(
+                    IrABusquedaComprobantes(),
+                    FiltrarComprobantePorTipo('COTIZACIONES')
+                );
+
+                const valoresFacturado = await vendedor.pregunta(
+                    ValoresColumnaFacturado('COTIZACIONES', cotizacionParaBusqueda)
+                );
+                expect(
+                    valoresFacturado.some(esFacturadoSi),
+                    `La cotización ${cotizacionParaBusqueda} debería mostrar Facturado="SI" tras generar ${tipo} desde búsqueda. ` +
+                    `Valores encontrados: ${JSON.stringify(valoresFacturado)}`
+                ).toBe(true);
             });
         }
     });
