@@ -6,6 +6,10 @@ export const PagoTargets = {
         page.getByRole('button', {name: 'PAGAR', exact: true}),
 
     
+    modalConfirmarPago: (page: Page) =>
+        page.locator('.cmp-confirmar-pago').first(),
+
+    
     selectorTipoDocPago: (page: Page) =>
         page.locator('.cmp-confirmar-pago .v-select-base-header').filter({hasText: /^BOLETA$/}).first(),
 
