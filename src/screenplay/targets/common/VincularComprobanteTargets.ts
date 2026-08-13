@@ -4,8 +4,9 @@ export const VincularComprobanteTargets = {
     btnVincularComprobante: (page: Page) =>
         page.getByRole('button', {name: /vincular comprobante/i}),
 
-    selectorTipoDocumento: (page: Page) =>
-        page.locator('div').filter({hasText: /^Selecciona serie$/}).nth(1),
+    selectorSerie: (page: Page) =>
+        page.locator('.v-select-header-default')
+            .filter({ has: page.locator('.v-text-select', { hasText: 'Selecciona serie' }) }),
 
     opcionFactura: (page: Page) =>
         page.getByRole('button', {name: /^Factura$/i}),

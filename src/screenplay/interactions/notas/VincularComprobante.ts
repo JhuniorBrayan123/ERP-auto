@@ -1,5 +1,6 @@
 import {expect, type Page} from '@playwright/test';
 import {VincularComprobanteTargets} from '../../targets/common/VincularComprobanteTargets';
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 export type TipoDocumentoOrigen = 'Factura' | 'Boleta';
 
@@ -14,7 +15,8 @@ export const VincularComprobante = (datos: DatosVinculacion) => {
 
         await VincularComprobanteTargets.btnVincularComprobante(page).click();
         await VincularComprobanteTargets.opcionTipoDocumento(page, datos.tipoDocumento).click();
-        await VincularComprobanteTargets.selectorTipoDocumento(page).click();
+        await esperarCargaOverlay(page);
+        await VincularComprobanteTargets.selectorSerie(page).click();
         await page.getByText(datos.serie).click();
         await VincularComprobanteTargets.inputCorrelativo(page).click();
         await VincularComprobanteTargets.inputCorrelativo(page).fill(datos.correlativo);
