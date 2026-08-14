@@ -88,4 +88,46 @@ test.describe.serial('FC-CT-CONVERTIR | Convertir/Clonar Cotización desde Ver C
         );
         await popupVenta.close();
     });
+
+    // Caso bug CT01-174 (B001-631): convertir la cotización DESDE EL DETALLE
+    // (Camino C) deja la columna Facturado en "No" en Búsqueda de Comprobantes.
+    // Este test crea su PROPIA cotización y espera Facturado="SI"; si el producto
+    // muestra "No", el test FALLA y evidencia el bug. NO se hace skip ni se
+    // silencia: es la evidencia automatizada del defecto.
+    test('Bug CT01-174: Facturado="SI" tras convertir desde detalle @FC-CT.ConvertirFacturadoBug', async ({vendedor, page}) => {
+        const cotizacion = await vendedor.realizaYObtiene(
+            CrearCotizacionVF({
+                cliente: CLIENTES.EMPRESA_RUC_AUTO,
+                items: [ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL],
+            })
+        );
+        const correlativoBug = cotizacion.correlativo;
+        expect(correlativoBug).toBeTruthy();
+
+        const postEmisionPage = new PostEmisionPage(page);
+        if (await postEmisionPage.estaVisible()) {
+            await postEmisionPage.clickNuevaVenta();
+        }
+
+        const emision = await vendedor.realizaYObtiene(
+            ConvertirComprobanteDesdeDetalle(correlativoBug, 'COTIZACION', 'BOLETA')
+        );
+        expect(emision.serie).toMatch(/^B001/);
+        expect(Number(emision.correlativo)).toBeGreaterThan(0);
+
+        await vendedor.realiza(
+            IrABusquedaComprobantes(),
+            FiltrarComprobantePorTipo('COTIZACIONES')
+        );
+
+        const valoresFacturado = await vendedor.pregunta(
+            ValoresColumnaFacturado('COTIZACIONES', correlativoBug)
+        );
+        expect(
+            valoresFacturado.some(esFacturadoSi),
+            `Bug CT01-174: la cotización ${correlativoBug} debería mostrar Facturado="SI" tras convertir a BOLETA ` +
+            `desde detalle (Camino C). Valores encontrados: ${JSON.stringify(valoresFacturado)}. ` +
+            `Si el producto muestra "No", este test evidencia el bug y no debe silenciarse.`
+        ).toBe(true);
+    });
 });
