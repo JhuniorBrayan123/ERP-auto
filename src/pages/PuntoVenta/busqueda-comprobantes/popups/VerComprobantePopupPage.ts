@@ -89,12 +89,16 @@ export class VerComprobantePopupPage {
     // Camino C (conversion-cotizacion-pedido-comprobantes): "Convertir a" y
     // "Clonar" dentro del popup de Ver Comprobante.
     //
-    // DOM discovery (Fase 0/apply 13-Ago-2026): "Convertir a" y "Clonar" no
-    // tienen data-testid documentado en el popup. El popup expone el botón
-    // "Acciones extra" (`pv_cmp-ver-comprobante_common:...acciones-extra:v-button`,
-    // ya usado por Datos opcionales / Ver bitácora) que abre un menú con las
-    // acciones del documento; "Convertir a" y "Clonar" se localizan con fallbacks
-    // por rol/texto (regex anclada) para no colisionar con otras cadenas.
+    // DOM discovery (apply 14-Ago-2026, CRT-1): "Convertir a" y sus sub-opciones
+    // (Factura/Boleta/Nota de venta/Clonar/Descargar PDF/Imprimir/Enviar...) son
+    // SIEMPRE visibles en el popup — NO viven bajo "Acciones extra" (ese botón es
+    // independiente y se mantiene como fallback por compatibilidad). Tras elegir
+    // el tipo destino aparece el modal "Selecciona el modo de edición"
+    // (`.v-modal.is-open` con header `.v-modal-header.orange`) con los botones
+    // "Emitir ahora" (danger) y "Editar antes de emitir" (info). El accessible
+    // name de ambos es la versión CORTA ("Emitir ahora", "Editar antes de
+    // emitir") aunque los spans muestren el texto largo ("Emitir el comprobante
+    // ahora" / "Editar los datos antes de emitirlo").
     // =========================================================================
 
     /** Texto visible de cada tipo destino en el menú "Convertir a". */
@@ -118,25 +122,22 @@ export class VerComprobantePopupPage {
 
     /**
      * Abre el menú "Convertir a" dentro del popup de Ver Comprobante.
-     * Primero abre "Acciones extra" (donde vive el menú del documento) y luego
-     * localiza "Convertir a" por texto; fallback por botón/link que empiece con
-     * "Convertir".
+     *
+     * DOM discovery 14-Ago-2026: "Convertir a" es SIEMPRE visible en el popup
+     * (menú desplegable propio, sin pasar por "Acciones extra"). El popup es un
+     * SPA: su contenido tarda ~6s en renderizarse (debug 14-Ago-2026), por lo
+     * que el camino principal es TEXTO con espera generosa; "Acciones extra"
+     * queda como fallback de compatibilidad con builds anteriores.
      */
     async abrirConvertirA(popupPage: Page): Promise<void> {
-        await this.abrirAccionesExtra(popupPage);
-
         const opcionConvertir = popupPage.getByText(/^convertir a/i).first();
-        if (await opcionConvertir.isVisible({timeout: 3_000}).catch(() => false)) {
-            await opcionConvertir.click();
-            await esperarCargaOverlay(popupPage).catch(() => {
-            });
-            return;
+        try {
+            await opcionConvertir.click({timeout: 20_000});
+        } catch {
+            // Fallback (compatibilidad): "Acciones extra" → "Convertir a"
+            await this.abrirAccionesExtra(popupPage);
+            await opcionConvertir.click({timeout: 10_000});
         }
-
-        // Fallback: botón/link directo que empiece con "Convertir"
-        await popupPage.getByRole('button', {name: /^convertir/i}).first()
-            .or(popupPage.getByRole('link', {name: /^convertir/i}).first())
-            .click();
         await esperarCargaOverlay(popupPage).catch(() => {
         });
     }
@@ -156,18 +157,17 @@ export class VerComprobantePopupPage {
     /**
      * Click en "Clonar" dentro del popup de Ver Comprobante (abre el selector
      * de caja). Acepta "Clonar" o "Clonar comprobante" (regex anclada).
+     * El popup es un SPA (~6s de render): camino principal por TEXTO con espera
+     * generosa; "Acciones extra" como fallback de compatibilidad.
      */
     async clickClonar(popupPage: Page): Promise<void> {
-        await this.abrirAccionesExtra(popupPage);
-
         const opcionClonar = popupPage.getByText(/^clonar/i).first();
-        if (await opcionClonar.isVisible({timeout: 3_000}).catch(() => false)) {
-            await opcionClonar.click();
-        } else {
-            // Fallback: botón/link directo que empiece con "Clonar"
-            await popupPage.getByRole('button', {name: /^clonar/i}).first()
-                .or(popupPage.getByRole('link', {name: /^clonar/i}).first())
-                .click();
+        try {
+            await opcionClonar.click({timeout: 20_000});
+        } catch {
+            // Fallback (compatibilidad): "Acciones extra" → "Clonar"
+            await this.abrirAccionesExtra(popupPage);
+            await opcionClonar.click({timeout: 10_000});
         }
         await esperarCargaOverlay(popupPage).catch(() => {
         });
@@ -195,5 +195,80 @@ export class VerComprobantePopupPage {
         const popupPromise = popupPage.waitForEvent('popup');
         await popupPage.getByRole('button', {name: 'Continuar'}).click();
         return await popupPromise;
+    }
+
+    // =========================================================================
+    // Camino C — Wizard de conversión (DOM discovery 14-Ago-2026, CRT-1):
+    // tras elegir el tipo destino se abre el modal "Selecciona el modo de
+    // edición"; "Emitir ahora" continúa en la MISMA popup (modal de cajas →
+    // "Revisa tus datos" → pago) y "Editar antes de emitir" abre una VENTANA
+    // NUEVA con la lista de cajas (`/punto-venta/cajas?goto=...`).
+    // =========================================================================
+
+    /**
+     * Selecciona el modo de edición en el modal "Selecciona el modo de edición".
+     * `modo='emitir-ahora'` → continúa en la misma popup (modal de cajas).
+     * `modo='editar-antes'` → abre ventana nueva con la lista de cajas.
+     */
+    async seleccionarModoEdicion(popupPage: Page, modo: 'emitir-ahora' | 'editar-antes'): Promise<void> {
+        const modal = popupPage.locator('.v-modal.is-open').filter({hasText: 'Selecciona el modo de edición'}).first();
+        await modal.waitFor({state: 'visible', timeout: 15_000});
+
+        const nombre = modo === 'emitir-ahora'
+            ? /emitir (el comprobante )?ahora/i
+            : /editar (los datos )?antes de emitir/i;
+        await modal.getByRole('button', {name: nombre}).click();
+        await esperarCargaOverlay(popupPage).catch(() => {
+        });
+    }
+
+    /**
+     * Selecciona la caja destino en el modal "Selecciona una caja de ventas"
+     * (que se abre tras "Emitir ahora"). Patrón `.cmp-card-caja` igual que la
+     * grilla (ComprobantesAccionesComponent).
+     */
+    async seleccionarCajaEnModalCajas(popupPage: Page, nombreCaja: string): Promise<void> {
+        const card = popupPage.locator('.cmp-card-caja').filter({hasText: nombreCaja}).first();
+        await card.click({timeout: 10_000});
+        await esperarCargaOverlay(popupPage).catch(() => {
+        });
+    }
+
+    /** Click en "Continuar" del modal de cajas (id real verificado en DOM). */
+    async continuarModalCajas(popupPage: Page): Promise<void> {
+        await popupPage.locator('[id="pv_shared_v-modal:cmp-grid-cajas_v-button:continuar"]').click();
+        await esperarCargaOverlay(popupPage).catch(() => {
+        });
+    }
+
+    /**
+     * Click en "Emitir" del modal "Revisa tus datos antes de pagar" (id real
+     * `pv_cmp-ver-comprobante_v-modal:emision-cotizacion-pedido_v-button:emitir`).
+     * Este modal reemplaza al flujo de pago directo: tras "Emitir" se abre el
+     * modal `.cmp-realizar-pago` (Monto exacto / Realizar Pago).
+     */
+    async emitirDesdeRevisarDatos(popupPage: Page): Promise<void> {
+        await popupPage.locator(
+            '[id="pv_cmp-ver-comprobante_v-modal:emision-cotizacion-pedido_v-button:emitir"]',
+        ).click({timeout: 15_000});
+        await esperarCargaOverlay(popupPage).catch(() => {
+        });
+    }
+
+    /**
+     * En la lista de cajas (ventana nueva del modo "Editar antes de emitir",
+     * `/punto-venta/cajas?goto=...`) clickea "Continuar vendiendo" en la card de
+     * la caja indicada. La card usa el botón con id
+     * `pv_cajas_{slug}_cmp-descripcion_v-button:abrir-modal-apertura-caja` donde
+     * slug = nombre en minúsculas con guiones (ej. "Caja de venta" → caja-venta).
+     */
+    async continuarVendiendoCajaEnLista(popupPage: Page, nombreCaja: string): Promise<void> {
+        const slug = nombreCaja.toLowerCase().replace(/\s+/g, '-');
+        const boton = popupPage.locator(
+            `[id^="pv_cajas_${slug}_"][id$="v-button:abrir-modal-apertura-caja"]`,
+        ).first();
+        await boton.click({timeout: 15_000});
+        await esperarCargaOverlay(popupPage).catch(() => {
+        });
     }
 }
