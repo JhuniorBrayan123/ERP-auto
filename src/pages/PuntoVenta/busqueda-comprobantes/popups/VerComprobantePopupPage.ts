@@ -258,15 +258,22 @@ export class VerComprobantePopupPage {
     /**
      * En la lista de cajas (ventana nueva del modo "Editar antes de emitir",
      * `/punto-venta/cajas?goto=...`) clickea "Continuar vendiendo" en la card de
-     * la caja indicada. La card usa el botón con id
-     * `pv_cajas_{slug}_cmp-descripcion_v-button:abrir-modal-apertura-caja` donde
-     * slug = nombre en minúsculas con guiones (ej. "Caja de venta" → caja-venta).
+     * la caja indicada.
+     *
+     * DOM real (trace retry2 14-Ago-2026): el botón de la card usa SIEMPRE el id
+     * `pv_cajas_caja-venta_cmp-descripcion_v-button:abrir-modal-apertura-caja`
+     * — el slug "caja-venta" es la key INTERNA de la caja, NO se deriva del
+     * nombre visible ("Caja de venta" → "caja-de-venta"), y ese mismo id se
+     * REPITE en todas las cards de la lista, por lo que un selector por id no
+     * puede localizar una caja concreta. Se ubica la card por su título
+     * (`.cmp-descripcion`) y se clickea su botón, cuyo texto es "Continuar
+     * vendiendo" (caja abierta) o "Aperturar caja" (caja cerrada). Tras el
+     * click, la página navega a la caja (`/punto-venta/boleta/{caja}` según el
+     * query `goto`) con el documento del comprobante origen ya cargado.
      */
     async continuarVendiendoCajaEnLista(popupPage: Page, nombreCaja: string): Promise<void> {
-        const slug = nombreCaja.toLowerCase().replace(/\s+/g, '-');
-        const boton = popupPage.locator(
-            `[id^="pv_cajas_${slug}_"][id$="v-button:abrir-modal-apertura-caja"]`,
-        ).first();
+        const card = popupPage.locator('.cmp-descripcion').filter({hasText: nombreCaja}).first();
+        const boton = card.getByRole('button', {name: /continuar vendiendo|aperturar caja/i});
         await boton.click({timeout: 15_000});
         await esperarCargaOverlay(popupPage).catch(() => {
         });

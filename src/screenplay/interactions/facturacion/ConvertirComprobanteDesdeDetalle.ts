@@ -56,10 +56,10 @@ async function pagarEnPopup(verPopup: Page, emisionPromise: Promise<Response>): 
  *     `POST DocumentosContables/Emisiones/v2`. Todo en la MISMA popup, SIN
  *     modal "¡Buen trabajo!".
  * 3b. "Editar antes de emitir" → VENTANA NUEVA `/punto-venta/cajas?goto=...`
- *     (lista de cajas, botón "Continuar vendiendo"
- *     `pv_cajas_{slug}_cmp-descripcion_v-button:abrir-modal-apertura-caja`) →
- *     navega a la caja Boleta/Factura/NV con el documento cargado → PAGAR →
- *     `.cmp-realizar-pago` → SÍ aparece "¡Buen trabajo!".
+ *     (lista de cajas; la card se ubica por su título `.cmp-descripcion` y su
+ *     botón "Continuar vendiendo" — el id del botón se repite en todas las
+ *     cards) → navega a la caja Boleta/Factura/NV con el documento cargado →
+ *     PAGAR → `.cmp-realizar-pago` → SÍ aparece "¡Buen trabajo!".
  *
  * @param modo por defecto `'emitir-ahora'`; `'editar-antes'` cubre el segundo
  * camino (requerido por el design: al menos 1 test por modo).
