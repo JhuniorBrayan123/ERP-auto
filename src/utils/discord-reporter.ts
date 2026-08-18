@@ -3,7 +3,7 @@ import path from 'node:path';
 import type {FullResult, Reporter, TestCase, TestResult} from '@playwright/test/reporter';
 import {discordEnv, env, normalizeMention} from '../../config/env';
 import {getEnvironmentLabel} from './environment-label';
-import {detectFailureCategory, parseFunctionalMeta} from './functional-error';
+import {buildFallbackFailureSummary, detectFailureCategory, parseFunctionalMeta} from './functional-error';
 
 export const DISCORD_MAX_LENGTH = 2000;
 
@@ -309,15 +309,16 @@ function buildQaFailure(test: TestCase, result: TestResult): QaFailure {
         };
     }
 
-    const firstLine = rawMessage.split('\n')[0]?.trim() || 'Error no controlado';
-    const isTimeout = result.status === 'timedOut' || firstLine.toLowerCase().includes('timeout');
-    return {
-        caseName: test.title,
+    const fallback = buildFallbackFailureSummary({
+        testTitle: test.title,
+        rawMessage,
+        status: result.status,
         failedStep: getFailedStep(result),
-        userMessage: isTimeout
-            ? 'La pantalla no quedó lista para continuar el flujo.'
-            : 'Ocurrió un error durante el flujo y no se pudo completar el paso esperado.',
-        failureCategory: detectFailureCategory(result.error),
+    });
+    return {
+        ...fallback,
+        caseName: fallback.caseName ?? test.title,
+        failureCategory: fallback.failureCategory ?? 'DESCONOCIDO',
     };
 }
 

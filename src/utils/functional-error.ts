@@ -280,6 +280,71 @@ export function parseFunctionalMeta(message: string): FunctionalErrorMeta | null
     }
 }
 
+function cleanAnsiText(text: string): string {
+    return text.replace(/\x1b\[[0-9;]*m/g, '');
+}
+
+/**
+ * Extrae un mensaje legible para el usuario desde el error crudo de una
+ * aserción plana (expect sin FunctionalTestError): descarta el boilerplate
+ * de Playwright (stack, call log, meta) y conserva las líneas significativas.
+ */
+function extractUserFacingMessage(rawMessage: string): string | undefined {
+    const lines = rawMessage
+        .split('\n')
+        .map((line) => cleanAnsiText(line).trim())
+        .filter((line) => line.length > 0)
+        .filter((line) => !line.startsWith('at '))
+        .filter((line) => !line.startsWith('Call log:'))
+        .filter((line) => !line.startsWith('- '))
+        .filter((line) => !line.includes(FUNCTIONAL_META_PREFIX))
+        .filter((line) => !line.startsWith('expect(received)'));
+    if (lines.length === 0) {
+        return undefined;
+    }
+
+    lines[0] = lines[0].replace(/^error:\s*/i, '');
+
+    const significant = lines.filter((line) => line.length > 0);
+    if (significant.length === 0) {
+        return undefined;
+    }
+
+    return significant.slice(0, 3).join(' | ').slice(0, 300) || undefined;
+}
+
+function fallbackMessage(status: string, rawMessage: string): string {
+    const isTimeout = status === 'timedOut' || rawMessage.toLowerCase().includes('timeout');
+    return isTimeout
+        ? 'La pantalla no quedó lista para continuar el flujo.'
+        : 'Ocurrió un error durante el flujo y no se pudo completar el paso esperado.';
+}
+
+/**
+ * Resumen de fallo para aserciones planas (sin el marcador funcional):
+ * conserva el mensaje real del error, clasifica la categoría y evita el
+ * texto genérico inservible cuando hay contexto suficiente.
+ */
+export function buildFallbackFailureSummary(input: {
+    testTitle: string;
+    rawMessage: string;
+    status: string;
+    failedStep: string;
+}): Pick<FunctionalErrorMeta, 'caseName' | 'failedStep' | 'userMessage' | 'technicalError' | 'failureCategory'> {
+    const cleanRaw = cleanAnsiText(input.rawMessage);
+    const failureCategory = detectFailureCategory(input.rawMessage);
+    const technicalError = cleanRaw.split('\n')[0]?.trim() || undefined;
+    const userMessage = extractUserFacingMessage(input.rawMessage) ?? fallbackMessage(input.status, input.rawMessage);
+
+    return {
+        caseName: input.testTitle,
+        failedStep: input.failedStep,
+        userMessage,
+        technicalError,
+        failureCategory,
+    };
+}
+
 async function isVisibleSafe(locator: ReturnType<Page['locator']>): Promise<boolean> {
     try {
         return await locator.first().isVisible({timeout: 500});
