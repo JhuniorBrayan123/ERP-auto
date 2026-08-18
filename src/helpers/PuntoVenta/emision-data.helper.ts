@@ -309,6 +309,16 @@ export const TIPO_COMPROBANTE_IDS = {
     NOTA_DEBITO: 1006,
     NOTA_VENTA: 2016,
 };
+export const PRODUCTO_MANUAL = {
+    get nombre() {
+        return `PM QA ${Date.now()}`;
+    },
+    cantidad: 2,
+    precioBase: 25.00,
+    precioFinal: 29.50,
+    guardarEnLista: true,
+};
+
 export const DETRACCION = {
     TIPOS_OPERACION: {
         BASE: "Operación Sujeta a Detracción",

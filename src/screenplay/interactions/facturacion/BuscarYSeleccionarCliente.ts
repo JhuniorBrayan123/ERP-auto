@@ -6,7 +6,9 @@ export const BuscarYSeleccionarCliente = (
     cliente: DatosCliente & { textoSelector?: string }
 ) => {
     const fn = async (page: Page): Promise<void> => {
-        const input = page.getByRole('textbox', { name: 'Digita RUC o razón social' });
+        const input = page.getByRole('textbox', { name: 'Digita RUC o razón social' }).or(
+            page.getByRole('textbox', { name: 'Buscar por nombre, razón social, DNI, RUC' })
+        );
         await expect(input).toBeVisible({ timeout: 10_000 });
         await input.click();
         await input.fill(cliente.documento);
