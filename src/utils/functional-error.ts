@@ -8,12 +8,15 @@ export function detectFailureCategory(
     error: unknown,
     observedState?: string,
 ): FailureCategory {
-    const msg = [
-        error instanceof Error ? error.message : String(error ?? ''),
-        observedState ?? '',
-    ]
-        .join(' ')
-        .toLowerCase();
+    // Playwright entrega mensajes de error con códigos ANSI de color; sin
+    // limpiarlos, patrones como "expect(received).tobe" nunca matchean y el
+    // fallo se clasifica como DESCONOCIDO.
+    const msg = cleanAnsiText(
+        [
+            error instanceof Error ? error.message : String(error ?? ''),
+            observedState ?? '',
+        ].join(' '),
+    ).toLowerCase();
 
     const ambientePatterns = [
         'timeout',

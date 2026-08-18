@@ -1,5 +1,5 @@
 import {expect, type Page} from '@playwright/test';
-import {esperarCargaOverlay} from "@utils/wait-helpers";
+import {esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
 import type {DatosOpcionales} from '@helpers/PuntoVenta/busqueda-comprobantes.data';
 
 export class VerComprobantePopupPage {
@@ -16,7 +16,7 @@ export class VerComprobantePopupPage {
         const popupPromise = this.page.waitForEvent('popup');
         await this.page.getByRole('link', {name: 'Ver comprobante'}).click();
         const popupPage = await popupPromise;
-        await esperarCargaOverlay(popupPage);
+        await esperarCargaOverlaySiVisible(popupPage);
         return popupPage;
     }
 
@@ -115,7 +115,7 @@ export class VerComprobantePopupPage {
         );
         if (await accionesExtra.isVisible({timeout: 3_000}).catch(() => false)) {
             await accionesExtra.click();
-            await esperarCargaOverlay(popupPage).catch(() => {
+            await esperarCargaOverlaySiVisible(popupPage).catch(() => {
             });
         }
     }
@@ -138,7 +138,7 @@ export class VerComprobantePopupPage {
             await this.abrirAccionesExtra(popupPage);
             await opcionConvertir.click({timeout: 10_000});
         }
-        await esperarCargaOverlay(popupPage).catch(() => {
+        await esperarCargaOverlaySiVisible(popupPage).catch(() => {
         });
     }
 
@@ -150,7 +150,7 @@ export class VerComprobantePopupPage {
     async seleccionarTipoConvertir(popupPage: Page, tipo: string): Promise<void> {
         const regex = VerComprobantePopupPage.REGEX_TIPO_DESTINO[tipo] ?? new RegExp(`^${tipo}$`, 'i');
         await popupPage.getByText(regex).first().click();
-        await esperarCargaOverlay(popupPage).catch(() => {
+        await esperarCargaOverlaySiVisible(popupPage).catch(() => {
         });
     }
 
@@ -169,7 +169,7 @@ export class VerComprobantePopupPage {
             await this.abrirAccionesExtra(popupPage);
             await opcionClonar.click({timeout: 10_000});
         }
-        await esperarCargaOverlay(popupPage).catch(() => {
+        await esperarCargaOverlaySiVisible(popupPage).catch(() => {
         });
     }
 
@@ -218,7 +218,7 @@ export class VerComprobantePopupPage {
             ? /emitir (el comprobante )?ahora/i
             : /editar (los datos )?antes de emitir/i;
         await modal.getByRole('button', {name: nombre}).click();
-        await esperarCargaOverlay(popupPage).catch(() => {
+        await esperarCargaOverlaySiVisible(popupPage).catch(() => {
         });
     }
 
@@ -230,14 +230,14 @@ export class VerComprobantePopupPage {
     async seleccionarCajaEnModalCajas(popupPage: Page, nombreCaja: string): Promise<void> {
         const card = popupPage.locator('.cmp-card-caja').filter({hasText: nombreCaja}).first();
         await card.click({timeout: 10_000});
-        await esperarCargaOverlay(popupPage).catch(() => {
+        await esperarCargaOverlaySiVisible(popupPage).catch(() => {
         });
     }
 
     /** Click en "Continuar" del modal de cajas (id real verificado en DOM). */
     async continuarModalCajas(popupPage: Page): Promise<void> {
         await popupPage.locator('[id="pv_shared_v-modal:cmp-grid-cajas_v-button:continuar"]').click();
-        await esperarCargaOverlay(popupPage).catch(() => {
+        await esperarCargaOverlaySiVisible(popupPage).catch(() => {
         });
     }
 
@@ -251,7 +251,7 @@ export class VerComprobantePopupPage {
         await popupPage.locator(
             '[id="pv_cmp-ver-comprobante_v-modal:emision-cotizacion-pedido_v-button:emitir"]',
         ).click({timeout: 15_000});
-        await esperarCargaOverlay(popupPage).catch(() => {
+        await esperarCargaOverlaySiVisible(popupPage).catch(() => {
         });
     }
 
@@ -275,7 +275,7 @@ export class VerComprobantePopupPage {
         const card = popupPage.locator('.cmp-descripcion').filter({hasText: nombreCaja}).first();
         const boton = card.getByRole('button', {name: /continuar vendiendo|aperturar caja/i});
         await boton.click({timeout: 15_000});
-        await esperarCargaOverlay(popupPage).catch(() => {
+        await esperarCargaOverlaySiVisible(popupPage).catch(() => {
         });
     }
 }

@@ -87,6 +87,28 @@ async function main(): Promise<void> {
         assert.strictEqual(summary.failureCategory, 'AMBIENTE', 'con "with timeout", el patrón timeout (AMBIENTE) tiene prioridad sobre toBeVisible');
     });
 
+    it('rawMessage con códigos ANSI de Playwright → categoría DATOS (no DESCONOCIDO)', () => {
+        const raw = [
+            '\x1b[31mError:\x1b[0m La cotización 142 debería mostrar Facturado="SI" tras convertir desde detalle. Valores encontrados: ["No"]',
+            '',
+            '\x1b[31mexpect(received)\x1b[0m.\x1b[31mtoBe\x1b[0m(\x1b[31mexpected\x1b[0m) \x1b[2m// Object.is equality\x1b[22m',
+            '',
+            '\x1b[32mExpected:\x1b[0m \x1b[31mtrue\x1b[0m',
+            '\x1b[31mReceived:\x1b[0m \x1b[31mfalse\x1b[0m',
+        ].join('\n');
+
+        const summary = buildFallbackFailureSummary({
+            testTitle: 'FC-CT convertir detalle',
+            rawMessage: raw,
+            status: 'failed',
+            failedStep: 'Convertir desde detalle',
+        });
+
+        assert.strictEqual(summary.failureCategory, 'DATOS', 'ANSI no debe impedir clasificar el expect como DATOS');
+        assert.ok(summary.userMessage.includes('La cotización 142 debería mostrar Facturado="SI"'), 'debe conservar el mensaje custom sin ANSI');
+        assert.ok(!summary.userMessage.includes('\x1b['), 'no debe contener códigos ANSI');
+    });
+
     console.log(`\n  ──────────────────────────────────────`);
     console.log(`  Total: ${passed + failed} | ✅ ${passed} passed | ❌ ${failed} failed\n`);
 
