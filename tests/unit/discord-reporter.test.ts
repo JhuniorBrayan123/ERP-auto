@@ -583,6 +583,52 @@ async function main(): Promise<void> {
         fs.unlinkSync(partialFile);
     });
 
+    await it('reporter: fallback sin meta funcional → userMessage con el error real y categoría DATOS', async () => {
+        clearDiscordVars();
+        clearPwVars();
+        process.env.DISCORD_REPORT_ENABLED = '1';
+        process.env.PW_DISCORD_MODE = 'partial';
+        process.env.PW_DISCORD_PROJECT = 'Facturacion';
+        const Rep = requireReporterModule();
+        const reporter = new Rep.default();
+        const fake = mockFetch();
+
+        reporter.onTestEnd(
+            fakeTest({title: 'FC-CT convertir detalle'}),
+            fakeResult({
+                status: 'failed',
+                retry: 1,
+                error: {
+                    message: [
+                        'Error: La cotización 137 debería mostrar Facturado="SI" tras convertir desde detalle. Valores encontrados: ["No"]',
+                        '',
+                        'expect(received).toBe(expected) // Object.is equality',
+                        '',
+                        'Expected: true',
+                        'Received: false',
+                        '    at validarFacturadoSi (tests\\Emisiones\\Facturacion\\cotizacion\\FC-CT-convertir-detalle.spec.ts:54:7)',
+                    ].join('\n'),
+                },
+            }),
+        );
+
+        const partialFile = path.join(PARTIALS_DIR, 'Facturacion.json');
+        if (fs.existsSync(partialFile)) fs.unlinkSync(partialFile);
+        try {
+            await reporter.onEnd({status: 'failed', startTime: Date.now(), duration: 5000});
+        } finally {
+            fake.restore();
+        }
+        assert.ok(fs.existsSync(partialFile), 'debe escribir el parcial');
+        const written = JSON.parse(fs.readFileSync(partialFile, 'utf8'));
+        assert.strictEqual(written.qaFailures.length, 1, 'un solo fallo funcional');
+        const failure = written.qaFailures[0];
+        assert.strictEqual(failure.failureCategory, 'DATOS', 'aserción plana → categoría DATOS');
+        assert.ok(failure.userMessage.includes('La cotización 137 debería mostrar Facturado="SI"'), 'debe mostrar el error real');
+        assert.ok(!failure.userMessage.includes('Ocurrió un error durante el flujo'), 'no debe usar el mensaje genérico');
+        fs.unlinkSync(partialFile);
+    });
+
     await it('reporter: solo-fallos activo + corrida verde → NO hace fetch', async () => {
         clearDiscordVars();
         clearPwVars();

@@ -59,6 +59,51 @@ export class ComprobantesGridComponent {
         return valores;
     }
 
+    /**
+     * Igual a obtenerValoresColumna pero con coincidencia EXACTA (o prefijo exacto)
+     * del encabezado, para evitar falsos positivos con la celda combinada
+     * "Otros campos..." del grid, cuyo texto incluye los nombres de TODAS las
+     * columnas configurables (entre ellas "Facturado" / "Referencia de venta").
+     *
+     * DOM discovery 13-Ago-2026: la columna "Facturado" (IdsFacturados) debe estar
+     * ACTIVA para que exista un `th` con texto exacto "Facturado"; si no está
+     * visible, este método lanza un error informativo (no silencioso).
+     */
+    async obtenerValoresColumnaExacta(nombreColumna: string): Promise<string[]> {
+        const headers = await this.page.locator('thead th').all();
+        const normalizado = nombreColumna.trim().toLowerCase();
+
+        let colIndex = -1;
+        for (let i = 0; i < headers.length; i++) {
+            const texto = (await headers[i].textContent())?.trim() ?? '';
+            if (texto.toLowerCase() === normalizado) {
+                colIndex = i;
+                break;
+            }
+        }
+        if (colIndex === -1) {
+            for (let i = 0; i < headers.length; i++) {
+                const texto = (await headers[i].textContent())?.trim() ?? '';
+                if (texto.toLowerCase().startsWith(normalizado)) {
+                    colIndex = i;
+                    break;
+                }
+            }
+        }
+        if (colIndex === -1) {
+            throw new Error(
+                `Columna "${nombreColumna}" no encontrada en la grilla. ` +
+                '¿Está activa en la configuración de columnas? (campoId IdsFacturados)',
+            );
+        }
+        const celdas = await this.page.locator(`tbody tr td:nth-child(${colIndex + 1})`).all();
+        const valores: string[] = [];
+        for (const celda of celdas) {
+            valores.push((await celda.textContent())?.trim() ?? '');
+        }
+        return valores;
+    }
+
     async obtenerIdentificadoresPrimeraPagina(): Promise<string[]> {
         const filas = await this.page.locator('tbody tr').all();
         const ids: string[] = [];

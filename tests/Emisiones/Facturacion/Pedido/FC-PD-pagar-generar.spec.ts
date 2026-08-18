@@ -3,6 +3,8 @@ import {CrearPedidoVF} from '@screenplay/tasks/pedido/CrearPedidoVF';
 import {IrABusquedaComprobantes} from '@task/PuntoVenta/IrABusquedaComprobantes.task';
 import {FiltrarComprobantePorTipo} from '@task/PuntoVenta/FiltrarComprobantePorTipo.task';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
+import {esFacturadoSi} from '@helpers/PuntoVenta/busqueda-comprobantes.data';
+import {ValoresColumnaFacturado} from '@question/PuntoVenta/FacturadoColumna.question';
 import {GenerarComprobanteDesdeBusqueda} from '@screenplay/interactions/facturacion/GenerarComprobanteDesdeBusqueda';
 
 test.describe.serial('FC-PD-GENERAR | Generar Comprobantes desde Pedido', {
@@ -46,6 +48,23 @@ test.describe.serial('FC-PD-GENERAR | Generar Comprobantes desde Pedido', {
             } else if (tipo === 'NOTA DE VENTA') {
                 expect(emision.serie).toMatch(/^NV/);
             }
+
+            // Validación integrada: tras transformar el Pedido → Boleta/Factura/NV,
+            // el pedido origen DEBE mostrar Facturado = "SI" en Búsqueda de Comprobantes.
+            // Si el producto muestra "No", el test FALLA y evidencia el bug B001-631 (no silenciar).
+            await vendedor.realiza(
+                IrABusquedaComprobantes(),
+                FiltrarComprobantePorTipo('PEDIDOS')
+            );
+
+            const valoresFacturado = await vendedor.pregunta(
+                ValoresColumnaFacturado('PEDIDOS', numeroPedidoBase)
+            );
+            expect(
+                valoresFacturado.some(esFacturadoSi),
+                `El pedido ${numeroPedidoBase} debería mostrar Facturado="SI" tras generar ${tipo}. ` +
+                `Valores encontrados: ${JSON.stringify(valoresFacturado)}`
+            ).toBe(true);
         });
     }
 });

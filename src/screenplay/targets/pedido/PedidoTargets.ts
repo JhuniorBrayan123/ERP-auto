@@ -33,6 +33,10 @@ export const PedidoTargets = {
 
     btnActualizarPedido: (page: Page) =>
         page.getByRole('button', {name: 'ACTUALIZAR PEDIDO'}),
+
+    btnPagarPedido: (page: Page) =>
+        page.getByRole('button', {name: 'PAGAR PEDIDO'}),
+
     btnVerTodos: (page: Page) =>
         page.getByRole('button', {name: /ver todos/i}),
 
