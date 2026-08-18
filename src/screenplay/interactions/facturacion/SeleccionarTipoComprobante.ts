@@ -38,8 +38,7 @@ export const SeleccionarTipoComprobante = (tipo: TipoComprobante) => {
         if (opcionVisible) {
             await opcion.getByText(textoBoton).click();
         } else {
-            
-            await page.getByText(textoBoton).first().click();
+            await page.getByText(textoBoton).first().click({force: true});
         }
     };
     fn.displayName = `Seleccionar tipo de comprobante: ${tipo}`;

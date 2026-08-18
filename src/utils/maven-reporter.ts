@@ -7,7 +7,7 @@ import type {
     TestStep,
 } from '@playwright/test/reporter';
 import {getEnvironmentLabel} from './environment-label';
-import {parseFunctionalMeta, type FunctionalErrorMeta} from './functional-error';
+import {buildFallbackFailureSummary, parseFunctionalMeta, type FunctionalErrorMeta} from './functional-error';
 
 const RESET   = '\x1b[0m';
 const BOLD    = '\x1b[1m';
@@ -331,18 +331,16 @@ class MavenReporter implements Reporter {
             };
         }
 
-        const firstLine = this.cleanAnsi(rawMessage).split('\n')[0] || 'No se pudo completar el flujo por un error no controlado.';
-        const isTimeout = result.status === 'timedOut' || firstLine.toLowerCase().includes('timeout');
-        const userMessage = isTimeout
-            ? 'La pantalla no quedó lista para continuar el flujo.'
-            : 'Ocurrió un error durante el flujo y no se pudo completar el paso esperado.';
-
-        return {
-            caseName: test.title,
+        const fallback = buildFallbackFailureSummary({
+            testTitle: test.title,
+            rawMessage,
+            status: result.status,
             failedStep: this.getFailedStep(result),
-            userMessage,
+        });
+        return {
+            ...fallback,
+            caseName: fallback.caseName ?? test.title,
             moduleOrScreen: 'No identificado',
-            technicalError: firstLine,
         };
     }
 

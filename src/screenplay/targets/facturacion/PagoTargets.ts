@@ -5,6 +5,20 @@ export const PagoTargets = {
     btnPagar: (page: Page) =>
         page.getByRole('button', {name: 'PAGAR', exact: true}),
 
+    
+    modalConfirmarPago: (page: Page) =>
+        page.locator('.cmp-confirmar-pago').first(),
+
+    
+    selectorTipoDocPago: (page: Page) =>
+        page.locator('.cmp-confirmar-pago .v-select-base-header').filter({hasText: /^BOLETA$/}).first(),
+
+    opcionTipoDocPago: (page: Page, tipo: string) =>
+        page.locator('.cmp-confirmar-pago .v-select-base-options.is-open .v-select-form-option').getByText(tipo, {exact: true}),
+
+    btnConfirmarPago: (page: Page) =>
+        page.getByRole('button', {name: 'Confirmar'}),
+
     btnMontoExacto: (page: Page) =>
         page.locator('[id="pv_ventas_cmp-punto-venta_v-modal:cmp-realizar-pago:cmp-metodos-pago_v-button:monto-exacto"]'),
 
