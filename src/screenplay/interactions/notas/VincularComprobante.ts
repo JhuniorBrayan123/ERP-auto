@@ -1,5 +1,6 @@
 import {expect, type Page} from '@playwright/test';
 import {VincularComprobanteTargets} from '../../targets/common/VincularComprobanteTargets';
+import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
 
 export type TipoDocumentoOrigen = 'Factura' | 'Boleta';
 
@@ -13,11 +14,21 @@ export const VincularComprobante = (datos: DatosVinculacion) => {
     const fn = async (page: Page): Promise<void> => {
 
         await VincularComprobanteTargets.btnVincularComprobante(page).click();
+
+        // Click en Factura/Boleta y espera explícita a que los inputs se habiliten
         await VincularComprobanteTargets.opcionTipoDocumento(page, datos.tipoDocumento).click();
-        await VincularComprobanteTargets.selectorTipoDocumento(page).click();
+        await esperarCargaOverlaySiVisible(page);
+
+        // Espera a que el selector de serie y el input correlativo dejen de estar disabled
+        const selectorSerie = VincularComprobanteTargets.selectorTipoDocumento(page);
+        const inputCorrelativo = VincularComprobanteTargets.inputCorrelativo(page);
+        await expect(selectorSerie).toBeEnabled({timeout: 15_000});
+        await expect(inputCorrelativo).toBeEnabled({timeout: 15_000});
+
+        await selectorSerie.click();
         await page.getByText(datos.serie).click();
-        await VincularComprobanteTargets.inputCorrelativo(page).click();
-        await VincularComprobanteTargets.inputCorrelativo(page).fill(datos.correlativo);
+        await inputCorrelativo.click();
+        await inputCorrelativo.fill(datos.correlativo);
         await VincularComprobanteTargets.btnBuscar(page).click();
 
         await expect(VincularComprobanteTargets.datosComprobanteCargado(page))
