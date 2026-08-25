@@ -13,8 +13,8 @@ export class ClientePage {
     }
 
     private get sliderSinDocumento(): Locator {
-        return this.page.locator('.slider').first();
-    }
+        return this.page.locator('label.switch:has(input#pv_punto-venta_cmp-venta-pedido_cmp-pedido-header_v-switch\\:sin-documento)'
+        );}
 
     async buscarCliente(documento: string): Promise<void> {
         await this.inputBusqueda.click();

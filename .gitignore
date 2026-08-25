@@ -27,6 +27,7 @@ openspec/
 .engram/
 config/environment.env
 .env
+.codegraph
 
 # Scripts auxiliares / limpieza
 limpiar-comentarios.js
