@@ -538,9 +538,9 @@ export const ITEM_TEMPLATES: ItemTemplate[] = [
                     {titulo: 'Memoria', opciones: ['500 GB', '250 GB', '128 GB']},
                 ],
                 items: [
-                    {nombre: 'Variante sin control 1', stock: {cantidadMaxima: '500', cantidadMinima: '500'}},
-                    {nombre: 'Variante sin control 2', stock: {cantidadMaxima: '500', cantidadMinima: '500'}},
-                    {nombre: 'Variante sin control 3', stock: {cantidadMaxima: '500', cantidadMinima: '500'}},
+                    {nombre: 'Variante sin control 1'},
+                    {nombre: 'Variante sin control 2'},
+                    {nombre: 'Variante sin control 3'},
                 ],
             },
         },
