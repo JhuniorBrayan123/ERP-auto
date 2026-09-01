@@ -33,7 +33,7 @@ export default defineConfig({
     workers: 2,
 
     forbidOnly: !!process.env.CI,
-    retries: isCI ? 2 : 1,
+    // retries: isCI ? 2 : 1,
 
     timeout: 240_000,
     expect: {timeout: 10_000},
