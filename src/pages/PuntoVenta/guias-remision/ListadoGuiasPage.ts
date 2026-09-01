@@ -1,4 +1,5 @@
 import {expect, type Page, test} from '@playwright/test';
+import {ClickNuevaVenta} from "@interactions/PuntoVenta/ClickNuevaVenta";
 
 export class ListadoGuiasPage {
     constructor(public readonly page: Page) {
@@ -61,7 +62,6 @@ export class ListadoGuiasPage {
     }
 
     async cerrarModalExito() {
-        const btn = this.btnNuevaGuiaRemitente.or(this.btnNuevaGuiaTransportista);
-        await btn.click();
+       await ClickNuevaVenta()(this.page)
     }
 }
