@@ -1,11 +1,13 @@
 import {type Page} from '@playwright/test';
 import {ConductoresTargets} from '@screenplay/targets/clientes-proveedores/ConductoresTargets';
-import {esperarCargaOverlay} from '@utils/wait-helpers';
+import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
+import {generarConductorDNI} from "@data/clientes-proveedores/conductores.data";
 
 export const ToggleSliderEstadoConductor = (_accion?: string) => {
     const fn = async (page: Page): Promise<void> => {
         await ConductoresTargets.sliderEstado(page).click();
-        await esperarCargaOverlay(page).catch(() => {});
+        await esperarCargaOverlaySiVisible(page);
+        await ConductoresTargets.botonContextualConductor(page).click();
     };
     fn.displayName = 'Toggle slider de estado de conductor';
     return fn;

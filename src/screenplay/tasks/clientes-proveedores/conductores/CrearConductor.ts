@@ -1,7 +1,7 @@
 import {type Page} from '@playwright/test';
 import {ConductoresTargets} from '@screenplay/targets/clientes-proveedores/ConductoresTargets';
 import {DatosConductorInput} from '@data/clientes-proveedores/conductores.data';
-import {esperarCargaOverlay} from "@utils/wait-helpers";
+import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
 
 export const AbrirCrearConductor = () => {
     const fn = async (page: Page): Promise<void> => {
@@ -76,6 +76,7 @@ export const CrearConductor = (datos: DatosConductorInput) => {
         await ConductoresTargets.btnCrearConductorForm(page).click();
         await ConductoresTargets.mensajeExitoCreacion(page).click();
         await ConductoresTargets.btnCerrarModal(page).click();
+        await esperarCargaOverlaySiVisible(page);
     };
     fn.displayName = `Crear conductor: ${datos.nombreRazonSocial}`;
     return fn;
