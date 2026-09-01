@@ -136,7 +136,7 @@ export class ProductoFormPage extends ItemFormBasePage {
 
     async crearAtributoVariante(titulo: string, opciones: string[]): Promise<void> {
         const botonAñadirAtributo = this.page
-            .locator('[id="lgt_reg-item_v-tab:variantes-item_cmp-option-button:addVariante"]')
+            .locator('[id="lgt_reg-item_v-tab:variantes-item_cmp-option-button:addVariante"].cmp-option-button');
         await botonAñadirAtributo.click();
 
         const opcionExistente = this.page.locator('.opcion').filter({hasText: titulo}).first();
