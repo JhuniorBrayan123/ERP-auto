@@ -156,6 +156,9 @@ export const ClientesTargets = {
     appContainer: (page: Page) =>
         page.locator('.cont-info-basica .info-basica .body'),
 
+    detalleContainer: (page: Page) =>
+        page.locator('.section__notas .lista-notas .contenedor-notas'),
+
     btnAtras: (page: Page) =>
         page.getByRole('button', {name: 'Atrás'}),
 

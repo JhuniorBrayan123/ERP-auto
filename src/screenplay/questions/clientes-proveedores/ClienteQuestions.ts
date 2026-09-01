@@ -104,7 +104,7 @@ export const NotaVisibleEnPanel = (textoNota: string) => {
 export const NotaVisibleEnDetalle = (textoNota: string) => {
     const fn = async (page: Page): Promise<void> => {
         await expect(ClientesTargets.seccionNotasAdicionales(page)).toBeVisible();
-        await expect(ClientesTargets.appContainer(page)).toContainText(textoNota);
+        await expect(ClientesTargets.detalleContainer(page)).toContainText(textoNota);
     };
     fn.displayName = `Nota visible en detalle: ${textoNota}`;
     return fn;
