@@ -94,11 +94,13 @@ export const AgregarCampoAdicional = (nombre: string, valor: string) => {
     const fn = async (page: Page): Promise<void> => {
         await ClientesTargets.btnNuevoCampoAdicional(page).click();
         await ClientesTargets.tipoCampoTexto(page).click();
-        
-        await ClientesTargets.inputValorCampo(page).fill(valor);
-        
+        await ClientesTargets.inputNombreCampo(page).click();
         await ClientesTargets.inputNombreCampo(page).fill(nombre);
         await expect(ClientesTargets.inputNombreCampo(page)).toHaveValue(nombre, {timeout: 5_000});
+
+        await ClientesTargets.inputValorCampo(page).click();
+        await ClientesTargets.inputValorCampo(page).fill(valor);
+        await expect(ClientesTargets.inputValorCampo(page)).toHaveValue(valor, {timeout: 5_000});
 
         await ClientesTargets.btnCrearCampo(page).click();
         await expect(ClientesTargets.mensajeBuenTrabajo(page)).toBeVisible();

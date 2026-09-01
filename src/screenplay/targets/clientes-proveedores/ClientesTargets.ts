@@ -154,7 +154,7 @@ export const ClientesTargets = {
         page.locator('.popup-container > .button-close > .icon'),
 
     appContainer: (page: Page) =>
-        page.locator('[id="single-spa-application:@sreasons/erp-mf-punto-venta"]'),
+        page.locator('.cont-info-basica .info-basica .body'),
 
     btnAtras: (page: Page) =>
         page.getByRole('button', {name: 'Atrás'}),
