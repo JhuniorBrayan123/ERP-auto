@@ -4,6 +4,7 @@ import {
 } from '@screenplay/tasks/clientes-proveedores/vendedores/CrearVendedor';
 import {
     BuscarVendedorEnListado,
+    AbrirAccionContextualVendedor,
 } from '@screenplay/tasks/clientes-proveedores/vendedores/BuscarVendedor';
 import {
     ToggleSliderEstadoVendedor,
@@ -22,7 +23,8 @@ test.describe('VD-04 | Desactivar / Activar Vendedor', { tag: ['@vendedores', '@
 
         
         await vendedorActor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));
-        await vendedorActor.realiza(ToggleSliderEstadoVendedor('Desactivar vendedor'));
+        await vendedorActor.realiza(AbrirAccionContextualVendedor('Desactivar vendedor'));
+        await vendedorActor.realiza(ToggleSliderEstadoVendedor('desactivar'));
 
         
         const hayExito = await vendedorActor.pregunta(CuerpoContieneTexto('desactivado'));
@@ -39,11 +41,13 @@ test.describe('VD-04 | Desactivar / Activar Vendedor', { tag: ['@vendedores', '@
 
         
         await vendedorActor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));
-        await vendedorActor.realiza(ToggleSliderEstadoVendedor('Desactivar vendedor'));
+        await vendedorActor.realiza(AbrirAccionContextualVendedor('Desactivar vendedor'));
+        await vendedorActor.realiza(ToggleSliderEstadoVendedor('desactivar'));
 
         
         await vendedorActor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));
-        await vendedorActor.realiza(ToggleSliderEstadoVendedor('Activar vendedor'));
+        await vendedorActor.realiza(AbrirAccionContextualVendedor('Activar vendedor'));
+        await vendedorActor.realiza(ToggleSliderEstadoVendedor('activar'));
 
         
         const hayExito = await vendedorActor.pregunta(CuerpoContieneTexto('activado'));
