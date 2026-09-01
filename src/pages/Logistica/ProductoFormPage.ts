@@ -136,13 +136,14 @@ export class ProductoFormPage extends ItemFormBasePage {
 
     async crearAtributoVariante(titulo: string, opciones: string[]): Promise<void> {
         const botonAñadirAtributo = this.page
-            .locator('div')
-            .filter({hasText: /^Añadir atributo$/})
-            .nth(1);
+            .locator('[id="lgt_reg-item_v-tab:variantes-item_cmp-option-button:addVariante"]')
         await botonAñadirAtributo.click();
 
-        const opcionExistente = this.page.locator('.opcion').filter({hasText: titulo});
-        const yaExiste = await opcionExistente.isVisible({timeout: 3_000}).catch(() => false);
+        const opcionExistente = this.page.locator('.opcion').filter({hasText: titulo}).first();
+        const yaExiste = await opcionExistente
+            .waitFor({state: 'visible', timeout: 3_000})
+            .then(() => true)
+            .catch(() => false);
         if (yaExiste) {
             const checkbox = opcionExistente.locator('input[type="checkbox"]');
             const estaMarcado = await checkbox.isChecked();
