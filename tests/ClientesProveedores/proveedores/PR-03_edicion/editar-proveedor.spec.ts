@@ -14,6 +14,7 @@ import {
 import { generarProveedorRUC } from '@data/clientes-proveedores/proveedores.data';
 import { EliminarProveedor } from '@screenplay/tasks/clientes-proveedores/proveedores/EliminarProveedor';
 import { CuerpoContieneTexto } from '@screenplay/questions/clientes-proveedores/ClienteQuestions';
+import {CerrarModalExito} from "@screenplay/tasks/clientes-proveedores/clientes/CrearCliente";
 
 test.describe('PR-03 | Edición de Proveedor', { tag: ['@proveedores', '@edicion', '@PR-03'] }, () => {
 
@@ -33,10 +34,9 @@ test.describe('PR-03 | Edición de Proveedor', { tag: ['@proveedores', '@edicion
         await proveedorActor.realiza(ClickGuardarCambiosProveedor());
 
         
-        const hayExito = await proveedorActor.pregunta(CuerpoContieneTexto('actualizado'));
+        const hayExito = await proveedorActor.pregunta(CuerpoContieneTexto('Los cambios se guardaron exitosamente'));
         expect(hayExito).toBe(true);
-
-        
+        await proveedorActor.realiza(CerrarModalExito())
         await proveedorActor.realiza(BuscarProveedorEnListado(nombreEditado));
         const visible = await proveedorActor.pregunta(ValidarProveedorVisible(nombreEditado));
         expect(visible).toBe(true);

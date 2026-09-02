@@ -12,7 +12,7 @@ export const AnulacionesNCTargets = {
         page.getByRole('button', { name: /Borrar filtros/i }).first(),
 
     selectorTipoDocumentoAnulaciones: (page: Page) =>
-        page.getByText('Tipo de documento', { exact: true }).first(),
+        page.getByText('Tipo de comprobante', { exact: true }).first(),
 
     inputCorrelativoAnulaciones: (page: Page) =>
         page.getByRole('textbox', { name: 'Correlativo', exact: true }),

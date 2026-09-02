@@ -1,7 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 import { MenuCajaTargets } from '@screenplay/targets/caja/MenuCajaTargets';
 import { CobrosPagosTargets } from '@screenplay/targets/cierre-caja/CobrosPagosTargets';
-import { esperarCargaOverlay } from '@utils/wait-helpers';
+import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
 import { capturarIdDocFinancieroCobro } from '@services/PuntoVenta/CajaMovimientosApi';
 
 export interface DatosCobro {
@@ -79,6 +79,7 @@ export const RegistrarCobroCliente = (datos: DatosCobro) => {
 
         await expect(CobrosPagosTargets.toastCobroExitoso(page)).toBeVisible({ timeout: 15_000 });
         await CobrosPagosTargets.btnAceptarCobro(page).click();
+        await esperarCargaOverlaySiVisible(page);
 
         return { idDocFinanciero };
     };
