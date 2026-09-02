@@ -44,7 +44,7 @@ const PROJECT_CONFIG: Record<ProjectKey, { projectFlag: string | null; testDir: 
     },
     Facturacion: {
         projectFlag: 'Facturacion',
-        testDir: path.join(TESTS_DIR, 'Emisiones', 'Facturacion'),
+        testDir: path.join(TESTS_DIR, 'Emisiones', 'PuntoVenta', 'VistaFacturacion'),
         outputDir: 'test-results/facturacion',
     },
     Logistica: {
@@ -146,7 +146,7 @@ function toRelative(targetPath: string): string {
     return path.relative(ROOT_DIR, targetPath).replace(/\\/g, '/');
 }
 
-const FACTURACION_REL = 'tests/Emisiones/Facturacion';
+const FACTURACION_REL = 'tests/Emisiones/PuntoVenta/VistaFacturacion';
 function isPathAllowedForProject (projectKey : ProjectKey, absPath: string): boolean{
     if(projectKey !== 'PuntoVenta') return true;
     const rel = toRelative(absPath);

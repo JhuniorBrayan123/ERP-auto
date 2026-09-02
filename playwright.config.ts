@@ -118,7 +118,7 @@ export default defineConfig({
         {
             name: "PuntoVenta",
             testMatch: "tests/Emisiones/**/*.spec.ts",
-            testIgnore: ["**/Facturacion/**"],
+            testIgnore: ["**/VistaFacturacion/**"],
             use: {
                 ...devices["Desktop Chrome"],
                 storageState: resolveStoragePath(),
@@ -129,7 +129,7 @@ export default defineConfig({
         },
         {
             name: "Facturacion",
-            testMatch: "tests/Emisiones/Facturacion/**/*.spec.ts",
+            testMatch: "tests/Emisiones/PuntoVenta/VistaFacturacion/**/*.spec.ts",
             use: {
                 ...devices["Desktop Chrome"],
                 storageState: resolveStoragePath(),
