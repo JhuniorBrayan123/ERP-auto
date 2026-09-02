@@ -199,9 +199,9 @@ async function main(): Promise<void> {
         assert.strictEqual(mod.extractModuleFromFile('tests/Emisiones/PuntoVenta/Boleta/boleta.spec.ts'), 'PuntoVenta/Boleta');
     });
 
-    await it('extractModuleFromFile: Emisiones/Facturacion prioridad + subcarpeta (cotizacion → Cotizacion)', () => {
-        assert.strictEqual(mod.extractModuleFromFile('tests/Emisiones/Facturacion/Factura/factura.spec.ts'), 'Facturacion/Factura');
-        assert.strictEqual(mod.extractModuleFromFile('tests/Emisiones/Facturacion/cotizacion/FC-CT-emision.spec.ts'), 'Facturacion/Cotizacion');
+    await it('extractModuleFromFile: Emisiones/PuntoVenta/VistaFacturacion anidado + subcarpeta (cotizacion → Cotizacion)', () => {
+        assert.strictEqual(mod.extractModuleFromFile('tests/Emisiones/PuntoVenta/VistaFacturacion/Factura/factura.spec.ts'), 'PuntoVenta/VistaFacturacion/Factura');
+        assert.strictEqual(mod.extractModuleFromFile('tests/Emisiones/PuntoVenta/VistaFacturacion/cotizacion/FC-CT-emision.spec.ts'), 'PuntoVenta/VistaFacturacion/Cotizacion');
     });
 
     await it('extractModuleFromFile: tests/Logistica → Logistica + subcarpeta', () => {
@@ -213,7 +213,7 @@ async function main(): Promise<void> {
     });
 
     await it('extractModuleFromFile: rutas Windows (backslash) normalizadas', () => {
-        assert.strictEqual(mod.extractModuleFromFile('tests\\Emisiones\\Facturacion\\Factura\\factura.spec.ts'), 'Facturacion/Factura');
+        assert.strictEqual(mod.extractModuleFromFile('tests\\Emisiones\\PuntoVenta\\VistaFacturacion\\Factura\\factura.spec.ts'), 'PuntoVenta/VistaFacturacion/Factura');
         assert.strictEqual(mod.extractModuleFromFile('tests\\Logistica\\Movimientos\\movimiento.spec.ts'), 'Logistica/Movimientos');
     });
 
@@ -228,8 +228,8 @@ async function main(): Promise<void> {
         );
     });
 
-    await it('extractModuleFromFile: subcarpeta Emisiones sin PuntoVenta (CierreCaja) → CierreCaja', () => {
-        assert.strictEqual(mod.extractModuleFromFile('tests/Emisiones/CierreCaja/caja/cierre.spec.ts'), 'CierreCaja/Caja');
+    await it('extractModuleFromFile: Emisiones/PuntoVenta/CierreCaja anidado → PuntoVenta/CierreCaja', () => {
+        assert.strictEqual(mod.extractModuleFromFile('tests/Emisiones/PuntoVenta/CierreCaja/caja/cierre.spec.ts'), 'PuntoVenta/CierreCaja/Caja');
     });
 
     await it('extractModuleFromFile: path desconocido → Otros', () => {
