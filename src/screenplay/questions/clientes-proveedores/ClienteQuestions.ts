@@ -27,8 +27,9 @@ export const ClienteContieneTextoEnDetalle = (texto: string) => {
 };
 
 export const CuerpoContieneTexto = (texto: string) => {
-    const fn = async (page: Page): Promise<void> => {
+    const fn = async (page: Page): Promise<boolean> => {
         await expect(page.locator('body')).toContainText(texto);
+        return true;
     };
     fn.displayName = `Body contiene: ${texto}`;
     return fn;

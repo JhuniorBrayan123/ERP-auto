@@ -10,6 +10,7 @@ import {
 } from '@screenplay/tasks/cierre-caja/ConsultarCobrosYPagos';
 import { CobroVisibleEnCierre } from '@screenplay/questions/cierre-caja/MovimientoVisibleEnCierre';
 import { UsarNavegador } from '@abilities/usarnavegador';
+import {CobrosPagosTargets} from "@screenplay/targets/cierre-caja/CobrosPagosTargets";
 
 test.describe('CC-02 | Cobros y Pagos', {tag: ['@cierre-caja']}, () => {
     test.describe.configure({ mode: 'serial' });
@@ -34,7 +35,10 @@ test.describe('CC-02 | Cobros y Pagos', {tag: ['@cierre-caja']}, () => {
         
         const page = cajero.habilidad(UsarNavegador).page;
 
-        
+        await CobrosPagosTargets.opcionCobroPendiente(page).click();
+        await CobrosPagosTargets.selectorEstadoCobro(page).click();
+        await page.getByText('Todos').nth(1).click();
+
         await page.locator('.cmp-grid-pc-options-icon').first().click();
         await page.getByText('Ver cobro', { exact: true }).click();
 

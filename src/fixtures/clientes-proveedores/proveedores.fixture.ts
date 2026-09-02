@@ -1,7 +1,7 @@
 import {test as base, expect} from '@playwright/test';
 import {Cajero} from '@actors/cajero';
 import {ProveedoresTargets} from '@screenplay/targets/clientes-proveedores/ProveedoresTargets';
-import {esperarCargaOverlay} from '@utils/wait-helpers';
+import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
 
 type ProveedoresFixtures = {
     proveedorActor: Cajero; 
@@ -17,7 +17,7 @@ export const test = base.extend<ProveedoresFixtures>({
         
         await page.goto('/punto-venta/entidades/proveedores');
         await page.waitForLoadState('networkidle').catch(() => {});
-        await esperarCargaOverlay(page).catch(() => {});
+        await esperarCargaOverlaySiVisible(page).catch(() => {});
 
         
         await ProveedoresTargets.inputBuscar(page).waitFor({state: 'visible', timeout: 15_000});
