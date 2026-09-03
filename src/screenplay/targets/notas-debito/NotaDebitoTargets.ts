@@ -33,6 +33,9 @@ export const NotaDebitoTargets = {
 
 
     opcionPenalidades: (page: Page) =>
+        page.getByText('Penalidades'),
+
+    opcionOtrosConceptos: (page: Page) =>
         page.getByText('Otros conceptos'),
 
 

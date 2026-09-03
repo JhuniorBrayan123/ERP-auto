@@ -4,7 +4,8 @@ import {NotaDebitoTargets} from '../../targets/notas-debito/NotaDebitoTargets';
 export type MotivoNotaDebito =
     | 'Intereses por mora'
     | 'Aumento en el valor'
-    | 'Otros conceptos';
+    | 'Otros conceptos'
+    | 'Penalidades';
 
 
 export const SeleccionarMotivoNotaDebito = (motivo: MotivoNotaDebito) => {
@@ -19,8 +20,11 @@ export const SeleccionarMotivoNotaDebito = (motivo: MotivoNotaDebito) => {
             case 'Aumento en el valor':
                 await NotaDebitoTargets.opcionAumentoValor(page).click();
                 break;
-            case 'Otros conceptos':
+            case 'Penalidades':
                 await NotaDebitoTargets.opcionPenalidades(page).click();
+                break;
+            case 'Otros conceptos':
+                await NotaDebitoTargets.opcionOtrosConceptos(page).click();
                 break;
         }
     };

@@ -23,7 +23,7 @@ test.describe('ND-03 | Penalidades / Otros Conceptos', {tag: ['@puntoventa', '@n
                 tipoDocumento: 'Factura',
                 serie: origen.serie,
                 correlativo: origen.correlativo,
-                motivo: 'Otros conceptos',
+                motivo: 'Penalidades',
                 textoMotivo: 'Penalidades por automatización',
                 monto: '10',
             })
