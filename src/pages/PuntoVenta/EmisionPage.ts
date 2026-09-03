@@ -2,7 +2,7 @@ import {expect, type Locator, type Page} from '@playwright/test';
 import type {EmisionResult} from '@app-types/emision.types';
 import {throwFunctionalError} from '@utils/functional-error';
 import {FUNCTIONAL_CATALOG} from '@utils/functional-catalog';
-import {esperarCargaOverlay, esperarDebounce} from '@utils/wait-helpers';
+import {esperarCargaOverlaySiVisible, esperarDebounce} from '@utils/wait-helpers';
 
 export class EmisionPage {
 
@@ -88,7 +88,7 @@ export class EmisionPage {
             await this.searchInput.click();
             await this.searchInput.fill(codigo);
             await this.searchInput.press('Enter');
-            await esperarCargaOverlay(this.page, 30_000);
+            await esperarCargaOverlaySiVisible(this.page, 30_000);
         } catch (error) {
             await throwFunctionalError({
                 page: this.page,
@@ -102,7 +102,7 @@ export class EmisionPage {
     async seleccionarItem(nombre: string): Promise<void> {
         try {
 
-            await esperarCargaOverlay(this.page, 30_000).catch(() => {
+            await esperarCargaOverlaySiVisible(this.page, 30_000).catch(() => {
             });
 
             const item = this.page
