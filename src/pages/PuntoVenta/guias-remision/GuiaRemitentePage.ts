@@ -1,5 +1,5 @@
 import {expect, type Locator, type Page, test} from '@playwright/test';
-import {esperarCargaOverlay, esperarDebounce} from '@utils/wait-helpers';
+import {esperarCargaOverlay, esperarCargaOverlaySiVisible, esperarDebounce} from '@utils/wait-helpers';
 
 export class GuiaRemitentePage {
     constructor(public readonly page: Page) {
@@ -290,6 +290,7 @@ export class GuiaRemitentePage {
 
     async emitirGuia() {
         await this.btnEmitir.click();
+        await  esperarCargaOverlaySiVisible(this.page);
     }
 
     async guardarGuia() {

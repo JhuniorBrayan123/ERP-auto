@@ -1,7 +1,7 @@
 import {type Page} from '@playwright/test';
 import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
 import {runFunctionalAction} from '../../utils/functional-step';
-import {esperarCargaOverlay} from '../../utils/wait-helpers';
+import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from '../../utils/wait-helpers';
 
 export class MovimientosNavigationPage {
     constructor(private readonly page: Page) {
@@ -44,7 +44,7 @@ export class MovimientosNavigationPage {
         await runFunctionalAction(this.page, FUNCTIONAL_CATALOG.stock.buscarProducto, async () => {
             await this.clickProductosYServicios();
             await this.page.getByText('Stock de productos').click();
-            await esperarCargaOverlay(this.page);
+            await esperarCargaOverlaySiVisible(this.page);
         });
     }
 
