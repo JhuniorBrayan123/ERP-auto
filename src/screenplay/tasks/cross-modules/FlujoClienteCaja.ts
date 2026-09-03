@@ -36,7 +36,6 @@ export const ActivarClienteYVerificarEnCaja = (documento: string) => {
         await NavegarACajaPos()(page);
         await BuscarClienteEnCaja(documento)(page);
         await SeleccionarPersonaEnCaja(documento)(page);
-        await GuardarDatosVenta()(page);
     };
     fn.displayName = `Activar cliente y verificar en caja: ${documento}`;
     return fn;

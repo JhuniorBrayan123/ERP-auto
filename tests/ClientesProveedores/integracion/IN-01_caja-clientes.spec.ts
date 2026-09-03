@@ -27,8 +27,6 @@ test.describe('IN-01 | Integración Cliente - Caja', {tag: ['@integracion', '@ca
         })).toBeTruthy();
 
         await cliente.realiza(ActivarClienteYVerificarEnCaja(datos.numeroDocumento));
-
-
         await expect(page.locator('main')).toContainText(datos.numeroDocumento);
 
         await cliente.realiza(LimpiarCliente(datos.numeroDocumento));
