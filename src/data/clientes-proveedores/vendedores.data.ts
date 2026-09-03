@@ -61,3 +61,18 @@ export function generarVendedorRUC(): DatosVendedorInput {
         email: `vendruc${s}@test.com`,
     };
 }
+export function generarVendedorIncompleto(): DatosVendedorInput {
+    const s = SUFFIX();
+    return {
+        tipoDocumento: 'RUC',
+        numeroDocumento: `20${s}${'0'.repeat(11 - s.length - 2)}`,
+        nombreRazonSocial: ` `,
+        codigo: ``,
+        metaMonto: '10000',
+        metaCantidad: '100',
+        zonaVentas: 'Arequipa Centro',
+        direccion: `Arequipa-${s}`,
+        telefono: `999999${s}`.slice(0, 9),
+        email: `vendruc${s}@test.com`,
+    };
+}

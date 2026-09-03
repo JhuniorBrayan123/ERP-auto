@@ -80,6 +80,15 @@ export const CrearVendedor = (datos: DatosVendedorInput) => {
     fn.displayName = `Crear vendedor: ${datos.nombreRazonSocial}`;
     return fn;
 };
+export const CrearVendedorIncompleto = (datos: DatosVendedorInput) => {
+    const fn = async (page: Page): Promise<void> => {
+        await VendedoresTargets.btnCrearVendedor(page).click();
+        await LlenarFormularioBasicoVendedor(datos)(page);
+        await VendedoresTargets.btnCrearVendedorForm(page).click();
+    };
+    fn.displayName = `Crear vendedor: ${datos.nombreRazonSocial}`;
+    return fn;
+};
 
 export const CerrarModalExitoVendedor = () => {
     const fn = async (page: Page): Promise<void> => {
