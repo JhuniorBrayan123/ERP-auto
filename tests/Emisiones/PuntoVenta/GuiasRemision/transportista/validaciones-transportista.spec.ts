@@ -26,11 +26,6 @@ test.describe('GR-08 | Transportista — Validaciones', { tag: ['@puntoventa', '
     });
 
 
-
-
-
-
-
     test('SC-02: Validar pagador de flete obligatorio @GR-08.2', async ({ cajero, page }) => {
         await cajero.intentaRealizar(
             EmitirGuiaTransportistaTask({
@@ -77,7 +72,7 @@ test.describe('GR-08 | Transportista — Validaciones', { tag: ['@puntoventa', '
         });
     });
 
-    test.skip('SC-05: Validar que fecha de inicio de traslado no sea menor a fecha de emisión @GR-08.5', async ({ cajero, page }) => {
+    test('SC-05: Validar que fecha de inicio de traslado no sea menor a fecha de emisión @GR-08.5', async ({ cajero, page }) => {
         await cajero.intentaRealizar(
             EmitirGuiaTransportistaTask({
                 peso: '10',
