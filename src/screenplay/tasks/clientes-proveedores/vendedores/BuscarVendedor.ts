@@ -84,8 +84,9 @@ export const ValidarVendedorVisible = (texto: string) => {
 
 export const ValidarSinResultados = () => {
     const fn = async (page: Page): Promise<boolean> => {
-        const rows = await VendedoresTargets.tbody(page).locator('tr').count();
-        return rows === 0;
+        return await VendedoresTargets
+            .sinResultados(page)
+            .isVisible();
     };
     fn.displayName = 'Validar que no hay resultados (vendedor)';
     return fn;

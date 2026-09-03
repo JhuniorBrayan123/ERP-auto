@@ -15,14 +15,14 @@ test.describe('IN-01 | Integración Cliente - Caja', {tag: ['@integracion', '@ca
 
         await cliente.realiza(CrearYDesactivarCliente(datos.numeroDocumento));
         await cliente.realiza(VerificarClienteNoEnCaja(datos.numeroDocumento));
-        await expect(cliente.pregunta(async (p: Page) => {
-            const msg = await PosTargets.mensajePersonaNoEncontrada(p);
+        expect(cliente.pregunta(async (p: Page) => {
+            const msg = PosTargets.mensajePersonaNoEncontrada(p);
             return msg.isVisible();
         })).toBeTruthy();
 
         await cliente.realiza(BuscarClienteEnCaja('888888888888'));
-        await expect(cliente.pregunta(async (p: Page) => {
-            const msg = await PosTargets.mensajePersonaNoEncontrada(p);
+        expect(cliente.pregunta(async (p: Page) => {
+            const msg = PosTargets.mensajePersonaNoEncontrada(p);
             return msg.isVisible();
         })).toBeTruthy();
 

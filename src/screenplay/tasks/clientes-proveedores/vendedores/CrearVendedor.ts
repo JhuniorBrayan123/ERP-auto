@@ -1,11 +1,12 @@
 import {type Page} from '@playwright/test';
 import {VendedoresTargets} from '@screenplay/targets/clientes-proveedores/VendedoresTargets';
 import {DatosVendedorInput} from '@data/clientes-proveedores/vendedores.data';
-import {esperarCargaOverlay} from "@utils/wait-helpers";
+import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
 
 export const AbrirCrearVendedor = () => {
     const fn = async (page: Page): Promise<void> => {
         await VendedoresTargets.btnCrearVendedor(page).click();
+        await esperarCargaOverlaySiVisible(page);
     };
     fn.displayName = 'Abrir formulario Crear vendedor';
     return fn;

@@ -1,5 +1,6 @@
 import { test, expect } from '@fixtures/clientes-proveedores/vendedores.fixture';
 import {
+    CerrarModalExitoVendedor,
     CrearVendedor,
 } from '@screenplay/tasks/clientes-proveedores/vendedores/CrearVendedor';
 import {
@@ -25,12 +26,9 @@ test.describe('VD-05 | Eliminación de Vendedor', { tag: ['@vendedores', '@elimi
         await vendedorActor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));
         await vendedorActor.realiza(AbrirAccionContextualVendedor('Eliminar vendedor'));
         await vendedorActor.realiza(ClickEliminarConfirmar());
-
-        
+        await vendedorActor.realiza(CerrarModalExitoVendedor());
         const hayExito = await vendedorActor.pregunta(CuerpoContieneTexto('eliminado'));
         expect(hayExito).toBe(true);
-
-        
         await vendedorActor.realiza(BuscarVendedorEnListado(datosVendedor.numeroDocumento));
         const sinResultados = await vendedorActor.pregunta(ValidarSinResultados());
         expect(sinResultados).toBe(true);

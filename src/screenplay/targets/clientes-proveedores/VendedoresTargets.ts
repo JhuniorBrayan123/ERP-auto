@@ -11,6 +11,9 @@ export const VendedoresTargets = {
     tbody: (page: Page) =>
         page.locator('tbody'),
 
+    sinResultados: (page: Page) =>
+        page.getByText('NO HAY RESULTADOS PARA TU BÚSQUEDA'),
+
     thead: (page: Page) =>
         page.locator('thead'),
 
