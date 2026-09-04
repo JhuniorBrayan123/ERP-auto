@@ -53,9 +53,9 @@ test.describe.serial('FC-CT-PAGAR | Pagar/Generar Comprobantes desde Cotización
 
                 expect(Number(emision.correlativo)).toBeGreaterThan(0);
 
-                // Validación integrada: tras transformar la Cotización → Boleta/Factura/NV,
-                // la cotización origen DEBE mostrar Facturado = "SI" en Búsqueda de Comprobantes.
-                // Si el producto muestra "No", el test FALLA y evidencia el bug CT01-174 (no silenciar).
+                
+                
+                
                 await vendedor.realiza(
                     IrABusquedaComprobantes(),
                     FiltrarComprobantePorTipo('COTIZACIONES')
@@ -109,8 +109,8 @@ test.describe.serial('FC-CT-PAGAR | Pagar/Generar Comprobantes desde Cotización
 
                 expect(Number(emision.correlativo)).toBeGreaterThan(0);
 
-                // Validación integrada: tras transformar la Cotización → Boleta/Factura/NV
-                // desde Búsqueda, la cotización origen DEBE mostrar Facturado = "SI".
+                
+                
                 await vendedor.realiza(
                     IrABusquedaComprobantes(),
                     FiltrarComprobantePorTipo('COTIZACIONES')

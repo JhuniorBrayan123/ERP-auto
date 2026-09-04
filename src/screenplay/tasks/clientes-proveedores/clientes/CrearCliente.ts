@@ -127,7 +127,7 @@ export const CerrarModalExito = () => {
             await btn.click();
             await esperarCargaOverlay(page).catch(() => { });
         } catch {
-            // El modal ya estaba cerrado: no-op.
+            
         }
     };
     fn.displayName = 'Cerrar modal de éxito';

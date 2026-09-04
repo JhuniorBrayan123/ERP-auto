@@ -140,24 +140,13 @@ export class ComprobantesGridComponent {
         return row.locator('.label-estado-comprobante span').first();
     }
 
-    /**
-     * Devuelve todas las celdas de estado (`.label-estado-comprobante span`) de la fila,
-     * en el orden posicional de las columnas del grid:
-     *   nth(0) => Estado de comprobante
-     *   nth(1) => Estado de pago
-     * Para discriminar las columnas por índice y evitar `.first()` ambiguo.
-     */
+    
     obtenerCeldasDeEstado(numeroCompleto: string): Locator {
         const row = this.obtenerFilaPorNumero(numeroCompleto);
         return row.locator('.label-estado-comprobante span');
     }
 
-    /**
-     * Devuelve la celda (td) de la columna cuyo encabezado contiene "SUNAT"
-     * dentro de la fila del comprobante indicado. Para Notas de Venta esta celda
-     * queda vacía (el NV no se envía a SUNAT).
-     * Asunción: la cabecera del grid tiene una columna con texto "SUNAT".
-     */
+    
     async obtenerCeldaSunat(numeroCompleto: string): Promise<Locator> {
         const row = this.obtenerFilaPorNumero(numeroCompleto);
         const headers = await this.page.locator('thead th').all();

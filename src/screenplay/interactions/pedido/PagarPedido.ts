@@ -6,16 +6,7 @@ import {PagoTargets} from '@screenplay/targets/facturacion/PagoTargets';
 
 type TipoDocPago = 'BOLETA' | 'FACTURA' | 'NOTA DE VENTA';
 
-/**
- * Paga un pedido CARGADO en la caja (Vista Facturación), convirtiéndolo en el
- * tipo de documento indicado (Boleta/Factura/Nota de Venta).
- *
- * Espejo de PagarCotizacion (Camino B cotización): usa el modal compartido
- * `.cmp-confirmar-pago` (targets centralizados en PagoTargets) y devuelve el
- * EmisionResult a partir de la response DocumentosContables/Emisiones.
- *
- * Requiere que el pedido ya esté cargado en la caja (p.ej. vía CargarPedidoDesdeLista).
- */
+
 export const PagarPedido = (tipoDoc: TipoDocPago) => {
     const fn = async (page: Page): Promise<EmisionResult> => {
 

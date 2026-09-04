@@ -24,11 +24,7 @@ export interface ResultadoEmitirNotaVenta {
     nombreCaja: string;
 }
 
-/**
- * Emite una Nota de Venta con efectivo exacto capturando antes el stock del ítem
- * y el monto en SOLES de la caja, y valida que el stock baje y el monto suba.
- * Devuelve la data de contexto para las verificaciones posteriores a la anulación.
- */
+
 export const EmitirNotaVentaConRetorno = ({
     item,
     kardexApi,

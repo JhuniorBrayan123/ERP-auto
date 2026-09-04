@@ -128,7 +128,7 @@ export function crearTasksEntidad<T extends Record<string, Function>>(T: T, labe
                 await btn.click();
                 await esperarCargaOverlay(page).catch(() => {});
             } catch {
-                // El modal ya estaba cerrado: no-op.
+                
             }
         };
         fn.displayName = 'Cerrar modal de éxito';

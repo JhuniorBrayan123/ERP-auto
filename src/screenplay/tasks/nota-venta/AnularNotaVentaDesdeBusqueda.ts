@@ -8,10 +8,7 @@ export interface DatosAnulacionNotaVenta {
     motivo: string;
 }
 
-/**
- * Navega a Búsqueda de comprobantes filtrando por el correlativo emitido,
- * abre las acciones del comprobante y lo elimina (anula) con el motivo dado.
- */
+
 export const AnularNotaVentaDesdeBusqueda = ({
     correlativo,
     numeroCompleto,

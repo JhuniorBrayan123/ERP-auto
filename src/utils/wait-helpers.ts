@@ -13,15 +13,7 @@ export const esperarCargaOverlay = async (
     await overlay.waitFor({state: 'hidden', timeout: 7_000}).catch(() => {});
 };
 
-/**
- * Variante de `esperarCargaOverlay` para contextos donde el overlay global
- * `cmn_cmp-overload:loading` NO suele aparecer (p.ej. popups/ventanas nuevas
- * como Ver Comprobante). A diferencia de la versión original, que espera hasta
- * 15s a que el overlay se vuelva visible (y quema ese tiempo si nunca aparece),
- * esta variante primero verifica si el overlay está visible con un timeout
- * corto: solo si ya está visible espera a que se oculte; si no está visible,
- * retorna de inmediato (no hay carga pendiente o ya terminó).
- */
+
 export const esperarCargaOverlaySiVisible = async (
     page: Page,
     timeout = 35_000

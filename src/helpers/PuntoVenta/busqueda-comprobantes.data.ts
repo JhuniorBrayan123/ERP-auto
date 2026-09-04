@@ -49,9 +49,9 @@ export const BC_COLUMN_IDS = {
     ESTADO_PAGO: 'EstadoPago',
     ESTADOS_SUNAT: 'ListEstadosSunat',
 
-    // Campos de la categoría Origen (COTIZACIONES | PEDIDOS).
-    // DOM discovery 13-Ago-2026: item-{CAT}-IdsFacturados / item-{CAT}-BusquedaVinculados
-    // existen en la configuración de columnas de ambas categorías.
+    
+    
+    
     FACTURADO: 'IdsFacturados',
     REFERENCIA_VENTA: 'BusquedaVinculados',
 } as const;
@@ -130,14 +130,5 @@ export type ComprobanteInfo = {
     datosOpcionales?: DatosOpcionales;
 };
 
-/**
- * True si la celda de la columna "Facturado" indica que el comprobante origen
- * (Cotización/Pedido) ya fue transformado a un comprobante de pago.
- *
- * Formato esperado del producto: "Sí" (con tilde — confirmado por DOM discovery
- * 13-Ago-2026 en CRT-1) o "SI". Decisión QA 13-Ago-2026: NO se valida correlativo
- * ni "SI N°", solo el estado positivo. El bug de producto CT01-174/B001-631 muestra
- * "No" pese a estar facturado: en ese caso la validación integrada falla a propósito
- * (no se silencia ni se hace skip) para evidenciar la regresión.
- */
+
 export const esFacturadoSi = (valor: string): boolean => /^S[ií]/i.test(valor);

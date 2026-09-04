@@ -97,7 +97,7 @@ export const CerrarModalExitoVendedor = () => {
             await btn.waitFor({state: 'visible', timeout: 2_000});
             await btn.click();
         } catch {
-            // El modal ya estaba cerrado (lo cerró el task compuesto): no-op.
+            
         }
     };
     fn.displayName = 'Cerrar modal de éxito (Vendedor)';

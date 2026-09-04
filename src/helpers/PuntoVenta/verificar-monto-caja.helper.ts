@@ -33,10 +33,7 @@ export async function capturarMontoCaja(
     return monto;
 }
 
-/**
- * Valida que el monto en SOLES de la caja suba ~montoTotalVenta tras la venta
- * (monto ≈ montoInicial + montoTotalVenta), con tolerancia de 2 decimales.
- */
+
 export async function validarMontoCajaDespuesVenta(datos: DatosMontoDespuesVenta): Promise<void> {
     const {
         cajasApi,
@@ -69,11 +66,7 @@ export async function validarMontoCajaDespuesVenta(datos: DatosMontoDespuesVenta
         .toBeCloseTo(montoEsperado, 2);
 }
 
-/**
- * Valida el retorno del dinero en SOLES tras la anulación del comprobante.
- * Si retornoDinero=true, el monto debe regresar al valor inicial (delta neto ~0);
- * si es false, debe mantenerse en el valor posterior a la venta.
- */
+
 export async function validarRetornoDineroCaja(datos: DatosRetornoDinero): Promise<void> {
     const {
         cajasApi,

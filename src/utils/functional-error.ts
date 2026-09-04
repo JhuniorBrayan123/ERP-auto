@@ -8,9 +8,9 @@ export function detectFailureCategory(
     error: unknown,
     observedState?: string,
 ): FailureCategory {
-    // Playwright entrega mensajes de error con códigos ANSI de color; sin
-    // limpiarlos, patrones como "expect(received).tobe" nunca matchean y el
-    // fallo se clasifica como DESCONOCIDO.
+    
+    
+    
     const msg = cleanAnsiText(
         [
             error instanceof Error ? error.message : String(error ?? ''),
@@ -323,11 +323,7 @@ function fallbackMessage(status: string, rawMessage: string): string {
         : 'Ocurrió un error durante el flujo y no se pudo completar el paso esperado.';
 }
 
-/**
- * Resumen de fallo para aserciones planas (sin el marcador funcional):
- * conserva el mensaje real del error, clasifica la categoría y evita el
- * texto genérico inservible cuando hay contexto suficiente.
- */
+
 export function buildFallbackFailureSummary(input: {
     testTitle: string;
     rawMessage: string;

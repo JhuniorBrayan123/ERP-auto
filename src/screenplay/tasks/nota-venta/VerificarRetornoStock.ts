@@ -3,9 +3,7 @@ import {validarStockDespuesNC} from '@helpers/PuntoVenta/verificar-stock-nc.help
 import type {KardexApi} from '@services/Logistica/KardexApi';
 import type {ItemVenta} from '@app-types/emision.types';
 
-/**
- * Verifica que tras la anulación el stock del ítem vuelve al valor original.
- */
+
 export const VerificarRetornoStock = ({
     item,
     kardexApi,

@@ -2,9 +2,7 @@ import {type Page} from '@playwright/test';
 import {validarRetornoDineroCaja} from '@helpers/PuntoVenta/verificar-monto-caja.helper';
 import type {CajasApi} from '@services/PuntoVenta/CajasApi';
 
-/**
- * Verifica que tras la anulación el monto en SOLES de la caja retorna al valor inicial.
- */
+
 export const VerificarRetornoDineroCaja = ({
     cajasApi,
     montoInicial,

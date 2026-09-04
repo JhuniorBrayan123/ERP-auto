@@ -18,11 +18,7 @@ function regexCardComprobante(tipoDocumento: 'Factura' | 'Boleta', serie: string
     return new RegExp(`${tipo}.*?${serie}\\s*-\\s*0*${correlativo}`, 'i');
 }
 
-/**
- * El comprobante queda VINCULADO cuando el HTML de la tarjeta (.card-info-doc)
- * o la grilla de ítems del comprobante cargada son visibles. El éxito se valida
- * con cualquiera de las dos señales para no depender del formato exacto del DOM.
- */
+
 async function comprobanteVinculadoVisible(
     page: Page,
     tipoDocumento: 'Factura' | 'Boleta',
@@ -55,7 +51,7 @@ export const BuscarComprobanteNotaDebito = (datos: DatosBuscarComprobanteNotaDeb
         const esperaEntreReintentosMs = datos.esperaEntreReintentosMs ?? 3_000;
         const indiceSerie = datos.indiceSerie ?? 3;
 
-        // 1) Se llenan los filtros UNA sola vez: tipo de documento + serie + correlativo.
+        
         await page.locator('div').filter({hasText: /^Factura$/}).nth(2).click();
         if (datos.tipoDocumento === 'Boleta') {
             await page.getByText('Boleta', {exact: true}).click();
@@ -70,17 +66,17 @@ export const BuscarComprobanteNotaDebito = (datos: DatosBuscarComprobanteNotaDeb
         await inputCorrelativo.click();
         await inputCorrelativo.fill(datos.correlativo);
 
-        // 2) Reintentos: SOLO se vuelve a presionar Buscar (ojo). Si SUNAT aún no
-        //    aceptó el comprobante, la búsqueda devuelve el error y se reintenta;
-        //    en cuanto el HTML del comprobante queda armado/vinculado, se continúa.
+        
+        
+        
         for (let intento = 1; intento <= maxReintentos; intento++) {
             await NotaDebitoTargets.btnBuscar(page).click();
 
             const deadline = Date.now() + 12_000;
             let resultado: 'error' | 'ok' | 'timeout' = 'timeout';
             while (Date.now() < deadline) {
-                // El éxito tiene prioridad: si el comprobante ya quedó vinculado,
-                // no importa que aún haya un error de SUNAT visible en pantalla.
+                
+                
                 if (await comprobanteVinculadoVisible(page, datos.tipoDocumento, datos.serie, datos.correlativo)) {
                     resultado = 'ok';
                     break;
@@ -107,7 +103,7 @@ export const BuscarComprobanteNotaDebito = (datos: DatosBuscarComprobanteNotaDeb
             break;
         }
 
-        // 3) Verificación final: si el comprobante quedó vinculado, se continúa el flujo.
+        
         if (await comprobanteVinculadoVisible(page, datos.tipoDocumento, datos.serie, datos.correlativo)) {
             return;
         }

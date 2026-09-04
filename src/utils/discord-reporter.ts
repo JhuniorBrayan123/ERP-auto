@@ -40,11 +40,7 @@ export interface ConsolidatedPayload {
     missing: string[];
 }
 
-/**
- * Normaliza un segmento de carpeta a PascalCase: separa por '-'/'_',
- * capitaliza la primera letra de cada token y los une sin separador.
- * Ej: 'notas-debito' → 'NotasDebito', 'PV-01_emision-stock-datos-adicionales' → 'PV01EmisionStockDatosAdicionales'.
- */
+
 function pascalCaseFolder(name: string): string {
     return name
         .split(/[-_]/)
@@ -63,18 +59,7 @@ const MODULE_BASES: ReadonlyArray<{prefix: string; projectPrefix: string}> = [
     {prefix: 'tests/ClientesProveedores/', projectPrefix: 'Clientes'},
 ];
 
-/**
- * Deriva el módulo (jerarquía de carpetas real) desde la ruta del spec.
- *
- * - Toma la ruta relativa desde la raíz de tests (tests/Emisiones,
- *   tests/Logistica, tests/ClientesProveedores), descarta el nombre del archivo,
- *   normaliza cada segmento a PascalCase y los une con '/'.
- * - La primera carpeta bajo tests/Emisiones ES el proyecto (PuntoVenta,
- *   Facturacion, Busqueda, CierreCaja), por eso projectPrefix es '' ahí.
- * - Ej: 'tests/Emisiones/PuntoVenta/Boleta/boleta.spec.ts' → 'PuntoVenta/Boleta'
- * - Ej: 'tests/Logistica/Movimientos/movimiento.spec.ts' → 'Logistica/Movimientos'
- * - Ej: 'tests/ClientesProveedores/proveedores/proveedor.spec.ts' → 'Clientes/Proveedores'
- */
+
 export function extractModuleFromFile(file: string): string {
     const f = file.replace(/\\/g, '/');
     for (const {prefix, projectPrefix} of MODULE_BASES) {
@@ -113,10 +98,7 @@ function formatDurationMs(ms: number): string {
     return `${seconds} sec`;
 }
 
-/**
- * Formatea una fecha ISO como fecha + hora local (es-PE), ej: `04/08/2026, 20:16`.
- * Devuelve 'No disponible' si el valor es inválido o no se informó.
- */
+
 function formatDateTime(iso: string | undefined): string {
     if (!iso) return 'No disponible';
     const d = new Date(iso);
@@ -399,9 +381,9 @@ class DiscordReporter implements Reporter {
             return;
         }
 
-        // Webhook según ambiente: PRD → canal general (DISCORD_WEBHOOK_URL),
-        // CRT → canal privado del tester (DISCORD_WEBHOOK_URL_CRT). Si el webhook
-        // del ambiente no está configurado, se omite el mensaje sin bloquear la corrida.
+        
+        
+        
         const webhookUrl = env.appEnv === 'prd'
             ? discordEnv.webhookUrl
             : discordEnv.webhookUrlCrt;
@@ -484,14 +466,7 @@ class DiscordReporter implements Reporter {
     }
 }
 
-/**
- * Devuelve la carpeta común más profunda entre una lista de módulos
- * (rutas jerárquicas separadas por '/'). Ej:
- *   ['PuntoVenta/Boleta/X', 'PuntoVenta/Boleta/Y'] → 'PuntoVenta/Boleta'
- *   ['PuntoVenta/Boleta/X', 'PuntoVenta/Factura/Y'] → 'PuntoVenta'
- *   ['PuntoVenta/Boleta/X'] → 'PuntoVenta/Boleta/X'
- *   [] → ''
- */
+
 function commonAncestor(modules: string[]): string {
     if (modules.length === 0) return '';
     const segments = modules.map((m) => m.split('/'));

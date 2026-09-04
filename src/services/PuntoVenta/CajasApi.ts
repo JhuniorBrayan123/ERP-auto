@@ -149,8 +149,8 @@ export class CajasApi {
         }
 
         const payload = this.decodeJwtPayload(parts[1]);
-        // El JWT de sesión expone las sucursales en la clave `scopes` (plural).
-        // Se contempla también `scope` (singular) por robustez ante distintos emisores.
+        
+        
         const scope = (payload?.scopes ?? payload?.scope) as
             | { Sucursales?: number[]; IdEntidadEmpresa?: number }
             | undefined;

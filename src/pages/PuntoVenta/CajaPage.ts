@@ -11,7 +11,7 @@ export class CajaPage {
     ) {
     }
 
-    /** Nombre de la caja activa con la que opera este flujo (fuente de verdad única). */
+    
     get nombreCajaActiva(): string {
         return this.nombreCaja;
     }

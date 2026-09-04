@@ -46,7 +46,7 @@ export interface EmisionResult {
 
     comprobanteId: number;
 
-    /** Monto TOTAL real en SOLES del comprobante emitido (de la respuesta de la emisión). */
+    
     montoTotalVenta?: number;
 }
 

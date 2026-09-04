@@ -14,7 +14,6 @@ const CLIENTE = CLIENTES.EMPRESA_RUC_AUTO;
 const ITEM = ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL;
 const tiposComprobante = ['BOLETA', 'FACTURA', 'NOTA DE VENTA'] as const;
 
-/** Crea una cotización base propia por test (una CT solo se convierte UNA vez). */
 async function crearCotizacion(vendedor: Cajero): Promise<string> {
     const cotizacion = await vendedor.realizaYObtiene(
         CrearCotizacionVF({cliente: CLIENTE, items: [ITEM]})
@@ -23,8 +22,7 @@ async function crearCotizacion(vendedor: Cajero): Promise<string> {
     return cotizacion.correlativo;
 }
 
-/** Cierra el modal post-emisión ("Nueva Venta") si quedó visible. No-bloqueante:
- * el modal puede auto-cerrarse tras la emisión; si ya no está, no debe fallar. */
+
 async function cerrarPostEmision(page: Page): Promise<void> {
     const btnNuevaVenta = page.getByRole('button', {name: 'Nueva Venta'});
     if (await btnNuevaVenta.isVisible({timeout: 1_000}).catch(() => false)) {
@@ -32,12 +30,7 @@ async function cerrarPostEmision(page: Page): Promise<void> {
     }
 }
 
-/**
- * Validación integrada: tras convertir la Cotización desde detalle, la cotización
- * origen DEBE mostrar Facturado = "SI"/"Sí" en Búsqueda de Comprobantes. Si el
- * producto muestra "No", el test FALLA y evidencia el bug CT01-174 (no se
- * silencia ni se hace skip).
- */
+
 async function validarFacturadoSi(vendedor: Cajero, correlativo: string): Promise<void> {
     await vendedor.realiza(
         IrABusquedaComprobantes(),
@@ -54,9 +47,7 @@ async function validarFacturadoSi(vendedor: Cajero, correlativo: string): Promis
     ).toBe(true);
 }
 
-// Los tests de conversión crean su PROPIA cotización (una CT solo se convierte
-// una vez) → no comparten setup → se desacoplan de la cascada serial de
-// Clonar/bug (cada describe es independiente).
+
 test.describe.serial('FC-CT-CONVERTIR | Convertir Cotización desde Ver Comprobante', {
     tag: ['@facturacion', '@cotizacion']
 }, () => {
@@ -66,7 +57,7 @@ test.describe.serial('FC-CT-CONVERTIR | Convertir Cotización desde Ver Comproba
             const correlativo = await crearCotizacion(vendedor);
             await cerrarPostEmision(page);
 
-            // Camino C: Ver Comprobante → "Convertir a" → tipo destino → pago → EmisionResult
+            
             const emision = await vendedor.realizaYObtiene(
                 ConvertirComprobanteDesdeDetalle(correlativo, 'COTIZACION', tipo)
             );
@@ -80,10 +71,6 @@ test.describe.serial('FC-CT-CONVERTIR | Convertir Cotización desde Ver Comproba
             await validarFacturadoSi(vendedor, correlativo);
         });
     }
-
-    // Segundo camino del wizard de conversión (decisión D7 del design): en vez de
-    // "Emitir ahora" (misma popup), "Editar antes de emitir" abre una ventana nueva
-    // con la lista de cajas y paga desde la caja cargada.
     test('Convertir Boleta con modo "Editar antes de emitir" @FC-CT.ConvertirEditarAntes', async ({vendedor, page}) => {
         const correlativo = await crearCotizacion(vendedor);
         await cerrarPostEmision(page);
@@ -107,12 +94,12 @@ test.describe('FC-CT-CLONAR | Clonar Cotización desde Ver Comprobante', {
         const correlativo = await crearCotizacion(vendedor);
         await cerrarPostEmision(page);
 
-        // Clonar desde Ver Comprobante → caja VENTA → se abre venta con datos del origen
+        
         const popupVenta = await vendedor.realizaYObtiene(
             ClonarComprobanteDesdeDetalle.haciaCaja(correlativo, 'COTIZACION', CAJAS.VENTA.nombre)
         );
 
-        // Datos transferidos (patrón BC-21.1): cliente + item visibles en el popup de emisión
+        
         await expect(popupVenta.getByRole('main')).toContainText(
             CLIENTE.nombre, {timeout: 30_000},
         );
@@ -123,12 +110,7 @@ test.describe('FC-CT-CLONAR | Clonar Cotización desde Ver Comprobante', {
     });
 });
 
-// Caso bug CT01-174 (B001-631): convertir la cotización DESDE EL DETALLE
-// (Camino C) deja la columna Facturado en "No" en Búsqueda de Comprobantes.
-// Este test crea su PROPIA cotización y espera Facturado="SI"; si el producto
-// muestra "No", el test FALLA y evidencia el bug. NO se hace skip ni se
-// silencia: es la evidencia automatizada del defecto. Independiente de la
-// cascada serial de los Convertir*/Clonar.
+
 test.describe('FC-CT-BUG | Bug CT01-174 Facturado desde detalle', {
     tag: ['@facturacion', '@cotizacion']
 }, () => {

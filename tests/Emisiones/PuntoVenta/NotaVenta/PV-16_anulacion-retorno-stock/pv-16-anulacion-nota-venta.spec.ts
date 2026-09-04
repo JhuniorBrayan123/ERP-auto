@@ -63,7 +63,7 @@ test.describe('PV-16 | Anulación de Nota de Venta con retorno de stock', {
     }) => {
         const page = cajero.habilidad(UsarNavegador).page;
 
-        // 1) Iniciar venta en caja y seleccionar Nota de Venta
+        
         const cajaPage = new CajaPage(page);
         const comprobantePage = new ComprobantePage(page);
         const emisionPage = new EmisionPage(page);
@@ -73,10 +73,10 @@ test.describe('PV-16 | Anulación de Nota de Venta con retorno de stock', {
         await cajaPage.continuarVendiendo();
         await comprobantePage.seleccionarNotaVenta();
 
-        // Capturar stock del item estricto ANTES de agregar items
+        
         const stockOriginal = await capturarStockNC(kardexApi, ITEMS_PV.ESTRICTO_GRAVADO_2.codigo);
 
-        // Agregar item manual (PRODUCTO_MANUAL) — usa flujo drawer
+        
         await AgregarProductoManual({
             nombre: PRODUCTO_MANUAL.nombre,
             cantidad: PRODUCTO_MANUAL.cantidad,
@@ -85,14 +85,14 @@ test.describe('PV-16 | Anulación de Nota de Venta con retorno de stock', {
             guardarEnLista: PRODUCTO_MANUAL.guardarEnLista,
         })(page);
 
-        // Agregar item estricto (control de stock) — buscar por código dinámico
+        
         await emisionPage.buscarItem(ITEMS_PV.ESTRICTO_GRAVADO_2.codigo);
         await emisionPage.seleccionarItem(ITEMS_PV.ESTRICTO_GRAVADO_2.nombre);
 
-        // Capturar monto inicial de la caja
+        
         const montoInicial = await capturarMontoCaja(cajasApi, undefined, nombreCaja);
 
-        // Emitir Nota de Venta con efectivo exacto
+        
         const resumen = await emisionPage.capturarResumenPedido();
         const montoTotalCarrito = parseFloat(resumen['Total'] ?? resumen['TOTAL'] ?? '0') || 0;
         await emisionPage.emitirConEfectivoExacto();
@@ -120,7 +120,7 @@ test.describe('PV-16 | Anulación de Nota de Venta con retorno de stock', {
             nombreCaja,
         });
 
-        // Anular desde Búsqueda
+        
         await cajero.realiza(
             AnularNotaVentaDesdeBusqueda({
                 correlativo,

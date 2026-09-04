@@ -15,11 +15,11 @@ export const VincularComprobante = (datos: DatosVinculacion) => {
 
         await VincularComprobanteTargets.btnVincularComprobante(page).click();
 
-        // Click en Factura/Boleta y espera explícita a que los inputs se habiliten
+        
         await VincularComprobanteTargets.opcionTipoDocumento(page, datos.tipoDocumento).click();
         await esperarCargaOverlaySiVisible(page);
 
-        // Espera a que el selector de serie y el input correlativo dejen de estar disabled
+        
         const selectorSerie = VincularComprobanteTargets.selectorSerie(page);
         const inputCorrelativo = VincularComprobanteTargets.inputCorrelativo(page);
         await expect(selectorSerie).toBeEnabled({timeout: 15_000});

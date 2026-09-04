@@ -602,7 +602,7 @@ async function main(): Promise<void> {
                     message: [
                         'Error: La cotización 137 debería mostrar Facturado="SI" tras convertir desde detalle. Valores encontrados: ["No"]',
                         '',
-                        'expect(received).toBe(expected) // Object.is equality',
+                        'expect(received).toBe(expected)// Object.is equality',
                         '',
                         'Expected: true',
                         'Received: false',

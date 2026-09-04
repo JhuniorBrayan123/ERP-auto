@@ -14,7 +14,7 @@ const CLIENTE = CLIENTES.EMPRESA_RUC_AUTO;
 const ITEM = ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL;
 const tiposComprobante = ['BOLETA', 'FACTURA', 'NOTA DE VENTA'] as const;
 
-/** Crea un pedido base propio por test (un pedido solo se convierte UNA vez). */
+
 async function crearPedido(vendedor: Cajero): Promise<string> {
     const pedido = await vendedor.realizaYObtiene(
         CrearPedidoVF({cliente: CLIENTE, items: [ITEM]})
@@ -24,8 +24,7 @@ async function crearPedido(vendedor: Cajero): Promise<string> {
     return numeroPedido;
 }
 
-/** Cierra el modal post-emisión ("Nueva Venta") si quedó visible. No-bloqueante:
- * el modal puede auto-cerrarse tras la emisión; si ya no está, no debe fallar. */
+
 async function cerrarPostEmision(page: Page): Promise<void> {
     const btnNuevaVenta = page.getByRole('button', {name: 'Nueva Venta'});
     if (await btnNuevaVenta.isVisible({timeout: 1_000}).catch(() => false)) {
@@ -33,12 +32,7 @@ async function cerrarPostEmision(page: Page): Promise<void> {
     }
 }
 
-/**
- * Validación integrada: tras convertir el Pedido desde detalle, el pedido origen
- * DEBE mostrar Facturado = "SI"/"Sí" en Búsqueda de Comprobantes. Si el producto
- * muestra "No", el test FALLA y evidencia el bug B001-631 (no se silencia ni se
- * hace skip).
- */
+
 async function validarFacturadoSi(vendedor: Cajero, numeroPedido: string): Promise<void> {
     await vendedor.realiza(
         IrABusquedaComprobantes(),
@@ -55,9 +49,9 @@ async function validarFacturadoSi(vendedor: Cajero, numeroPedido: string): Promi
     ).toBe(true);
 }
 
-// Los tests de conversión crean su PROPIO pedido (un pedido solo se convierte
-// una vez) → no comparten setup → se desacoplan de la cascada serial de Clonar
-// (cada describe es independiente).
+
+
+
 test.describe.serial('FC-PD-CONVERTIR | Convertir Pedido desde Ver Comprobante', {
     tag: ['@facturacion', '@pedido']
 }, () => {
@@ -67,7 +61,7 @@ test.describe.serial('FC-PD-CONVERTIR | Convertir Pedido desde Ver Comprobante',
             const numeroPedido = await crearPedido(vendedor);
             await cerrarPostEmision(page);
 
-            // Camino C: Ver Comprobante → "Convertir a" → tipo destino → pago → EmisionResult
+            
             const emision = await vendedor.realizaYObtiene(
                 ConvertirComprobanteDesdeDetalle(numeroPedido, 'PEDIDO', tipo)
             );
@@ -82,9 +76,9 @@ test.describe.serial('FC-PD-CONVERTIR | Convertir Pedido desde Ver Comprobante',
         });
     }
 
-    // Segundo camino del wizard de conversión (decisión D7 del design): en vez de
-    // "Emitir ahora" (misma popup), "Editar antes de emitir" abre una ventana nueva
-    // con la lista de cajas y paga desde la caja cargada.
+    
+    
+    
     test('Convertir Boleta con modo "Editar antes de emitir" @FC-PD.ConvertirEditarAntes', async ({vendedor, page}) => {
         const numeroPedido = await crearPedido(vendedor);
         await cerrarPostEmision(page);
@@ -108,12 +102,12 @@ test.describe('FC-PD-CLONAR | Clonar Pedido desde Ver Comprobante', {
         const numeroPedido = await crearPedido(vendedor);
         await cerrarPostEmision(page);
 
-        // Clonar desde Ver Comprobante → caja VENTA → se abre venta con datos del origen
+        
         const popupVenta = await vendedor.realizaYObtiene(
             ClonarComprobanteDesdeDetalle.haciaCaja(numeroPedido, 'PEDIDO', CAJAS.VENTA.nombre)
         );
 
-        // Datos transferidos (patrón BC-21.1): cliente + item visibles en el popup de emisión
+        
         await expect(popupVenta.getByRole('main')).toContainText(
             CLIENTE.nombre, {timeout: 30_000},
         );

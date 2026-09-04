@@ -40,10 +40,10 @@ test.describe.serial('FC-PD-PAGAR-CAJA | Pagar Pedido en caja generando Boleta/F
                 await postEmisionPage.clickNuevaVenta();
             }
 
-            // Cargar el pedido en la caja vía búsqueda directa (sección
-            // "Buscar pedido existente", inline en la vista PEDIDO del UI actual).
-            // NOTA: el botón "Buscar pedidos" (flujo de lista) ya no existe en el
-            // producto; CargarPedidoDesdeLista quedó obsoleto (ver reporte).
+            
+            
+            
+            
             await vendedor.realiza(SeleccionarTipoComprobante('PEDIDO'));
 
             const inputCorrelativo = PedidoTargets.inputCorrelativo(page);
@@ -60,9 +60,9 @@ test.describe.serial('FC-PD-PAGAR-CAJA | Pagar Pedido en caja generando Boleta/F
 
             expect(Number(emision.correlativo)).toBeGreaterThan(0);
 
-            // Validación integrada: tras transformar el Pedido → Boleta/Factura/NV,
-            // el pedido origen DEBE mostrar Facturado = "SI" en Búsqueda de Comprobantes.
-            // Si el producto muestra "No", el test FALLA y evidencia el bug (no silenciar).
+            
+            
+            
             await vendedor.realiza(
                 IrABusquedaComprobantes(),
                 FiltrarComprobantePorTipo('PEDIDOS')

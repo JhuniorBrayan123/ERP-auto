@@ -28,11 +28,11 @@ export const VerificarVendedorNoEnCaja = (documento: string) => {
     return fn;
 };
 
-// Helper: mostrar vendedores inactivos en el listado (filtro avanzado -> checkbox Estado)
+
 const MostrarVendedoresInactivosEnListado = () => {
     const fn = async (page: Page): Promise<void> => {
         await VendedoresTargets.btnFiltrosAvanzados(page).click();
-        // Usar el checkbox del filtro avanzado para estado (EntidadesTargets.checkboxFiltroEstado)
+        
         await EntidadesTargets.checkboxFiltroEstado(page, 'Inactivo').click();
         await page.waitForTimeout(1000);
         await esperarCargaOverlay(page);
@@ -41,12 +41,12 @@ const MostrarVendedoresInactivosEnListado = () => {
     return fn;
 };
 
-// Helper: esperar a que aparezca la fila del vendedor y clickear su menú contextual
+
 const ClickMenuContextualVendedor = (documento: string) => {
     const fn = async (page: Page): Promise<void> => {
-        // Esperar a que la fila exista en el tbody
+        
         await VendedoresTargets.tbody(page).getByText(documento).first().waitFor({ state: 'visible', timeout: 15_000 });
-        // Click en el botón de acciones (tres puntos) de esa fila
+        
         await VendedoresTargets.opcionesFilaPorVendedor(page, documento).click();
     };
     fn.displayName = `Click menú contextual vendedor: ${documento}`;

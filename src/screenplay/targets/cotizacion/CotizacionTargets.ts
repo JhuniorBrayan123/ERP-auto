@@ -86,5 +86,5 @@ export const CotizacionTargets = {
         page.getByText('No se encontró el comprobante con los datos ingresados. Por favor, verifica e intenta nuevamente.'),
 
     mensajeSinItems: (page: Page) =>
-        page.getByText('No puedes realizar un pago porque no tienes ítems seleccionados'),
+        page.getByText('No puedes realizar esta operación porque no tienes ítems seleccionados'),
 };

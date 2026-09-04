@@ -49,9 +49,9 @@ test.describe.serial('FC-PD-GENERAR | Generar Comprobantes desde Pedido', {
                 expect(emision.serie).toMatch(/^NV/);
             }
 
-            // Validación integrada: tras transformar el Pedido → Boleta/Factura/NV,
-            // el pedido origen DEBE mostrar Facturado = "SI" en Búsqueda de Comprobantes.
-            // Si el producto muestra "No", el test FALLA y evidencia el bug B001-631 (no silenciar).
+            
+            
+            
             await vendedor.realiza(
                 IrABusquedaComprobantes(),
                 FiltrarComprobantePorTipo('PEDIDOS')
