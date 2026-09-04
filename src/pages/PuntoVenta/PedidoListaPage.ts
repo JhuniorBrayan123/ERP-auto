@@ -12,7 +12,9 @@ export class PedidoListaPage {
     private get btnListarPedidos(): Locator {
         return this.page.getByText('Ver todos');
     }
-
+    private get btnBuscarPedidoFacturacion(): Locator {
+        return this.page.getByText('Ver todos los pedidos');
+    }
 
     private get inputNroPedido(): Locator {
         return this.page.getByRole('textbox', {name: 'N° de pedido'});
@@ -32,6 +34,9 @@ export class PedidoListaPage {
 
     async clickBuscarPedidos(): Promise<void> {
         await this.btnBuscarPedidos.click();
+    }
+    async buscarEnFacturacion():Promise<void>{
+        await this.btnBuscarPedidoFacturacion.click()
     }
 
     async clickVerTodos(): Promise<void> {
