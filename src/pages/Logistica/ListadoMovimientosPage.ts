@@ -1,6 +1,6 @@
 import {type Download, Locator, type Page} from '@playwright/test';
-import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
-import {expectVisibleFunctional, runFunctionalAction} from '../../utils/functional-step';
+import {FUNCTIONAL_CATALOG} from '@utils/functional-catalog';
+import {expectVisibleFunctional, runFunctionalAction} from '@utils/functional-step';
 
 export class ListadoMovimientosPage {
     constructor(private readonly page: Page) {
