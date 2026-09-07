@@ -58,8 +58,12 @@ export class EdicionItemPage {
     async selectAffectationType(optionText: string): Promise<void> {
         await this.waitForFormLoad();
 
-        await this.page
-            .locator('.v-select-header-form-arrow.form.form-control')
+        const affectationSelect = this.page
+            .locator('.v-select.form.form-control')
+            .first();
+
+        await affectationSelect
+            .locator('.v-select-header-form-arrow')
             .click();
 
         const dropdownMenu = this.page.locator('.v-select-base-options.is-open');
