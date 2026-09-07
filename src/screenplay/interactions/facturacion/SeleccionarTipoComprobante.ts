@@ -1,5 +1,5 @@
-import { type Page } from '@playwright/test';
-import { esperarCargaOverlay } from '@utils/wait-helpers';
+import {type Page} from '@playwright/test';
+import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
 
 type TipoComprobante = 'BOLETA' | 'FACTURA' | 'NOTA DE VENTA' | 'COTIZACION' | 'COTIZACIÓN' | 'PEDIDO';
 
@@ -22,9 +22,8 @@ const TEXTO_EN_UI: Record<string, string> = {
 
 export const SeleccionarTipoComprobante = (tipo: TipoComprobante) => {
     const fn = async (page: Page): Promise<void> => {
-        await esperarCargaOverlay(page).catch(() => {});
-
-        
+        await esperarCargaOverlaySiVisible(page).catch(() => {
+        });
         await page.getByText('BOLETA').first().click().catch(() =>
             page.getByText(TEXTO_EN_UI[tipo] ?? tipo).first().click()
         );
