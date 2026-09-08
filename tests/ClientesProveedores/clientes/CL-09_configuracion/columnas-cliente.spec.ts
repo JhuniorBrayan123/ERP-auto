@@ -15,11 +15,11 @@ test.describe('CL-09 | Configuración de Columnas', {tag: ['@clientes', '@config
     test('SC-01: Ocultar y mostrar columnas opcionales @CL-09.1', async ({cliente, page}) => {
 
         await cliente.realiza(AbrirConfiguracionColumnas());
-        await cliente.realiza(ToggleColumnaVisible('Correo'));
+        await cliente.realiza(ToggleColumnaVisible('Correo', 'ocultar'));
         await cliente.realiza(GuardarConfiguracionColumnas());
         await cliente.realiza(ColumnaInvisibleEnTabla('Correo'));
         await cliente.realiza(AbrirConfiguracionColumnas());
-        await cliente.realiza(ToggleColumnaVisible('Correo'));
+        await cliente.realiza(ToggleColumnaVisible('Correo', 'mostrar'));
         await cliente.realiza(GuardarConfiguracionColumnas());
         await cliente.realiza(ColumnaVisibleEnTabla('Correo'));
     });

@@ -234,6 +234,9 @@ export const ClientesTargets = {
     checkboxColumna: (page: Page, nombreCampo: string) =>
         page.locator('.item', {hasText: nombreCampo}).locator('.v-checkbox-grid-label > span'),
 
+    checkboxInputColumna: (page: Page, nombreCampo: string) =>
+        page.locator('.item', {hasText: nombreCampo}).locator('input[type="checkbox"]'),
+
     thead: (page: Page) =>
         page.locator('thead'),
 
