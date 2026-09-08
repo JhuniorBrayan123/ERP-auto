@@ -1,5 +1,6 @@
 import {type Page} from '@playwright/test';
 import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
+import {esperarCargaGrillaComprobantes} from '../wait-helpers';
 import type {BcCategoria, BcPresetFecha} from '@helpers/PuntoVenta/busqueda-comprobantes.data';
 
 export class ComprobantesFiltrosComponent {
@@ -14,6 +15,8 @@ export class ComprobantesFiltrosComponent {
     }
 
     async abrirFiltrosAvanzados(): Promise<void> {
+        await esperarCargaGrillaComprobantes(this.page);
+
         const btn = this.page.locator(
             '[id="pv_comprobantes_cmp-filtros-comprobantes:state_v-button-filter-border:activar-filtros-avanzados"]',
         );
@@ -26,6 +29,8 @@ export class ComprobantesFiltrosComponent {
     }
 
     async aplicarFiltros(): Promise<void> {
+        await esperarCargaGrillaComprobantes(this.page);
+
         await this.page.getByRole('button', {name: 'Aplicar filtros'}).click();
         await esperarCargaOverlaySiVisible(this.page);
     }
