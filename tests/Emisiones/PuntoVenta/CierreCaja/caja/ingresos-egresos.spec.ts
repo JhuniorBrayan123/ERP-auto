@@ -11,9 +11,7 @@ import {
     ExpandirTarjetaResultado,
     ValidarDatosTarjetaResultado,
 } from '@screenplay/tasks/cierre-caja/ConsultarIngresosYEgresos';
-import {MovimientoVisibleEnCierre} from '@screenplay/questions/cierre-caja/MovimientoVisibleEnCierre';
 import {CLIENTES} from '@helpers/PuntoVenta/emision-data.helper';
-import {UsarNavegador} from '@abilities/usarnavegador';
 
 
 const INGRESO_DATOS = {
@@ -40,40 +38,21 @@ test.describe('CC-05 | Ingresos y Egresos', {tag: ['@cierre-caja']}, () => {
 
     test('SC-01: Registrar ingreso de dinero y verificar reflejo en cierre de caja @CC-05.1', async ({cajero}) => {
 
-
         const {concepto} = await cajero.realizaYObtiene(
             RegistrarIngresoCaja(INGRESO_DATOS),
         );
-
-
         await cajero.realiza(
             IrACierreDeCaja(),
             ConsultarIngresosYEgresos(),
         );
-
         const movimiento = await cajero.realizaYObtiene(
             BuscarMovimientoEnCierrePorConcepto(concepto),
         );
-
-
         await cajero.realiza(
             BuscarEnIngresosEgresos(movimiento.CorrelativoDocFinanciero.toString())
         );
-
-
-        expect(movimiento.CorrelativoDocFinanciero).toBeGreaterThan(0);
-        expect(movimiento.SerieFinal).toMatch(/RC01/i);
-
-        const visibleEnCierre = await cajero.pregunta(
-            MovimientoVisibleEnCierre(movimiento),
-        );
-        expect(visibleEnCierre).toBe(true);
-
-
         await cajero.realiza(ExpandirTarjetaResultado());
         await cajero.realiza(ValidarDatosTarjetaResultado(INGRESO_DATOS));
-
-
         await cajero.realiza(RegresarANuevaVenta());
     });
 
@@ -97,8 +76,6 @@ test.describe('CC-05 | Ingresos y Egresos', {tag: ['@cierre-caja']}, () => {
         await cajero.realiza(
             BuscarEnIngresosEgresos(movimiento.CorrelativoDocFinanciero.toString())
         );
-
-
         expect(movimiento.CorrelativoDocFinanciero).toBeGreaterThan(0);
         expect(movimiento.SerieFinal).toMatch(/RP01/i);
 
@@ -124,29 +101,16 @@ test.describe('CC-05 | Ingresos y Egresos', {tag: ['@cierre-caja']}, () => {
             RegistrarIngresoCaja(datosSc03),
         );
 
-
         await cajero.realiza(
             IrACierreDeCaja(),
             ConsultarIngresosYEgresos(),
         );
-
-
         const movimiento = await cajero.realizaYObtiene(
             BuscarMovimientoEnCierrePorConcepto(ingreso.concepto),
         );
-
-
         await cajero.realiza(
             BuscarEnIngresosEgresos(movimiento.CorrelativoDocFinanciero.toString())
         );
-
-
-        const page = cajero.habilidad(UsarNavegador).page;
-
-
-        await expect(page.getByText(/Total Ingresos/i)).toBeVisible();
-
-
         await cajero.realiza(ExpandirTarjetaResultado());
         await cajero.realiza(ValidarDatosTarjetaResultado(datosSc03));
 

@@ -6,9 +6,6 @@ export const CierreCajaTargets = {
         contenedorPrincipal: (page: Page) =>
         page.locator('[id="single-spa-application:@sreasons/erp-mf-punto-venta"]'),
 
-        tituloCajaVenta: (page: Page) =>
-        page.getByText('Caja de venta').nth(1),
-
         tabVentas: (page: Page) =>
         page.locator('#tab-ventas').nth(1),
 
@@ -29,6 +26,9 @@ export const CierreCajaTargets = {
 
         tabResumenCaja: (page: Page) =>
         page.getByText('Resumen de caja', { exact: true }).nth(1),
+
+        tituloResumenCaja: (page: Page) =>
+        page.getByText('Resumen de caja', { exact: true }).first(),
 
         btnDescargar: (page: Page) =>
         page.getByText('Descargar', { exact: true }),

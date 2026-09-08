@@ -26,6 +26,12 @@ export const IngresosEgresosTargets = {
         inputBuscarPersona: (page: Page) =>
         page.getByRole('textbox', { name: /Busca por nombre o documento/i }),
 
+        dropdownResultadosPersona: (page: Page) =>
+        page.locator('[id*="filtrar-entidad"]'),
+
+        articulosResultadosPersona: (page: Page) =>
+        page.locator('[id*="filtrar-entidad"] article'),
+
         btnRegistrarIngreso: (page: Page) =>
         page.getByRole('button', { name: /Registrar ingreso/i }),
 

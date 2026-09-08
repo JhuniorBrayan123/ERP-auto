@@ -1,6 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 import { MenuCajaTargets } from '@screenplay/targets/caja/MenuCajaTargets';
 import { IngresosEgresosTargets } from '@screenplay/targets/cierre-caja/IngresosEgresosTargets';
+import { esperarCargaOverlaySiVisible } from '@utils/wait-helpers';
 
 export interface DatosEgresoCaja {
         categoria: string;
@@ -38,8 +39,12 @@ export const RegistrarEgresoCaja = (datos: DatosEgresoCaja) => {
 
         
         await IngresosEgresosTargets.inputBuscarPersona(page).fill(datos.documentoPersona);
-        
-        await page.locator('article').filter({ hasText: datos.textoSelectorPersona }).first().click();
+        await IngresosEgresosTargets.inputBuscarPersona(page).press('Enter');
+        await esperarCargaOverlaySiVisible(page).catch(() => {});
+        await IngresosEgresosTargets.articulosResultadosPersona(page)
+            .filter({ hasText: datos.documentoPersona })
+            .first()
+            .click();
 
         
         await IngresosEgresosTargets.btnRegistrarEgreso(page).click();
