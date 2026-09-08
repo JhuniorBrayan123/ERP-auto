@@ -60,6 +60,7 @@ test.describe('BC-05 | Estados y acciones', {tag: ['@busqueda']}, () => {
             {timeout: 30_000},
         );
         await page.getByText('Emitir', {exact: true}).click();
+        await esperarCargaOverlaySiVisible(page);
         await page.getByRole('button', {name: 'Emitir'}).click();
         const emitResponse = await emitResponsePromise;
         const emitBody = await emitResponse.json();

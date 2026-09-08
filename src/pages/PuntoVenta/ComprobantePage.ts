@@ -1,4 +1,4 @@
-import {type Page} from '@playwright/test';
+import {expect, type Page} from '@playwright/test';
 import type {TipoComprobante} from '@app-types/emision.types';
 import {throwFunctionalError} from '@utils/functional-error';
 import {FUNCTIONAL_CATALOG} from '@utils/functional-catalog';
@@ -11,7 +11,8 @@ const TIPO_COMPROBANTE_ID: Record<TipoComprobante, number> = {
     'COTIZACIÓN': 3007,
     'PEDIDO': 2011,
     'NOTA DE CRÉDITO': 1005,
-    'NOTA DE DÉBITO': 1006
+    'NOTA DE DÉBITO': 1006,
+    'GUÍA DE REMISIÓN REMITENTE': 3005
 };
 
 export class ComprobantePage {
@@ -32,6 +33,9 @@ export class ComprobantePage {
 
             await this.abrirSelectorTipo();
             await optionLocator.getByText(tipo).click();
+            await expect(
+                this.page.locator('.v-select-header-small .v-text.bold').first()
+            ).not.toHaveText('Seleccionar', {timeout: 30_000});
         } catch (error) {
             await throwFunctionalError({
                 page: this.page,
@@ -74,5 +78,10 @@ export class ComprobantePage {
     async seleccionarNotaDebito(): Promise<void> {
         await esperarCargaOverlaySiVisible(this.page);
         await this.seleccionarTipoComprobante('NOTA DE DÉBITO');
+    }
+
+    async seleccionarGuiaRemisionRemitente(): Promise<void> {
+        await esperarCargaOverlaySiVisible(this.page);
+        await this.seleccionarTipoComprobante('GUÍA DE REMISIÓN REMITENTE');
     }
 }

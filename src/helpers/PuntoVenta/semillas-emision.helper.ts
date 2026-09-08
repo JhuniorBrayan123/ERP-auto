@@ -81,12 +81,7 @@ export async function crearGuiaRemisionGuardada(page: Page): Promise<Comprobante
     const guia = new GuiaRemitentePage(page);
 
     await irACaja(page, caja);
-    await esperarCargaOverlaySiVisible(page);
-
-    await comprobante.abrirSelectorTipo();
-    await page.locator(
-        '[id="pv_punto-venta_cmp-venta-pedido_cmp-pedido-header_v-select:tipo-comprobante_v-option:opcion-3005"]',
-    ).click();
+    await comprobante.seleccionarGuiaRemisionRemitente();
     await guia.esperarFormularioEstable();
 
     await guia.seleccionarDestinatario(DNI_DESTINATARIO, DNI_DESTINATARIO);

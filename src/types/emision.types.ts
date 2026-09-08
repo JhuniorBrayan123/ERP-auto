@@ -5,7 +5,8 @@ export type TipoComprobante =
     | 'COTIZACIÓN'
     | 'PEDIDO'
     | 'NOTA DE CRÉDITO'
-    | 'NOTA DE DÉBITO';
+    | 'NOTA DE DÉBITO'
+    | 'GUÍA DE REMISIÓN REMITENTE';
 
 export interface DatosCliente {
 

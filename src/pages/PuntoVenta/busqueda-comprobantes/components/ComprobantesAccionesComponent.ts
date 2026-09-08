@@ -84,6 +84,7 @@ export class ComprobantesAccionesComponent {
 
     async emitirGuiaRemisionGuardada(): Promise<void> {
         await this.page.getByText('Emitir', {exact: true}).click();
+        await esperarCargaOverlaySiVisible(this.page);
         await this.page.getByRole('button', {name: 'Emitir'}).click();
         await esperarCargaOverlaySiVisible(this.page);
     }
