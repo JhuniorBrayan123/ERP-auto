@@ -1,7 +1,7 @@
 import {type Page} from '@playwright/test';
 import {ConductoresTargets} from '@screenplay/targets/clientes-proveedores/ConductoresTargets';
 import {DatosConductorInput} from '@data/clientes-proveedores/conductores.data';
-import {esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
+import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
 
 export const AbrirCrearConductor = () => {
     const fn = async (page: Page): Promise<void> => {
@@ -98,6 +98,7 @@ export const CerrarModalExitoConductor = () => {
 
 export const IntentarCrearConductor = (datos: DatosConductorInput) => {
     const fn = async (page: Page): Promise<void> => {
+        await esperarCargaOverlay(page);
         await ConductoresTargets.btnCrearConductor(page).click();
         await LlenarFormularioBasicoConductor(datos)(page);
         await ConductoresTargets.btnCrearConductorForm(page).click();

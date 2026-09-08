@@ -10,15 +10,10 @@ export const AbrirConfiguracionColumnas = () => {
 
 export const SeleccionarColumna = (nombreColumna: string) => {
     const fn = async (page: Page): Promise<void> => {
-        
-        
-        const checkbox = page.locator('label').filter({hasText: nombreColumna}).locator('span').first();
-        if (await checkbox.isVisible()) {
-            await checkbox.click();
-        } else {
-            
-            await page.locator('.v-checkbox-grid-label > span').first().click();
-            await page.locator('div:nth-child(8) > .text > .v-checkbox > .v-checkbox-base > .v-checkbox-grid-label > span').click();
+        const item = page.locator('.item', {hasText: nombreColumna});
+        const estaMarcada = await item.locator('input[type="checkbox"]').isChecked();
+        if (!estaMarcada) {
+            await item.locator('.v-checkbox-grid-label > span').first().click();
         }
     };
     fn.displayName = `Seleccionar columna: ${nombreColumna}`;
