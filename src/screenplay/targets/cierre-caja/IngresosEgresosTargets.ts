@@ -45,4 +45,28 @@ export const IngresosEgresosTargets = {
         page.locator('[id="pv_punto-venta_cmp-response-ingreso-egreso_v-button:imprimir-a4"]')
             .locator('xpath=ancestor::div[contains(@class,"modal")]')
             .getByText(/RC01-|RP01-/i),
+
+        tarjetaResultado: (page: Page) =>
+        page.locator('.v-card.handler-header'),
+
+        iconoExpandirTarjetaResultado: (page: Page) =>
+        page.locator('.v-card.handler-header .card-icon-handler'),
+
+        cuerpoTarjetaResultado: (page: Page) =>
+        page.locator('.v-card.handler-header .v-card-content .item-body'),
+
+        montoTarjetaResultado: (page: Page) =>
+        page.locator('.v-card.handler-header .v-card-heading .pago-info span').first(),
+
+        metodoPagoTarjetaResultado: (page: Page) =>
+        page.locator('.v-card.handler-header .v-card-heading .pago-info span').nth(1),
+
+        nombrePersonaTarjetaResultado: (page: Page) =>
+        page.locator('.v-card.handler-header .v-card-content .item-body .empresa-data .nombre'),
+
+        documentoPersonaTarjetaResultado: (page: Page) =>
+        page.locator('.v-card.handler-header .v-card-content .item-body .empresa-data .documento'),
+
+        categoriaMotivoTarjetaResultado: (page: Page) =>
+        page.locator('.v-card.handler-header .v-card-content .item-body .empresa-data .categoria'),
 };
