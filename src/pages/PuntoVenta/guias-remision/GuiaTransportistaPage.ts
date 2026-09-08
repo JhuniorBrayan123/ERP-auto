@@ -1,5 +1,5 @@
 import {expect, type Locator, type Page} from '@playwright/test';
-import {esperarCargaOverlay, esperarDebounce} from '@utils/wait-helpers';
+import {esperarCargaOverlaySiVisible, esperarDebounce} from '@utils/wait-helpers';
 
 export class GuiaTransportistaPage {
     constructor(public readonly page: Page) {
@@ -84,7 +84,7 @@ export class GuiaTransportistaPage {
             .filter({hasText: new RegExp(documento)})
             .first()
             .click();
-        await esperarCargaOverlay(this.page);
+        await esperarCargaOverlaySiVisible(this.page);
     }
     async seleccionarRemitente(documento: string) {
         const input = this.page.locator('input[id="pv_cmp-guia-remision-transportista_cmp-card-inicio:form-inicio-remitente_v-input:filtrar-entidad"]');
@@ -96,7 +96,7 @@ export class GuiaTransportistaPage {
             .filter({hasText: new RegExp(documento)})
             .first()
             .click();
-        await esperarCargaOverlay(this.page);
+        await esperarCargaOverlaySiVisible(this.page);
     }
 
     async seleccionarDestinatario(documento: string) {
@@ -138,7 +138,7 @@ export class GuiaTransportistaPage {
             .filter({hasText: new RegExp(documento)})
             .first()
             .click();
-        await esperarCargaOverlay(this.page);
+        await esperarCargaOverlaySiVisible(this.page);
     }
 
     async seleccionarRetorno(tipo: 'Retorno de vehículo con envases o embalajes vacíos' | 'Retorno de vehículo vacío' | 'Transporte subcontratado') {
@@ -149,7 +149,7 @@ export class GuiaTransportistaPage {
         await this.page.locator('.v-select-base-options.is-open')
             .getByText(tipo, {exact: true})
             .click();
-        await esperarCargaOverlay(this.page);
+        await esperarCargaOverlaySiVisible(this.page);
     }
 
     async seleccionarSubcontratador(documento: string) {
@@ -164,7 +164,7 @@ export class GuiaTransportistaPage {
             .filter({hasText: new RegExp(documento)})
             .first()
             .click();
-        await esperarCargaOverlay(this.page);
+        await esperarCargaOverlaySiVisible(this.page);
     }
 
     async seleccionarPagadorFlete(tipo: 'remitente' | 'destinatario' | 'otros_terceros' | 'subcontratador') {
@@ -178,7 +178,7 @@ export class GuiaTransportistaPage {
         await this.page.locator('.v-select-base-options.is-open')
             .getByText(label[tipo], {exact: true})
             .click();
-        await esperarCargaOverlay(this.page);
+        await esperarCargaOverlaySiVisible(this.page);
     }
 
     async completarPagadorFleteData(documento: string): Promise<void> {
@@ -219,7 +219,7 @@ export class GuiaTransportistaPage {
         await expect(opcion).toBeVisible({timeout: 10_000});
         await opcion.click();
         await esperarDebounce(this.page, 300, 'Esperando cierre de ubigeo');
-        await esperarCargaOverlay(this.page);
+        await esperarCargaOverlaySiVisible(this.page);
     }
 
     private async resolverInputPuntoLlegada(): Promise<Locator> {
@@ -271,7 +271,7 @@ export class GuiaTransportistaPage {
         correlativo: string,
         rucProveedor: string
     ) {
-        await esperarCargaOverlay(this.page);
+        await esperarCargaOverlaySiVisible(this.page);
         const botonVincular = this.page.locator('[id="pv_cmp-guia-remision-transportista_cmp-head-guia:form-head_v-button:vincular-comprobante"]');
         await botonVincular.first().click();
         await this.page.locator('[id="pv_cmp-guia-remision-transportista_agregar-comprobante:form-drape-agregar-comprobante_v-button:agrega-comprobante"]').first().click();

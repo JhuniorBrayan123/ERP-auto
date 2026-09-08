@@ -6,7 +6,7 @@ import type {
     ClienteSetupData,
     VendedorData,
 } from '@helpers/PuntoVenta/punto-venta-setup-data.helper';
-import {esperarCargaOverlay} from "@utils/wait-helpers";
+import {esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
 
 export class PuntoVentaSetupPage {
     private readonly clientePage: ClientePage;
@@ -310,7 +310,7 @@ export class PuntoVentaSetupPage {
         console.log(`   Verificando conductor ${datos.documento}...`);
 
         await this.navegarAConductores();
-        await esperarCargaOverlay(this.page)
+        await esperarCargaOverlaySiVisible(this.page)
         const existe = await this.conductorExiste(datos.documento);
 
         if (existe) {

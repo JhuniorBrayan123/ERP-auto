@@ -1,7 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 import { ClientesTargets } from '@screenplay/targets/clientes-proveedores/ClientesTargets';
 import type { DatosClienteInput } from '@data/clientes-proveedores/clientes.data';
-import { esperarCargaOverlay } from '@utils/wait-helpers';
+import { esperarCargaOverlaySiVisible } from '@utils/wait-helpers';
 
 export const NavegarAClientes = () => {
     const fn = async (page: Page): Promise<void> => {
@@ -125,7 +125,7 @@ export const CerrarModalExito = () => {
         try {
             await btn.waitFor({state: 'visible', timeout: 2_000});
             await btn.click();
-            await esperarCargaOverlay(page).catch(() => { });
+            await esperarCargaOverlaySiVisible(page).catch(() => { });
         } catch {
             
         }
@@ -155,7 +155,7 @@ export const CrearCliente = (datos: DatosClienteInput) => {
         }
 
         await ClickCrearCliente()(page);
-        await esperarCargaOverlay(page);
+        await esperarCargaOverlaySiVisible(page);
         await expect(ClientesTargets.mensajeBuenTrabajo(page)).toBeVisible({ timeout: 30_000 });
         await expect(ClientesTargets.mensajeExitoCreacion(page)).toBeVisible();
         await CerrarModalExito()(page);

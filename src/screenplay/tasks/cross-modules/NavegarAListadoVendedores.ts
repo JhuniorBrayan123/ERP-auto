@@ -1,10 +1,10 @@
 import {Page} from "@playwright/test";
-import {esperarCargaOverlay} from "@utils/wait-helpers";
+import {esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
 
 export const NavegarAListadoVendedores = () => {
     const fn = async (page: Page): Promise<void> => {
         await page.goto('/punto-venta/entidades/vendedores');
-        await esperarCargaOverlay(page);
+        await esperarCargaOverlaySiVisible(page);
     };
     fn.displayName = 'Navegar a Listado de Vendedores';
     return fn;

@@ -13,7 +13,7 @@ import {ComprobantePage} from '@pages/PuntoVenta/ComprobantePage';
 import {ClientePage} from '@pages/PuntoVenta/ClientePage';
 import {CajaPage} from '@pages/PuntoVenta/CajaPage';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
-import {esperarCargaOverlay} from "@utils/wait-helpers";
+import {esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
 import {EmitirCotizacion} from "@task/PuntoVenta/EmitirCotizacion.task";
 
 test.describe('BC-12 | Generar nota de crédito desde una factura', {tag: ['@busqueda']}, () => {
@@ -89,7 +89,7 @@ test.describe('BC-12 | Generar nota de crédito desde una factura', {tag: ['@bus
             });
 
             await test.step('Then: la pantalla de nota de crédito carga con datos de la factura', async () => {
-                await esperarCargaOverlay(popupPage);
+                await esperarCargaOverlaySiVisible(popupPage);
                 await expect(popupPage.getByText(
                     ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre,
                 )).toBeVisible({timeout: 30_000});

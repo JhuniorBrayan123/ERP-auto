@@ -1,7 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 import { MenuCajaTargets } from '@screenplay/targets/caja/MenuCajaTargets';
 import { CobrosPagosTargets } from '@screenplay/targets/cierre-caja/CobrosPagosTargets';
-import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
+import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
 import { capturarIdDocFinancieroCobro } from '@services/PuntoVenta/CajaMovimientosApi';
 
 export interface DatosCobro {
@@ -19,8 +19,8 @@ export const IrACobros = () => {
     const fn = async (page: Page): Promise<void> => {
         await MenuCajaTargets.btnAbrirMenu(page).click();
         await MenuCajaTargets.opcionCobros(page).click();
-        
-        await esperarCargaOverlay(page);
+
+        await esperarCargaOverlaySiVisible(page);
         
         await expect(page.getByRole('button', { name: /^Buscar$/i })).toBeVisible({ timeout: 10_000 });
     };

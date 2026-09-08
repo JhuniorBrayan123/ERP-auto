@@ -8,7 +8,7 @@ import { GuardarDatosVenta } from '@screenplay/tasks/cross-modules/GuardarDatosV
 import { EliminarVendedor } from '@screenplay/tasks/clientes-proveedores/vendedores/EliminarVendedor';
 import { VendedoresTargets } from '@screenplay/targets/clientes-proveedores/VendedoresTargets';
 import { EntidadesTargets } from '@screenplay/targets/clientes-proveedores/EntidadesTargets';
-import { esperarCargaOverlay } from '@utils/wait-helpers';
+import { esperarCargaOverlaySiVisible } from '@utils/wait-helpers';
 
 export const CrearYDesactivarVendedor = (documento: string) => {
     const fn = async (page: Page): Promise<void> => {
@@ -35,7 +35,7 @@ const MostrarVendedoresInactivosEnListado = () => {
         
         await EntidadesTargets.checkboxFiltroEstado(page, 'Inactivo').click();
         await page.waitForTimeout(1000);
-        await esperarCargaOverlay(page);
+        await esperarCargaOverlaySiVisible(page);
     };
     fn.displayName = 'Mostrar vendedores inactivos en listado';
     return fn;
@@ -57,7 +57,7 @@ export const ActivarVendedorYVerificarEnCaja = (documento: string) => {
     const fn = async (page: Page): Promise<void> => {
         await NavegarAListadoVendedores()(page);
         await BuscarVendedorEnListado(documento)(page);
-        await esperarCargaOverlay(page);
+        await esperarCargaOverlaySiVisible(page);
         await AbrirAccionContextualVendedor('Activar vendedor')(page);
 
         await NavegarACajaPos()(page);

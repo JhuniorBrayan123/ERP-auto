@@ -1,7 +1,7 @@
 import {expect, type Page} from '@playwright/test';
 import type {ComprobanteInfo} from '@helpers/PuntoVenta/busqueda-comprobantes.data';
 import {ComprobantesAccionesComponent} from './ComprobantesAccionesComponent';
-import {esperarCargaOverlay} from '@utils/wait-helpers';
+import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
 
 export class ComprobantesBitacoraComponent {
     constructor(private readonly page: Page) {
@@ -129,7 +129,7 @@ export class ComprobantesBitacoraComponent {
 
         while (Date.now() < deadline) {
             await this.page.locator('.drape.is-open').waitFor({state: 'visible', timeout: 5_000});
-            await esperarCargaOverlay(this.page);
+            await esperarCargaOverlaySiVisible(this.page);
 
             const drapeText = await this.page.locator('.drape.is-open').innerText().catch(() => '');
             const faltantes = eventos.filter(e => !drapeText.includes(e));
@@ -164,7 +164,7 @@ export class ComprobantesBitacoraComponent {
 
         while (Date.now() < deadline) {
             await this.page.locator('.drape.is-open').waitFor({state: 'visible', timeout: 5_000});
-            await esperarCargaOverlay(this.page);
+            await esperarCargaOverlaySiVisible(this.page);
 
             const drapeText = await this.page.locator('.drape.is-open').innerText().catch(() => '');
             const faltantes = eventos.filter(e => !drapeText.includes(e));

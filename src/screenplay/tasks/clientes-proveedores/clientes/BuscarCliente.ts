@@ -1,6 +1,6 @@
 import {expect, type Page} from '@playwright/test';
 import {ClientesTargets} from '@screenplay/targets/clientes-proveedores/ClientesTargets';
-import {esperarCargaOverlay} from '@utils/wait-helpers';
+import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
 
 export const BuscarClienteEnListado = (criterio: string) => {
     const fn = async (page: Page): Promise<void> => {
@@ -8,7 +8,7 @@ export const BuscarClienteEnListado = (criterio: string) => {
         await input.click();
         await input.fill(criterio);
         await page.keyboard.press('Enter');
-        await esperarCargaOverlay(page).catch(() => {});
+        await esperarCargaOverlaySiVisible(page).catch(() => {});
     };
     fn.displayName = `Buscar cliente por: ${criterio}`;
     return fn;
@@ -83,7 +83,7 @@ export const BuscarClienteConFiltroAvanzado = (tipo: FiltroAvanzado, valor: stri
         await input.click();
         await input.fill(valor);
         await page.keyboard.press('Enter');
-        await esperarCargaOverlay(page).catch(() => {});
+        await esperarCargaOverlaySiVisible(page).catch(() => {});
     };
     fn.displayName = `Buscar por filtro ${tipo}: ${valor}`;
     return fn;

@@ -6,7 +6,7 @@ import {ResultadoMovimientoPage} from '@pages/Logistica/ResultadoMovimientoPage'
 import {FUNCTIONAL_CATALOG} from '@utils/functional-catalog';
 import {runFunctionalStep} from '@utils/functional-step';
 import {MovimientoApi, MovimientoCreado} from '@services/Logistica/MovimientoApi';
-import {esperarCargaOverlay} from '@utils/wait-helpers';
+import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
 
 export const crearAjusteConItem = async (
     registroMovimiento: RegistroMovimientoPage,
@@ -54,7 +54,7 @@ export const crearIngresoEstandarParaPrecondicion = async (
         await registroMovimiento.clickAgregarIngreso();
 
         if (codigoItem === '111111') {
-            await esperarCargaOverlay(page);
+            await esperarCargaOverlaySiVisible(page);
         }
 
         await registroMovimiento.buscarItem(codigoItem);
@@ -91,7 +91,7 @@ export const crearIngresoEstandarParaPrecondicion2 = async (
             await registroMovimiento.clickAgregarIngreso();
 
             if (codigoItem === '111111') {
-                await esperarCargaOverlay(page);
+                await esperarCargaOverlaySiVisible(page);
             }
 
             await registroMovimiento.buscarItem(codigoItem);
@@ -173,7 +173,7 @@ export const crearIngresoBaseParaClonacion = async (
             await movimientosNav.navegarAIngresos();
             await registroMovimiento.clickAgregarIngreso();
             if (opciones?.waitAntes) {
-                await esperarCargaOverlay(opciones.waitAntes);
+                await esperarCargaOverlaySiVisible(opciones.waitAntes);
             }
             await registroMovimiento.buscarItem(codigoItem);
             await registroMovimiento.seleccionarItemEnResultados(nombreItem);

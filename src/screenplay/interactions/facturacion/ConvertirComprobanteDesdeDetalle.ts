@@ -1,5 +1,5 @@
 import {type Locator, type Page, type Response} from '@playwright/test';
-import {esperarCargaOverlay} from '@utils/wait-helpers';
+import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
 import type {EmisionResult} from '@app-types/emision.types';
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 import {FiltrarComprobantePorTipo} from '@task/PuntoVenta/FiltrarComprobantePorTipo.task';
@@ -59,12 +59,12 @@ export const ConvertirComprobanteDesdeDetalle = (
 
         
         const verPopup = await busquedaPage.abrirVerComprobante();
-        await esperarCargaOverlay(verPopup);
+        await esperarCargaOverlaySiVisible(verPopup);
 
         
         await verComprobante.abrirConvertirA(verPopup);
         await verComprobante.seleccionarTipoConvertir(verPopup, tipoDestino);
-        await esperarCargaOverlay(verPopup).catch(() => {
+        await esperarCargaOverlaySiVisible(verPopup).catch(() => {
         });
 
         
@@ -95,7 +95,7 @@ export const ConvertirComprobanteDesdeDetalle = (
         const popupCajasPromise = verPopup.waitForEvent('popup');
         await verComprobante.seleccionarModoEdicion(verPopup, 'editar-antes');
         const popupCajas = await popupCajasPromise;
-        await esperarCargaOverlay(popupCajas).catch(() => {
+        await esperarCargaOverlaySiVisible(popupCajas).catch(() => {
         });
 
         
@@ -156,7 +156,7 @@ async function pagarEnCaja(caja: Page, tipoDestino: TipoDocPago): Promise<Emisio
             await PagoTargets.selectorTipoDocPago(caja).click();
             await PagoTargets.opcionTipoDocPago(caja, tipoDestino).click();
             await PagoTargets.btnConfirmarPago(caja).click();
-            await esperarCargaOverlay(caja).catch(() => {
+            await esperarCargaOverlaySiVisible(caja).catch(() => {
             });
             await montoExacto.waitFor({state: 'visible', timeout: 15_000});
             return;
@@ -172,7 +172,7 @@ async function pagarEnCaja(caja: Page, tipoDestino: TipoDocPago): Promise<Emisio
 
     
     await caja.getByRole('button', {name: 'PAGAR'}).click();
-    await esperarCargaOverlay(caja).catch(() => {
+    await esperarCargaOverlaySiVisible(caja).catch(() => {
     });
     try {
         await confirmarYEsperarMonto(20_000);
@@ -184,7 +184,7 @@ async function pagarEnCaja(caja: Page, tipoDestino: TipoDocPago): Promise<Emisio
         if (!confirmarTardío && !montoTardío) {
             await caja.getByRole('button', {name: 'PAGAR'}).click({timeout: 5_000}).catch(() => {
             });
-            await esperarCargaOverlay(caja).catch(() => {
+            await esperarCargaOverlaySiVisible(caja).catch(() => {
             });
         }
         await confirmarYEsperarMonto(25_000);

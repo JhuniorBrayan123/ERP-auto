@@ -1,7 +1,7 @@
 import {type Page} from '@playwright/test';
 import {ConductoresTargets} from '@screenplay/targets/clientes-proveedores/ConductoresTargets';
 import {DatosConductorInput} from '@data/clientes-proveedores/conductores.data';
-import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
+import {esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
 
 export const AbrirCrearConductor = () => {
     const fn = async (page: Page): Promise<void> => {
@@ -101,7 +101,7 @@ export const IntentarCrearConductor = (datos: DatosConductorInput) => {
         await ConductoresTargets.btnCrearConductor(page).click();
         await LlenarFormularioBasicoConductor(datos)(page);
         await ConductoresTargets.btnCrearConductorForm(page).click();
-        await esperarCargaOverlay(page);
+        await esperarCargaOverlaySiVisible(page);
     };
     fn.displayName = `Intentar crear conductor (sin validación): ${datos.nombreRazonSocial}`;
     return fn;

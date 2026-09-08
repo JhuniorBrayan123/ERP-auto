@@ -13,7 +13,7 @@ import {
     verificarStockPorCodigoYClick,
     verificarKardexTotalEstandar,
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
-import { esperarCargaOverlay } from '@utils/wait-helpers';
+import { esperarCargaOverlaySiVisible } from '@utils/wait-helpers';
 
 test.describe('MS-05 | Edición de Movimientos', { tag: ['@logistica', '@movimientos'] }, () => {
 
@@ -113,7 +113,7 @@ test.describe('MS-05 | Edición de Movimientos', { tag: ['@logistica', '@movimie
         await test.step('Arrange: crear salida para intentar editar', async () => {
             await movimientosNav.navegarASalidasDesdeMenu();
             await registroMovimiento.clickAgregarSalida();
-            await esperarCargaOverlay(page);
+            await esperarCargaOverlaySiVisible(page);
             await registroMovimiento.buscarItem(ITEMS_TEST.ESTRICTO_GRAVADO_8.codigo);
             await registroMovimiento.seleccionarItemEnResultados(ITEMS_TEST.ESTRICTO_GRAVADO_8.nombre);
             await registroMovimiento.clickTextoRegistrarSalida();

@@ -1,6 +1,6 @@
 import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
-import {esperarCargaOverlay, recargarSiHayError} from "@utils/wait-helpers";
+import {esperarCargaOverlaySiVisible, recargarSiHayError} from "@utils/wait-helpers";
 
 test.describe('PV-15 | Emitir comprobante con adelanto', {tag: ['@punto-venta', '@nota-venta', '@adelanto']}, () => {
 
@@ -73,7 +73,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto', {tag: ['@punto-venta', 
         await test.step('Given: crear adelanto como precondición', async () => {
             await cajaPage.continuarVendiendo();
             await comprobantePage.seleccionarNotaVenta();
-            await esperarCargaOverlay(page)
+            await esperarCargaOverlaySiVisible(page)
             await emisionPage.activarDocAdelanto();
             await emisionPage.buscarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
             await emisionPage.seleccionarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
@@ -125,7 +125,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto', {tag: ['@punto-venta', 
 
         await test.step('And: Ver comprobante muestra adelantos aplicados', async () => {
             const popup = await busquedaComprobantes.abrirVerComprobante();
-            await esperarCargaOverlay(popup)
+            await esperarCargaOverlaySiVisible(popup)
             await busquedaComprobantes.validarAdelantosAplicadosEnPopup(popup);
         });
     });

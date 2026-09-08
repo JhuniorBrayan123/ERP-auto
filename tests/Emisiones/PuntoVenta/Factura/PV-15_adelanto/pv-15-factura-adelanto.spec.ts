@@ -1,6 +1,6 @@
 import {expect, test} from '@fixtures/PuntoVenta/validacion-fixture';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
-import {esperarCargaOverlay} from "@utils/wait-helpers";
+import {esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
 
 test.describe('PV-15 | Emitir comprobante con adelanto', {tag: ['@punto-venta', '@factura', '@adelanto']}, () => {
 
@@ -49,7 +49,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto', {tag: ['@punto-venta', 
 
         await test.step('And: Ver comprobante muestra factura de adelanto', async () => {
             const popup = await busquedaComprobantes.abrirVerComprobante();
-            await esperarCargaOverlay(popup);
+            await esperarCargaOverlaySiVisible(popup);
             await busquedaComprobantes.validarFacturaAdelantoEnPopup(popup);
         });
     });
@@ -125,7 +125,7 @@ test.describe('PV-15 | Emitir comprobante con adelanto', {tag: ['@punto-venta', 
 
         await test.step('And: Ver comprobante muestra adelantos aplicados', async () => {
             const popup = await busquedaComprobantes.abrirVerComprobante();
-            await esperarCargaOverlay(popup)
+            await esperarCargaOverlaySiVisible(popup)
             await busquedaComprobantes.validarAdelantosAplicadosEnPopup(popup);
         });
     });
