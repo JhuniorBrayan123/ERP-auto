@@ -1,12 +1,24 @@
-import {type Page} from '@playwright/test';
+import {Page} from '@playwright/test';
 import {PedidoListaPage} from '@pages/PuntoVenta/PedidoListaPage';
 
-export const AbrirListaPedidos = () => {
+type VistaPedido = 'puntoVenta' | 'facturacion';
+
+export const AbrirListaPedidos = (
+    vista: VistaPedido = 'puntoVenta'
+) => {
     const fn = async (page: Page): Promise<void> => {
-        const pedidoLista = new PedidoListaPage(page);
-        await pedidoLista.buscarEnFacturacion()
-        await pedidoLista.clickVerTodos();
+        const pedidosLista = new PedidoListaPage(page);
+
+        if (vista === 'puntoVenta') {
+            await pedidosLista.clickBuscarPedidos();
+            await pedidosLista.clickVerTodos();
+            return;
+        }
+
+        await pedidosLista.buscarEnFacturacion();
     };
-    fn.displayName = 'Abrir lista de pedidos (Ver todos)';
+
+    fn.displayName = `Abrir lista de pedidos (${vista})`;
+
     return fn;
 };

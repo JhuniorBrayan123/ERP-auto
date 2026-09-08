@@ -5,7 +5,7 @@ import {SeleccionarTipoComprobante} from '@screenplay/interactions/facturacion/S
 import {PedidoTargets} from '@screenplay/targets/pedido/PedidoTargets';
 import {CAJAS, CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {FacturacionTargets} from '@screenplay/targets/facturacion/FacturacionTargets';
-import {esperarCargaOverlay} from '@utils/wait-helpers';
+import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
 import {AbrirListaPedidos} from '@task/PuntoVenta/AbrirListaPedidos.task';
 import {FiltrarListaPedidosPorNumero} from '@task/PuntoVenta/FiltrarListaPedidosPorNumero.task';
 import {FiltrarListaPedidosPorCliente} from '@task/PuntoVenta/FiltrarListaPedidosPorCliente.task';
@@ -38,13 +38,13 @@ test.describe.serial('FC-PD-BUSQUEDA | Búsqueda y Edición de Pedido en Vista F
             SeleccionarTipoComprobante('PEDIDO')
         );
 
-        await esperarCargaOverlay(page).catch(() => {
+        await esperarCargaOverlaySiVisible(page).catch(() => {
         });
         const inputCorrelativo = PedidoTargets.inputCorrelativo(page);
         await inputCorrelativo.click();
         await inputCorrelativo.fill(pedidoBase.correlativo);
         await PedidoTargets.btnBuscar(page).click();
-        await esperarCargaOverlay(page).catch(() => {
+        await esperarCargaOverlaySiVisible(page).catch(() => {
         });
 
         await expect(page.locator('main')).toContainText(CLIENTES.PERSONA_DNI.nombre);
@@ -55,7 +55,7 @@ test.describe.serial('FC-PD-BUSQUEDA | Búsqueda y Edición de Pedido en Vista F
         await vendedor.realiza(
             SeleccionarTipoComprobante('PEDIDO')
         );
-        await esperarCargaOverlay(page).catch(() => {
+        await esperarCargaOverlaySiVisible(page).catch(() => {
         });
         const inputCorrelativo = PedidoTargets.inputCorrelativo(page);
         await inputCorrelativo.click();
@@ -75,7 +75,7 @@ test.describe.serial('FC-PD-BUSQUEDA | Búsqueda y Edición de Pedido en Vista F
         const soloCorrelativo = String(parseInt(pedidoBase.correlativo, 10));
         await vendedor.realiza(
             SeleccionarTipoComprobante('PEDIDO'),
-            AbrirListaPedidos(),
+            AbrirListaPedidos("facturacion"),
             FiltrarListaPedidosPorNumero(soloCorrelativo)
         );
 
@@ -86,7 +86,7 @@ test.describe.serial('FC-PD-BUSQUEDA | Búsqueda y Edición de Pedido en Vista F
         test.skip(!pedidoBase.correlativo, 'No se generó el pedido base');
         await vendedor.realiza(
             SeleccionarTipoComprobante('PEDIDO'),
-            AbrirListaPedidos(),
+            AbrirListaPedidos("facturacion"),
             FiltrarListaPedidosPorCliente(CLIENTES.PERSONA_DNI)
         );
 
@@ -97,7 +97,7 @@ test.describe.serial('FC-PD-BUSQUEDA | Búsqueda y Edición de Pedido en Vista F
         test.skip(!pedidoBase.correlativo, 'No se generó el pedido base');
         await vendedor.realiza(
             SeleccionarTipoComprobante('PEDIDO'),
-            AbrirListaPedidos(),
+            AbrirListaPedidos("facturacion"),
             FiltrarListaPedidosPorCaja(CAJAS.VENTA.nombre)
         );
 
@@ -109,6 +109,7 @@ test.describe.serial('FC-PD-BUSQUEDA | Búsqueda y Edición de Pedido en Vista F
         const soloCorrelativo = String(parseInt(pedidoBase.correlativo, 10));
         await vendedor.realiza(
             SeleccionarTipoComprobante('PEDIDO'),
+            AbrirListaPedidos("facturacion"),
             CargarPedidoDesdeLista(soloCorrelativo)
         );
 
@@ -120,7 +121,7 @@ test.describe.serial('FC-PD-BUSQUEDA | Búsqueda y Edición de Pedido en Vista F
         const soloCorrelativo = String(parseInt(pedidoBase.correlativo, 10));
         await vendedor.realiza(
             SeleccionarTipoComprobante('PEDIDO'),
-            AbrirListaPedidos()
+            AbrirListaPedidos("facturacion")
         );
 
         const popup = await vendedor.realizaYObtiene(VerPedidoDesdeLista(soloCorrelativo));
