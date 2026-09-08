@@ -25,10 +25,7 @@ export const CierreCajaTargets = {
         page.getByText('Descuentos', { exact: true }).nth(1),
 
         tabResumenCaja: (page: Page) =>
-        page.getByText('Resumen de caja', { exact: true }).nth(1),
-
-        tituloResumenCaja: (page: Page) =>
-        page.getByText('Resumen de caja', { exact: true }).first(),
+        page.locator('#tab-resumen-caja:visible').first(),
 
         btnDescargar: (page: Page) =>
         page.getByText('Descargar', { exact: true }),

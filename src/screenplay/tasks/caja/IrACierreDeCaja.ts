@@ -7,7 +7,15 @@ const MAX_INTENTOS = 3;
 
 
 async function estaEnCierreDeCaja(page: Page): Promise<boolean> {
-    return CierreCajaTargets.tituloResumenCaja(page)
+    const menuLateralAbierto = await page.locator('.cmp-overscreen.is-open')
+        .isVisible({timeout: 500})
+        .catch(() => false);
+
+    if (menuLateralAbierto) {
+        return false;
+    }
+
+    return CierreCajaTargets.tabResumenCaja(page)
         .isVisible({timeout: 4_000})
         .catch(() => false);
 }
@@ -41,6 +49,8 @@ export const IrACierreDeCaja = () => {
             }
 
 
+            await page.locator('.cmp-overscreen.is-open').waitFor({state: 'hidden', timeout: 5_000}).catch(() => {
+            });
             await esperarCargaOverlaySiVisible(page);
 
             llegamos = await estaEnCierreDeCaja(page);
@@ -58,7 +68,7 @@ export const IrACierreDeCaja = () => {
         }
 
 
-        await expect(CierreCajaTargets.tituloResumenCaja(page))
+        await expect(CierreCajaTargets.tabResumenCaja(page))
             .toBeVisible({timeout: 5_000});
     };
 
