@@ -1,7 +1,7 @@
 import type {Page} from '@playwright/test';
 
 export const ClientesTargets = {
-    
+
     selectTipoDocumento: (page: Page) =>
         page.locator('[id="pv_clientes_form-registro-relacionado-entidad:form_basico:v-select:tipo-documento"] > .text'),
 
@@ -41,7 +41,7 @@ export const ClientesTargets = {
     btnGuardarCambios: (page: Page) =>
         page.getByRole('button', {name: 'Guardar cambios'}),
 
-    
+
     btnNuevoCampoAdicional: (page: Page) =>
         page.getByText('Nuevo campo adicional'),
 
@@ -109,7 +109,7 @@ export const ClientesTargets = {
     btnBorrarFiltros: (page: Page) =>
         page.getByRole('button', {name: 'Borrar filtros'}),
 
-    
+
     inputFiltroRazonSocial: (page: Page) =>
         page.locator('[id="pv_clientes_cmp-lista-clientes-grid-header:headers_clientes_row:v-input:RazonSocial"]'),
 
@@ -119,7 +119,7 @@ export const ClientesTargets = {
     inputFiltroTelefono: (page: Page) =>
         page.locator('[id="pv_clientes_cmp-lista-clientes-grid-header:headers_clientes_row:v-input:Telefonos"]'),
 
-    
+
     multiselectFiltroTipoDoc: (page: Page) =>
         page.locator('[id="pv_clientes_cmp-lista-clientes-grid-header:headers_clientes_row:v-multiselect:TipoDocumento"]'),
 
@@ -204,7 +204,7 @@ export const ClientesTargets = {
     btnAceptarError: (page: Page) =>
         page.getByRole('button', {name: 'Aceptar'}),
 
-    
+
     inputFiltroCodigo: (page: Page) =>
         page.getByRole('textbox', {name: 'Cod cliente'}),
 
@@ -220,12 +220,12 @@ export const ClientesTargets = {
     seccionNotasAdicionales: (page: Page) =>
         page.getByText('Notas adicionales', {exact: true}),
 
-    
+
     btnCerrarDrapeAlt: (page: Page) =>
         page.locator('.drape.is-open > .button-close'),
 
-    
-    btnAñadirCampos: (page: Page) =>
+
+    btnAnadirCampos: (page: Page) =>
         page.locator('.v-icon-head-plus > .icon').first(),
 
     etiquetaCampoObligatorio: (page: Page, nombreCampo: string) =>
@@ -237,7 +237,7 @@ export const ClientesTargets = {
     thead: (page: Page) =>
         page.locator('thead'),
 
-    
+
     btnOpcionesGenerales: (page: Page) =>
         page.locator('.icon-container > .icon'),
 
@@ -250,7 +250,7 @@ export const ClientesTargets = {
     opcionCrearDesdeExcel: (page: Page) =>
         page.getByText('Crear clientes desde excel'),
 
-    
+
     btnSiguiente: (page: Page) =>
         page.getByText('Siguiente'),
 
@@ -269,7 +269,7 @@ export const ClientesTargets = {
     btnIrAlInicio: (page: Page) =>
         page.getByRole('button', {name: 'Ir al inicio'}),
 
-    
+
     checkboxSeleccionarTodo: (page: Page) =>
         page.locator('[id="pv_clientes_cmp-lista-clientes-grid-header:headers_clientes_row:v-checkbox:select-all"]'),
 

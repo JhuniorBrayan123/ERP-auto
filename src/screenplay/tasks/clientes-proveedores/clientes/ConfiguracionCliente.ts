@@ -3,7 +3,7 @@ import {ClientesTargets} from '@screenplay/targets/clientes-proveedores/Clientes
 
 export const AbrirConfiguracionColumnas = () => {
     const fn = async (page: Page): Promise<void> => {
-        await ClientesTargets.btnAñadirCampos(page).click();
+        await ClientesTargets.btnAnadirCampos(page).click();
     };
     fn.displayName = 'Abrir configuración de columnas';
     return fn;
