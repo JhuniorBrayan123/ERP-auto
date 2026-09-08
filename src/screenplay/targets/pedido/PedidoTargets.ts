@@ -2,7 +2,7 @@ import type {Page} from '@playwright/test';
 
 export const PedidoTargets = {
 
-    
+
     inputCorrelativo: (page: Page) =>
         page.locator('[id*="cmp-pedido_cmp-pedido-header"][id*="v-input:correlativo"]'),
 
@@ -44,5 +44,5 @@ export const PedidoTargets = {
         page.locator('[id="pv_comprobantes_cmp-header-comprobantes_categorias:pill-PEDIDOS"]'),
 
     mensajeSinItems: (page: Page) =>
-        page.getByText('No puedes realizar un pago porque no tienes ítems seleccionados'),
+        page.getByText('No puedes realizar esta operacion porque no tienes ítems seleccionados'),
 };
