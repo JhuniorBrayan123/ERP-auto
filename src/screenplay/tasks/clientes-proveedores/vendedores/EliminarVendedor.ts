@@ -1,7 +1,7 @@
 import {expect, type Page} from '@playwright/test';
 import {VendedoresTargets} from '@screenplay/targets/clientes-proveedores/VendedoresTargets';
 import {BuscarVendedorEnListado, AbrirAccionContextualVendedor} from '@screenplay/tasks/clientes-proveedores/vendedores/BuscarVendedor';
-import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
+import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
 
 export const EliminarVendedor = (criterio: string) => {
     const fn = async (page: Page): Promise<void> => {
@@ -10,7 +10,7 @@ export const EliminarVendedor = (criterio: string) => {
         await VendedoresTargets.btnConfirmarEliminarVendedor(page).click();
         await expect(VendedoresTargets.mensajeBuenTrabajo(page)).toBeVisible();
         await VendedoresTargets.btnCerrarModal(page).click();
-        await esperarCargaOverlay(page).catch(() => {});
+        await esperarCargaOverlaySiVisible(page).catch(() => {});
     };
     fn.displayName = `Eliminar vendedor: ${criterio}`;
     return fn;

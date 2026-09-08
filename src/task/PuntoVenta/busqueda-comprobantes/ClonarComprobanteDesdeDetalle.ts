@@ -1,7 +1,7 @@
 import {type Page} from '@playwright/test';
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 import {FiltrarComprobantePorTipo} from '@task/PuntoVenta/FiltrarComprobantePorTipo.task';
-import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
+import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
 import type {TipoOrigen} from '@screenplay/interactions/facturacion/ConvertirComprobanteDesdeDetalle';
 
 

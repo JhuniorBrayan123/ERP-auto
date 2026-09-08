@@ -18,7 +18,7 @@ import {PedidoEnListaVisible} from '@question/PuntoVenta/PedidoEnListaVisible.qu
 import {TarjetaPedidoVisible} from '@question/PuntoVenta/TarjetaPedidoVisible.question';
 import {TarjetaPedidoContieneTexto} from '@question/PuntoVenta/TarjetaPedidoContieneTexto.question';
 import {TarjetaPedidoTieneOpciones} from '@question/PuntoVenta/TarjetaPedidoTieneOpciones.question';
-import {esperarCargaOverlay} from "@utils/wait-helpers";
+import {esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
 
 test.describe('PV-20 | Lista de pedidos', {tag: ['@punto-venta', '@pedido', '@lista']}, () => {
 
@@ -151,7 +151,7 @@ test.describe('PV-20 | Lista de pedidos', {tag: ['@punto-venta', '@pedido', '@li
         );
 
         const popup = await VerPedidoDesdeLista(correlativo)(page);
-        await esperarCargaOverlay(popup)
+        await esperarCargaOverlaySiVisible(popup)
         await expect(popup.getByText(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre).first()).toBeVisible({timeout: 30_000});
     });
 });

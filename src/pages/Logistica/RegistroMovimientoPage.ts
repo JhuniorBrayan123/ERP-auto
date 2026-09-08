@@ -1,7 +1,7 @@
 import {expect, type Locator, type Page} from '@playwright/test';
 import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
 import {runFunctionalAction} from '../../utils/functional-step';
-import {esperarCargaOverlay, esperarDebounce} from '../../utils/wait-helpers';
+import {esperarCargaOverlaySiVisible, esperarDebounce} from '../../utils/wait-helpers';
 
 export class RegistroMovimientoPage {
     constructor(private readonly page: Page) {
@@ -25,7 +25,7 @@ export class RegistroMovimientoPage {
 
     async clickNuevoMovimiento(): Promise<void> {
         await this.btnNuevoMovimiento.click();
-        await esperarCargaOverlay(this.page);
+        await esperarCargaOverlaySiVisible(this.page);
     }
 
     async clickAgregarIngreso(): Promise<void> {

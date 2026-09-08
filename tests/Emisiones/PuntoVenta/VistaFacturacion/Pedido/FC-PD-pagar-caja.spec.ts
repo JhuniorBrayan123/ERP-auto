@@ -6,7 +6,7 @@ import {IrABusquedaComprobantes} from '@task/PuntoVenta/IrABusquedaComprobantes.
 import {FiltrarComprobantePorTipo} from '@task/PuntoVenta/FiltrarComprobantePorTipo.task';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
 import {PedidoTargets} from '@screenplay/targets/pedido/PedidoTargets';
-import {esperarCargaOverlay} from '@utils/wait-helpers';
+import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {esFacturadoSi} from '@helpers/PuntoVenta/busqueda-comprobantes.data';
 import {ValoresColumnaFacturado} from '@question/PuntoVenta/FacturadoColumna.question';
@@ -50,7 +50,7 @@ test.describe.serial('FC-PD-PAGAR-CAJA | Pagar Pedido en caja generando Boleta/F
             await inputCorrelativo.click();
             await inputCorrelativo.fill(numeroPedido);
             await PedidoTargets.btnBuscar(page).click();
-            await esperarCargaOverlay(page).catch(() => {});
+            await esperarCargaOverlaySiVisible(page).catch(() => {});
 
             const emision = await vendedor.realizaYObtiene(PagarPedido(tipo));
 

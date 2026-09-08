@@ -1,5 +1,5 @@
 import {expect, type Locator, type Page, test} from '@playwright/test';
-import {esperarCargaOverlay, esperarCargaOverlaySiVisible, esperarDebounce} from '@utils/wait-helpers';
+import {esperarCargaOverlaySiVisible, esperarDebounce} from '@utils/wait-helpers';
 
 export class GuiaRemitentePage {
     constructor(public readonly page: Page) {
@@ -83,7 +83,7 @@ export class GuiaRemitentePage {
     }
 
     async esperarFormularioEstable(timeout = 35_000): Promise<void> {
-        await esperarCargaOverlay(this.page, timeout);
+        await esperarCargaOverlaySiVisible(this.page, timeout);
     }
     async seleccionarMotivo(motivo: string) {
         await this.esperarFormularioEstable();

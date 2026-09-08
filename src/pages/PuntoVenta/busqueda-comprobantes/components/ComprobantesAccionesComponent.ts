@@ -1,5 +1,5 @@
 import {expect, type Page} from '@playwright/test';
-import {esperarCargaOverlay} from "@utils/wait-helpers";
+import {esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
 
 export class ComprobantesAccionesComponent {
     constructor(private readonly page: Page) {
@@ -43,7 +43,7 @@ export class ComprobantesAccionesComponent {
 
     async seleccionarAccion(nombreAccion: string): Promise<void> {
         await this.page.getByText(nombreAccion, {exact: true}).click();
-        await esperarCargaOverlay(this.page);
+        await esperarCargaOverlaySiVisible(this.page);
     }
 
     async seleccionarAccionPorId(idAccion: string): Promise<void> {
@@ -85,14 +85,14 @@ export class ComprobantesAccionesComponent {
     async emitirGuiaRemisionGuardada(): Promise<void> {
         await this.page.getByText('Emitir', {exact: true}).click();
         await this.page.getByRole('button', {name: 'Emitir'}).click();
-        await esperarCargaOverlay(this.page);
+        await esperarCargaOverlaySiVisible(this.page);
     }
 
     async confirmarEliminacion(motivo: string): Promise<void> {
         await this.page.locator('div').filter({hasText: /^Seleccionar$/}).nth(3).click();
         await this.page.getByText(motivo).click();
         await this.page.getByRole('button', {name: 'Anular'}).click();
-        await esperarCargaOverlay(this.page);
+        await esperarCargaOverlaySiVisible(this.page);
     }
 
     async cerrarModalExito(): Promise<void> {

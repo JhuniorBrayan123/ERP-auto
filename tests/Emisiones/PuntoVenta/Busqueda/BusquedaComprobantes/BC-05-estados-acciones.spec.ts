@@ -16,7 +16,7 @@ import {BitacoraDelComprobante} from '@screenplay/questions/PuntoVenta/busqueda-
 import {AccionDelComprobante} from '@screenplay/questions/PuntoVenta/busqueda-comprobantes/AccionDelComprobante';
 import {FiltrarComprobantes} from "@task/PuntoVenta/busqueda-comprobantes/FiltrarComprobantes";
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
-import {esperarCargaOverlay} from '@utils/wait-helpers';
+import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
 
 test.describe('BC-05 | Estados y acciones', {tag: ['@busqueda']}, () => {
 
@@ -67,7 +67,7 @@ test.describe('BC-05 | Estados y acciones', {tag: ['@busqueda']}, () => {
         const nuevaSerie = nombrePdf.split('-')[0] || '';
         const nuevoCorrelativo = String(emitBody.CorrelativoDocumento ?? '');
         await busqueda.cerrarModalExito();
-        await esperarCargaOverlay(page);
+        await esperarCargaOverlaySiVisible(page);
 
         await busqueda.filtrarPorCorrelativos(nuevoCorrelativo);
 

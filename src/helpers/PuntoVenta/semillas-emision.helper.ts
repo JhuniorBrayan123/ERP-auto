@@ -8,7 +8,7 @@ import {GuiaRemitentePage} from '@pages/PuntoVenta/guias-remision/GuiaRemitenteP
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 import {CAJAS, CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {CotizacionTargets} from '@screenplay/targets/cotizacion/CotizacionTargets';
-import {esperarCargaOverlay} from '@utils/wait-helpers';
+import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
 import type {ComprobanteInfo} from '@helpers/PuntoVenta/busqueda-comprobantes.data';
 
 async function irACaja(page: Page, caja: CajaPage): Promise<void> {
@@ -81,7 +81,7 @@ export async function crearGuiaRemisionGuardada(page: Page): Promise<Comprobante
     const guia = new GuiaRemitentePage(page);
 
     await irACaja(page, caja);
-    await esperarCargaOverlay(page);
+    await esperarCargaOverlaySiVisible(page);
 
     await comprobante.abrirSelectorTipo();
     await page.locator(
@@ -109,9 +109,9 @@ export async function crearGuiaRemisionGuardada(page: Page): Promise<Comprobante
 
     
     await guia.guardarGuia();
-    await esperarCargaOverlay(page);
+    await esperarCargaOverlaySiVisible(page);
     await page.waitForURL('**/punto-venta/comprobantes', {timeout: 20_000});
-    await esperarCargaOverlay(page);
+    await esperarCargaOverlaySiVisible(page);
     await page.locator('tbody tr').first().waitFor({state: 'visible', timeout: 15_000});
 
     const busqueda = new BusquedaComprobantesPage(page);
@@ -128,7 +128,7 @@ export async function asegurarConfiguracionEuro(page: Page, codigoItemPV: string
     const btnMonedas = page.locator('[id="cfg_cmp-menu-configuracion.v-button:menu-1-0"]');
     await btnMonedas.waitFor({state: 'visible', timeout: 20_000});
     await btnMonedas.click();
-    await esperarCargaOverlay(page);
+    await esperarCargaOverlaySiVisible(page);
 
     const eurVisible = await page.getByText('EUROS', {exact: true}).isVisible({timeout: 5_000}).catch(() => false);
     if (!eurVisible) {
@@ -181,7 +181,7 @@ export async function asegurarConfiguracionEuro(page: Page, codigoItemPV: string
     await btnDropdownItem.waitFor({state: 'visible', timeout: 15_000});
     await btnDropdownItem.click();
     await page.getByText('Editar ítem').click();
-    await esperarCargaOverlay(page);
+    await esperarCargaOverlaySiVisible(page);
 
     const listaPrecioEuroVisible = await page.getByText('Precio euros').isVisible({timeout: 5_000}).catch(() => false);
     if (!listaPrecioEuroVisible) {

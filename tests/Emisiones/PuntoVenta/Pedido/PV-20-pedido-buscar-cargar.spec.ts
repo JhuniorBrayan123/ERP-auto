@@ -13,6 +13,7 @@ import {AgregarItemAlCarrito} from "@task/PuntoVenta/AgregarItemAlCarrito.task";
 import {ModalPostEmision} from '@question/PuntoVenta/ModalPostEmision.question';
 import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
+import {AbrirListaPedidos} from "@task/PuntoVenta/AbrirListaPedidos.task";
 
 test.describe('PV-20 | Búsqueda y carga de pedidos', {tag: ['@punto-venta', '@pedido', '@busqueda']}, () => {
     test.beforeEach(async ({page}) => {
@@ -36,6 +37,7 @@ test.describe('PV-20 | Búsqueda y carga de pedidos', {tag: ['@punto-venta', '@p
 
         await cajero.intentaRealizar(
             SeleccionarTipoComprobante('PEDIDO'),
+            AbrirListaPedidos(),
             CargarPedidoDesdeLista(correlativo)
         );
 
@@ -59,6 +61,7 @@ test.describe('PV-20 | Búsqueda y carga de pedidos', {tag: ['@punto-venta', '@p
 
         await cajero.intentaRealizar(
             SeleccionarTipoComprobante('PEDIDO'),
+            AbrirListaPedidos(),
             CargarPedidoDesdeLista(correlativo),
             AgregarItemAlCarrito(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL),
             ActualizarPedido()

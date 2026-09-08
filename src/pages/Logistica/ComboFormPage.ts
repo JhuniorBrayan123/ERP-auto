@@ -1,7 +1,7 @@
 import {type Page} from '@playwright/test';
 import {ItemFormBasePage} from './ItemFormBasePage';
 import type {ComponenteCombo} from '@app-types/item-data.types';
-import {esperarCargaOverlay, esperarDebounce} from '@utils/wait-helpers';
+import {esperarCargaOverlaySiVisible, esperarDebounce} from '@utils/wait-helpers';
 
 export class ComboFormPage extends ItemFormBasePage {
     constructor(page: Page) {
@@ -9,7 +9,7 @@ export class ComboFormPage extends ItemFormBasePage {
     }
 
     async iniciarCreacionCombo(): Promise<void> {
-        await esperarCargaOverlay(this.page);
+        await esperarCargaOverlaySiVisible(this.page);
         await this.botonCrearItems.click();
         await this.page.getByText('CNuevo combo').click();
     }
@@ -39,7 +39,7 @@ export class ComboFormPage extends ItemFormBasePage {
     }
 
     async buscarYAgregarComponente(componente: ComponenteCombo): Promise<void> {
-        await esperarCargaOverlay(this.page);
+        await esperarCargaOverlaySiVisible(this.page);
 
         const inputBuscar = this.page.getByRole('textbox', {
             name: 'Buscar nombre del producto, c',

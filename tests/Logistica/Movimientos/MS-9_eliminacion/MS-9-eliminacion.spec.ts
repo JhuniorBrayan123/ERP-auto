@@ -9,7 +9,7 @@ import {
     verificarKardexTotalEstandar,
     verificarStockPorCodigoYClick,
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
-import { esperarCargaOverlay } from '@utils/wait-helpers';
+import { esperarCargaOverlaySiVisible } from '@utils/wait-helpers';
 
 test.describe('MS-09 | Eliminación de Movimientos', { tag: ['@logistica', '@movimientos'] }, () => {
 
@@ -75,7 +75,7 @@ test.describe('MS-09 | Eliminación de Movimientos', { tag: ['@logistica', '@mov
             await movimientosNav.navegarAKardexTotal();
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.VARIANTE_ESTRICTO.codigo);
             await kardexVerificacion.abrirKardexVariante(VARIANTES.V1_ESTRICTO.nombre);
-            await esperarCargaOverlay(page);
+            await esperarCargaOverlaySiVisible(page);
             await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.VENTAS);
         });
 
@@ -88,7 +88,7 @@ test.describe('MS-09 | Eliminación de Movimientos', { tag: ['@logistica', '@mov
             await movimientosNav.navegarAKardexTotal();
             await kardexVerificacion.buscarPorCodigo(ITEMS_TEST.VARIANTE_ESTRICTO.codigo);
             await kardexVerificacion.abrirKardexVariante(VARIANTES.V1_ESTRICTO.nombre);
-            await esperarCargaOverlay(page);
+            await esperarCargaOverlaySiVisible(page);
             await kardexVerificacion.abrirVerDetallePorAlmacen2(ALMACENES.AUTO);
         });
     });

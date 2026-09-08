@@ -11,7 +11,7 @@ import {ComprobantePage} from '@pages/PuntoVenta/ComprobantePage';
 import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 import {EmisionDatosOpcionalesPage} from '@pages/PuntoVenta/EmisionDatosOpcionalesPage';
-import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
+import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
 import {CAJAS, CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import type {ComprobanteInfo, DatosOpcionales} from '@helpers/PuntoVenta/busqueda-comprobantes.data';
 import {detectAccount, detectEnvironmentFine} from '@utils/setup-state';

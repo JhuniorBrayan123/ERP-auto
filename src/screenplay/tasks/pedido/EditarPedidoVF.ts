@@ -2,7 +2,7 @@ import { expect, type Page } from '@playwright/test';
 import { PedidoTargets } from '@screenplay/targets/pedido/PedidoTargets';
 import { FacturacionTargets } from '@screenplay/targets/facturacion/FacturacionTargets';
 import { BuscarYAgregarProducto } from '@screenplay/interactions/facturacion/BuscarYAgregarProducto';
-import { esperarCargaOverlay } from '@utils/wait-helpers';
+import { esperarCargaOverlaySiVisible } from '@utils/wait-helpers';
 import type { ItemVenta } from '@app-types/emision.types';
 
 export interface DatosEdicionPedido {
@@ -13,12 +13,12 @@ export interface DatosEdicionPedido {
 export const EditarPedidoVF = (datos: DatosEdicionPedido) => {
     const fn = async (page: Page): Promise<void> => {
         
-        await esperarCargaOverlay(page).catch(() => {});
+        await esperarCargaOverlaySiVisible(page).catch(() => {});
         const inputCorrelativo = PedidoTargets.inputCorrelativo(page);
         await inputCorrelativo.click();
         await inputCorrelativo.fill(datos.correlativo);
         await PedidoTargets.btnBuscar(page).click();
-        await esperarCargaOverlay(page).catch(() => {});
+        await esperarCargaOverlaySiVisible(page).catch(() => {});
 
         
         if (datos.nuevosItems) {

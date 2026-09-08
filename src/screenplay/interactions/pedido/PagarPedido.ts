@@ -1,6 +1,6 @@
 import {type Page} from '@playwright/test';
 import {PedidoTargets} from '@screenplay/targets/pedido/PedidoTargets';
-import {esperarCargaOverlay} from '@utils/wait-helpers';
+import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
 import type {EmisionResult} from '@app-types/emision.types';
 import {PagoTargets} from '@screenplay/targets/facturacion/PagoTargets';
 
@@ -17,13 +17,13 @@ export const PagarPedido = (tipoDoc: TipoDocPago) => {
         );
 
         await PedidoTargets.btnPagarPedido(page).click();
-        await esperarCargaOverlay(page).catch(() => {});
+        await esperarCargaOverlaySiVisible(page).catch(() => {});
 
         await PagoTargets.selectorTipoDocPago(page).click();
         await PagoTargets.opcionTipoDocPago(page, tipoDoc).click();
 
         await PagoTargets.btnConfirmarPago(page).click();
-        await esperarCargaOverlay(page).catch(() => {});
+        await esperarCargaOverlaySiVisible(page).catch(() => {});
 
         await PagoTargets.btnMontoExacto(page).click();
         await PagoTargets.btnRealizarPago(page).click();

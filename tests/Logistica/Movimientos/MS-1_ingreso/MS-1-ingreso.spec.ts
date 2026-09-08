@@ -16,7 +16,7 @@ import {
     verificarStockYKardex,
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
 import { KardexVerificacionPage } from '@pages/Logistica/KardexVerificacionPage';
-import { esperarCargaOverlay } from '@utils/wait-helpers';
+import { esperarCargaOverlaySiVisible } from '@utils/wait-helpers';
 
 test.describe('MS-01 | Ingresos de Almacén', { tag: ['@logistica', '@m                                                                                                                                                                                             ovimientos'] }, () => {
 
@@ -42,7 +42,7 @@ test.describe('MS-01 | Ingresos de Almacén', { tag: ['@logistica', '@m         
         await definirCantidadYRegistrarIngreso(registroMovimiento, '150');
         await test.step('And: ir al listado de movimientos', async () => {
             await resultadoMovimiento.irAlListado();
-            await esperarCargaOverlay(page);
+            await esperarCargaOverlaySiVisible(page);
         });
         await verificarStockYKardex(
             movimientosNav, stockVerificacion, kardexVerificacion, page,

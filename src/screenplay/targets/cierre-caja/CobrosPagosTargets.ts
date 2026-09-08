@@ -45,6 +45,18 @@ export const CobrosPagosTargets = {
         textoMontoAdeudado: (page: Page) =>
         page.getByText(/Monto adeudado: S\/ 0\.00/i),
 
+        textoMontoCobrado: (page: Page) =>
+        page.getByText(/Monto cobrado: S\//i),
+
+        opcionTodosEstadoCobro: (page: Page) =>
+        page.getByText('Todos').nth(1),
+
+        iconoOpcionesFilaCobro: (page: Page) =>
+        page.locator('.cmp-grid-pc-options-icon').first(),
+
+        clienteVisibleEnResultado: (page: Page, nombre: string) =>
+        page.getByText(nombre, { exact: false }),
+
     
 
         selectorEstadoPago: (page: Page) =>
@@ -79,4 +91,27 @@ export const CobrosPagosTargets = {
 
         btnCerrarDrape: (page: Page) =>
         page.locator('.drape.is-open > .button-close'),
+
+
+
+        tarjetaResultado: (page: Page) =>
+        page.locator('.v-card.handler-header'),
+
+        iconoExpandirTarjetaResultado: (page: Page) =>
+        page.locator('.v-card.handler-header .card-icon-handler'),
+
+        cuerpoTarjetaResultado: (page: Page) =>
+        page.locator('.v-card.handler-header .v-card-content .body'),
+
+        comprobanteTarjetaResultado: (page: Page) =>
+        page.locator('.v-card.handler-header .v-card-content .data-comprobante'),
+
+        nombreClienteTarjetaResultado: (page: Page) =>
+        page.locator('.v-card.handler-header .v-card-content .empresa-data .nombre'),
+
+        documentoClienteTarjetaResultado: (page: Page) =>
+        page.locator('.v-card.handler-header .v-card-content .empresa-data .documento'),
+
+        montoTotalTarjetaResultado: (page: Page) =>
+        page.locator('.v-card.handler-header .v-card-content .empresa-info > span'),
 };

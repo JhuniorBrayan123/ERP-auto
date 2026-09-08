@@ -14,7 +14,7 @@ import {
     configurarYRetirarStockRapido2,
     verificarStockPorCodigoYClick,
 } from '@helpers/Logistica/verificaciones-movimientos.helper';
-import {esperarCargaOverlay} from "@utils/wait-helpers";
+import {esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
 
 test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@movimientos']}, () => {
 
@@ -33,7 +33,7 @@ test.describe('MS-12 | Movimientos Rápidos @rapidos', {tag: ['@logistica', '@mo
 
         await test.step('And: abrir menú y seleccionar Aumentar stock', async () => {
             await movimientoRapido.abrirMenuItemAcciones(ITEMS_TEST.PRODUCTO_ESTRICTO.codigo);
-            await esperarCargaOverlay(page);
+            await esperarCargaOverlaySiVisible(page);
             await movimientoRapido.clickAumentarStockDesdeVisualizacion('ALMACÉN DE VENTAS');
         });
 
