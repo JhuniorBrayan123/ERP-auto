@@ -11,7 +11,7 @@ export class ComprobantesFiltrosComponent {
         await this.page.locator(
             `[id="pv_comprobantes_cmp-header-comprobantes_categorias:pill-${categoria}"]`,
         ).click();
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
     }
 
     async abrirFiltrosAvanzados(): Promise<void> {
@@ -49,7 +49,7 @@ export class ComprobantesFiltrosComponent {
         await inputCorrelativo.click();
         await inputCorrelativo.fill(correlativo);
         await inputCorrelativo.press('Enter');
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
     }
 
     async filtrarPorRangoFecha(preset: BcPresetFecha): Promise<void> {
@@ -63,21 +63,21 @@ export class ComprobantesFiltrosComponent {
     async filtrarPorTipo(tipo: string): Promise<void> {
         await this.page.getByText('Tipo de comprobante').first().click();
         await this.page.getByText(tipo, {exact: true}).click();
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
     }
 
     async filtrarPorSerie(serie: string): Promise<void> {
         await this.page.locator('div').filter({hasText: /^Serie$/}).nth(2).click();
         await esperarCargaOverlay(this.page);
         await this.page.locator('thead').getByText(serie).click();
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
     }
 
     async filtrarPorMoneda(moneda: string): Promise<void> {
         await this.page.getByText('Moneda').first().click();
         await esperarCargaOverlay(this.page);
         await this.page.locator('thead').getByText(moneda).click();
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
     }
 
     async filtrarPorCorrelativos(correlativo: string): Promise<void> {
@@ -88,7 +88,7 @@ export class ComprobantesFiltrosComponent {
         const valorFiltro = correlativo.replace(/^0+/, '') || '0';
         await input.fill(valorFiltro);
         await input.press('Enter');
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
     }
 
     async filtrarPorNombreCliente(nombre: string): Promise<void> {
@@ -96,7 +96,7 @@ export class ComprobantesFiltrosComponent {
         await input.click();
         await input.fill(nombre);
         await input.press('Enter');
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
     }
 
     async filtrarPorNumDocCliente(documento: string): Promise<void> {
@@ -128,6 +128,6 @@ export class ComprobantesFiltrosComponent {
         );
         await inputValor.fill(valor);
         await this.page.locator('[id="pv_comprobantes_cmp-grid-comprobantes-header:grid-header_cmp-card-filter-number:aplicar-filtro-filtrar"]').click();
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
     }
 }
