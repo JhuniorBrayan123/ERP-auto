@@ -44,5 +44,5 @@ export const PedidoTargets = {
         page.locator('[id="pv_comprobantes_cmp-header-comprobantes_categorias:pill-PEDIDOS"]'),
 
     mensajeSinItems: (page: Page) =>
-        page.getByText('No puedes realizar esta operacion porque no tienes ítems seleccionados'),
+        page.getByText('No puedes realizar esta operación porque no tienes ítems seleccionados'),
 };
