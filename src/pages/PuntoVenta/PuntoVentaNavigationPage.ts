@@ -4,17 +4,41 @@ import { FUNCTIONAL_CATALOG } from '@utils/functional-catalog';
 import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
 
 export class PuntoVentaNavigationPage {
+
     constructor(private readonly page: Page) {}
 
     async navegarAPuntoDeVenta(): Promise<void> {
         try {
-            await esperarCargaOverlaySiVisible(this.page);
-            await this.page.getByText('Ventas y compras').click();
-            await this.page.getByText('Nueva venta', { exact: true }).click();
+            const ventasYCompras =
+                this.page.getByText('Ventas y compras', { exact: true });
 
-            const overload = this.page.locator('[id="cmn_cmp-overload:loading"]');
-            await overload.waitFor({ state: 'visible', timeout: 3_000 }).catch(() => {});
-            await overload.waitFor({ state: 'hidden', timeout: 15_000 }).catch(() => {});
+            const nuevaVenta =
+                this.page.getByText('Nueva venta', { exact: true });
+
+            const accionCaja =
+                this.page.getByRole('button', {
+                    name: /^(Aperturar caja|Continuar vendiendo)$/
+                }).first();
+
+            await esperarCargaOverlaySiVisible(this.page);
+
+            await expect(ventasYCompras).toBeVisible({
+                timeout: 20_000
+            });
+
+            await ventasYCompras.click();
+
+            await expect(nuevaVenta).toBeVisible({
+                timeout: 10_000
+            });
+            await nuevaVenta.click();
+
+            await esperarCargaOverlaySiVisible(this.page);
+
+            await expect(accionCaja).toBeVisible({
+                timeout: 20_000
+            });
+
         } catch (error) {
             await throwFunctionalError({
                 page: this.page,
@@ -22,35 +46,5 @@ export class PuntoVentaNavigationPage {
                 cause: error,
             });
         }
-    }
-
-    async continuarVendiendo(): Promise<void> {
-        await this.page.getByRole('button', { name: 'Continuar vendiendo' }).click();
-    }
-
-    async salirDeCaja(): Promise<void> {
-        await this.page.locator('.v-icon-back .icon').click();
-    }
-
-    async navegarABusquedaComprobantes(): Promise<void> {
-        await this.salirDeCaja();
-        await this.page.getByText('Ventas y compras').click();
-        await this.page.getByText('Búsqueda de comprobantes').click();
-    }
-
-    async navegarAStockProductos(): Promise<void> {
-        await this.page.getByText('Productos y servicios').click();
-        await this.page.getByText('Stock de productos').click();
-    }
-
-    async navegarAKardexTotal(): Promise<void> {
-        await this.page.getByText('Productos y servicios').click();
-        await this.page.getByText('Kardex total').click();
-    }
-
-    async volverAPuntoDeVenta(): Promise<void> {
-        await this.page.locator('.v-icon-back > .icon').click();
-        await this.page.getByText('Ventas y compras').click();
-        await this.page.getByText('Nueva venta', { exact: true }).click();
     }
 }

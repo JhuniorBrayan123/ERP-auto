@@ -5,6 +5,7 @@ import { PuntoVentaNavigationPage } from '@pages/PuntoVenta/PuntoVentaNavigation
 import { AsegurarVistaFacturacion } from '@screenplay/tasks/facturacion/ConfigurarVistaFacturacion';
 import { CAJAS } from '@helpers/PuntoVenta/emision-data.helper';
 import { EmisionPage } from '@pages/PuntoVenta/EmisionPage';
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 type FacturacionFixtures = {
     cajero: Cajero;
@@ -18,22 +19,16 @@ export const test = base.extend<FacturacionFixtures>({
     },
 
     vistaFacturacionLista: [async ({ page }, use) => {
-        
+
         const pvNav = new PuntoVentaNavigationPage(page);
         await page.goto('/');
+        await esperarCargaOverlay(page);
         await pvNav.navegarAPuntoDeVenta();
-
-        
         const cajaPage = new CajaPage(page, CAJAS.VENTA.nombre);
         await cajaPage.asegurarCajaAbierta();
-
-        
         await AsegurarVistaFacturacion()(page);
-
-        
         await use();
 
-        
         const emisionPage = new EmisionPage(page);
         const btnNuevaVenta = page.getByRole('button', { name: 'Nueva Venta' });
         if (await btnNuevaVenta.isVisible({ timeout: 1_000 }).catch(() => false)) {
