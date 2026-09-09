@@ -1,12 +1,14 @@
 import { expect, type Page } from '@playwright/test';
-import { throwFunctionalError } from '../../utils/functional-error';
-import { FUNCTIONAL_CATALOG } from '../../utils/functional-catalog';
+import { throwFunctionalError } from '@utils/functional-error';
+import { FUNCTIONAL_CATALOG } from '@utils/functional-catalog';
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 export class PuntoVentaNavigationPage {
     constructor(private readonly page: Page) {}
 
     async navegarAPuntoDeVenta(): Promise<void> {
         try {
+            await esperarCargaOverlay(this.page);
             await this.page.getByText('Ventas y compras').click();
             await this.page.getByText('Nueva venta', { exact: true }).click();
 

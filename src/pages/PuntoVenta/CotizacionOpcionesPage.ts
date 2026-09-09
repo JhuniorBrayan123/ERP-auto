@@ -1,4 +1,5 @@
 import { type Locator, type Page } from '@playwright/test';
+import { esperarCargaOverlaySiVisible } from '@utils/wait-helpers';
 
 export class CotizacionOpcionesPage {
     constructor(private readonly page: Page) {}
@@ -38,6 +39,7 @@ export class CotizacionOpcionesPage {
     }
 
     async seleccionarVigencia(dias: string): Promise<void> {
+        await esperarCargaOverlaySiVisible(this.page);
         await this.selectorVigencia.click();
         await this.page
             .locator('.v-select-form-option, .v-select-small-option')

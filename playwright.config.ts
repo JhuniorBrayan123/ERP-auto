@@ -40,7 +40,7 @@ export default defineConfig({
 
     testIgnore: ["**/_*", "**/_codegen/**"],
 
-    outputDir: "report/artifacts",
+    outputDir: process.env.PW_OUTPUT_DIR || "report/artifacts",
 
     reporter: [
         ["./src/utils/maven-reporter.ts"], // consola estilo Maven/Surefire
@@ -55,7 +55,7 @@ export default defineConfig({
     use: {
         baseURL: env.baseUrl,
 
-        trace: isCI ? "retain-on-failure" : "on",
+        trace: "retain-on-failure",
         screenshot: "only-on-failure",
         video: "retain-on-failure",
 

@@ -1,4 +1,5 @@
 import { expect, Locator, Page } from '@playwright/test';
+import { esperarCargaOverlaySiVisible } from '@utils/wait-helpers';
 
 export interface DetalleCarga {
     ubigeo: string;
@@ -52,6 +53,7 @@ export class DetraccionPage {
     }
 
     async configurarTransporteCarga(config: ConfigDetraccionTransporte): Promise<void> {
+        await esperarCargaOverlaySiVisible(this.page);
 
         const selectOperacion = this.page
             .locator('.v-select-header-form')
@@ -101,13 +103,12 @@ export class DetraccionPage {
             await inputCuenta.pressSequentially(soloDigitos, { delay: 50 });
         }
 
-        const btnAgregar = this.page.locator('[id$="v-button:agregar-detalle-carga"]').or(
-            this.page.locator('div').filter({ hasText: /^Agregar detalle de carga$/i }).last()
-        ).or(this.page.getByText('Agregar detalle de carga').last());
+        const btnAgregar = this.page.locator('[id="pv_punto-venta_drapes:datos-detraccion_v-button:agregar-detalle-carga"]')
 
         await btnAgregar.first().waitFor({ state: 'visible', timeout: 5000 }).catch(() => {
         });
         await btnAgregar.first().click({ force: true });
+        await esperarCargaOverlaySiVisible(this.page);
 
         await this._llenarUbigeo(config.origen, 'origen');
         await this._llenarUbigeo(config.destino, 'destino');
