@@ -2,6 +2,8 @@ import {expect, type Page} from '@playwright/test';
 import {ClientePage} from '@pages/PuntoVenta/ClientePage';
 import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
 import {ComprobantePage} from '@pages/PuntoVenta/ComprobantePage';
+import {SunatEstadoApi} from '@services/PuntoVenta/SunatEstadoApi';
+import {getCachedToken} from '@fixtures/auth/token-cache.fixture';
 import type {DatosCliente, ItemVenta, TipoComprobante} from '@app-types/emision.types';
 
 export interface DatosComprobanteOrigen {
@@ -48,6 +50,13 @@ export const EmitirComprobanteOrigen = (datos: DatosComprobanteOrigen) => {
         await page.waitForTimeout(1500); 
         
         await emisionPage.clickNuevaVenta();
+
+        if (datos.tipoComprobante === 'BOLETA' || datos.tipoComprobante === 'FACTURA') {
+            const token = await getCachedToken(page);
+            const sunatApi = new SunatEstadoApi(page.request, token);
+            const estadoSunat = await sunatApi.esperarEstadoFinal(resultado.comprobanteId);
+            expect(estadoSunat.aceptado).toBe(true);
+        }
 
         return {
             serie: resultado.serie,
