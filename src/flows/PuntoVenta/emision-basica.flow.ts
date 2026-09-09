@@ -50,7 +50,7 @@ export async function ejecutarEmisionBasica(
     let resultado: EmisionResult = {serie: '', correlativo: '', comprobanteId: 0, montoTotalVenta: 0};
 
     await test.step('When: emitir comprobante con efectivo', async () => {
-        await emisionPage.emitirConEfectivoExacto();
+        const emision = await emisionPage.emitirConEfectivoExacto();
 
         const seriePrefix = params.tipoComprobante === 'BOLETA' ? SERIES.BOLETA
             : params.tipoComprobante === 'FACTURA' ? SERIES.FACTURA
@@ -58,6 +58,8 @@ export async function ejecutarEmisionBasica(
 
         resultado = await comprobanteDetalle.capturarSerieCorrelativo(seriePrefix)
             .catch(() => ({serie: seriePrefix, correlativo: '', comprobanteId: 0, montoTotalVenta: 0}));
+
+        resultado.comprobanteId = emision.comprobanteId;
     });
 
     return resultado;
