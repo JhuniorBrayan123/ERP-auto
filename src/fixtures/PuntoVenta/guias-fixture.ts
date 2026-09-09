@@ -4,6 +4,7 @@ import {ListadoGuiasPage} from '@pages/PuntoVenta/guias-remision/ListadoGuiasPag
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 import {KardexApi} from '../../services/Logistica/KardexApi';
 import {AlmacenesApi} from '../../services/Logistica/AlmacenesApi';
+import {SunatEstadoApi} from '../../services/PuntoVenta/SunatEstadoApi';
 import {getCachedToken} from '../auth/token-cache.fixture';
 
 type GuiasFixtures = {
@@ -11,6 +12,7 @@ type GuiasFixtures = {
     listadoGuiasPage: ListadoGuiasPage;
     busquedaComprobantes: BusquedaComprobantesPage;
     kardexApi: KardexApi;
+    sunatApi: SunatEstadoApi;
 };
 
 export const test = base.extend<GuiasFixtures>({
@@ -32,6 +34,11 @@ export const test = base.extend<GuiasFixtures>({
         const almacenesApi = new AlmacenesApi(request, token);
         const almacenesQuery = await almacenesApi.buildAlmacenesQuery();
         await use(new KardexApi(request, token, almacenesQuery));
+    },
+
+    sunatApi: async ({request, page}, use) => {
+        const token = await getCachedToken(page);
+        await use(new SunatEstadoApi(request, token));
     }
 });
 
