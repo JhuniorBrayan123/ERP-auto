@@ -15,7 +15,7 @@ test.describe('GR-06 | Remitente — Vinculación', {tag: ['@puntoventa', '@guia
         await cajero.intentaRealizar(IniciarVentaEnCaja('caja-auto'));
     });
 
-    test('SC-01: Emitir guía vinculando un comprobante @GR-06.1', async ({page, listadoGuiasPage, kardexApi}) => {
+    test('SC-01: Emitir guía vinculando un comprobante @GR-06.1', async ({page, listadoGuiasPage, kardexApi, sunatApi}) => {
         
         const resultado = await ejecutarEmisionBasica(
             {
@@ -46,7 +46,12 @@ test.describe('GR-06 | Remitente — Vinculación', {tag: ['@puntoventa', '@guia
         const navigateTask = NavegarAGuiaRemitente();
         await navigateTask(page);
 
-        
+
+        await test.step('Validar comprobante aceptado por SUNAT antes de vincular', async () => {
+            const estadoSunat = await sunatApi.esperarEstadoFinal(resultado.comprobanteId);
+            expect(estadoSunat.aceptado).toBe(true);
+        });
+
         const guiaPage = new GuiaRemitentePage(page);
         await guiaPage.vincularComprobanteEnModal(resultado.serie, resultado.correlativo);
 
