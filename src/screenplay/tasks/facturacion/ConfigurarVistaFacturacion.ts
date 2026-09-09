@@ -19,20 +19,56 @@ export const ConfigurarVistaFacturacion = () => {
 };
 
 export const AsegurarVistaFacturacion = () => {
-    const fn = async (page: Page): Promise<void> => {
-        const iconoActivo = FacturacionTargets.iconoVistaFacturacionActivo(page);
-        const estaActiva = await iconoActivo.isVisible({timeout: 3_000}).catch(() => false);
 
-        if (!estaActiva) {
-            await FacturacionTargets.btnCambiarVista(page).click();
-            await FacturacionTargets.opcionVistaFacturacion(page).click();
-            
-            await page.waitForTimeout(500); 
+    const fn = async (page: Page): Promise<void> => {
+
+        const iconoActivo =
+            FacturacionTargets
+                .iconoVistaFacturacionActivo(page);
+
+        const btnCambiarVista =
+            FacturacionTargets
+                .btnCambiarVista(page);
+
+        const opcionVista =
+            FacturacionTargets
+                .opcionVistaFacturacion(page);
+
+        // Primero esperamos que la pantalla esté realmente disponible.
+        await expect(btnCambiarVista).toBeVisible({
+            timeout: 10_000
+        });
+
+        // Aquí SÍ queremos dar hasta 3 segundos
+        // para detectar si ya está activa.
+        const estaActiva = await iconoActivo
+            .waitFor({
+                state: 'visible',
+                timeout: 3_000
+            })
+            .then(() => true)
+            .catch(() => false);
+
+        if (estaActiva) {
+            return;
         }
 
+        await btnCambiarVista.click();
 
-        await expect(iconoActivo).toBeVisible({timeout: 5_000});
+        await expect(opcionVista).toBeVisible({
+            timeout: 10_000
+        });
+
+        await opcionVista.click();
+
+        // Nada de waitForTimeout(500).
+        // Esperamos el resultado real.
+        await expect(iconoActivo).toBeVisible({
+            timeout: 10_000
+        });
     };
+
     fn.displayName = 'Asegurar Vista Facturación activa';
+
     return fn;
 };
