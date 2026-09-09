@@ -33,9 +33,6 @@ export class ComprobantePage {
 
             await this.abrirSelectorTipo();
             await optionLocator.getByText(tipo).click();
-            await expect(
-                this.page.locator('.v-select-header-small .v-text.bold').first()
-            ).not.toHaveText('Seleccionar', {timeout: 30_000});
         } catch (error) {
             await throwFunctionalError({
                 page: this.page,
@@ -43,6 +40,13 @@ export class ComprobantePage {
                 cause: error,
             });
         }
+    }
+
+    // Solo guías y notas de crédito/débito navegan a una interfaz nueva; el resto se queda en la misma vista.
+    private async esperarNuevaInterfazEstable(): Promise<void> {
+        await expect(
+            this.page.locator('.v-select-header-small .v-text.bold').first()
+        ).not.toHaveText('Seleccionar', {timeout: 30_000});
     }
 
     async seleccionarBoleta(): Promise<void> {
@@ -73,15 +77,18 @@ export class ComprobantePage {
     async seleccionarNotaCredito(): Promise<void> {
         await esperarCargaOverlaySiVisible(this.page);
         await this.seleccionarTipoComprobante('NOTA DE CRÉDITO');
+        await this.esperarNuevaInterfazEstable();
     }
 
     async seleccionarNotaDebito(): Promise<void> {
         await esperarCargaOverlaySiVisible(this.page);
         await this.seleccionarTipoComprobante('NOTA DE DÉBITO');
+        await this.esperarNuevaInterfazEstable();
     }
 
     async seleccionarGuiaRemisionRemitente(): Promise<void> {
         await esperarCargaOverlaySiVisible(this.page);
         await this.seleccionarTipoComprobante('GUÍA DE REMISIÓN REMITENTE');
+        await this.esperarNuevaInterfazEstable();
     }
 }
