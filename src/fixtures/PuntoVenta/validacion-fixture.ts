@@ -1,9 +1,9 @@
 import { test as emisionTest } from './emision-fixture';
-import { SunatEstadoApi } from '../../services/PuntoVenta/SunatEstadoApi';
-import { ComprobanteApi } from '../../services/PuntoVenta/ComprobanteApi';
-import { KardexApi } from '../../services/Logistica/KardexApi';
-import { AlmacenesApi } from '../../services/Logistica/AlmacenesApi';
-import { CajasApi } from '../../services/PuntoVenta/CajasApi';
+import { SunatEstadoApi } from '@services/PuntoVenta/SunatEstadoApi';
+import { ComprobanteApi } from '@services/PuntoVenta/ComprobanteApi';
+import { KardexApi } from '@services/Logistica/KardexApi';
+import { AlmacenesApi } from '@services/Logistica/AlmacenesApi';
+import { CajasApi } from '@services/PuntoVenta/CajasApi';
 import { getCachedToken } from '../auth/token-cache.fixture';
 
 type ValidacionFixtures = {
