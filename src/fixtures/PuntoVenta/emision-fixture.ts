@@ -1,18 +1,18 @@
 import {test as base} from '@playwright/test';
-import {PuntoVentaNavigationPage} from '../../pages/PuntoVenta/PuntoVentaNavigationPage';
-import {EmisionPage} from '../../pages/PuntoVenta/EmisionPage';
-import {EmisionDatosOpcionalesPage} from '../../pages/PuntoVenta/EmisionDatosOpcionalesPage';
-import {EmisionAdelantosPage} from '../../pages/PuntoVenta/EmisionAdelantosPage';
-import {CajaPage} from '../../pages/PuntoVenta/CajaPage';
-import {ClientePage} from '../../pages/PuntoVenta/ClientePage';
-import {ComprobantePage} from '../../pages/PuntoVenta/ComprobantePage';
-import {ComprobanteDetallePage} from '../../pages/PuntoVenta/ComprobanteDetallePage';
-import {BusquedaComprobantesPage} from '../../pages/PuntoVenta/BusquedaComprobantesPage';
-import {PrecuentaPage} from '../../pages/PuntoVenta/PrecuentaPage';
+import {PuntoVentaNavigationPage} from '@pages/PuntoVenta/PuntoVentaNavigationPage';
+import {EmisionPage} from '@pages/PuntoVenta/EmisionPage';
+import {EmisionDatosOpcionalesPage} from '@pages/PuntoVenta/EmisionDatosOpcionalesPage';
+import {EmisionAdelantosPage} from '@pages/PuntoVenta/EmisionAdelantosPage';
+import {CajaPage} from '@pages/PuntoVenta/CajaPage';
+import {ClientePage} from '@pages/PuntoVenta/ClientePage';
+import {ComprobantePage} from '@pages/PuntoVenta/ComprobantePage';
+import {ComprobanteDetallePage} from '@pages/PuntoVenta/ComprobanteDetallePage';
+import {BusquedaComprobantesPage} from '@pages/PuntoVenta/busqueda-comprobantes';
+import {PrecuentaPage} from '@pages/PuntoVenta/PrecuentaPage';
 import {DetraccionPage} from "@pages/PuntoVenta/detraccion.page";
-import {PostEmisionPage} from '../../pages/PuntoVenta/PostEmisionPage';
-import {PedidoListaPage} from '../../pages/PuntoVenta/PedidoListaPage';
-import {CotizacionOpcionesPage} from '../../pages/PuntoVenta/CotizacionOpcionesPage';
+import {PostEmisionPage} from '@pages/PuntoVenta/PostEmisionPage';
+import {PedidoListaPage} from '@pages/PuntoVenta/PedidoListaPage';
+import {CotizacionOpcionesPage} from '@pages/PuntoVenta/CotizacionOpcionesPage';
 
 type EmisionFixtures = {
     pvNav: PuntoVentaNavigationPage;
