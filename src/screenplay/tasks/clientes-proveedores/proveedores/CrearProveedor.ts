@@ -1,7 +1,7 @@
 import {expect, type Page} from '@playwright/test';
 import {ProveedoresTargets} from '@screenplay/targets/clientes-proveedores/ProveedoresTargets';
 import {DatosProveedorInput} from '@data/clientes-proveedores/proveedores.data';
-import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
+import {esperarCargaOverlay} from '@utils/wait-helpers';
 
 export const AbrirCrearProveedor = () => {
     const fn = async (page: Page): Promise<void> => {
@@ -61,7 +61,7 @@ export const CrearProveedor = (datos: DatosProveedorInput) => {
         await ProveedoresTargets.btnCrearProveedorForm(page).click();
 
         
-        await esperarCargaOverlaySiVisible(page);
+        await esperarCargaOverlay(page);
         await expect(ProveedoresTargets.mensajeBuenTrabajo(page)).toBeVisible({timeout: 30_000});
         await expect(ProveedoresTargets.mensajeExitoCreacion(page)).toBeVisible();
         await ProveedoresTargets.btnCerrarModal(page).click();
@@ -91,7 +91,7 @@ export const IntentarCrearProveedor = (datos: DatosProveedorInput) => {
         await ProveedoresTargets.btnCrearProveedor(page).click();
         await LlenarFormularioBasicoProveedor(datos)(page);
         await ProveedoresTargets.btnCrearProveedorForm(page).click();
-        await esperarCargaOverlaySiVisible(page).catch(() => {});
+        await esperarCargaOverlay(page).catch(() => {});
     };
     fn.displayName = `Intentar crear proveedor (sin validación): ${datos.nombreRazonSocial}`;
     return fn;

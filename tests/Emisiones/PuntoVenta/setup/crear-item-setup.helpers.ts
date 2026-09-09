@@ -5,7 +5,7 @@ import {ListaFormPage} from '@pages/Logistica/ListaFormPage';
 import {ComboFormPage} from '@pages/Logistica/ComboFormPage';
 import type {ItemTemplate} from '@factories/item-factory';
 import {verificarVisible} from '@utils/functional-error';
-import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
+import {esperarCargaOverlay} from '@utils/wait-helpers';
 
 export async function llenarProductoBase(
     productoForm: ProductoFormPage,
@@ -13,7 +13,7 @@ export async function llenarProductoBase(
     template: ItemTemplate,
 ): Promise<void> {
     await productoForm.iniciarCreacionProducto();
-    await esperarCargaOverlaySiVisible(productoForm.page);
+    await esperarCargaOverlay(productoForm.page);
     const nombreFinal = template.esDinamico ? `${template.nombre} ${codigo.split('-')[1]}` : template.nombre;
     await productoForm.llenarNombre(nombreFinal);
     await productoForm.llenarCodigo(Number(codigo.replace(/-/g, '')));
@@ -126,7 +126,7 @@ export async function crearRecetaDesdeTemplate(
     resolverCodigo: (key: string) => string,
 ): Promise<void> {
     await recetaForm.iniciarCreacionReceta();
-    await esperarCargaOverlaySiVisible(recetaForm.page);
+    await esperarCargaOverlay(recetaForm.page);
     const nombreFinal = template.esDinamico ? `${template.nombre} ${codigo.split('-')[1]}` : template.nombre;
     await recetaForm.llenarNombre(nombreFinal);
     await recetaForm.llenarCodigo(Number(codigo.replace(/-/g, '')));
@@ -174,7 +174,7 @@ export async function crearListaDesdeTemplate(
     resolverCodigo: (key: string) => string,
 ): Promise<void> {
     await listaForm.iniciarCreacionLista();
-    await esperarCargaOverlaySiVisible(listaForm.page);
+    await esperarCargaOverlay(listaForm.page);
     const nombreFinal = template.esDinamico ? `${template.nombre} ${codigo.split('-')[1]}` : template.nombre;
     await listaForm.llenarNombre(nombreFinal);
     await listaForm.llenarCodigo(Number(codigo.replace(/-/g, '')));
@@ -221,7 +221,7 @@ export async function crearComboDesdeTemplate(
     resolverCodigo: (key: string) => string,
 ): Promise<void> {
     await comboForm.iniciarCreacionCombo();
-    await esperarCargaOverlaySiVisible(comboForm.page);
+    await esperarCargaOverlay(comboForm.page);
     const nombreFinal = template.esDinamico ? `${template.nombre} ${codigo.split('-')[1]}` : template.nombre;
     await comboForm.llenarNombre(nombreFinal);
     await comboForm.llenarCodigo(Number(codigo.replace(/-/g, '')));

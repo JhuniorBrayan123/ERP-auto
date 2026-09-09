@@ -1,5 +1,5 @@
 import {type Locator, type Page} from '@playwright/test';
-import {esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 export class PedidoListaPage {
     constructor(private readonly page: Page) {
@@ -41,7 +41,7 @@ export class PedidoListaPage {
 
     async clickVerTodos(): Promise<void> {
         await this.btnListarPedidos.click();
-        await esperarCargaOverlaySiVisible(this.page)
+        await esperarCargaOverlay(this.page)
     }
 
     async filtrarPorNroPedido(numero: string): Promise<void> {

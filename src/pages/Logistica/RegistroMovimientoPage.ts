@@ -1,7 +1,7 @@
 import {expect, type Locator, type Page} from '@playwright/test';
 import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
 import {runFunctionalAction} from '../../utils/functional-step';
-import {esperarCargaOverlay, esperarCargaOverlaySiVisible, esperarDebounce} from '../../utils/wait-helpers';
+import {esperarCargaOverlay, esperarDebounce} from '../../utils/wait-helpers';
 
 export class RegistroMovimientoPage {
     constructor(private readonly page: Page) {

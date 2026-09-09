@@ -1,6 +1,6 @@
 import {type Page} from '@playwright/test';
 import type {EmisionResult} from '@helpers/PuntoVenta/emision.types';
-import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
+import {esperarCargaOverlay} from '@utils/wait-helpers';
 
 export class AdelantosModalComponent {
     constructor(private readonly page: Page) {
@@ -26,7 +26,7 @@ export class AdelantosModalComponent {
         await input.click();
         await input.fill(emision.correlativo);
         await input.press('Enter');
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
         await seriesPromise;
 
         console.log(`   Adelanto filtrado: correlativo ${emision.correlativo}`);

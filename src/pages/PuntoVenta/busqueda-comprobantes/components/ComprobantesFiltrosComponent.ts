@@ -1,5 +1,5 @@
 import {type Page} from '@playwright/test';
-import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 import {esperarCargaGrillaComprobantes} from '../wait-helpers';
 import type {BcCategoria, BcPresetFecha} from '@helpers/PuntoVenta/busqueda-comprobantes.data';
 
@@ -25,19 +25,19 @@ export class ComprobantesFiltrosComponent {
             await btn.click();
         } catch {
         }
-        await esperarCargaOverlaySiVisible(this.page)
+        await esperarCargaOverlay(this.page)
     }
 
     async aplicarFiltros(): Promise<void> {
         await esperarCargaGrillaComprobantes(this.page);
 
         await this.page.getByRole('button', {name: 'Aplicar filtros'}).click();
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
     }
 
     async borrarFiltros(): Promise<void> {
         await this.page.getByRole('button', {name: 'Borrar filtros'}).click();
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
     }
 
     async filtrarPorCorrelativo(correlativo: string): Promise<void> {
@@ -68,14 +68,12 @@ export class ComprobantesFiltrosComponent {
 
     async filtrarPorSerie(serie: string): Promise<void> {
         await this.page.locator('div').filter({hasText: /^Serie$/}).nth(2).click();
-        await esperarCargaOverlay(this.page);
         await this.page.locator('thead').getByText(serie).click();
         await esperarCargaOverlay(this.page);
     }
 
     async filtrarPorMoneda(moneda: string): Promise<void> {
         await this.page.getByText('Moneda').first().click();
-        await esperarCargaOverlay(this.page);
         await this.page.locator('thead').getByText(moneda).click();
         await esperarCargaOverlay(this.page);
     }
@@ -104,7 +102,7 @@ export class ComprobantesFiltrosComponent {
         await input.click();
         await input.fill(documento);
         await input.press('Enter');
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
     }
 
     async filtrarPorMontoTotal(comparador: string, valor: string): Promise<void> {

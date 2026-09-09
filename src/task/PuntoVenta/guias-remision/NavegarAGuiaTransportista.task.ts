@@ -1,5 +1,5 @@
 import {expect, Page, test} from '@playwright/test';
-import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
+import {esperarCargaOverlay} from '@utils/wait-helpers';
 
 export const NavegarAGuiaTransportista = () => {
     const fn = async (page: Page) => {
@@ -9,7 +9,7 @@ export const NavegarAGuiaTransportista = () => {
         await test.step('Seleccionar GUÍA DE REMISIÓN TRANSPORTISTA', async () => {
             await page.getByText('GUÍA DE REMISIÓN TRANSPORTISTA').click();
             await expect(page.getByText('Buscar remitente')).toBeVisible({timeout: 20_000});
-            await esperarCargaOverlaySiVisible(page);
+            await esperarCargaOverlay(page);
         });
     };
     fn.displayName = 'Navegar a Guía de Remisión Transportista';

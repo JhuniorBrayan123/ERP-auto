@@ -1,5 +1,5 @@
 import {Page} from "@playwright/test";
-import {esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
+import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
 
 export const NavegarAListadoClientes = () => {
     const fn = async (page: Page): Promise<void> => {

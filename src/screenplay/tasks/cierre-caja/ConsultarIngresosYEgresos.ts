@@ -66,8 +66,8 @@ export const BuscarEnIngresosEgresos = (textoBusqueda: string) => {
         await input.press('Enter');
 
 
-        const { esperarCargaOverlaySiVisible } = require('@utils/wait-helpers');
-        await esperarCargaOverlaySiVisible(page);
+        const { esperarCargaOverlay } = require('@utils/wait-helpers');
+        await esperarCargaOverlay(page);
     };
 
     fn.displayName = `Buscar "${textoBusqueda}" en Ingresos y Egresos`;

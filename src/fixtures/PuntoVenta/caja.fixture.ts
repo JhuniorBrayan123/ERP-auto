@@ -8,7 +8,7 @@ import {ClientePage} from '@pages/PuntoVenta/ClientePage';
 import {ComprobantePage} from '@pages/PuntoVenta/ComprobantePage';
 import type {ResultadoComprobanteOrigen} from '@screenplay/tasks/common/EmitirComprobanteOrigen';
 import {EmitirComprobanteOrigen} from '@screenplay/tasks/common/EmitirComprobanteOrigen';
-import {esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 
 
@@ -135,7 +135,7 @@ export const test = base.extend<CajaFixtures>({
         await expect(page.getByText('¡Buen trabajo!')).toBeVisible({ timeout: 15000 });
         await emisionPage.clickNuevaVenta();
 
-        await esperarCargaOverlaySiVisible(page);
+        await esperarCargaOverlay(page);
         await use({
             serie,
             correlativo,

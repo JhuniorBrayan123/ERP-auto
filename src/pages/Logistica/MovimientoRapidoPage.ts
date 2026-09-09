@@ -1,5 +1,5 @@
 import {type Page} from '@playwright/test';
-import {esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 export class MovimientoRapidoPage {
     constructor(private readonly page: Page) {
@@ -28,9 +28,9 @@ export class MovimientoRapidoPage {
         await this.page
             .locator('[id="lgt_items_cmp-grid-item-option:opciones_items_cmp-dropdown:options-li:visualizar-item"]')
             .click();
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
 
-
+        
         const card = this.page
             .locator('.stock-almacen')
             .filter({ has: this.page.locator('.descripcion', { hasText: nombreAlmacen }) });
@@ -40,7 +40,7 @@ export class MovimientoRapidoPage {
             .locator('.stock .opciones [id="lgt_items_v-modal:stock-item_cmp-dropdown:stock-almacen-opciones"]')
             .click();
 
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
 
         await this.page
             .locator('[id="lgt_items_v-modal:stock-item_cmp-dropdown:stock-almacen-opciones_cmp-dropdown-item:aumentar-stock"]')

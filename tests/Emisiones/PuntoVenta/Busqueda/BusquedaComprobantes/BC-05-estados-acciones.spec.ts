@@ -16,7 +16,7 @@ import {BitacoraDelComprobante} from '@screenplay/questions/PuntoVenta/busqueda-
 import {AccionDelComprobante} from '@screenplay/questions/PuntoVenta/busqueda-comprobantes/AccionDelComprobante';
 import {FiltrarComprobantes} from "@task/PuntoVenta/busqueda-comprobantes/FiltrarComprobantes";
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
-import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
+import {esperarCargaOverlay} from '@utils/wait-helpers';
 
 test.describe('BC-05 | Estados y acciones', {tag: ['@busqueda']}, () => {
 
@@ -60,7 +60,7 @@ test.describe('BC-05 | Estados y acciones', {tag: ['@busqueda']}, () => {
             {timeout: 30_000},
         );
         await page.getByText('Emitir', {exact: true}).click();
-        await esperarCargaOverlaySiVisible(page);
+        await esperarCargaOverlay(page);
         await page.getByRole('button', {name: 'Emitir'}).click();
         const emitResponse = await emitResponsePromise;
         const emitBody = await emitResponse.json();
@@ -68,7 +68,7 @@ test.describe('BC-05 | Estados y acciones', {tag: ['@busqueda']}, () => {
         const nuevaSerie = nombrePdf.split('-')[0] || '';
         const nuevoCorrelativo = String(emitBody.CorrelativoDocumento ?? '');
         await busqueda.cerrarModalExito();
-        await esperarCargaOverlaySiVisible(page);
+        await esperarCargaOverlay(page);
 
         await busqueda.filtrarPorCorrelativos(nuevoCorrelativo);
 

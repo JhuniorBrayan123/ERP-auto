@@ -102,7 +102,7 @@ export const IntentarCrearConductor = (datos: DatosConductorInput) => {
         await ConductoresTargets.btnCrearConductor(page).click();
         await LlenarFormularioBasicoConductor(datos)(page);
         await ConductoresTargets.btnCrearConductorForm(page).click();
-        await esperarCargaOverlaySiVisible(page);
+        await esperarCargaOverlay(page);
     };
     fn.displayName = `Intentar crear conductor (sin validación): ${datos.nombreRazonSocial}`;
     return fn;

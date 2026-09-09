@@ -1,7 +1,7 @@
 import {test as base, expect} from '@playwright/test';
 import {Cajero} from '@actors/cajero';
 import {VendedoresTargets} from '@screenplay/targets/clientes-proveedores/VendedoresTargets';
-import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
+import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
 
 type VendedoresFixtures = {
     vendedorActor: Cajero; 

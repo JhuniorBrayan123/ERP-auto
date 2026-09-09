@@ -6,7 +6,7 @@ import {SeleccionarTipoComprobante} from '@screenplay/interactions/facturacion/S
 import {CotizacionTargets} from '@screenplay/targets/cotizacion/CotizacionTargets';
 import {BitacoraComprobante} from '@question/PuntoVenta/BitacoraComprobante.question';
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
-import {esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 test.describe('FC-CT-EMISION | Emisión de Cotización desde Vista Facturación', {
     tag: ['@facturacion', '@cotizacion', '@emision']
@@ -107,7 +107,7 @@ test.describe('FC-CT-EMISION | Emisión de Cotización desde Vista Facturación'
 
         await busqueda.filtrarPorCorrelativo(resultado.correlativo);
         const verPopup = await busqueda.abrirVerComprobante();
-        await esperarCargaOverlaySiVisible(verPopup);
+        await esperarCargaOverlay(verPopup);
         await expect(verPopup.getByText('10.5%')).toBeVisible();
     });
 

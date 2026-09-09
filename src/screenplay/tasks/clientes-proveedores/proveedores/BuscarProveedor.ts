@@ -1,6 +1,6 @@
 import {type Page} from '@playwright/test';
 import {ProveedoresTargets} from '@screenplay/targets/clientes-proveedores/ProveedoresTargets';
-import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
+import {esperarCargaOverlay} from '@utils/wait-helpers';
 
 export const BuscarProveedorEnListado = (criterio: string) => {
     const fn = async (page: Page): Promise<void> => {
@@ -8,7 +8,7 @@ export const BuscarProveedorEnListado = (criterio: string) => {
         await input.click();
         await input.fill(criterio);
         await page.keyboard.press('Enter');
-        await esperarCargaOverlaySiVisible(page).catch(() => {});
+        await esperarCargaOverlay(page).catch(() => {});
     };
     fn.displayName = `Buscar proveedor por: ${criterio}`;
     return fn;

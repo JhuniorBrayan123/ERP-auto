@@ -1,7 +1,7 @@
 import {expect, type Page} from '@playwright/test';
 import {throwFunctionalError} from '@utils/functional-error';
 import {FUNCTIONAL_CATALOG} from '@utils/functional-catalog';
-import {esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 export class CajaPage {
 
@@ -45,7 +45,7 @@ export class CajaPage {
         await this.clickAperturarCaja();
         await this.clickApertura();
         await this.clickSiAperturar();
-        await esperarCargaOverlaySiVisible(this.page)
+        await esperarCargaOverlay(this.page)
     }
 
     async continuarVendiendo(): Promise<void> {

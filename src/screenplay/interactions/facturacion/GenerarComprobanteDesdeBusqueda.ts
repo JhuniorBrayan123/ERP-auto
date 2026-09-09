@@ -1,5 +1,5 @@
 import {type Page} from '@playwright/test';
-import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
+import {esperarCargaOverlay} from '@utils/wait-helpers';
 import type {EmisionResult} from '@app-types/emision.types';
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 import {PagoTargets} from '@screenplay/targets/facturacion/PagoTargets';
@@ -10,7 +10,7 @@ export const GenerarComprobanteDesdeBusqueda = (numeroComprobante: string, tipoD
     const fn = async (page: Page): Promise<EmisionResult> => {
         const busquedaPage = new BusquedaComprobantesPage(page);
         await busquedaPage.filtrarPorCorrelativo(numeroComprobante);
-        await esperarCargaOverlaySiVisible(page).catch(() => {
+        await esperarCargaOverlay(page).catch(() => {
         });
 
         await busquedaPage.abrirAccionesDeComprobante(numeroComprobante);
@@ -72,7 +72,7 @@ export const GenerarComprobanteDesdeBusqueda = (numeroComprobante: string, tipoD
                 await PagoTargets.selectorTipoDocPago(popup).click();
                 await PagoTargets.opcionTipoDocPago(popup, tipoDestino).click();
                 await PagoTargets.btnConfirmarPago(popup).click();
-                await esperarCargaOverlaySiVisible(popup).catch(() => {
+                await esperarCargaOverlay(popup).catch(() => {
                 });
                 await montoExacto.waitFor({state: 'visible', timeout: 15_000});
                 return;
@@ -89,7 +89,7 @@ export const GenerarComprobanteDesdeBusqueda = (numeroComprobante: string, tipoD
 
         
         await popup.getByRole('button', {name: 'PAGAR'}).click();
-        await esperarCargaOverlaySiVisible(popup).catch(() => {
+        await esperarCargaOverlay(popup).catch(() => {
         });
         try {
             await confirmarYEsperarMonto(20_000);
@@ -107,7 +107,7 @@ export const GenerarComprobanteDesdeBusqueda = (numeroComprobante: string, tipoD
                 
                 await popup.getByRole('button', {name: 'PAGAR'}).click({timeout: 5_000}).catch(() => {
                 });
-                await esperarCargaOverlaySiVisible(popup).catch(() => {
+                await esperarCargaOverlay(popup).catch(() => {
                 });
             }
             await confirmarYEsperarMonto(25_000);

@@ -1,12 +1,12 @@
 import {type Page} from '@playwright/test';
 import {ProveedoresTargets} from '@screenplay/targets/clientes-proveedores/ProveedoresTargets';
-import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
+import {esperarCargaOverlay} from '@utils/wait-helpers';
 
 export const ToggleSliderEstadoProveedor = (_accion?: string) => {
     const fn = async (page: Page): Promise<void> => {
         await ProveedoresTargets.switchEstado(page).click();
         await ProveedoresTargets.botonContextualProveedor(page).click();
-        await esperarCargaOverlaySiVisible(page).catch(() => {});
+        await esperarCargaOverlay(page).catch(() => {});
     };
     fn.displayName = 'Toggle slider de estado de proveedor';
     return fn;

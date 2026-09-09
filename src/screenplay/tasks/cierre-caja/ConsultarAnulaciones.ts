@@ -1,7 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 import { CierreCajaTargets } from '@screenplay/targets/cierre-caja/CierreCajaTargets';
 import { AnulacionesNCTargets } from '@screenplay/targets/cierre-caja/AnulacionesNCTargets';
-import { esperarCargaOverlaySiVisible } from '@utils/wait-helpers';
+import { esperarCargaOverlay } from '@utils/wait-helpers';
 
 export interface FiltrosAnulacion {
     tipoDocumento?: 'Boleta' | 'Factura' | 'Nota de Venta';
@@ -40,7 +40,7 @@ export const BuscarAnulacionEnCierre = (filtros: FiltrosAnulacion) => {
             await AnulacionesNCTargets.inputCorrelativoAnulaciones(page).fill(filtros.correlativo);
             await AnulacionesNCTargets.inputCorrelativoAnulaciones(page).press('Enter');
 
-            await esperarCargaOverlaySiVisible(page);
+            await esperarCargaOverlay(page);
         }
     };
 

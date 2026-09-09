@@ -1,5 +1,5 @@
 import {type Page} from '@playwright/test';
-import {esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 import type {BcCategoria} from '@helpers/PuntoVenta/busqueda-comprobantes.data';
 
 export class ConfiguracionColumnasComponent {
@@ -39,7 +39,7 @@ export class ConfiguracionColumnasComponent {
         await this.page.locator(
             '[id="pv_cmp-comprobantes:cmp-grid-comprobantes-header-options_v-button:guardar-configuracion"]',
         ).click();
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
     }
 
     async activarTodasLasColumnas(): Promise<void> {

@@ -5,7 +5,7 @@ import {SeleccionarTipoComprobante} from '@screenplay/interactions/facturacion/S
 import {PedidoTargets} from '@screenplay/targets/pedido/PedidoTargets';
 import {CAJAS, CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {FacturacionTargets} from '@screenplay/targets/facturacion/FacturacionTargets';
-import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
+import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
 import {AbrirListaPedidos} from '@task/PuntoVenta/AbrirListaPedidos.task';
 import {FiltrarListaPedidosPorNumero} from '@task/PuntoVenta/FiltrarListaPedidosPorNumero.task';
 import {FiltrarListaPedidosPorCliente} from '@task/PuntoVenta/FiltrarListaPedidosPorCliente.task';
@@ -61,7 +61,7 @@ test.describe.serial('FC-PD-BUSQUEDA | Búsqueda y Edición de Pedido en Vista F
         await inputCorrelativo.click();
         await inputCorrelativo.fill('99999999');
         await PedidoTargets.btnBuscar(page).click();
-        await esperarCargaOverlaySiVisible(page);
+        await esperarCargaOverlay(page);
         await expect(
             page.getByText('No se encontró el comprobante con los datos ingresados. Por favor, verifica e intenta nuevamente.')
         ).toBeVisible();

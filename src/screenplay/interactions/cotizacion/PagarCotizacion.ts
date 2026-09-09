@@ -1,6 +1,6 @@
 import { type Page } from '@playwright/test';
 import { CotizacionTargets } from '@screenplay/targets/cotizacion/CotizacionTargets';
-import { esperarCargaOverlaySiVisible } from '@utils/wait-helpers';
+import { esperarCargaOverlay } from '@utils/wait-helpers';
 import type { EmisionResult } from '@app-types/emision.types';
 import { PagoTargets } from '@screenplay/targets/facturacion/PagoTargets';
 
@@ -17,7 +17,7 @@ export const PagarCotizacion = (tipoDoc: TipoDocPago) => {
 
         
         await CotizacionTargets.btnPagarCotizacion(page).click();
-        await esperarCargaOverlaySiVisible(page).catch(() => {});
+        await esperarCargaOverlay(page).catch(() => {});
 
         
         await CotizacionTargets.selectorTipoDocPago(page).click();
@@ -25,7 +25,7 @@ export const PagarCotizacion = (tipoDoc: TipoDocPago) => {
 
         
         await CotizacionTargets.btnConfirmarPago(page).click();
-        await esperarCargaOverlaySiVisible(page).catch(() => {});
+        await esperarCargaOverlay(page).catch(() => {});
 
         
         await PagoTargets.btnMontoExacto(page).click();

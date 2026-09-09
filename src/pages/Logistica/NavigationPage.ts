@@ -1,5 +1,5 @@
 import { type Page } from '@playwright/test';
-import { esperarCargaOverlaySiVisible } from '@utils/wait-helpers';
+import { esperarCargaOverlay } from '@utils/wait-helpers';
 
 export class NavigationPage {
   constructor(private readonly page: Page) {}
@@ -14,6 +14,6 @@ export class NavigationPage {
       .getByRole('textbox', { name: 'Buscar por nombre, código o c' })
       .waitFor({ state: 'visible', timeout: 20_000 });
     
-    await esperarCargaOverlaySiVisible(this.page);
+    await esperarCargaOverlay(this.page);
   }
 }

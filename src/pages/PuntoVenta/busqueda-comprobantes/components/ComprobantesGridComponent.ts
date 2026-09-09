@@ -1,5 +1,5 @@
 import {expect, type Locator, type Page} from '@playwright/test';
-import {esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 import type {ComprobanteInfo} from '@helpers/PuntoVenta/busqueda-comprobantes.data';
 
 export class ComprobantesGridComponent {
@@ -120,7 +120,7 @@ export class ComprobantesGridComponent {
     async ordenarPorColumna(nombreColumna: string): Promise<void> {
         const header = this.page.locator('thead th').filter({hasText: nombreColumna}).first();
         await header.click();
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
     }
 
     get btnSiguiente(): Locator {
@@ -131,7 +131,7 @@ export class ComprobantesGridComponent {
         const habilitado = await this.btnSiguiente.isEnabled({timeout: 5_000}).catch(() => false);
         if (!habilitado) return false;
         await this.btnSiguiente.click();
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
         return true;
     }
 

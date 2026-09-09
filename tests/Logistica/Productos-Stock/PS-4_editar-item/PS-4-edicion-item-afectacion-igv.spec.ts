@@ -1,6 +1,6 @@
 import {expect, test} from '@fixtures/Logistica/edicion-clonado-fixture';
 import {getRandomAffectationType} from '@helpers/Logistica/afectacion-igv.helper';
-import {esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 test.describe('PS-04 | Edición de tipo de afectación de item', {tag: ['@logistica', '@productos-stock']}, () => {
 
@@ -23,12 +23,12 @@ test.describe('PS-04 | Edición de tipo de afectación de item', {tag: ['@logist
 
         await test.step('Confirmar actualización', async () => {
             await edicionItem.clickActualizarProducto();
-            await esperarCargaOverlaySiVisible(page);
+            await esperarCargaOverlay(page);
             await edicionItem.closeSuccessModal();
         });
 
         await test.step('Buscar item editado por código en la lista', async () => {
-            await esperarCargaOverlaySiVisible(page);
+            await esperarCargaOverlay(page);
             await listaItems.searchByCode(codigoItem);
         });
 

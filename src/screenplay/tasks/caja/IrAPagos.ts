@@ -2,7 +2,7 @@ import { expect, type Page } from '@playwright/test';
 import { MenuCajaTargets } from '@screenplay/targets/caja/MenuCajaTargets';
 import { CobrosPagosTargets } from '@screenplay/targets/cierre-caja/CobrosPagosTargets';
 import { capturarIdDocFinancieroPago } from '@services/PuntoVenta/CajaMovimientosApi';
-import { esperarCargaOverlaySiVisible } from '@utils/wait-helpers';
+import { esperarCargaOverlay } from '@utils/wait-helpers';
 
 export interface DatosPago {
         estadoFiltro?: string;
@@ -19,8 +19,8 @@ export const IrAPagos = () => {
     const fn = async (page: Page): Promise<void> => {
         await MenuCajaTargets.btnAbrirMenu(page).click();
         await MenuCajaTargets.opcionPagos(page).click();
-
-        await esperarCargaOverlaySiVisible(page);
+        
+        await esperarCargaOverlay(page);
         
         await expect(page.getByRole('button', { name: /^Buscar$/i })).toBeVisible({ timeout: 10_000 });
     };

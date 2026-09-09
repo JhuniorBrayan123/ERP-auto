@@ -110,7 +110,7 @@ export const IntentarCrearVendedor = (datos: DatosVendedorInput) => {
         await VendedoresTargets.btnCrearVendedor(page).click();
         await LlenarFormularioBasicoVendedor(datos)(page);
         await VendedoresTargets.btnCrearVendedorForm(page).click();
-        await esperarCargaOverlaySiVisible(page);
+        await esperarCargaOverlay(page);
     };
     fn.displayName = `Intentar crear vendedor (sin validación): ${datos.nombreRazonSocial}`;
     return fn;

@@ -1,6 +1,6 @@
 import {expect, type Page} from '@playwright/test';
 import type {DatosClienteInput} from '@data/clientes-proveedores/clientes.data';
-import {esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
+import {esperarCargaOverlay} from '@utils/wait-helpers';
 
 export function crearTasksEntidad<T extends Record<string, Function>>(T: T, label: string) {
 
@@ -126,7 +126,7 @@ export function crearTasksEntidad<T extends Record<string, Function>>(T: T, labe
             try {
                 await btn.waitFor({state: 'visible', timeout: 2_000});
                 await btn.click();
-                await esperarCargaOverlaySiVisible(page).catch(() => {});
+                await esperarCargaOverlay(page).catch(() => {});
             } catch {
                 
             }

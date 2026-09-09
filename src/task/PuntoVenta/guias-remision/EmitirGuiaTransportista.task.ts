@@ -2,7 +2,7 @@ import {Page, test} from '@playwright/test';
 import {GuiaTransportistaPage} from '@pages/PuntoVenta/guias-remision/GuiaTransportistaPage';
 import {GUIAS_DATA} from '@helpers/PuntoVenta/guias-data.helper';
 import {runFunctionalAction} from '@utils/functional-step';
-import {esperarCargaOverlaySiVisible, esperarDebounce} from "@utils/wait-helpers";
+import {esperarCargaOverlay, esperarDebounce} from "@utils/wait-helpers";
 
 export type EmitirGuiaTransportistaData = {
     peso: string;
