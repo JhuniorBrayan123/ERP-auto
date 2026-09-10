@@ -26,7 +26,6 @@ export const ObtenerComprobanteRecurrente = (tipo: TipoSeed) => {
                 correlativo: previo.correlativo,
                 comprobanteId: previo.comprobanteId,
                 numero: previo.numero,
-                sunatAceptado: true,
             };
         }
 
@@ -51,11 +50,11 @@ export const ObtenerComprobanteRecurrente = (tipo: TipoSeed) => {
         if (!estado.aceptado) {
             // No cache write on non-acceptance — degrades to today's behaviour,
             // where CrearNota*ConVinculacion re-checks SUNAT itself.
-            return {...fresco, sunatAceptado: false};
+            return fresco;
         }
 
         registrarSeedNuevo(tipo, fresco, envGroup, account);
-        return {...fresco, sunatAceptado: true};
+        return fresco;
     };
 
     fn.displayName = `Obtener comprobante recurrente (${tipo})`;
