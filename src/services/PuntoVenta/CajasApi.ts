@@ -1,6 +1,7 @@
 import type { APIRequestContext } from '@playwright/test';
 import { env } from '../../../config/env';
 import type { CajaVentaRaw, AlmacenCajaRaw } from '../../types/api-responses.types';
+import { withRetry } from '@utils/with-retry';
 
 export interface MontoActualCaja {
     idMoneda: number;
@@ -44,9 +45,12 @@ export class CajasApi {
             `&pagina=0&regxpag=100&estado=1&categoria=0&idCaja=0`,
         ].join('');
 
-        const response = await this.request.get(url, {
-            headers: { Authorization: `Bearer ${this.token}` },
-        });
+        const response = await withRetry(
+            () => this.request.get(url, {
+                headers: { Authorization: `Bearer ${this.token}` },
+            }),
+            { label: 'CajasApi' },
+        );
 
         if (!response.ok()) {
             throw new Error(

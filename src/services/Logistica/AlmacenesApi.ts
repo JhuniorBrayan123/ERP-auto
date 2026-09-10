@@ -1,5 +1,6 @@
 import type { APIRequestContext } from '@playwright/test';
 import { env } from '../../../config/env';
+import { withRetry } from '@utils/with-retry';
 
 interface Almacen {
     Value: number;
@@ -15,9 +16,12 @@ export class AlmacenesApi {
     ) {}
 
     async obtenerAlmacenes(): Promise<Almacen[]> {
-        const response = await this.request.get(
-            `${env.apiUrl}Logistica/api/v1/kardexs/total/combos/filtro`,
-            { headers: { Authorization: `Bearer ${this.token}` } },
+        const response = await withRetry(
+            () => this.request.get(
+                `${env.apiUrl}Logistica/api/v1/kardexs/total/combos/filtro`,
+                { headers: { Authorization: `Bearer ${this.token}` } },
+            ),
+            { label: 'AlmacenesApi' },
         );
 
         if (!response.ok()) {

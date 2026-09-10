@@ -6,6 +6,7 @@ import {
     type WaitSunatOptions,
 } from '@helpers/PuntoVenta/sunat-estados.helper';
 import {CajasApi} from './CajasApi';
+import {withRetry} from '@utils/with-retry';
 
 export class SunatEstadoApi {
     constructor(
@@ -56,13 +57,16 @@ export class SunatEstadoApi {
         desde.setDate(desde.getDate() - 2);
         const fechaDesde = desde.toISOString().slice(0, 10);
 
-        const response = await this.request.post(url, {
-            headers: {Authorization: `Bearer ${this.token}`},
-            data: {
+        const idEntidadEmisora = this.deriveIdEntidadEmisoraFromToken();
+
+        const response = await withRetry(
+            () => this.request.post(url, {
+                headers: {Authorization: `Bearer ${this.token}`},
+                data: {
                 FechaDesde: `${fechaDesde}T00:00:00`,
                 FechaHasta: `${fechaHasta}T23:59:59`,
                 LogEstado: 1,
-                IdEntidadEmisora: this.deriveIdEntidadEmisoraFromToken(),
+                IdEntidadEmisora: idEntidadEmisora,
                 ListEstados: [1, 2, 3, 17, 14, 18],
                 ListEstadosSunat: [2, 3, 4, 5, 10, 6, 8],
                 Page: 0,
@@ -87,8 +91,10 @@ export class SunatEstadoApi {
                 IncluyeBusquedaPedidosERP2: false,
                 IdsTiendasVirtuales: [],
                 EstadosEntregaStock: null,
-            },
-        });
+                },
+            }),
+            { label: 'SunatEstadoApi' },
+        );
 
         if (!response.ok()) {
             throw new Error(

@@ -1,5 +1,6 @@
 import type { APIRequestContext } from '@playwright/test';
 import { env } from '../../../config/env';
+import { withRetry } from '@utils/with-retry';
 
 export interface ComprobanteConsulta {
     idComprobanteERP: number;
@@ -46,9 +47,12 @@ export class ComprobanteApi {
 
         const url = `${env.apiUrl}PuntoVenta/api/v2/DocumentosContables/Consultas?${params}`;
 
-        const response = await this.request.get(url, {
-            headers: this.buildAuthHeaders(),
-        });
+        const response = await withRetry(
+            () => this.request.get(url, {
+                headers: this.buildAuthHeaders(),
+            }),
+            { label: 'ComprobanteApi' },
+        );
 
         if (!response.ok()) {
             throw new Error(

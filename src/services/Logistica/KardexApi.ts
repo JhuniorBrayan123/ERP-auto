@@ -1,6 +1,7 @@
 import type {APIRequestContext} from '@playwright/test';
 import {env} from '../../../config/env';
-import type {KardexVariacionRaw, KardexAlmacenRaw} from '../../types/api-responses.types';
+import type {KardexVariacionRaw, KardexAlmacenRaw} from '@app-types/api-responses.types';
+import {withRetry} from '@utils/with-retry';
 
 interface ObtenerSaldoParams {
     
@@ -61,9 +62,12 @@ export class KardexApi {
 
         const url = this.buildUrl({codigoProducto, fechaInicio, tipoItem});
 
-        const response = await this.request.get(url, {
-            headers: {'Authorization': `Bearer ${this.token}`},
-        });
+        const response = await withRetry(
+            () => this.request.get(url, {
+                headers: {'Authorization': `Bearer ${this.token}`},
+            }),
+            { label: 'KardexApi' },
+        );
 
         if (!response.ok()) {
             throw new Error(
