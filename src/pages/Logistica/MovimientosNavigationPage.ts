@@ -1,7 +1,7 @@
 import {type Page} from '@playwright/test';
-import {FUNCTIONAL_CATALOG} from '../../utils/functional-catalog';
+import {FUNCTIONAL_CATALOG} from '@utils/functional-catalog';
 import {runFunctionalAction} from '@utils/functional-step';
-import {esperarCargaOverlaySiVisible} from '../../utils/wait-helpers';
+import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from '@utils/wait-helpers';
 
 export class MovimientosNavigationPage {
     constructor(private readonly page: Page) {
@@ -10,13 +10,18 @@ export class MovimientosNavigationPage {
     private async clickProductosYServicios(): Promise<void> {
         await runFunctionalAction(this.page, FUNCTIONAL_CATALOG.movimientos.navegarIngresos, async () => {
             await this.page.getByText('Productos y servicios').first().click();
+            await this.page.locator('.v-popu, .popup-container, nav').first()
+                .waitFor({state: 'visible', timeout: 10_000});
         });
     }
 
     async navegarAIngresos(): Promise<void> {
         await this.clickProductosYServicios();
-        await this.page.getByText('Ingresos', {exact: true}).click();
-        await esperarCargaOverlaySiVisible(this.page);
+        await this.page.locator('.v-popu, .popup-container, nav')
+            .getByText('Ingresos', {exact: true})
+            .first()
+            .click();
+        await esperarCargaOverlay(this.page);
     }
 
     async navegarASalidas(): Promise<void> {
@@ -44,7 +49,7 @@ export class MovimientosNavigationPage {
         await runFunctionalAction(this.page, FUNCTIONAL_CATALOG.stock.buscarProducto, async () => {
             await this.clickProductosYServicios();
             await this.page.getByText('Stock de productos').click();
-            await esperarCargaOverlaySiVisible(this.page);
+            await esperarCargaOverlay(this.page);
         });
     }
 
@@ -56,7 +61,7 @@ export class MovimientosNavigationPage {
 
             await this.page.waitForLoadState('networkidle');
 
-            await esperarCargaOverlaySiVisible(this.page);
+            await esperarCargaOverlay(this.page);
         });
     }
 
@@ -65,7 +70,7 @@ export class MovimientosNavigationPage {
         await this.page
             .locator('[id="nvg_selects_cmp-header-selects_select:select-module-203-item-2007"]')
             .click();
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
     }
 
     async navegarAItemsInsumos(): Promise<void> {
@@ -82,7 +87,7 @@ export class MovimientosNavigationPage {
             .getByText('Ingresos', {exact: true})
             .first()
             .click();
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
     }
 
     async navegarASalidasDesdeMenu(): Promise<void> {
@@ -90,7 +95,7 @@ export class MovimientosNavigationPage {
         await this.page
             .locator('[id="nvg_selects_cmp-header-selects_select:select-module-204-item-2010"]')
             .click();
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
     }
 
     async navegarAAjustesDesdeMenu(): Promise<void> {
@@ -98,12 +103,12 @@ export class MovimientosNavigationPage {
         await this.page
             .locator('[id="nvg_selects_cmp-header-selects_select:select-module-204-item-2012"]')
             .click();
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
     }
 
     async navegarAConfiguracionSucursales(): Promise<void> {
         const baseUrl = process.env.BASE_URL || '';
         await this.page.goto(`${baseUrl}configuracion/sistema/sucursales`);
-        await esperarCargaOverlaySiVisible(this.page)
+        await esperarCargaOverlay(this.page)
     }
 }
