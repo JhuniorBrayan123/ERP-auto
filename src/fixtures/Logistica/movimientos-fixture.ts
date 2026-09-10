@@ -27,6 +27,7 @@ export const test = base.extend<MovimientosFixtures>({
     movimientosNav: [async ({page}, use) => {
         const nav = new MovimientosNavigationPage(page);
         await page.goto('/');
+        await page.waitForLoadState('networkidle');
         await use(nav);
     }, {auto: true}],
 

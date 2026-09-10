@@ -75,6 +75,7 @@ export async function crearBoletaSemilla(page: Page): Promise<ComprobanteInfo> {
     const postEmision = new PostEmisionPage(page);
 
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
     await page.getByText('Ventas y compras').click();
     await page.getByText('Ver cajas').click();
     await cajaPage.asegurarCajaAbierta();

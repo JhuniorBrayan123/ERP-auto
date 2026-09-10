@@ -35,6 +35,7 @@ export const test = base.extend<EmisionFixtures>({
     pvNav: [async ({page}, use) => {
         const nav = new PuntoVentaNavigationPage(page);
         await page.goto('/');
+        await page.waitForLoadState('networkidle');
         await nav.navegarAPuntoDeVenta();
         await use(nav);
     }, {auto: true}],

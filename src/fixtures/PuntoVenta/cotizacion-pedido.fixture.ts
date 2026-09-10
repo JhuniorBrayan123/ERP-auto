@@ -21,9 +21,8 @@ export const test = base.extend<CotizacionPedidoFixtures>({
         
         const pvNav = new PuntoVentaNavigationPage(page);
         await page.goto('/');
+        await page.waitForLoadState('networkidle');
         await pvNav.navegarAPuntoDeVenta();
-
-        
         const cajaPage = new CajaPage(page, CAJAS.VENTA.nombre);
         await cajaPage.asegurarCajaAbierta();
 

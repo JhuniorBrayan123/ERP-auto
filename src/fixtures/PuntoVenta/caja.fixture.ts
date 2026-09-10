@@ -30,6 +30,7 @@ export const test = base.extend<CajaFixtures>({
     cajaAbierta: [async ({page}, use) => {
         const pvNav = new PuntoVentaNavigationPage(page);
         await page.goto('/');
+        await page.waitForLoadState('networkidle');
         await pvNav.navegarAPuntoDeVenta();
 
         const cajaPage = new CajaPage(page, CAJAS.VENTA.nombre);
