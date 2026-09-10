@@ -118,7 +118,11 @@ export default defineConfig({
         {
             name: "PuntoVenta",
             testMatch: "tests/Emisiones/**/*.spec.ts",
-            testIgnore: ["**/VistaFacturacion/**"],
+            testIgnore: [
+                "**/VistaFacturacion/**",
+                "tests/Emisiones/PuntoVenta/notas-credito/**",
+                "tests/Emisiones/PuntoVenta/notas-debito/**",
+            ],
             use: {
                 ...devices["Desktop Chrome"],
                 storageState: resolveStoragePath(),
@@ -126,6 +130,22 @@ export default defineConfig({
             dependencies: ["setup", "pv-items-setup", "pv-euro-setup"],
             teardown: "pv-teardown",
             workers: isCI ? 2 : 1,
+        },
+        {
+            name: "PuntoVentaNotas",
+            testMatch: [
+                "tests/Emisiones/PuntoVenta/notas-credito/**/*.spec.ts",
+                "tests/Emisiones/PuntoVenta/notas-debito/**/*.spec.ts",
+            ],
+            use: {
+                ...devices["Desktop Chrome"],
+                storageState: resolveStoragePath(),
+            },
+            dependencies: ["setup", "pv-items-setup", "pv-euro-setup"],
+            teardown: "pv-teardown",
+            // Hardcoded (not isCI ? 2 : 1): this is the correctness invariant that
+            // guarantees exactly one shared Boleta/Factura seed pair per env+account.
+            workers: 1,
         },
         {
             name: "Facturacion",

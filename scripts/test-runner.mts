@@ -26,7 +26,7 @@ const {
 const ROOT_DIR = process.cwd();
 const TESTS_DIR = path.join(ROOT_DIR, 'tests');
 
-type ProjectKey = 'PuntoVenta' | 'Facturacion' | 'Logistica' | 'Clientes';
+type ProjectKey = 'PuntoVenta' | 'PuntoVentaNotas' | 'Facturacion' | 'Logistica' | 'Clientes';
 
 interface ProjectContext {
     key: ProjectKey;
@@ -41,6 +41,11 @@ const PROJECT_CONFIG: Record<ProjectKey, { projectFlag: string | null; testDir: 
         projectFlag: 'PuntoVenta',
         testDir: path.join(TESTS_DIR, 'Emisiones'),
         outputDir: 'test-results/puntoventa',
+    },
+    PuntoVentaNotas: {
+        projectFlag: 'PuntoVentaNotas',
+        testDir: path.join(TESTS_DIR, 'Emisiones', 'PuntoVenta'),
+        outputDir: 'test-results/puntoventanotas',
     },
     Facturacion: {
         projectFlag: 'Facturacion',
@@ -147,10 +152,28 @@ function toRelative(targetPath: string): string {
 }
 
 const FACTURACION_REL = 'tests/Emisiones/PuntoVenta/VistaFacturacion';
+const NOTAS_CREDITO_REL = 'tests/Emisiones/PuntoVenta/notas-credito';
+const NOTAS_DEBITO_REL = 'tests/Emisiones/PuntoVenta/notas-debito';
+
+function isUnderRel(rel: string, base: string): boolean {
+    return rel === base || rel.startsWith(base + '/');
+}
+
 function isPathAllowedForProject (projectKey : ProjectKey, absPath: string): boolean{
-    if(projectKey !== 'PuntoVenta') return true;
     const rel = toRelative(absPath);
-    return rel !== FACTURACION_REL && !rel.startsWith(FACTURACION_REL + '/');
+
+    if (projectKey === 'PuntoVenta') {
+        // testIgnore relocates notas-credito/notas-debito to PuntoVentaNotas —
+        // hide them here too so the interactive explorer can't double-run them.
+        return rel !== FACTURACION_REL && !rel.startsWith(FACTURACION_REL + '/')
+            && !isUnderRel(rel, NOTAS_CREDITO_REL) && !isUnderRel(rel, NOTAS_DEBITO_REL);
+    }
+
+    if (projectKey === 'PuntoVentaNotas') {
+        return isUnderRel(rel, NOTAS_CREDITO_REL) || isUnderRel(rel, NOTAS_DEBITO_REL);
+    }
+
+    return true;
 }
 
 function listEntries(currentDir: string): ExplorerEntry[] {
@@ -351,7 +374,7 @@ export function applySetupSelections(selected: string[]): void {
 }
 
 function getDefaultSetups(projectKey?: ProjectKey): string[] {
-    if (projectKey === 'PuntoVenta' || projectKey === 'Facturacion') return [...PV_SETUP_NAMES];
+    if (projectKey === 'PuntoVenta' || projectKey === 'PuntoVentaNotas' || projectKey === 'Facturacion') return [...PV_SETUP_NAMES];
     if (projectKey === 'Logistica') return [...LOG_SETUP_NAMES];
     if (projectKey === 'Clientes') return ['auth'];
 
@@ -913,17 +936,18 @@ async function runPlaywrightUi(projectContext: ProjectContext): Promise<void> {
     await runPlaywright(['--ui'], projectContext);
 }
 
-async function selectProject(): Promise<'PuntoVenta' | 'Facturacion' | 'Logistica' | 'Clientes' | 'RunAllSequential' | 'RunAllDual' | 'exit'> {
-    const choice = await select<'PuntoVenta' | 'Facturacion' | 'Logistica' | 'Clientes' | 'RunAllSequential' | 'RunAllDual' | 'exit'>({
+async function selectProject(): Promise<'PuntoVenta' | 'PuntoVentaNotas' | 'Facturacion' | 'Logistica' | 'Clientes' | 'RunAllSequential' | 'RunAllDual' | 'exit'> {
+    const choice = await select<'PuntoVenta' | 'PuntoVentaNotas' | 'Facturacion' | 'Logistica' | 'Clientes' | 'RunAllSequential' | 'RunAllDual' | 'exit'>({
         message: 'ERP2 AUTO - TEST RUNNER — Selecciona proyecto:',
         choices: [
             {name: '1. PuntoVenta (+ Busqueda + Cierre Caja)', value: 'PuntoVenta'},
-            {name: '2. Facturacion', value: 'Facturacion'},
-            {name: '3. Logistica', value: 'Logistica'},
-            {name: '4. Clientes', value: 'Clientes'},
-            {name: '5. Run All (Secuencial)', value: 'RunAllSequential'},
-            {name: '6. Run All (Terminales separadas)', value: 'RunAllDual'},
-            {name: '7. Salir', value: 'exit'},
+            {name: '2. PuntoVenta Notas (NC/ND vinculadas)', value: 'PuntoVentaNotas'},
+            {name: '3. Facturacion', value: 'Facturacion'},
+            {name: '4. Logistica', value: 'Logistica'},
+            {name: '5. Clientes', value: 'Clientes'},
+            {name: '6. Run All (Secuencial)', value: 'RunAllSequential'},
+            {name: '7. Run All (Terminales separadas)', value: 'RunAllDual'},
+            {name: '8. Salir', value: 'exit'},
         ],
     });
     return choice;
@@ -943,11 +967,13 @@ async function runAllSequential(): Promise<void> {
     await askRunOptions();
 
     const pvOutput = PROJECT_CONFIG.PuntoVenta.outputDir;
+    const pvNotasOutput = PROJECT_CONFIG.PuntoVentaNotas.outputDir;
     const facOutput = PROJECT_CONFIG.Facturacion.outputDir;
     const logOutput = PROJECT_CONFIG.Logistica.outputDir;
     const cliOutput = PROJECT_CONFIG.Clientes.outputDir;
 
     const pvArgs = ['--project', 'PuntoVenta', '--output', pvOutput];
+    const pvNotasArgs = ['--project', 'PuntoVentaNotas', '--output', pvNotasOutput];
     const facArgs = ['--project', 'Facturacion', '--output', facOutput];
     const logArgs = ['--project', 'Logistica', '--output', logOutput];
     const cliArgs = ['--project', 'Clientes', '--output', cliOutput];
@@ -955,21 +981,25 @@ async function runAllSequential(): Promise<void> {
     // RunAll: cada child escribe su parcial (PW_DISCORD_MODE=partial, sin POST);
     // consolidateDiscordReport() postea UNA vez al final.
     const pvEnv = buildDiscordEnv(buildChildEnv(pvOutput, 'puntoventa'), 'PuntoVenta', 'partial');
+    const pvNotasEnv = buildDiscordEnv(buildChildEnv(pvNotasOutput, 'puntoventanotas'), 'PuntoVentaNotas', 'partial');
     const facEnv = buildDiscordEnv(buildChildEnv(facOutput, 'facturacion'), 'Facturacion', 'partial');
     const logEnv = buildDiscordEnv(buildChildEnv(logOutput, 'logistica'), 'Logistica', 'partial');
     const cliEnv = buildDiscordEnv(buildChildEnv(cliOutput, 'clientes'), 'Clientes', 'partial');
 
     ensureOutputDirs(pvOutput);
+    ensureOutputDirs(pvNotasOutput);
     ensureOutputDirs(facOutput);
     ensureOutputDirs(logOutput);
     ensureOutputDirs(cliOutput);
     ensureOutputDirs('playwright-report/puntoventa');
+    ensureOutputDirs('playwright-report/puntoventanotas');
     ensureOutputDirs('playwright-report/facturacion');
     ensureOutputDirs('playwright-report/logistica');
     ensureOutputDirs('playwright-report/clientes');
 
     const suites: Array<{ name: string; args: string[]; env: NodeJS.ProcessEnv }> = [
         {name: 'PuntoVenta', args: pvArgs, env: pvEnv},
+        {name: 'PuntoVentaNotas', args: pvNotasArgs, env: pvNotasEnv},
         {name: 'Facturacion', args: facArgs, env: facEnv},
         {name: 'Logistica', args: logArgs, env: logEnv},
         {name: 'Clientes', args: cliArgs, env: cliEnv},
