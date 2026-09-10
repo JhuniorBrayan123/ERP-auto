@@ -1,18 +1,13 @@
 import { test, expect } from '@fixtures/PuntoVenta/comprobante-nc-nd.fixture';
-import { EmitirComprobanteOrigen } from '@screenplay/tasks/common/EmitirComprobanteOrigen';
+import { ObtenerComprobanteRecurrente } from '@screenplay/tasks/common/ObtenerComprobanteRecurrente';
 import { CrearNotaDebitoConVinculacion } from '@screenplay/tasks/notas-debito/CrearNotaDebitoConVinculacion';
 import { ModalPostEmisionVisible } from '@screenplay/questions/notas/ModalPostEmisionVisible';
-import { CLIENTES, ITEMS_PV } from '@helpers/PuntoVenta/emision-data.helper';
 
 test.describe('ND-01 | Aumento en el Valor', {tag: ['@puntoventa', '@nota-debito']}, () => {
 
-  test('SC-01: Emitir ND por aumento en el valor desde boleta @ND-01.1', async ({ facturador }) => {
+  test('SC-01: Emitir ND por aumento en el valor desde boleta @ND-01.1', async ({ facturador, registrarNota }) => {
     const origen = await facturador.realizaYObtiene(
-      EmitirComprobanteOrigen({
-        tipoComprobante: 'BOLETA',
-        cliente: CLIENTES.PERSONA_DNI,
-        item: ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL,
-      })
+      ObtenerComprobanteRecurrente('BOLETA')
     );
 
     const resultado = await facturador.realizaYObtiene(
@@ -25,19 +20,16 @@ test.describe('ND-01 | Aumento en el Valor', {tag: ['@puntoventa', '@nota-debito
         montoPorItem: '20',
       })
     );
+    registrarNota(resultado.numero);
 
     await facturador.pregunta(ModalPostEmisionVisible());
     expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
     await expect(facturador.page.getByText(resultado.numero)).toBeVisible();
   });
 
-  test('SC-02: Emitir ND por aumento en el valor desde factura @ND-01.2', async ({ facturador }) => {
+  test('SC-02: Emitir ND por aumento en el valor desde factura @ND-01.2', async ({ facturador, registrarNota }) => {
     const origen = await facturador.realizaYObtiene(
-      EmitirComprobanteOrigen({
-        tipoComprobante: 'FACTURA',
-        cliente: CLIENTES.EMPRESA_RUC_AUTO,
-        item: ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL,
-      })
+      ObtenerComprobanteRecurrente('FACTURA')
     );
 
     const resultado = await facturador.realizaYObtiene(
@@ -50,6 +42,7 @@ test.describe('ND-01 | Aumento en el Valor', {tag: ['@puntoventa', '@nota-debito
         montoPorItem: '10',
       })
     );
+    registrarNota(resultado.numero);
 
     await facturador.pregunta(ModalPostEmisionVisible());
     expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);

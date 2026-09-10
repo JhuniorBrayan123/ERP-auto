@@ -1,22 +1,17 @@
 import {expect, test} from '@fixtures/PuntoVenta/comprobante-nc-nd.fixture';
-import {EmitirComprobanteOrigen} from '@screenplay/tasks/common/EmitirComprobanteOrigen';
+import {ObtenerComprobanteRecurrente} from '@screenplay/tasks/common/ObtenerComprobanteRecurrente';
 import {CrearNotaDebitoConVinculacion} from '@screenplay/tasks/notas-debito/CrearNotaDebitoConVinculacion';
 import {ConsultarNotaDebito, VerDetalleNotaDebito} from '@screenplay/tasks/notas-debito/ConsultarNotaDebito';
 import {ModalPostEmisionVisible} from '@screenplay/questions/notas/ModalPostEmisionVisible';
 import {DetalleNotaDebitoCorrecto} from '@screenplay/questions/notas/DetalleNotaCorrecto';
-import {CLIENTES, ITEMS_PV} from '@helpers/PuntoVenta/emision-data.helper';
 import {ClickNuevaVenta} from '@interactions/PuntoVenta/ClickNuevaVenta';
 import {IrABusquedaComprobantes} from '@task/PuntoVenta/IrABusquedaComprobantes.task';
 
 test.describe('ND-02 | Intereses por Mora', {tag: ['@puntoventa', '@nota-debito']}, () => {
 
-  test('SC-01: Emitir ND por intereses por mora vinculando una boleta @ND-02.1', async ({ facturador }) => {
+  test('SC-01: Emitir ND por intereses por mora vinculando una boleta @ND-02.1', async ({ facturador, registrarNota }) => {
     const origen = await facturador.realizaYObtiene(
-      EmitirComprobanteOrigen({
-        tipoComprobante: 'BOLETA',
-        cliente: CLIENTES.PERSONA_DNI,
-        item: ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL,
-      })
+      ObtenerComprobanteRecurrente('BOLETA')
     );
 
     const resultado = await facturador.realizaYObtiene(
@@ -29,19 +24,16 @@ test.describe('ND-02 | Intereses por Mora', {tag: ['@puntoventa', '@nota-debito'
         monto: '10',
       })
     );
+    registrarNota(resultado.numero);
 
     await facturador.pregunta(ModalPostEmisionVisible());
     expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
     await expect(facturador.page.getByText(resultado.numero)).toBeVisible();
   });
 
-  test('SC-02: Emitir ND por intereses por mora vinculando una factura @ND-02.2', async ({ facturador }) => {
+  test('SC-02: Emitir ND por intereses por mora vinculando una factura @ND-02.2', async ({ facturador, registrarNota }) => {
     const origen = await facturador.realizaYObtiene(
-      EmitirComprobanteOrigen({
-        tipoComprobante: 'FACTURA',
-        cliente: CLIENTES.EMPRESA_RUC_AUTO,
-        item: ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL,
-      })
+      ObtenerComprobanteRecurrente('FACTURA')
     );
 
     const resultado = await facturador.realizaYObtiene(
@@ -54,18 +46,15 @@ test.describe('ND-02 | Intereses por Mora', {tag: ['@puntoventa', '@nota-debito'
         monto: '15',
       })
     );
+    registrarNota(resultado.numero);
 
     await facturador.pregunta(ModalPostEmisionVisible());
     expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
   });
 
-  test('SC-03: Consultar ND por intereses y verificar detalle en vista comprobante @ND-02.3', async ({ facturador }) => {
+  test('SC-03: Consultar ND por intereses y verificar detalle en vista comprobante @ND-02.3', async ({ facturador, registrarNota }) => {
     const origen = await facturador.realizaYObtiene(
-      EmitirComprobanteOrigen({
-        tipoComprobante: 'BOLETA',
-        cliente: CLIENTES.PERSONA_DNI,
-        item: ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL,
-      })
+      ObtenerComprobanteRecurrente('BOLETA')
     );
 
     const resultado = await facturador.realizaYObtiene(
@@ -78,6 +67,7 @@ test.describe('ND-02 | Intereses por Mora', {tag: ['@puntoventa', '@nota-debito'
         monto: '10',
       })
     );
+    registrarNota(resultado.numero);
 
     await facturador.realiza(ClickNuevaVenta());
     await facturador.realiza(IrABusquedaComprobantes());
