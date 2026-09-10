@@ -1,6 +1,7 @@
 import { expect, type Locator, type Page } from '@playwright/test';
-import { FUNCTIONAL_CATALOG } from '../../utils/functional-catalog';
-import { throwFunctionalError } from '../../utils/functional-error';
+import { FUNCTIONAL_CATALOG } from '@utils/functional-catalog';
+import { throwFunctionalError } from '@utils/functional-error';
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 export class KardexVerificacionPage {
     constructor(private readonly page: Page) {
@@ -38,7 +39,7 @@ export class KardexVerificacionPage {
 
     async buscarPorCodigo(codigo: string): Promise<void> {
         try {
-            await this.esperarSinOverload(25_000);
+            await esperarCargaOverlay(this.page)
             const searchInput = this.page.getByRole('textbox', { name: 'Buscar por nombre, código o c' });
             await searchInput.click();
             await searchInput.fill(codigo);
