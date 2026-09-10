@@ -1,19 +1,15 @@
 import {expect, test} from '@fixtures/PuntoVenta/comprobante-nc-nd.fixture';
-import {EmitirComprobanteOrigen} from '@screenplay/tasks/common/EmitirComprobanteOrigen';
+import {ObtenerComprobanteRecurrente} from '@screenplay/tasks/common/ObtenerComprobanteRecurrente';
 import {CrearNotaCreditoConVinculacion} from '@screenplay/tasks/notas-credito/CrearNotaCreditoConVinculacion';
 import {ModalPostEmisionVisible} from '@screenplay/questions/notas/ModalPostEmisionVisible';
-import {CLIENTES, ITEMS_PV, TIPOS_COMPROBANTE, TIPOS_DOCUMENTO_ORIGEN} from '@helpers/PuntoVenta/emision-data.helper';
+import {TIPOS_DOCUMENTO_ORIGEN} from '@helpers/PuntoVenta/emision-data.helper';
 
 test.describe('NC-01 | Motivos Especiales', {tag: ['@puntoventa', '@nota-credito']}, () => {
 
-    test('SC-01: Emitir NC por anulación SIN retorno de stock desde factura @NC-01.1', async ({facturador}) => {
+    test('SC-01: Emitir NC por anulación SIN retorno de stock desde factura @NC-01.1', async ({facturador, registrarNota}) => {
 
         const origen = await facturador.realizaYObtiene(
-            EmitirComprobanteOrigen({
-                tipoComprobante: TIPOS_COMPROBANTE.FACTURA,
-                cliente: CLIENTES.EMPRESA_RUC_AUTO,
-                item: ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL,
-            })
+            ObtenerComprobanteRecurrente('FACTURA')
         );
 
         const resultado = await facturador.realizaYObtiene(
@@ -28,18 +24,15 @@ test.describe('NC-01 | Motivos Especiales', {tag: ['@puntoventa', '@nota-credito
                 retornoStock: false,
             })
         );
+        registrarNota(resultado.numero);
         await facturador.pregunta(ModalPostEmisionVisible());
         expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
         await expect(facturador.page.getByText(resultado.numero)).toBeVisible();
     });
 
-    test('SC-02: Emitir NC por anulación por error en el RUC desde factura @NC-01.2', async ({facturador}) => {
+    test('SC-02: Emitir NC por anulación por error en el RUC desde factura @NC-01.2', async ({facturador, registrarNota}) => {
         const origen = await facturador.realizaYObtiene(
-            EmitirComprobanteOrigen({
-                tipoComprobante: TIPOS_COMPROBANTE.FACTURA,
-                cliente: CLIENTES.EMPRESA_RUC_AUTO,
-                item: ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL,
-            })
+            ObtenerComprobanteRecurrente('FACTURA')
         );
 
         const resultado = await facturador.realizaYObtiene(
@@ -53,6 +46,7 @@ test.describe('NC-01 | Motivos Especiales', {tag: ['@puntoventa', '@nota-credito
                 textoMotivo: 'Anulación por error en el RUC por automatización',
             })
         );
+        registrarNota(resultado.numero);
 
         await facturador.pregunta(ModalPostEmisionVisible());
         expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);

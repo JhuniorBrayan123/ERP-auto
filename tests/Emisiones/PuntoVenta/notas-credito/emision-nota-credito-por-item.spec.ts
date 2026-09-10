@@ -1,18 +1,14 @@
 import { test, expect } from '@fixtures/PuntoVenta/comprobante-nc-nd.fixture';
-import { EmitirComprobanteOrigen } from '@screenplay/tasks/common/EmitirComprobanteOrigen';
+import { ObtenerComprobanteRecurrente } from '@screenplay/tasks/common/ObtenerComprobanteRecurrente';
 import { CrearNotaCreditoConVinculacion } from '@screenplay/tasks/notas-credito/CrearNotaCreditoConVinculacion';
 import { ModalPostEmisionVisible } from '@screenplay/questions/notas/ModalPostEmisionVisible';
-import { CLIENTES, ITEMS_PV, TIPOS_DOCUMENTO_ORIGEN, TIPOS_COMPROBANTE } from '@helpers/PuntoVenta/emision-data.helper';
+import { TIPOS_DOCUMENTO_ORIGEN } from '@helpers/PuntoVenta/emision-data.helper';
 
 test.describe('NC-03 | Motivos por Ítem', {tag: ['@puntoventa', '@nota-credito']}, () => {
 
-  test('SC-01: Emitir NC por descuento por ítem desde boleta @NC-03.1', async ({ facturador }) => {
+  test('SC-01: Emitir NC por descuento por ítem desde boleta @NC-03.1', async ({ facturador, registrarNota }) => {
     const origen = await facturador.realizaYObtiene(
-      EmitirComprobanteOrigen({
-        tipoComprobante: TIPOS_COMPROBANTE.BOLETA,
-        cliente: CLIENTES.PERSONA_DNI,
-        item: ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL,
-      })
+      ObtenerComprobanteRecurrente('BOLETA')
     );
 
     const resultado = await facturador.realizaYObtiene(
@@ -28,19 +24,16 @@ test.describe('NC-03 | Motivos por Ítem', {tag: ['@puntoventa', '@nota-credito'
         nuevoDescuento: '5',
       })
     );
+    registrarNota(resultado.numero);
 
     await facturador.pregunta(ModalPostEmisionVisible());
     expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
     await expect(facturador.page.getByText(resultado.numero)).toBeVisible();
   });
 
-  test('SC-02: Emitir NC por corrección de descripción desde boleta @NC-03.2', async ({ facturador }) => {
+  test('SC-02: Emitir NC por corrección de descripción desde boleta @NC-03.2', async ({ facturador, registrarNota }) => {
     const origen = await facturador.realizaYObtiene(
-      EmitirComprobanteOrigen({
-        tipoComprobante: TIPOS_COMPROBANTE.BOLETA,
-        cliente: CLIENTES.PERSONA_DNI,
-        item: ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL,
-      })
+      ObtenerComprobanteRecurrente('BOLETA')
     );
 
     const resultado = await facturador.realizaYObtiene(
@@ -56,19 +49,16 @@ test.describe('NC-03 | Motivos por Ítem', {tag: ['@puntoventa', '@nota-credito'
         nuevaDescripcion: 'Nueva descripción editada por test automatizado',
       })
     );
+    registrarNota(resultado.numero);
 
     await facturador.pregunta(ModalPostEmisionVisible());
     expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
     await expect(facturador.page.getByText(resultado.numero)).toBeVisible();
   });
 
-  test('SC-03: Emitir NC por bonificación desde boleta @NC-03.3', async ({ facturador }) => {
+  test('SC-03: Emitir NC por bonificación desde boleta @NC-03.3', async ({ facturador, registrarNota }) => {
     const origen = await facturador.realizaYObtiene(
-      EmitirComprobanteOrigen({
-        tipoComprobante: TIPOS_COMPROBANTE.BOLETA,
-        cliente: CLIENTES.PERSONA_DNI,
-        item: ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL,
-      })
+      ObtenerComprobanteRecurrente('BOLETA')
     );
 
     const resultado = await facturador.realizaYObtiene(
@@ -84,19 +74,16 @@ test.describe('NC-03 | Motivos por Ítem', {tag: ['@puntoventa', '@nota-credito'
         cantidadBonificar: '2',
       })
     );
+    registrarNota(resultado.numero);
 
     await facturador.pregunta(ModalPostEmisionVisible());
     expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
     await expect(facturador.page.getByText(resultado.numero)).toBeVisible();
   });
 
-  test('SC-04: Emitir NC por devolución por ítem SIN retorno de stock desde factura @NC-03.4', async ({ facturador }) => {
+  test('SC-04: Emitir NC por devolución por ítem SIN retorno de stock desde factura @NC-03.4', async ({ facturador, registrarNota }) => {
     const origen = await facturador.realizaYObtiene(
-      EmitirComprobanteOrigen({
-        tipoComprobante: TIPOS_COMPROBANTE.FACTURA,
-        cliente: CLIENTES.EMPRESA_RUC_AUTO,
-        item: ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL,
-      })
+      ObtenerComprobanteRecurrente('FACTURA')
     );
 
     const resultado = await facturador.realizaYObtiene(
@@ -113,6 +100,7 @@ test.describe('NC-03 | Motivos por Ítem', {tag: ['@puntoventa', '@nota-credito'
         cantidadDevolver: '1',
       })
     );
+    registrarNota(resultado.numero);
 
     await facturador.pregunta(ModalPostEmisionVisible());
     expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
