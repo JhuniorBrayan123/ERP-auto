@@ -1,5 +1,6 @@
 import {expect, test} from '@fixtures/PuntoVenta/comprobante-nc-nd.fixture';
 import {EmitirComprobanteOrigen} from '@screenplay/tasks/common/EmitirComprobanteOrigen';
+import {ObtenerComprobanteRecurrente} from '@screenplay/tasks/common/ObtenerComprobanteRecurrente';
 import {CrearNotaCreditoConVinculacion} from '@screenplay/tasks/notas-credito/CrearNotaCreditoConVinculacion';
 import {ConsultarNotaCredito, VerDetalleNotaCredito} from '@screenplay/tasks/notas-credito/ConsultarNotaCredito';
 import {ModalPostEmisionVisible} from '@screenplay/questions/notas/ModalPostEmisionVisible';
@@ -210,14 +211,11 @@ test.describe('NC-05 | Emisión con Vinculación', {tag: ['@puntoventa', '@nota-
 
     test('SC-05: Consultar NC emitida y verificar detalle en vista comprobante @NC-05.5', async ({
                                                                                                      facturador,
-                                                                                                     busquedaComprobantes
+                                                                                                     busquedaComprobantes,
+                                                                                                     registrarNota
                                                                                                  }) => {
         const origen = await facturador.realizaYObtiene(
-            EmitirComprobanteOrigen({
-                tipoComprobante: TIPOS_COMPROBANTE.FACTURA,
-                cliente: CLIENTES.EMPRESA_RUC_AUTO,
-                item: ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL,
-            })
+            ObtenerComprobanteRecurrente('FACTURA')
         );
 
         const resultado = await facturador.realizaYObtiene(
@@ -232,6 +230,7 @@ test.describe('NC-05 | Emisión con Vinculación', {tag: ['@puntoventa', '@nota-
                 retornoStock: true,
             })
         );
+        registrarNota(resultado.numero);
         await facturador.realiza(ClickNuevaVenta());
         await facturador.realiza(IrABusquedaComprobantes());
         await facturador.realiza(
