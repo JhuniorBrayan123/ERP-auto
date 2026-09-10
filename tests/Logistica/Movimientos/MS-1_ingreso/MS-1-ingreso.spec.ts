@@ -95,8 +95,6 @@ test.describe('MS-01 | Ingresos de Almacén', { tag: ['@logistica', '@m         
         resultadoMovimiento,
         stockVerificacion,
     }) => {
-        test.setTimeout(180_000)
-
         await navegarAIngresosYNuevo(movimientosNav, registroMovimiento);
         await definirAlmacenYMotivo(registroMovimiento, ALMACENES.AUTO, ALMACENES.VENTAS, 'INGRESO A ALMACÉN', MOTIVOS_INGRESO.TRASLADO);
 
