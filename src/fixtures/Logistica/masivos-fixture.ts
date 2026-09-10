@@ -1,6 +1,6 @@
 import { test as base } from '@playwright/test';
-import { NavigationPage } from '../../pages/Logistica/NavigationPage';
-import { CargaMasivaPage } from '../../pages/Logistica/CargaMasivaPage';
+import { NavigationPage } from '@pages/Logistica/NavigationPage';
+import { CargaMasivaPage } from '@pages/Logistica/CargaMasivaPage';
 
 type MasivosFixtures = {
   navigationPage: NavigationPage;
