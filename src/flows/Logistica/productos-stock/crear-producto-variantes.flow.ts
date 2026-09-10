@@ -39,14 +39,14 @@ export async function crearProductoConVariantes(
     });
 
     await test.step("3. Agregar variantes con atributos existentes", async () => {
-        await productoForm.agregarVariante(0, "Variante 1", {
-            cantidadMaxima: "100",
-            cantidadMinima: "5",
-        });
-        await productoForm.agregarVariante(1, "Variante 2", {
-            cantidadMaxima: "200",
-            cantidadMinima: "10",
-        });
+        await productoForm.agregarVariante(
+            0, "Variante 1",
+            caso.stock ? {cantidadMaxima: "100", cantidadMinima: "5"} : undefined,
+        );
+        await productoForm.agregarVariante(
+            1, "Variante 2",
+            caso.stock ? {cantidadMaxima: "200", cantidadMinima: "10"} : undefined,
+        );
     });
 
     await test.step("Llenar información adicional", async () => {
