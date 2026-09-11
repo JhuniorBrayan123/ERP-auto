@@ -2,7 +2,7 @@ import {type Page} from '@playwright/test';
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 import {EliminarComprobante} from '@task/PuntoVenta/busqueda-comprobantes/EliminarComprobante';
 import {ClickNuevaVenta} from '@interactions/PuntoVenta/ClickNuevaVenta';
-import {recargarSiHayError} from '@utils/wait-helpers';
+import {esperarCargaOverlay, recargarSiHayError} from '@utils/wait-helpers';
 import {BC_MOTIVOS_ELIMINACION} from '@helpers/PuntoVenta/busqueda-comprobantes.data';
 
 export interface DatosEliminacionNotaVinculada {
@@ -33,6 +33,7 @@ export const EliminarNotaVinculada = ({
 
         await ClickNuevaVenta()(page);
         await busqueda.salirDeCaja();
+        await esperarCargaOverlay(page);
         await asegurarMenuVentasYCompras(page);
         await page.getByText('Ventas y compras').click();
         await page.getByText('Búsqueda de comprobantes').click();

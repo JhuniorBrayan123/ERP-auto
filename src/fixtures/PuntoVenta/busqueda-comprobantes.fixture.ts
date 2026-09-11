@@ -114,6 +114,7 @@ export async function crearFacturaSemilla(page: Page): Promise<ComprobanteInfo> 
     const postEmision = new PostEmisionPage(page);
 
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
     await page.getByText('Ventas y compras').click();
     await page.getByText('Ver cajas').click();
     await cajaPage.asegurarCajaAbierta();
@@ -150,6 +151,7 @@ export async function crearBoletaConDatosOpcionales(page: Page): Promise<Comprob
     const datosOpcionalesPage = new EmisionDatosOpcionalesPage(page);
 
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
     await page.getByText('Ventas y compras').click();
     await page.getByText('Ver cajas').click();
     await cajaPage.asegurarCajaAbierta();
@@ -162,7 +164,7 @@ export async function crearBoletaConDatosOpcionales(page: Page): Promise<Comprob
     await emisionPage.buscarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.codigo);
     await emisionPage.seleccionarItem(ITEMS_PV.ITEM_GRAVADO_SIN_CONTROL.nombre);
 
-    
+
     await datosOpcionalesPage.abrirDatosOpcionales();
     await datosOpcionalesPage.llenarDatosOpcionales(CLIENTES.PERSONA_AUTO);
     await esperarCargaOverlaySiVisible(page);

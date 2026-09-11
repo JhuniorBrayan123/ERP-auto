@@ -32,6 +32,8 @@ export class ComprobantePage {
             );
 
             await this.abrirSelectorTipo();
+            await this.page.locator('.v-select-base-options.is-open').first()
+                .waitFor({state: 'visible', timeout: 10_000});
             await optionLocator.getByText(tipo).click();
         } catch (error) {
             await throwFunctionalError({
