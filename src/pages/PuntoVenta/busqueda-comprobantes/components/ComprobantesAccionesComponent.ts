@@ -92,7 +92,9 @@ export class ComprobantesAccionesComponent {
     async confirmarEliminacion(motivo: string): Promise<void> {
         await this.page.locator('div').filter({hasText: /^Seleccionar$/}).nth(3).click();
         await this.page.getByText(motivo).click();
-        await this.page.getByRole('button', {name: 'Anular'}).click();
+        await this.page.locator(
+            '[id="pv_comprobantes_v-modal:comprobantes_anulacion-comprobante:cmp-footer_v-button:anulacion-comprobante"]',
+        ).click();
         await esperarCargaOverlay(this.page);
     }
 
