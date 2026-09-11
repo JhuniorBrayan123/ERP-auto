@@ -3,6 +3,7 @@ import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPa
 import {EliminarComprobante} from '@task/PuntoVenta/busqueda-comprobantes/EliminarComprobante';
 import {ClickNuevaVenta} from '@interactions/PuntoVenta/ClickNuevaVenta';
 import {recargarSiHayError} from '@utils/wait-helpers';
+import {BC_MOTIVOS_ELIMINACION} from '@helpers/PuntoVenta/busqueda-comprobantes.data';
 
 export interface DatosEliminacionNotaVinculada {
     correlativo: string;
@@ -38,7 +39,7 @@ export const EliminarNotaVinculada = ({
         await busqueda.filtrarPorCorrelativo(correlativo);
 
         await busqueda.abrirAccionesDeComprobante(numeroCompleto);
-        await EliminarComprobante.conMotivo('Limpieza automatizada de nota vinculada')(page);
+        await EliminarComprobante.conMotivo(BC_MOTIVOS_ELIMINACION.ERROR_DATOS)(page);
     };
 
     fn.displayName = `Eliminar nota vinculada ${numeroCompleto} (limpieza automatizada)`;
