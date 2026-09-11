@@ -24,7 +24,7 @@ test.describe('NC-03 | Motivos por Ítem', {tag: ['@puntoventa', '@nota-credito'
         nuevoDescuento: '5',
       })
     );
-    registrarNota(resultado.numero);
+    registrarNota(resultado.numero, resultado.correlativo);
 
     await facturador.pregunta(ModalPostEmisionVisible());
     expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
@@ -49,7 +49,7 @@ test.describe('NC-03 | Motivos por Ítem', {tag: ['@puntoventa', '@nota-credito'
         nuevaDescripcion: 'Nueva descripción editada por test automatizado',
       })
     );
-    registrarNota(resultado.numero);
+    registrarNota(resultado.numero, resultado.correlativo);
 
     await facturador.pregunta(ModalPostEmisionVisible());
     expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
@@ -74,7 +74,7 @@ test.describe('NC-03 | Motivos por Ítem', {tag: ['@puntoventa', '@nota-credito'
         cantidadBonificar: '2',
       })
     );
-    registrarNota(resultado.numero);
+    registrarNota(resultado.numero, resultado.correlativo);
 
     await facturador.pregunta(ModalPostEmisionVisible());
     expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
@@ -100,7 +100,7 @@ test.describe('NC-03 | Motivos por Ítem', {tag: ['@puntoventa', '@nota-credito'
         cantidadDevolver: '1',
       })
     );
-    registrarNota(resultado.numero);
+    registrarNota(resultado.numero, resultado.correlativo);
 
     await facturador.pregunta(ModalPostEmisionVisible());
     expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);

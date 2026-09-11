@@ -230,7 +230,7 @@ test.describe('NC-05 | Emisión con Vinculación', {tag: ['@puntoventa', '@nota-
                 retornoStock: true,
             })
         );
-        registrarNota(resultado.numero);
+        registrarNota(resultado.numero, resultado.correlativo);
         await facturador.realiza(ClickNuevaVenta());
         await facturador.realiza(IrABusquedaComprobantes());
         await facturador.realiza(

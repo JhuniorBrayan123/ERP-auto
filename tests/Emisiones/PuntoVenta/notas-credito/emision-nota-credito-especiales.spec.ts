@@ -24,7 +24,7 @@ test.describe('NC-01 | Motivos Especiales', {tag: ['@puntoventa', '@nota-credito
                 retornoStock: false,
             })
         );
-        registrarNota(resultado.numero);
+        registrarNota(resultado.numero, resultado.correlativo);
         await facturador.pregunta(ModalPostEmisionVisible());
         expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
         await expect(facturador.page.getByText(resultado.numero)).toBeVisible();
@@ -46,7 +46,7 @@ test.describe('NC-01 | Motivos Especiales', {tag: ['@puntoventa', '@nota-credito
                 textoMotivo: 'Anulación por error en el RUC por automatización',
             })
         );
-        registrarNota(resultado.numero);
+        registrarNota(resultado.numero, resultado.correlativo);
 
         await facturador.pregunta(ModalPostEmisionVisible());
         expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);

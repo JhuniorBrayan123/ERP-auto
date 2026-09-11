@@ -24,7 +24,7 @@ test.describe('ND-02 | Intereses por Mora', {tag: ['@puntoventa', '@nota-debito'
         monto: '10',
       })
     );
-    registrarNota(resultado.numero);
+    registrarNota(resultado.numero, resultado.correlativo);
 
     await facturador.pregunta(ModalPostEmisionVisible());
     expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
@@ -46,7 +46,7 @@ test.describe('ND-02 | Intereses por Mora', {tag: ['@puntoventa', '@nota-debito'
         monto: '15',
       })
     );
-    registrarNota(resultado.numero);
+    registrarNota(resultado.numero, resultado.correlativo);
 
     await facturador.pregunta(ModalPostEmisionVisible());
     expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
@@ -67,7 +67,7 @@ test.describe('ND-02 | Intereses por Mora', {tag: ['@puntoventa', '@nota-debito'
         monto: '10',
       })
     );
-    registrarNota(resultado.numero);
+    registrarNota(resultado.numero, resultado.correlativo);
 
     await facturador.realiza(ClickNuevaVenta());
     await facturador.realiza(IrABusquedaComprobantes());

@@ -20,7 +20,7 @@ test.describe('ND-01 | Aumento en el Valor', {tag: ['@puntoventa', '@nota-debito
         montoPorItem: '20',
       })
     );
-    registrarNota(resultado.numero);
+    registrarNota(resultado.numero, resultado.correlativo);
 
     await facturador.pregunta(ModalPostEmisionVisible());
     expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
@@ -42,7 +42,7 @@ test.describe('ND-01 | Aumento en el Valor', {tag: ['@puntoventa', '@nota-debito
         montoPorItem: '10',
       })
     );
-    registrarNota(resultado.numero);
+    registrarNota(resultado.numero, resultado.correlativo);
 
     await facturador.pregunta(ModalPostEmisionVisible());
     expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);

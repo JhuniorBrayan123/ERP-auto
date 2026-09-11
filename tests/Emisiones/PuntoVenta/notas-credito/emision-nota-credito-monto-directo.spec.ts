@@ -23,7 +23,7 @@ test.describe('NC-02 | Motivos con Monto Directo', {tag: ['@puntoventa', '@nota-
         monto: '5',
       })
     );
-    registrarNota(resultado.numero);
+    registrarNota(resultado.numero, resultado.correlativo);
 
     await facturador.pregunta(ModalPostEmisionVisible());
     expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
@@ -47,7 +47,7 @@ test.describe('NC-02 | Motivos con Monto Directo', {tag: ['@puntoventa', '@nota-
         monto: '5',
       })
     );
-    registrarNota(resultado.numero);
+    registrarNota(resultado.numero, resultado.correlativo);
 
     await facturador.pregunta(ModalPostEmisionVisible());
     expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
@@ -71,7 +71,7 @@ test.describe('NC-02 | Motivos con Monto Directo', {tag: ['@puntoventa', '@nota-
         monto: '5',
       })
     );
-    registrarNota(resultado.numero);
+    registrarNota(resultado.numero, resultado.correlativo);
 
     await facturador.pregunta(ModalPostEmisionVisible());
     expect(resultado.numero).toMatch(/[A-Z]{1,4}\d{1,4}-\d+/);
