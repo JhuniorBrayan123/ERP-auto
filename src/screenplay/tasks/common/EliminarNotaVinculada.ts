@@ -1,17 +1,26 @@
 import {type Page} from '@playwright/test';
 import {BusquedaComprobantesPage} from '@pages/PuntoVenta/BusquedaComprobantesPage';
 import {EliminarComprobante} from '@task/PuntoVenta/busqueda-comprobantes/EliminarComprobante';
+import {ClickNuevaVenta} from '@interactions/PuntoVenta/ClickNuevaVenta';
 
-export const EliminarNotaVinculada = (numero: string) => {
+export interface DatosEliminacionNotaVinculada {
+    correlativo: string;
+    numeroCompleto: string;
+}
+
+export const EliminarNotaVinculada = ({
+    correlativo,
+    numeroCompleto,
+}: DatosEliminacionNotaVinculada) => {
     const fn = async (page: Page): Promise<void> => {
-        const correlativo = numero.split('-')[1];
         const busqueda = new BusquedaComprobantesPage(page);
 
+        await ClickNuevaVenta()(page);
         await busqueda.navegarABusquedaComprobantes({serie: '', correlativo, comprobanteId: 0});
-        await busqueda.abrirAccionesDeComprobante(numero);
+        await busqueda.abrirAccionesDeComprobante(numeroCompleto);
         await EliminarComprobante.conMotivo('Limpieza automatizada de nota vinculada')(page);
     };
 
-    fn.displayName = `Eliminar nota vinculada ${numero} (limpieza automatizada)`;
+    fn.displayName = `Eliminar nota vinculada ${numeroCompleto} (limpieza automatizada)`;
     return fn;
 };

@@ -13,8 +13,8 @@ type ComprobanteNCNDFixtures = {
     busquedaComprobantes: BusquedaComprobantesPage;
     postEmision: PostEmisionPage;
     kardexApi: KardexApi;
-    notasCreadas: string[];
-    registrarNota: (numero: string) => void;
+    notasCreadas: Array<{numero: string; correlativo: string}>;
+    registrarNota: (numero: string, correlativo: string) => void;
 };
 
 export const test = validacionTest.extend<ComprobanteNCNDFixtures>({
@@ -35,8 +35,8 @@ export const test = validacionTest.extend<ComprobanteNCNDFixtures>({
     },
 
     registrarNota: async ({notasCreadas}, use) => {
-        await use((numero: string) => {
-            notasCreadas.push(numero);
+        await use((numero: string, correlativo: string) => {
+            notasCreadas.push({numero, correlativo});
         });
     },
 });
@@ -60,12 +60,20 @@ test.afterEach(async ({page, notasCreadas}, testInfo) => {
 
     const facturador = Facturador.con(page);
     let eliminacionFallo = false;
-    for (const numero of notasCreadas) {
+    for (const nota of notasCreadas) {
         try {
-            await facturador.realiza(EliminarNotaVinculada(numero));
+            await facturador.realiza(EliminarNotaVinculada({
+                correlativo: nota.correlativo,
+                numeroCompleto: nota.numero,
+            }));
         } catch (e) {
             eliminacionFallo = true;
-            console.warn(`[comprobante-nc-nd.fixture] No se pudo eliminar la nota ${numero}: ${(e as Error).message}`);
+            const detalle = `No se pudo eliminar la nota ${nota.numero}: ${(e as Error).message}`;
+            console.error(`[SEED CLEANUP FAILED] ${detalle}`);
+            testInfo.annotations.push({
+                type: 'warning',
+                description: `[SEED CLEANUP FAILED] ${detalle}`,
+            });
         }
     }
 
