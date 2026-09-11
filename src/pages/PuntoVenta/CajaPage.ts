@@ -80,11 +80,6 @@ export class CajaPage {
 
     async continuarVendiendo(): Promise<void> {
         await this.btnContinuarVendiendo.click();
-
-        // Validar que el click realmente navegó fuera de la lista de cajas
-        // y que la vista de venta terminó de cargar — no alcanza con la URL
-        // sola: sin esperar el overlay, el resto del flujo puede seguir
-        // interactuando con la pantalla de cajas todavía visible.
         await this.page.waitForURL((url) => !url.pathname.includes('/cajas'), {
             timeout: 20_000,
         });
@@ -99,8 +94,8 @@ export class CajaPage {
     async asegurarCajaAbierta(): Promise<void> {
         try {
             await this.scrollATarjetaCaja();
+            await esperarCargaOverlay(this.page);
 
-            // Esperar a que el ERP defina el estado de la caja.
             await expect(
                 this.btnContinuarVendiendo
                     .or(this.btnAperturarCaja)

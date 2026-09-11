@@ -9,6 +9,7 @@ import {liberarSeed, limpiarReclamos, reclamosEnProceso} from '@factories/compro
 import {detectAccount, detectEnvironmentGroup} from '@utils/setup-state';
 
 type ComprobanteNCNDFixtures = {
+    cajaAsegurada: void;
     facturador: Facturador;
     busquedaComprobantes: BusquedaComprobantesPage;
     postEmision: PostEmisionPage;
@@ -18,6 +19,16 @@ type ComprobanteNCNDFixtures = {
 };
 
 export const test = validacionTest.extend<ComprobanteNCNDFixtures>({
+    // Fixture auto en vez de test.beforeEach: se confirmó en trace que un
+    // beforeEach explícito puede saltarse en la transición entre archivos de
+    // test (el primer test de un archivo nuevo corre sin él, sin lanzar
+    // ningún error). Las fixtures auto sí corren siempre, sin excepción.
+    cajaAsegurada: [async ({cajaPage}, use) => {
+        await cajaPage.asegurarCajaAbierta();
+        limpiarReclamos();
+        await use();
+    }, {auto: true}],
+
     facturador: async ({page}, use) => {
         await use(Facturador.con(page));
     },
@@ -41,11 +52,6 @@ export const test = validacionTest.extend<ComprobanteNCNDFixtures>({
     },
 });
 
-
-test.beforeEach(async ({cajaPage}) => {
-    await cajaPage.asegurarCajaAbierta();
-    limpiarReclamos();
-});
 
 test.afterEach(async ({page, notasCreadas}, testInfo) => {
     const status = testInfo.status === 'passed' ? '✓ PASS' : '✗ FAIL';

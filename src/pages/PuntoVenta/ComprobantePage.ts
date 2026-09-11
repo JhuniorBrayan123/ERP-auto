@@ -2,7 +2,7 @@ import {expect, type Page} from '@playwright/test';
 import type {TipoComprobante} from '@app-types/emision.types';
 import {throwFunctionalError} from '@utils/functional-error';
 import {FUNCTIONAL_CATALOG} from '@utils/functional-catalog';
-import {esperarCargaOverlaySiVisible, recargarSiHayError} from "@utils/wait-helpers";
+import {esperarCargaOverlay, esperarCargaOverlaySiVisible, recargarSiHayError} from "@utils/wait-helpers";
 
 const TIPO_COMPROBANTE_ID: Record<TipoComprobante, number> = {
     'BOLETA': 1004,
@@ -76,12 +76,15 @@ export class ComprobantePage {
     }
 
     async seleccionarNotaCredito(): Promise<void> {
-        await esperarCargaOverlaySiVisible(this.page);
+        // Sin condicional: al venir de un origen reutilizado (sin navegación
+        // propia), el overlay puede tardar un instante en aparecer — con
+        // "SiVisible" el chequeo llega demasiado temprano y no espera nada.
+        await esperarCargaOverlay(this.page);
         await this.seleccionarTipoComprobante('NOTA DE CRÉDITO');
     }
 
     async seleccionarNotaDebito(): Promise<void> {
-        await esperarCargaOverlaySiVisible(this.page);
+        await esperarCargaOverlay(this.page);
         await this.seleccionarTipoComprobante('NOTA DE DÉBITO');
     }
 
