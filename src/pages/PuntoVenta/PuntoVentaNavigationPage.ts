@@ -1,7 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 import { throwFunctionalError } from '@utils/functional-error';
 import { FUNCTIONAL_CATALOG } from '@utils/functional-catalog';
-import {esperarCargaOverlay, esperarCargaOverlaySiVisible} from "@utils/wait-helpers";
+import {esperarCargaOverlay} from "@utils/wait-helpers";
 
 export class PuntoVentaNavigationPage {
 
@@ -14,13 +14,12 @@ export class PuntoVentaNavigationPage {
 
             const nuevaVenta =
                 this.page.getByText('Nueva venta', { exact: true });
-
             const accionCaja =
                 this.page.getByRole('button', {
                     name: /^(Aperturar caja|Continuar vendiendo)$/
                 }).first();
 
-            await esperarCargaOverlaySiVisible(this.page);
+            await esperarCargaOverlay(this.page);
 
             await expect(ventasYCompras).toBeVisible({
                 timeout: 20_000
@@ -33,7 +32,7 @@ export class PuntoVentaNavigationPage {
             });
             await nuevaVenta.click();
 
-            await esperarCargaOverlaySiVisible(this.page);
+            await esperarCargaOverlay(this.page);
 
             await expect(accionCaja).toBeVisible({
                 timeout: 20_000
